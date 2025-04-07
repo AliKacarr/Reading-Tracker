@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Okuma Takibi</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container"> 
+    <h1>📚 Kitap Okuma Takibi</h1>
+
+    <div class="table-area">
+        <table id="trackerTable">
+          <thead></thead>
+          <tbody></tbody>
+        </table> 
+        
+        <!-- Week navigation controls -->
+        <div class="week-navigation">
+          <div class="nav-group">
+            <button id="prevWeek" class="nav-button"><span class="arrow">←</span> Önceki Hafta</button>
+            <button id="prevWeekToday" class="nav-button today-button"><span class="arrow">←</span> Bu Hafta</button>
+          </div>
+          <div id="currentWeekDisplay" class="current-week">2 - 8 Nisan</div>
+          <div class="nav-group">
+            <button id="nextWeek" class="nav-button">Sonraki Hafta <span class="arrow">→</span></button>
+            <button id="nextWeekToday" class="nav-button today-button">Bu Hafta <span class="arrow">→</span></button>
+             </div>
+        </div>
+    </div>
+      
+    <div class="main-area">
+      <div class="user-list">
+        <h3>👤 Kullanıcılar</h3>
+        <ul id="deleteList"></ul>
+      </div>
+
+      <div class="new-user">
+        <h3>➕ Kullanıcı Ekle</h3>
+        <form id="newUserForm" enctype="multipart/form-data">
+          <div class="form-group">
+            <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
+            <button type="submit" class="submit-button primary-button">Ekle</button>
+          </div>
+          <div class="image-upload">
+            <label for="profileImage">Profil Resmi:</label>
+            <div class="file-input-container">
+              <input type="file" id="profileImage" name="profileImage" accept="image/*" />
+              <label for="profileImage" class="custom-file-input secondary-button" id="file-input-label">Resim Seç</label>
+              <span id="file-name">Resim seçilmedi</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Add this after the user list section, before the closing container div -->
+    <div class="settings-section">
+      <h3>Ayarlar</h3>
+      <div class="setting-item">
+        <label for="firstDaySelect">Haftanın İlk Günü:</label>
+        <select id="firstDaySelect" class="day-select">
+          <option value="1">Pazartesi</option>
+          <option value="2">Salı</option>
+          <option value="3" selected>Çarşamba</option>
+          <option value="4">Perşembe</option>
+          <option value="5">Cuma</option>
+          <option value="6">Cumartesi</option>
+          <option value="0">Pazar</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

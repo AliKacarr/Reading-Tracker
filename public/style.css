@@ -1,0 +1,856 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fa;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+  }
+  
+  h3 {
+    margin-bottom: 10px;
+    color: #555;
+  }
+  
+  /* Düzen alanı */
+  .main-area {
+    display: flex;
+    gap: 20px;
+    padding: 5px 15px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .settings-section{
+    padding: 5px 15px;
+  }
+
+  /* Updating the user list and delete button styles */
+  ul#deleteList {
+    list-style: none;
+    padding: 0;
+    min-width: 100px;
+    margin-top: 10px;
+  }
+  
+  ul#deleteList li {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    background: #f9f9f9;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  
+  ul#deleteList li span {
+    flex-grow: 1;
+    text-align: left;
+  }
+  
+  .delete-button {
+    background: #ff4d4f;
+    border: none;
+    color: white;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .delete-button img {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .delete-button:hover {
+    background-color: #d9363e;
+  }
+  
+  /* Making form elements more consistent */
+  #newUserInput {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 200px;
+  }
+  
+  .submit-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+  
+  .custom-file-input {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  /* Improving overall layout balance */
+  .main-area {
+    display: flex;
+    gap: 50px; /* Increased from 30px to 50px to add more space between sections */
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  /* Consistent heading styles */
+  h3 {
+    margin-bottom: 15px;
+    color: #555;
+    font-size: 18px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #eee; 
+    width:300px;
+  }
+  
+  /* Tablo */
+  .table-area {
+    flex: 3;
+    min-width: 600px;
+    overflow-x: auto;
+    padding: 15px;
+  }
+  
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+  }
+  
+  /* Hücre üzerine gelindiğinde geçici renk */
+  /* Remove the conflicting hover rules */
+    td:hover:not(.status-cell) {
+      background-color: #e0f7fa;
+      cursor: pointer;
+    }
+    
+    /* Keep colored cells' background color on hover */
+    .green:hover {
+      background-color: rgb(16, 234, 114) !important;
+    }
+    
+    .yellow:hover {
+      background-color: #efc3c3 !important;
+    }
+    
+    .orange:hover {
+      background-color: #f37878 !important;
+    }
+    
+    .red:hover {
+      background-color: #f74e5c !important;
+    }
+    
+    /* Only apply hover effect to cells without a color class */
+    td:not(.green):not(.yellow):not(.orange):not(.red):hover {
+      background-color: #e0f7fa;
+      cursor: pointer;
+    }
+    
+    /* All cells should be clickable */
+    td {
+      cursor: pointer;
+    }
+  th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+  }
+  
+  /* Renk kodlamaları */
+  .green {
+    background-color: rgb(0, 243, 109);
+  }
+  
+  .yellow {
+    background-color: #ffcbcb;
+  }
+  
+  .orange {
+    background-color: #ff8080;
+  }
+  
+  .red {
+    background-color: #ff5563;
+  }
+  
+  /* Yeni kullanıcı */
+  .new-user {
+    flex: 1;
+  }
+  
+  #newUserForm input {
+    padding: 10px;
+    font-size: 1rem;
+    width: 21.5%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .main-area {
+      flex-direction: column;
+    }
+  }
+  
+  /* Profil resmi stilleri - daire şeklinde ve boyut sınırlaması */
+  .profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Style the last column (streak column) with larger font */
+  td:last-child {
+    font-size: 20px;
+    color: red;
+    font-weight: 500;
+  }
+  
+  /* Style the last column header */
+  tr th:last-child {
+    font-size: 20px;
+  }
+  /* User management styles */
+  .user-item {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+  }
+  
+  .user-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .settings-button {
+    background: #f0f0f0;
+    border: none;
+    color: #555;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .settings-button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .user-profile-image {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .user-profile-image:hover {
+    opacity: 0.8;
+  }
+  
+  .user-name {
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+  }
+  
+  .user-name:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .edit-name-input {
+    padding: 4px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-right: 5px;
+  }
+  
+  .save-name-button {
+    background: #6adf6e;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .save-name-button:hover {
+    background-color: #45a049;
+  }
+  
+  ul#deleteList li {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    background: #f9f9f9;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  
+  ul#deleteList li span {
+    flex-grow: 1;
+    text-align: left;
+  }
+  
+  .delete-button {
+    background: #ff4d4f;
+    border: none;
+    color: white;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .delete-button img {
+    display: block;
+  }
+  
+  .delete-button:hover {
+    background-color: #d9363e;
+  }
+  
+  /* Making form elements more consistent */
+  #newUserInput {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 200px;
+  }
+  
+  .submit-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+  
+  .custom-file-input {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+    margin-right: 10px;
+  }
+  
+  /* Improving overall layout balance */
+  .main-area {
+    display: flex;
+    gap: 50px; /* Increased from 30px to 50px to add more space between sections */
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  /* Consistent heading styles */
+  h3 {
+    margin-bottom: 15px;
+    color: #555;
+    font-size: 18px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #eee; 
+    width:300px;
+  }
+  
+  /* Tablo */
+  .table-area {
+    flex: 3;
+    min-width: 600px;
+    overflow-x: auto;
+    padding: 15px;
+  }
+  
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+  }
+  
+  /* Hücre üzerine gelindiğinde geçici renk */
+  /* Remove the conflicting hover rules */
+    td:hover:not(.status-cell) {
+      background-color: #e0f7fa;
+      cursor: pointer;
+    }
+    
+    /* Keep colored cells' background color on hover */
+    .green:hover {
+      background-color: rgb(16, 234, 114) !important;
+    }
+    
+    .yellow:hover {
+      background-color: #efc3c3 !important;
+    }
+    
+    .orange:hover {
+      background-color: #f37878 !important;
+    }
+    
+    .red:hover {
+      background-color: #f74e5c !important;
+    }
+    
+    /* Only apply hover effect to cells without a color class */
+    td:not(.green):not(.yellow):not(.orange):not(.red):hover {
+      background-color: #e0f7fa;
+      cursor: pointer;
+    }
+    
+    /* All cells should be clickable */
+    td {
+      cursor: pointer;
+    }
+  th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+  }
+  
+  /* Renk kodlamaları */
+  .green {
+    background-color: rgb(0, 243, 109);
+  }
+  
+  .yellow {
+    background-color: #ffcbcb;
+  }
+  
+  .orange {
+    background-color: #ff8080;
+  }
+  
+  .red {
+    background-color: #ff5563;
+  }
+  
+  /* Yeni kullanıcı */
+  .new-user {
+    flex: 1;
+  }
+  
+  #newUserForm input {
+    padding: 10px;
+    font-size: 1rem;
+    width: 21.5%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .main-area {
+      flex-direction: column;
+    }
+  }
+  
+  /* Profil resmi stilleri - daire şeklinde ve boyut sınırlaması */
+  .profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Style the last column (streak column) with larger font */
+  td:last-child {
+    font-size: 20px;
+    color: red;
+    font-weight: 500;
+  }
+  
+  /* Style the last column header */
+  tr th:last-child {
+    font-size: 20px;
+  }
+  .user-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  
+  .file-input-container {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+  
+  input[type="file"] {
+    position: absolute;
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    z-index: -1;
+  }
+  
+  /* Add these styles to your existing CSS */
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .image-upload {
+    margin-top: 15px;
+  }
+  
+  .primary-button {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .secondary-button {
+    background-color: #5b9bd5;
+    color: white;
+  }
+  
+  .submit-button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+  
+  .custom-file-input {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: inline-block;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  .primary-button:hover {
+    background-color: #45a049;
+  }
+  
+  .secondary-button:hover {
+    background-color: #4a8bc6;
+  }
+  
+  #newUserInput {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 200px;
+  }
+  
+  #file-name {
+    color: #666;
+    font-size: 14px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  
+  
+  /* Add styling for the date in the header */
+  th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+    padding: 12px 10px;
+    color: #888; /* Gray color for the date text */
+  }
+  
+  /* Style the first column (name column) with larger font */
+    td:first-child {
+      font-size: 17px;
+      font-weight: 500;
+    }
+    
+    /* Style the first column header differently */
+    tr th:first-child {
+      background-color: #f5f5f5;
+      color: #333;
+      font-size: 16px;
+    }
+  
+  /* Style the date part in the header */
+  th {
+    color: #666;
+  }
+  
+  /* Add a specific style for the date text */
+  .date-text {
+    color: #888;
+    font-size: 11px;
+  }
+  
+  /* Day of week styling */
+  .day-of-week {
+    font-size: 17px;
+    font-weight: 600;
+    color: #5b9bd5;
+    display: block;
+    margin-top: 3px;
+  }
+  
+  /* Make the table header more distinct */
+  th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+    padding: 12px 10px;
+  }
+  
+  /* Style the first column header differently */
+  tr th:first-child {
+    background-color: #f5f5f5;
+    color: #333;
+  }
+
+  /* Week navigation styling */
+  .week-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+  }
+  
+  .nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .nav-button {
+    background-color: #fcebfc;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  
+  .nav-button:hover {
+    background-color: #e9e9e9;
+    color: #333;
+  }
+  
+  .today-button {
+    background-color: #5b9bd5;
+    color: white;
+    border: none;
+  }
+  
+  .today-button:hover {
+    background-color: #80c4fc;
+  }
+  
+  .arrow {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 5px;
+  }
+  
+  .current-week {
+    font-size: 16px;
+    font-weight: 600;
+    color: #5b9bd5;
+    padding: 5px 15px;
+    border-radius: 4px;
+    background-color: #f0f7ff;
+    height: 25px;
+    line-height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Fire emoji animation */
+    .fire-emoji {
+      display: inline-block;
+      animation: flame 4s infinite;
+      transform-origin: bottom center;
+      position: relative;
+    }
+    
+    @keyframes flame {
+      0% {
+        transform: scale(1) translateX(0) rotate(0deg);
+        opacity: 0.95;
+      }
+      20% {
+        transform: scale(1.03) translateX(-1px) rotate(-2deg);
+        opacity: 1;
+      }
+      40% {
+        transform: scale(0.98) translateX(1px) rotate(3deg);
+        opacity: 0.92;
+      }
+      60% {
+        transform: scale(1.02) translateX(0) rotate(1deg);
+        opacity: 0.98;
+      }
+      80% {
+        transform: scale(0.99) translateX(-1px) rotate(-1deg);
+        opacity: 0.94;
+      }
+      100% {
+        transform: scale(1) translateX(0) rotate(0deg);
+        opacity: 0.95;
+      }
+    }
+
+/* Settings section styling */
+.settings-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.setting-item label {
+  margin-right: 15px;
+  font-weight: 500;
+  color: #555;
+}
+
+.day-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.day-select:hover {
+  border-color: #aaa;
+}
+
+.day-select:focus {
+  outline: none;
+  border-color: #5b9bd5;
+  box-shadow: 0 0 0 2px rgba(91, 155, 213, 0.2);
+}
+
+/* Today's column highlighting */
+.today-column {
+  background-color: rgba(91, 155, 213, 0.1);
+  position: relative;
+  box-shadow: inset 0 0 0 2px rgba(91, 155, 213, 0.5);
+}
+
+/* Position the "Bugün" indicator above the column */
+th.today-column::before {
+  content: "Bugün";
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #5b9bd5;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: normal;
+  z-index: 10; /* Ensure it appears above other elements */
+}
+
+/* Remove the extra padding since we're not placing the label inside */
+th.today-column {
+  padding-top: 10px; /* Reset to normal padding */
+}
+
+/* Make sure the day of week is more prominent for today */
+.today-column .day-of-week {
+  color: #1e88e5;
+  font-weight: 700;
+}
+
+/* Ensure colored cells still show their colors when they're also today's column */
+.green.today-column {
+  background-color: rgba(0, 243, 109, 0.9);
+}
+
+.yellow.today-column {
+  background-color: rgba(255, 203, 203, 0.9);
+}
+
+.orange.today-column {
+  background-color: rgba(255, 128, 128, 0.9);
+}
+
+.red.today-column {
+  background-color: rgba(255, 85, 99, 0.9);
+}
+  
