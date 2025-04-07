@@ -36,6 +36,23 @@
       </div>
 
       <div class="new-user">
+
+                <!-- Add the Quote of the Day section -->
+                <div class="quote-section">
+                  <button class="refresh-quote" id="refreshQuote" title="Yeni söz getir">↻</button>
+                  <div class="quote-container">
+                    <div class="quote-icon">
+                      <img src="images/lamba.png" alt="Fikir Lambası" />
+                      <div class="quote-title">BİR SÖZ</div>
+                    </div>
+                    <div id="quoteText" class="quote-text">
+                      <!-- Quote will be loaded here -->
+                      <div class="loading-quote">Yükleniyor...</div>
+                    </div>
+                  </div>
+                </div>
+
+        <!-- Add the Add User section -->
         <h3>➕ Kullanıcı Ekle</h3>
         <form id="newUserForm" enctype="multipart/form-data">
           <div class="form-group">
@@ -51,6 +68,8 @@
             </div>
           </div>
         </form>
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
       </div>
     </div>
     <!-- Add this after the user list section, before the closing container div -->

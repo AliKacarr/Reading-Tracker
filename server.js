@@ -22,6 +22,12 @@ const ReadingStatus = mongoose.model('ReadingStatus', {
   status: String
 });
 
+// Günün sözü modeli
+// Add this new model for sentences after your existing models
+const Sentence = mongoose.model('Sentence', {
+  sentence: String
+});
+
 // Statik dosyalar için klasör
 app.use(express.static('public'));
 app.use('/images', express.static('uploads'));
@@ -194,5 +200,29 @@ app.post('/api/update-user-image', upload.single('profileImage'), async (req, re
   } catch (error) {
     console.error('Error updating user image:', error);
     res.status(500).json({ error: 'Failed to update user image' });
+  }
+});
+
+// Add this new endpoint to fetch a random quote
+app.get('/api/random-quote', async (req, res) => {
+  try {
+    // Count total documents in the sentences collection
+    const count = await Sentence.countDocuments();
+    
+    // If there are no sentences, return a default message
+    if (count === 0) {
+      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
+    }
+    
+    // Generate a random index
+    const random = Math.floor(Math.random() * count);
+    
+    // Skip to the random document and get it
+    const randomSentence = await Sentence.findOne().skip(random);
+    
+    res.json({ sentence: randomSentence.sentence });
+  } catch (error) {
+    console.error('Error fetching random quote:', error);
+    res.status(500).json({ error: 'Server error', message: error.message });
   }
 });

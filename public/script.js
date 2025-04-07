@@ -73,6 +73,24 @@ function formatDateRange(dates) {
   }
 }
 
+// Add this function to format dates for the table header
+function formatDateForHeader(date) {
+  // Get day and month in Turkish
+  const day = date.getDate();
+  const month = getMonthNameInTurkish(date.getMonth());
+  
+  // Return formatted date: "4 Nisan"
+  return `${day} ${month}`;
+}
+
+// Add this helper function to get month names in Turkish
+function getMonthNameInTurkish(monthIndex) {
+  const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+                 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  return months[monthIndex];
+}
+
+// Then update the loadData function where it creates the table headers
 async function loadData() {
   // Get dates for the current week offset
   const dates = getWeekDates(weekOffset);
@@ -123,12 +141,15 @@ async function loadData() {
     const date = new Date(d);
     const dayOfWeek = getDayOfWeekInTurkish(date);
     
+    // Format the date using our new function instead of showing the raw date
+    const formattedDate = formatDateForHeader(date);
+    
     // Check if this column is today
     const isToday = d === todayString;
     const todayClass = isToday ? 'today-column' : '';
     
-    // Format the header with date and day of week, add today class if needed
-    theadHTML += `<th class="${todayClass}"><span class="date-text">${d}</span><br><span class="day-of-week">${dayOfWeek}</span></th>`;
+    // Format the header with formatted date and day of week, add today class if needed
+    theadHTML += `<th class="${todayClass}"><span class="date-text">${formattedDate}</span><br><span class="day-of-week">${dayOfWeek}</span></th>`;
   }
   theadHTML += `<th><img src="/images/red-arrow.png" alt="Seri" width="20" height="20"> Seri</th></tr>`;
   table.querySelector('thead').innerHTML = theadHTML;
@@ -487,3 +508,54 @@ function changeUserImage(userId) {
     }
   });
 }
+
+// Add this function to fetch a random quote
+async function fetchRandomQuote() {
+  try {
+    const quoteTextElement = document.getElementById('quoteText');
+    if (quoteTextElement) {
+      // Show loading state
+      quoteTextElement.innerHTML = '<div class="loading-quote">Yükleniyor...</div>';
+      
+      const response = await fetch('/api/random-quote');
+      const data = await response.json();
+      
+      // Update with the new quote
+      quoteTextElement.innerHTML = data.sentence;
+    }
+  } catch (error) {
+    console.error('Error fetching quote:', error);
+    const quoteTextElement = document.getElementById('quoteText');
+    if (quoteTextElement) {
+      quoteTextElement.innerHTML = 'Günün sözü yüklenemedi.';
+    }
+  }
+}
+
+// Make sure to call this function when the page loads
+// Add this to your existing DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+  // Your existing code...
+  
+  // Fetch a random quote
+  fetchRandomQuote();
+  
+  // Add event listener for refresh button
+  const refreshButton = document.getElementById('refreshQuote');
+  if (refreshButton) {
+    refreshButton.addEventListener('click', function() {
+      // Add spinning animation class
+      this.classList.add('spinning');
+      
+      // Fetch new quote
+      fetchRandomQuote();
+      
+      // Remove spinning class after animation completes
+      setTimeout(() => {
+        this.classList.remove('spinning');
+      }, 1000);
+    });
+  }
+  
+  // Rest of your existing code...
+});
