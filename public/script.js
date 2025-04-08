@@ -10,14 +10,13 @@ const firstDaySelect = document.getElementById('firstDaySelect');
 
 // Track the current week offset (0 = current week)
 let weekOffset = 0;
-// Default first day of the week (3 = Wednesday)
-let firstDayOfWeek = 3;
+let firstDayOfWeek =  parseInt(firstDaySelect.value);
 
 // Initialize the date range for the current week
 function getWeekDates(offset = 0) {
   // Get today's date with Turkey time zone adjustment (+3 hours)
   const today = new Date();
-  today.setHours(today.getHours()); // Adjust for Turkey time zone
+  today.setHours(today.getHours()+3); // Adjust for Turkey time zone
   
   // Find the most recent selected day of week (or today if it's the selected day)
   const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
@@ -397,19 +396,11 @@ if (profileImageInput && fileNameDisplay) {
   });
 }
 
-// Add event listener for first day of week selection
-if (firstDaySelect) {
-  firstDaySelect.addEventListener('change', function() {
-    firstDayOfWeek = parseInt(this.value);
-    loadData();
-  });
-}
-
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-  // Set default first day to Wednesday (value 3) instead of Monday
+  // Get initial value from combobox
   if (firstDaySelect) {
-    firstDaySelect.value = "3";
+    firstDayOfWeek = parseInt(firstDaySelect.value);
   }
   loadData();
 });
