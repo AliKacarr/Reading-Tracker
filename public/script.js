@@ -186,9 +186,9 @@ async function loadData() {
         // Check if this date is part of a streak and what length
         const streakLength = userStreaks[date] || 0;
         if (streakLength === 1) {
-          className = 'yellow';
+          className = 'pink';
         } else if (streakLength === 2) {
-          className = 'orange';
+          className = 'lila';
         } else if (streakLength >= 3) {
           className = 'red';
         }
