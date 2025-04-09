@@ -314,8 +314,15 @@ function calculateStreak(userStats) {
   let streak = 0;
   for (let i = 0; i < 30; i++) {
     const d = new Date();
+    d.setHours(d.getHours() + 3); // Add Turkey timezone adjustment (+3 hours)
     d.setDate(d.getDate() - i);
-    const key = d.toISOString().split('T')[0];
+    
+    // Format the date as YYYY-MM-DD for consistent comparison
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const key = `${year}-${month}-${day}`;
+    
     if (userStats[key] === 'okudum') streak++;
     else break;
   }
