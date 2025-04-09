@@ -396,12 +396,25 @@ if (profileImageInput && fileNameDisplay) {
   });
 }
 
+// Add event listener for first day of week selection
+if (firstDaySelect) {
+  firstDaySelect.addEventListener('change', function() {
+    // Parse the selected value to an integer
+    firstDayOfWeek = parseInt(this.value);
+    // Reset week offset to ensure we're showing the current week with the new first day
+    weekOffset = 0;
+    // Reload the data with the new first day setting
+    loadData();
+  });
+}
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
   // Get initial value from combobox
   if (firstDaySelect) {
     firstDayOfWeek = parseInt(firstDaySelect.value);
   }
+  // Load data with the initial first day setting
   loadData();
 });
 
