@@ -10,17 +10,16 @@ const firstDaySelect = document.getElementById('firstDaySelect');
 
 // Track the current week offset (0 = current week)
 let weekOffset = 0;
-let firstDayOfWeek =  parseInt(firstDaySelect.value);
 
 // Initialize the date range for the current week
 function getWeekDates(offset = 0) {
   // Get today's date with Turkey time zone adjustment (+3 hours)
   const today = new Date();
-  today.setHours(today.getHours()+3); // Adjust for Turkey time zone
+  today.setHours(today.getHours()); // Adjust for Turkey time zone
   
   // Find the most recent selected day of week (or today if it's the selected day)
   const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-  
+ 
   // Calculate days to go back to reach the first day of the week
   let daysToFirstDay;
   if (dayOfWeek >= firstDayOfWeek) {
@@ -28,7 +27,6 @@ function getWeekDates(offset = 0) {
   } else {
     daysToFirstDay = 7 - (firstDayOfWeek - dayOfWeek);
   }
-  
   // Set the date to the first day of the week
   const currentWeekStart = new Date(today);
   currentWeekStart.setDate(today.getDate() - daysToFirstDay);
@@ -41,7 +39,12 @@ function getWeekDates(offset = 0) {
   for (let i = 0; i < 7; i++) {
     const d = new Date(currentWeekStart);
     d.setDate(currentWeekStart.getDate() + i);
-    dates.push(d.toISOString().split('T')[0]);
+    
+    // Fix for Turkey time zone - format date manually to avoid UTC conversion issues
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    dates.push(`${year}-${month}-${day}`);
   }
   
   return dates;
@@ -132,7 +135,7 @@ async function loadData() {
   
   // Get today's date in YYYY-MM-DD format for comparison
   const today = new Date();
-  today.setHours(today.getHours() + 3); // Adjust for Turkey time zone
+  today.setHours(today.getHours()+3); // Adjust for Turkey time zone
   const todayString = today.toISOString().split('T')[0];
   
   for (let d of dates) {
@@ -396,26 +399,56 @@ if (profileImageInput && fileNameDisplay) {
   });
 }
 
-// Add event listener for first day of week selection
-if (firstDaySelect) {
-  firstDaySelect.addEventListener('change', function() {
-    // Parse the selected value to an integer
-    firstDayOfWeek = parseInt(this.value);
-    // Reset week offset to ensure we're showing the current week with the new first day
-    weekOffset = 0;
-    // Reload the data with the new first day setting
-    loadData();
-  });
-}
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
-  // Get initial value from combobox
+  // Check if there's a saved preference in local storage
+  const savedFirstDay = localStorage.getItem('preferredFirstDay');
+  
   if (firstDaySelect) {
-    firstDayOfWeek = parseInt(firstDaySelect.value);
+    if (savedFirstDay !== null) {
+      // Use the saved preference from localStorage
+      firstDayOfWeek = parseInt(savedFirstDay);
+      // Update the combobox to match the saved preference
+      firstDaySelect.value = savedFirstDay;
+    } else {
+      // No saved preference, use the default from the combobox
+      firstDayOfWeek = parseInt(firstDaySelect.value);
+    }
+    
+    // Add event listener for combobox changes
+    firstDaySelect.addEventListener('change', function() {
+      // Parse the selected value to an integer
+      firstDayOfWeek = parseInt(this.value);
+      // Save the selection to local storage
+      localStorage.setItem('preferredFirstDay', this.value);
+      // Reset week offset to ensure we're showing the current week with the new first day
+      weekOffset = 0;
+      // Reload the data with the new first day setting
+      loadData();
+    });
   }
+  
   // Load data with the initial first day setting
   loadData();
+  fetchRandomQuote();
+  
+  // Add event listener for refresh button
+  const refreshButton = document.getElementById('refreshQuote');
+  if (refreshButton) {
+    refreshButton.addEventListener('click', function() {
+      // Add spinning animation class
+      this.classList.add('spinning');
+      
+      // Fetch new quote
+      fetchRandomQuote();
+      
+      // Remove spinning class after animation completes
+      setTimeout(() => {
+        this.classList.remove('spinning');
+      }, 1000);
+    });
+  }
 });
 
 // Add these new functions for user management
@@ -535,31 +568,3 @@ async function fetchRandomQuote() {
     }
   }
 }
-
-// Make sure to call this function when the page loads
-// Add this to your existing DOMContentLoaded event listener
-document.addEventListener('DOMContentLoaded', function() {
-  // Your existing code...
-  
-  // Fetch a random quote
-  fetchRandomQuote();
-  
-  // Add event listener for refresh button
-  const refreshButton = document.getElementById('refreshQuote');
-  if (refreshButton) {
-    refreshButton.addEventListener('click', function() {
-      // Add spinning animation class
-      this.classList.add('spinning');
-      
-      // Fetch new quote
-      fetchRandomQuote();
-      
-      // Remove spinning class after animation completes
-      setTimeout(() => {
-        this.classList.remove('spinning');
-      }, 1000);
-    });
-  }
-  
-  // Rest of your existing code...
-});
