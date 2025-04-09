@@ -487,13 +487,6 @@ body {
     border-radius: 4px;
   }
   
-  /* Responsive */
-  @media (max-width: 768px) {
-    .main-area {
-      flex-direction: column;
-    }
-  }
-  
   /* Profil resmi stilleri - daire şeklinde ve boyut sınırlaması */
   .profile-image {
     width: 40px;
@@ -868,20 +861,20 @@ th.today-column {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 15px;
-}
-
-.quote-icon img {
-  width: 60px;
-  height: 60px;
   margin-bottom: 5px;
 }
 
+.quote-icon img {
+  width: 50px;
+  height: 55px;
+  margin-bottom: 3px;
+}
+
 .quote-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-size: 13px;
+  font-weight: 450;
   color: #666;
-  margin-top: 5px;
 }
 
 .quote-text {
@@ -889,14 +882,24 @@ th.today-column {
   color: #555;
   font-size: 20px;
   line-height: 1.6;
-  padding: 10px;
+  padding: 3px;
   border-radius: 5px;
-  width: 100%; /* Make text use full width */
+  width: 98%; /* Make text use full width */
   overflow-wrap: break-word; /* Ensure long words break */
   word-wrap: break-word;
   height: auto; /* Allow height to adjust */
   min-height: 50px; /* Minimum height for the text */
 }
+
+/* Responsive styles for quote section */
+@media (max-width: 1500px) {
+  .quote-section {
+    width: 400px;
+    min-height: 50px;
+  }
+  
+}
+
 
 .loading-quote {
   color: #999;
