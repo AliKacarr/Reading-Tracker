@@ -912,7 +912,7 @@ th.today-column {
   margin-top: 30px;
   padding: 0px 20px;
   background-color: #ffffff;
-  width: 90%;
+  max-width: 95%;
 }
 
 
@@ -928,6 +928,7 @@ th.today-column {
 .chart-container {
   width: 100%;
   height: 450px;
+  max-height: 1000px;
   margin-top: 15px;
   padding: 15px;
   background: linear-gradient(to bottom, #fcfcfc, #f9f9f9);

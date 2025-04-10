@@ -393,6 +393,8 @@ async function toggleStatus(userId, date) {
   });
 
   loadData();
+  // Update the chart after changing a cell status
+  loadReadingStats();
 }
 
 async function deleteUser(id) {
@@ -403,6 +405,7 @@ async function deleteUser(id) {
   });
 
   loadData();
+  loadReadingStats();
 }
 
 // Helper function to get day of week in Turkish
@@ -435,6 +438,7 @@ newUserForm.addEventListener('submit', async (e) => {
   input.value = '';
   imageInput.value = '';
   loadData();
+  loadReadingStats();
 });
 
 // File input display handler
@@ -565,6 +569,8 @@ async function saveUserName(userId) {
   
   // Reload data to update all views
   loadData();
+  // Update the chart after changing a user's name
+  loadReadingStats();
 }
 
 // Change user profile image
@@ -597,6 +603,8 @@ function changeUserImage(userId) {
       
       // Reload data to update all views
       loadData();
+      // Update the chart after changing a user's profile image
+      loadReadingStats();
     }
   });
 }
@@ -723,16 +731,16 @@ async function loadReadingStats() {
             title: {
               display: true,
               text: 'Kullanıcılar',
-              color: '#000000', // X ekseni başlık rengi siyah
+              color: '#000000',
               font: {
                 weight: 'bold'
               }
             },
             ticks: {
-              color: '#000000' // X ekseni etiket rengi siyah (kullanıcı adları)
+              color: '#000000'
             },
             grid: {
-              color: 'rgba(0, 0, 0, 0.1)' // X ekseni çizgi rengi
+              color: 'rgba(0, 0, 0, 0.1)'
             }
           },
           y: {
@@ -741,16 +749,16 @@ async function loadReadingStats() {
             title: {
               display: true,
               text: 'Gün Sayısı',
-              color: '#000000', // Y ekseni başlık rengi siyah
+              color: '#000000',
               font: {
                 weight: 'bold'
               }
             },
             ticks: {
-              color: '#000000' // Y ekseni etiket rengi siyah (gün sayıları)
+              color: '#000000'
             },
             grid: {
-              color: 'rgba(0, 0, 0, 0.1)' // Y ekseni çizgi rengi
+              color: 'rgba(0, 0, 0, 0.1)'
             }
           }
         },
@@ -762,23 +770,56 @@ async function loadReadingStats() {
                 return `Başarı Oranı: %${successRates[index]}`;
               }
             },
-            titleColor: '#000000', // Tooltip başlık rengi
-            bodyColor: '#000000', // Tooltip içerik rengi
-            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Tooltip arkaplan rengi
-            borderColor: 'rgba(0, 0, 0, 0.2)', // Tooltip kenarlık rengi
+            titleColor: '#000000',
+            bodyColor: '#000000',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderColor: 'rgba(0, 0, 0, 0.2)',
             borderWidth: 1
           },
           legend: {
             position: 'top',
             labels: {
-              color: '#000000', // Lejant etiket rengi siyah (Okudum, Okumadım)
+              color: '#000000',
               font: {
                 weight: 'bold'
               }
             }
+          },
+          // Add this new plugin to display success rates on top of the bars
+          datalabels: {
+            display: function(context) {
+              // Only show for the first dataset (Okudum)
+              return context.datasetIndex === 0;
+            },
+            formatter: function(value, context) {
+              const index = context.dataIndex;
+              return `%${successRates[index]}`;
+            },
+            align: 'start',        // Changed from 'end' to 'start'
+            anchor: 'end',
+            offset: 5,             // Increased offset
+            rotation: 0,           // Ensure text is horizontal
+            color: '#000000',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', // More opaque background
+            borderColor: 'rgba(0, 0, 0, 0.2)',
+            borderWidth: 1,
+            borderRadius: 4,
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            padding: {
+              top: 4,
+              bottom: 4,
+              left: 6,
+              right: 6
+            },
+            // Add z-index to ensure labels appear above bars
+            z: 100
           }
         }
-      }
+      },
+      plugins: [ChartDataLabels] // Add the ChartDataLabels plugin
     });
   } catch (error) {
     console.error('Error loading reading stats:', error);
@@ -789,13 +830,27 @@ async function loadReadingStats() {
 document.addEventListener('DOMContentLoaded', function() {
   // Your existing code...
   
-  // Add Chart.js to the page
+  // Add Chart.js and ChartDataLabels plugin to the page
   const chartScript = document.createElement('script');
   chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+  
+  // Load Chart.js first, then the DataLabels plugin
   chartScript.onload = function() {
-    // Load the chart after Chart.js is loaded
-    setTimeout(loadReadingStats, 1000);
+    const dataLabelsScript = document.createElement('script');
+    dataLabelsScript.src = 'https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0';
+    
+    // After both scripts are loaded, initialize the chart
+    dataLabelsScript.onload = function() {
+      // Make the ChartDataLabels plugin available globally
+      window.ChartDataLabels = window.ChartDataLabels;
+      
+      // Load the chart after all dependencies are loaded
+      setTimeout(loadReadingStats, 1000);
+    };
+    
+    document.head.appendChild(dataLabelsScript);
   };
+  
   document.head.appendChild(chartScript);
   
   // Add the chart container to the page if it doesn't exist
