@@ -315,7 +315,7 @@ function calculateStreak(userStats) {
   
   // Get today's date with Turkey timezone adjustment
   const today = new Date();
-  today.setHours(today.getHours() + 3); // Add Turkey timezone adjustment (+3 hours)
+  today.setHours(today.getHours()); // Add Turkey timezone adjustment (+3 hours)
   
   // Format today's date as YYYY-MM-DD
   const year = today.getFullYear();
