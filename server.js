@@ -226,3 +226,32 @@ app.get('/api/random-quote', async (req, res) => {
     res.status(500).json({ error: 'Server error', message: error.message });
   }
 });
+
+
+// Add this new endpoint to get reading statistics for all users
+app.get('/api/reading-stats', async (req, res) => {
+  try {
+    const users = await User.find().sort({ name: 1 });
+    const stats = await ReadingStatus.find();
+    
+    // Process stats for each user
+    const userStats = users.map(user => {
+      // Count "okudum" entries for this user
+      const userReadings = stats.filter(stat => 
+        stat.userId === user._id.toString() && stat.status === 'okudum'
+      );
+      
+      return {
+        userId: user._id,
+        name: user.name,
+        profileImage: user.profileImage,
+        okudum: userReadings.length
+      };
+    });
+    
+    res.json(userStats);
+  } catch (error) {
+    console.error('Error fetching reading stats:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});

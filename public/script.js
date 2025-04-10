@@ -623,3 +623,199 @@ async function fetchRandomQuote() {
     }
   }
 }
+// Add this function to your script.js file
+async function loadReadingStats() {
+  try {
+    // Fetch the reading statistics from the server
+    const response = await fetch('/api/reading-stats');
+    const userStats = await response.json();
+    
+    // Get all stats to calculate "okumadım" counts
+    const allDataResponse = await fetch('/api/all-data');
+    const allData = await allDataResponse.json();
+    
+    // Create a map of all dates with status for each user
+    const userDatesMap = {};
+    
+    // Initialize the map for each user
+    for (const user of allData.users) {
+      userDatesMap[user._id] = {};
+    }
+    
+    // Fill in the map with actual statuses
+    for (const stat of allData.stats) {
+      if (!userDatesMap[stat.userId]) {
+        userDatesMap[stat.userId] = {};
+      }
+      userDatesMap[stat.userId][stat.date] = stat.status;
+    }
+    
+    // Calculate "okumadım" counts for each user
+    const enhancedUserStats = userStats.map(user => {
+      const userStatuses = userDatesMap[user.userId] || {};
+      const okumadimCount = Object.values(userStatuses).filter(status => status === 'okumadım').length;
+      
+      return {
+        ...user,
+        okumadim: okumadimCount
+      };
+    });
+    
+    // Get the canvas element
+    const ctx = document.getElementById('readingStatsChart');
+    
+    // Check if the canvas exists
+    if (!ctx) {
+      console.error('Chart canvas element not found');
+      return;
+    }
+    
+    // Prepare data for the chart
+    const labels = enhancedUserStats.map(user => user.name);
+    const okudumData = enhancedUserStats.map(user => user.okudum);
+    const okumadimData = enhancedUserStats.map(user => user.okumadim);
+    
+    // Calculate success rates
+    const successRates = enhancedUserStats.map(user => {
+      const total = user.okudum + user.okumadim;
+      return total > 0 ? Math.round((user.okudum / total) * 100) : 0;
+    });
+    
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+      console.error('Chart.js is not loaded');
+      return;
+    }
+    
+    // Check if there's an existing chart instance
+    if (window.readingStatsChart instanceof Chart) {
+      window.readingStatsChart.destroy();
+    }
+    
+    // Create the chart
+    window.readingStatsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Okudum',
+            data: okudumData,
+            backgroundColor: 'rgba(76, 217, 100, 0.7)',
+            borderColor: 'rgba(76, 217, 100, 1)',
+            borderWidth: 1
+          },
+          {
+            label: 'Okumadım',
+            data: okumadimData,
+            backgroundColor: 'rgba(255, 100, 60, 0.7)',
+            borderColor: 'rgba(255, 100, 60, 1)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            stacked: true,
+            title: {
+              display: true,
+              text: 'Kullanıcılar',
+              color: '#000000', // X ekseni başlık rengi siyah
+              font: {
+                weight: 'bold'
+              }
+            },
+            ticks: {
+              color: '#000000' // X ekseni etiket rengi siyah (kullanıcı adları)
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)' // X ekseni çizgi rengi
+            }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Gün Sayısı',
+              color: '#000000', // Y ekseni başlık rengi siyah
+              font: {
+                weight: 'bold'
+              }
+            },
+            ticks: {
+              color: '#000000' // Y ekseni etiket rengi siyah (gün sayıları)
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)' // Y ekseni çizgi rengi
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              afterBody: function(context) {
+                const index = context[0].dataIndex;
+                return `Başarı Oranı: %${successRates[index]}`;
+              }
+            },
+            titleColor: '#000000', // Tooltip başlık rengi
+            bodyColor: '#000000', // Tooltip içerik rengi
+            backgroundColor: 'rgba(255, 255, 255, 0.9)', // Tooltip arkaplan rengi
+            borderColor: 'rgba(0, 0, 0, 0.2)', // Tooltip kenarlık rengi
+            borderWidth: 1
+          },
+          legend: {
+            position: 'top',
+            labels: {
+              color: '#000000', // Lejant etiket rengi siyah (Okudum, Okumadım)
+              font: {
+                weight: 'bold'
+              }
+            }
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error loading reading stats:', error);
+  }
+}
+
+// Add this to your document.addEventListener('DOMContentLoaded', function() {...})
+document.addEventListener('DOMContentLoaded', function() {
+  // Your existing code...
+  
+  // Add Chart.js to the page
+  const chartScript = document.createElement('script');
+  chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+  chartScript.onload = function() {
+    // Load the chart after Chart.js is loaded
+    setTimeout(loadReadingStats, 1000);
+  };
+  document.head.appendChild(chartScript);
+  
+  // Add the chart container to the page if it doesn't exist
+  if (!document.getElementById('readingStatsChart')) {
+    const statsSection = document.createElement('div');
+    statsSection.className = 'stats-section';
+    statsSection.innerHTML = `
+      <h3>📊 Okuma İstatistikleri</h3>
+      <div class="chart-container">
+        <canvas id="readingStatsChart"></canvas>
+      </div>
+    `;
+    
+    // Insert before the settings section
+    const settingsSection = document.querySelector('.settings-section');
+    if (settingsSection) {
+      settingsSection.parentNode.insertBefore(statsSection, settingsSection);
+    } else {
+      // If settings section doesn't exist, append to container
+      document.querySelector('.container').appendChild(statsSection);
+    }
+  }
+});
