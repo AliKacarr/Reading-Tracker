@@ -131,7 +131,7 @@ async function loadData() {
     streakMap[user._id] = findConsecutiveStreaks(statMap[user._id] || {});
   }
 
-  let theadHTML = `<tr><th>İsim</th>`;
+  let theadHTML = `<tr><th>Kullanıcılar</th>`;
   
   // Get today's date in YYYY-MM-DD format for comparison
   const today = new Date();
