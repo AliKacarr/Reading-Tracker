@@ -312,20 +312,68 @@ nextWeekTodayBtn.addEventListener('click', () => {
 // 🔥 Art arda okuma günlerini bugünden geriye hesaplar
 function calculateStreak(userStats) {
   let streak = 0;
-  for (let i = 0; i < 30; i++) {
-    const d = new Date();
-    d.setHours(d.getHours() + 3); // Add Turkey timezone adjustment (+3 hours)
-    d.setDate(d.getDate() - i);
-    
-    // Format the date as YYYY-MM-DD for consistent comparison
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const key = `${year}-${month}-${day}`;
-    
-    if (userStats[key] === 'okudum') streak++;
-    else break;
+  
+  // Get today's date with Turkey timezone adjustment
+  const today = new Date();
+  today.setHours(today.getHours() + 3); // Add Turkey timezone adjustment (+3 hours)
+  
+  // Format today's date as YYYY-MM-DD
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayKey = `${year}-${month}-${day}`;
+  
+  // Get yesterday's date
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yYear = yesterday.getFullYear();
+  const yMonth = String(yesterday.getMonth() + 1).padStart(2, '0');
+  const yDay = String(yesterday.getDate()).padStart(2, '0');
+  const yesterdayKey = `${yYear}-${yMonth}-${yDay}`;
+  
+  // Case 1: If today is marked as "okumadım", no streak
+  if (userStats[todayKey] === 'okumadım') {
+    return 0;
   }
+  
+  // Case 2: If today is marked as "okudum", count from today backwards
+  if (userStats[todayKey] === 'okudum') {
+    streak = 1; // Start with 1 for today
+    
+    // Count consecutive days before today
+    for (let i = 1; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      
+      const checkYear = d.getFullYear();
+      const checkMonth = String(d.getMonth() + 1).padStart(2, '0');
+      const checkDay = String(d.getDate()).padStart(2, '0');
+      const checkKey = `${checkYear}-${checkMonth}-${checkDay}`;
+      
+      if (userStats[checkKey] === 'okudum') streak++;
+      else break;
+    }
+  } 
+  // Case 3: If today is not marked yet, start counting from yesterday
+  else {
+    // Check if yesterday is marked as "okudum"
+    if (userStats[yesterdayKey] === 'okudum') {
+      // Count consecutive days starting from yesterday
+      for (let i = 1; i < 30; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        
+        const checkYear = d.getFullYear();
+        const checkMonth = String(d.getMonth() + 1).padStart(2, '0');
+        const checkDay = String(d.getDate()).padStart(2, '0');
+        const checkKey = `${checkYear}-${checkMonth}-${checkDay}`;
+        
+        if (userStats[checkKey] === 'okudum') streak++;
+        else break;
+      }
+    }
+  }
+  
   return streak;
 }
 
