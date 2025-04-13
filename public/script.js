@@ -510,7 +510,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // Save the selection to local storage
       localStorage.setItem('preferredFirstDay', this.value);
       // Uncomment this line to enable authentication
-      localStorage.setItem('authenticated', 'true');
       // Reset week offset to ensure we're showing the current week with the new first day
       weekOffset = 0;
       // Reload the data with the new first day setting
@@ -926,5 +925,176 @@ document.addEventListener('DOMContentLoaded', function() {
       // If settings section doesn't exist, append to container
       document.querySelector('.container').appendChild(statsSection);
     }
+  }
+});
+// Admin Login Functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const adminLogin = document.getElementById('adminLogin');
+  const adminLoginModal = document.getElementById('adminLoginModal');
+  const closeButton = document.querySelector('.close-button');
+  const adminLoginForm = document.getElementById('adminLoginForm');
+  const loginError = document.getElementById('loginError');
+  
+  // Check if already authenticated
+  if (localStorage.getItem('authenticated') === 'true') {
+    showAdminIndicator();
+  }
+  
+  adminLogin.addEventListener('click', function() {
+    // Check if already authenticated
+    if (localStorage.getItem('authenticated') === 'true') {
+      showAdminInfoPanel();
+    } else {
+      adminLoginModal.style.display = 'block';
+    }
+  });
+  
+  // Close modal when clicking on X
+  closeButton.addEventListener('click', function() {
+    adminLoginModal.style.display = 'none';
+    loginError.textContent = '';
+  });
+  
+  // Close modal when clicking outside
+  window.addEventListener('click', function(event) {
+    if (event.target === adminLoginModal) {
+      adminLoginModal.style.display = 'none';
+      loginError.textContent = '';
+    }
+  });
+  
+  // Handle form submission
+  adminLoginForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('adminUsername').value;
+    const password = document.getElementById('adminPassword').value;
+    
+    try {
+      const response = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        localStorage.setItem('authenticated', 'true');
+        localStorage.setItem('adminUsername', username);
+        adminLoginModal.style.display = 'none';
+        loginError.textContent = '';
+        
+        // Clear form fields
+        adminLoginForm.reset();
+        
+        // Show admin indicator
+        showAdminIndicator();
+        
+        // Reload data to update UI with admin privileges
+        loadData();
+      } else {
+        loginError.textContent = 'Geçersiz kullanıcı adı veya şifre';
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      loginError.textContent = 'Giriş işlemi sırasında bir hata oluştu';
+    }
+  });
+  
+  // Function to show admin indicator
+  function showAdminIndicator() {
+    // Create admin indicator if it doesn't exist
+    let adminIndicator = document.querySelector('.admin-indicator');
+    
+    if (!adminIndicator) {
+      adminIndicator = document.createElement('div');
+      adminIndicator.className = 'admin-indicator';
+      adminIndicator.textContent = 'Admin Modu';
+      document.body.appendChild(adminIndicator);
+    }
+    
+    adminIndicator.style.display = 'block';
+  }
+  
+  // Function to show admin info panel
+  function showAdminInfoPanel() {
+    // Create admin info modal if it doesn't exist
+    let adminInfoModal = document.getElementById('adminInfoModal');
+    
+    if (!adminInfoModal) {
+      adminInfoModal = document.createElement('div');
+      adminInfoModal.id = 'adminInfoModal';
+      adminInfoModal.className = 'modal';
+      
+      const modalContent = document.createElement('div');
+      modalContent.className = 'modal-content';
+      
+      const closeBtn = document.createElement('span');
+      closeBtn.className = 'close-button';
+      closeBtn.innerHTML = '&times;';
+      closeBtn.onclick = function() {
+        adminInfoModal.style.display = 'none';
+      };
+      
+      const title = document.createElement('h2');
+      title.textContent = 'Admin Bilgileri';
+      
+      const infoPanel = document.createElement('div');
+      infoPanel.className = 'admin-info-panel';
+      
+      const usernameItem = document.createElement('div');
+      usernameItem.className = 'admin-info-item';
+      
+      const usernameLabel = document.createElement('div');
+      usernameLabel.className = 'admin-info-label';
+      usernameLabel.textContent = 'Kullanıcı Adı:';
+      
+      const usernameValue = document.createElement('div');
+      usernameValue.className = 'admin-info-value';
+      usernameValue.textContent = localStorage.getItem('adminUsername') || 'Admin';
+      
+      usernameItem.appendChild(usernameLabel);
+      usernameItem.appendChild(usernameValue);
+      
+      const logoutBtn = document.createElement('button');
+      logoutBtn.className = 'logout-button';
+      logoutBtn.textContent = 'Çıkış Yap';
+      logoutBtn.onclick = function() {
+        localStorage.removeItem('authenticated');
+        localStorage.removeItem('adminUsername');
+        adminInfoModal.style.display = 'none';
+        
+        // Remove admin indicator
+        const adminIndicator = document.querySelector('.admin-indicator');
+        if (adminIndicator) {
+          adminIndicator.style.display = 'none';
+        }
+        
+        // Reload data to update UI without admin privileges
+        loadData();
+      };
+      
+      infoPanel.appendChild(usernameItem);
+      infoPanel.appendChild(logoutBtn);
+      
+      modalContent.appendChild(closeBtn);
+      modalContent.appendChild(title);
+      modalContent.appendChild(infoPanel);
+      
+      adminInfoModal.appendChild(modalContent);
+      document.body.appendChild(adminInfoModal);
+      
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        if (event.target === adminInfoModal) {
+          adminInfoModal.style.display = 'none';
+        }
+      });
+    }
+    
+    adminInfoModal.style.display = 'block';
   }
 });

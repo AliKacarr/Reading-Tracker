@@ -263,3 +263,52 @@ app.get('/api/reading-stats', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+
+// Admin model
+const Admin = mongoose.model('Admin', {
+  username: String,
+  password: String
+});
+
+
+// Admin login endpoint
+app.post('/api/admin-login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // Find admin in the adminData collection
+    const admin = await Admin.findOne({ username, password });
+    
+    if (admin) {
+      res.json({ success: true });
+    } else {
+      res.json({ success: false });
+    }
+  } catch (error) {
+    console.error('Admin login error:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// Add an initial admin if none exists (you can remove this after first run)
+app.get('/api/setup-admin', async (req, res) => {
+  try {
+    const adminCount = await Admin.countDocuments();
+    
+    if (adminCount === 0) {
+      const admin = new Admin({
+        username: 'admin',
+        password: 'admin123' // Change this to a secure password
+      });
+      
+      await admin.save();
+      res.json({ success: true, message: 'Admin account created' });
+    } else {
+      res.json({ success: true, message: 'Admin account already exists' });
+    }
+  } catch (error) {
+    console.error('Setup admin error:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});

@@ -89,7 +89,7 @@ async function cleanupOldBackups(db, prefix, keepCount) {
 // Function to schedule the backup
 function scheduleBackup() {
   // Schedule backups to run daily at specified time
-  const dailyBackupJob = schedule.scheduleJob('31 21 * * *', performBackup);
+  const dailyBackupJob = schedule.scheduleJob('59 23 * * *', performBackup);
   console.log("Backup scheduler started.");
   
   // Handle graceful shutdown

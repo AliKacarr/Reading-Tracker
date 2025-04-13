@@ -7,7 +7,29 @@
 </head>
 <body>
   <div class="container"> 
-    <h1>📚 Kitap Okuma Takibi</h1>
+    <h1 id="adminLogin">📚 Kitap Okuma Takibi</h1>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Admin Girişi</h2>
+        <form id="adminLoginForm">
+          <div class="form-group">
+            <label for="adminUsername">Kullanıcı Adı</label>
+            <input type="text" id="adminUsername" required>
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">Şifre</label>
+            <input type="password" id="adminPassword" required>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="primary-button">Giriş Yap</button>
+          </div>
+          <div id="loginError" class="error-message"></div>
+        </form>
+      </div>
+    </div>
 
     <div class="table-area">
         <table id="trackerTable">
