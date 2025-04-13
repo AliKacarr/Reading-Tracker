@@ -3,11 +3,19 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+require('dotenv').config();
+const schedule = require('node-schedule');
 const app = express();
 const port = 3000;
 
-// MongoDB bağlantısı
-mongoose.connect('mongodb+srv://alikacar2361:jch359LVv.7JL2d@readingtrucker-cluster.tkzg4ih.mongodb.net/readingTracker');
+// MongoDB connection from .env file
+mongoose.connect(process.env.MONGO_URI, { dbName: process.env.DB_NAME });
+
+// Import backup functionality
+const { scheduleBackup } = require('./backupService');
+
+// Schedule the backup job
+scheduleBackup();
 
 // Kullanıcı modeli
 const User = mongoose.model('User', {
