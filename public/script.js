@@ -160,6 +160,9 @@ async function loadData() {
   let tbodyHTML = '';
   deleteList.innerHTML = ''; // Silme butonlarını temizle
   
+  // Check if user is authenticated for interactive elements
+  const isUserAuthenticated = isAuthenticated();
+  
   for (let user of users) {
     const userStats = statMap[user._id] || {};
     const userStreaks = streakMap[user._id] || {};
@@ -378,6 +381,12 @@ function calculateStreak(userStats) {
 }
 
 async function toggleStatus(userId, date) {
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    alert('Bu işlemi yapmak için yetkiniz yok.');
+    return;
+  }
+
   const cell = event.target;
   const current = cell.innerText;
   let status;
@@ -398,6 +407,12 @@ async function toggleStatus(userId, date) {
 }
 
 async function deleteUser(id) {
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    alert('Bu işlemi yapmak için yetkiniz yok.');
+    return;
+  }
+
   await fetch('/api/delete-user', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -417,6 +432,13 @@ function getDayOfWeekInTurkish(date) {
 // Yeni kullanıcı ekleme - resim yükleme ile birlikte
 newUserForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    alert('Bu işlemi yapmak için yetkiniz yok.');
+    return;
+  }
+  
   const input = document.getElementById('newUserInput');
   const imageInput = document.getElementById('profileImage');
   const name = input.value.trim();
@@ -460,6 +482,12 @@ if (profileImageInput && fileNameDisplay) {
 
 
 // Initialize the app
+// Add this function to check if the user is authenticated
+function isAuthenticated() {
+  return localStorage.getItem('authenticated') === 'true';
+}
+
+// Uncomment the authentication line in the DOMContentLoaded event
 document.addEventListener('DOMContentLoaded', function() {
   // Check if there's a saved preference in local storage
   const savedFirstDay = localStorage.getItem('preferredFirstDay');
@@ -481,6 +509,8 @@ document.addEventListener('DOMContentLoaded', function() {
       firstDayOfWeek = parseInt(this.value);
       // Save the selection to local storage
       localStorage.setItem('preferredFirstDay', this.value);
+      // Uncomment this line to enable authentication
+      localStorage.setItem('authenticated', 'true');
       // Reset week offset to ensure we're showing the current week with the new first day
       weekOffset = 0;
       // Reload the data with the new first day setting
@@ -514,6 +544,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Toggle delete button visibility
 function toggleDeleteButton(userId) {
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    alert('Bu işlemi yapmak için yetkiniz yok.');
+    return;
+  }
+  
   const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
   const deleteButton = userItem.querySelector('.delete-button');
   const settingsButton = userItem.querySelector('.settings-button');
@@ -530,6 +566,12 @@ function toggleDeleteButton(userId) {
 
 // Edit user name
 function editUserName(userId) {
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    alert('Bu işlemi yapmak için yetkiniz yok.');
+    return;
+  }
+  
   const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
   const nameSpan = userItem.querySelector('.user-name');
   const nameInput = userItem.querySelector('.edit-name-input');
@@ -547,6 +589,12 @@ function editUserName(userId) {
 
 // Save user name
 async function saveUserName(userId) {
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    alert('Bu işlemi yapmak için yetkiniz yok.');
+    return;
+  }
+  
   const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
   const nameSpan = userItem.querySelector('.user-name');
   const nameInput = userItem.querySelector('.edit-name-input');
@@ -575,6 +623,12 @@ async function saveUserName(userId) {
 
 // Change user profile image
 function changeUserImage(userId) {
+  // Check if user is authenticated
+  if (!isAuthenticated()) {
+    alert('Bu işlemi yapmak için yetkiniz yok.');
+    return;
+  }
+  
   // Create a hidden file input
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
