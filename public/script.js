@@ -530,7 +530,8 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Fetch new quote
       fetchRandomQuote();
-      
+      logUnauthorizedAccess('refresh-RandomQuote');
+
       // Remove spinning class after animation completes
       setTimeout(() => {
         this.classList.remove('spinning');
@@ -1116,7 +1117,9 @@ async function logUnauthorizedAccess(action) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, deviceInfo })
     });
-    
+    if(action == "refresh-RandomQuote"){
+      return;
+    }
     alert(`Bu işlemi yapabilmek için Ali Kaçar ile iletişime geçiniz.`);
   } catch (error) {
     console.error('Error logging unauthorized access:', error);
