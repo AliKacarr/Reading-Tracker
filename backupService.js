@@ -1,11 +1,14 @@
 const { MongoClient } = require('mongodb');
 const schedule = require('node-schedule');
+const fs = require('fs');
+const path = require('path');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 // MongoDB connection string from .env file
 const uri = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME;
-const backupDbName = process.env.BACKUP_DB_NAME;
+const backupDbName = process.env.BACKUP_DB_NAME || 'backups';
 
 // Function to perform the backup
 async function performBackup() {
@@ -51,6 +54,9 @@ async function performBackup() {
     await cleanupOldBackups(backupDb, 'u_backup_', 10);
     await cleanupOldBackups(backupDb, 'rs_backup_', 10);
     
+    // Also create a file backup
+    await createFileBackup();
+    
   } catch (err) {
     console.error("Error during backup:", err);
   } finally {
@@ -86,39 +92,10 @@ async function cleanupOldBackups(db, prefix, keepCount) {
   }
 }
 
-// Function to schedule the backup
-const fs = require('fs');
-const path = require('path');
-const mongoose = require('mongoose');
-// Remove this line since schedule is already imported in server.js
-// const schedule = require('node-schedule');
-
 /**
- * Schedules automatic database backups
+ * Creates a file backup of the MongoDB database
  */
-function scheduleBackup() {
-  // Get the schedule module from the parent scope
-  const schedule = require('node-schedule');
-  
-  // Schedule backup to run at midnight every day
-  const job = schedule.scheduleJob('0 0 * * *', async function() {
-    try {
-      console.log('Starting scheduled database backup...');
-      await createBackup();
-      console.log('Scheduled backup completed successfully');
-    } catch (error) {
-      console.error('Scheduled backup failed:', error);
-    }
-  });
-  
-  console.log('Database backup scheduled to run at midnight daily');
-  return job;
-}
-
-/**
- * Creates a backup of the MongoDB database
- */
-async function createBackup() {
+async function createFileBackup() {
   const timestamp = new Date().toISOString().replace(/:/g, '-');
   const backupDir = path.join(__dirname, 'backups');
   
@@ -141,18 +118,17 @@ async function createBackup() {
   const backupPath = path.join(backupDir, `backup-${timestamp}.json`);
   fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
   
-  console.log(`Backup created at: ${backupPath}`);
+  console.log(`File backup created at: ${backupPath}`);
   return backupPath;
 }
 
-module.exports = {
-  scheduleBackup,
-  createBackup
-};
+/**
+ * Schedules automatic database backups
+ */
 function scheduleBackup() {
-  // Schedule backups to run daily at specified time
+  // Schedule backups to run daily at 11:59 PM
   const dailyBackupJob = schedule.scheduleJob('59 23 * * *', performBackup);
-  console.log("Backup scheduler started.");
+  console.log("Backup scheduler started. Backups will run daily at 11:59 PM.");
   
   // Handle graceful shutdown
   process.on('SIGINT', async () => {
@@ -160,9 +136,13 @@ function scheduleBackup() {
     dailyBackupJob.cancel();
     process.exit(0);
   });
+  
+  return dailyBackupJob;
 }
 
+// Export only one set of functions
 module.exports = {
   scheduleBackup,
-  performBackup
+  performBackup,
+  createFileBackup
 };
