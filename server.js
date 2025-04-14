@@ -12,7 +12,7 @@ const port = 3000;
 mongoose.connect(process.env.MONGO_URI, { dbName: process.env.DB_NAME });
 
 // Import backup functionality
-const { scheduleBackup } = require('./backupService');
+const { scheduleBackup } = require('./backupservice.js');
 
 // Schedule the backup job
 scheduleBackup();
@@ -356,4 +356,73 @@ app.get('/api/access-logs', async (req, res) => {
     console.error('Error fetching access logs:', error);
     res.status(500).json({ error: 'Server error' });
   }
+});
+
+// Add this to your imports
+const requestIp = require('request-ip');
+
+// Add this to your MongoDB schema definitions
+const loginLogSchema = new mongoose.Schema({
+  date: { type: Date, default: Date.now },
+  ipAddress: String,
+  deviceInfo: Object
+});
+
+const LoginLog = mongoose.model('LoginLog', loginLogSchema);
+
+// Add these API endpoints
+app.post('/api/log-visit', async (req, res) => {
+  try {
+    const { deviceInfo } = req.body;
+    const ipAddress = requestIp.getClientIp(req);
+    
+    const log = new LoginLog({
+      ipAddress,
+      deviceInfo
+    });
+    
+    await log.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error logging visit:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+app.get('/api/login-logs', async (req, res) => {
+  try {
+    const logs = await LoginLog.find().sort({ date: -1 });
+    
+    // Format the dates before sending to client
+    const formattedLogs = logs.map(log => {
+      const date = new Date(log.date);
+      const day = date.getDate();
+      const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+                          'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+      const month = monthNames[date.getMonth()];
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      // Create a formatted date string
+      const formattedDate = `${day} ${month} ${year} ${hours}:${minutes}`;
+      
+      // Return the log with both raw date (for sorting) and formatted date
+      return {
+        ...log._doc,
+        date: log.date,
+        formattedDate: formattedDate
+      };
+    });
+    
+    res.json(formattedLogs);
+  } catch (error) {
+    console.error('Error fetching login logs:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Serve the login-logs.html page
+app.get('/login-logs.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login-logs.html'));
 });

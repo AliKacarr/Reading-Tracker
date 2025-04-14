@@ -1101,19 +1101,7 @@ th.today-column {
   min-height: 20px;
 }
 
-/* Add a small admin indicator when logged in */
-.admin-indicator {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #4a90e2;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  display: none;
-}
+
 /* Admin Login Modal */
 .modal {
   display: none;
@@ -1203,19 +1191,7 @@ th.today-column {
   min-height: 20px;
 }
 
-/* Add a small admin indicator when logged in */
-.admin-indicator {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #4a90e2;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  display: none;
-}
+
 /* Admin indicator and logs button styling */
 .admin-indicator {
   position: fixed;
@@ -1223,8 +1199,8 @@ th.today-column {
   right: 20px;
   background-color: #4a90e2;
   color: white;
-  padding: 8px 15px;
-  border-radius: 6px;
+  padding: 8px 37px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
@@ -1266,6 +1242,38 @@ th.today-column {
 }
 
 .admin-logs-button img {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+/* Login logs button styling */
+.login-logs-button {
+  position: fixed;
+  bottom: 100px; /* Position above the admin logs button */
+  right: 20px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: none; /* Hidden by default, shown when admin is logged in */
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.login-logs-button:hover {
+  background-color: #357ab8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+}
+
+.login-logs-button img {
   width: 16px;
   height: 16px;
   margin-right: 8px;

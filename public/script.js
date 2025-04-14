@@ -1003,117 +1003,89 @@ document.addEventListener('DOMContentLoaded', function() {
       loginError.textContent = 'Giriş işlemi sırasında bir hata oluştu';
     }
   });
-  
-  // Function to show admin indicator
-  function showAdminIndicator() {
-    // Create admin indicator if it doesn't exist
-    let adminIndicator = document.querySelector('.admin-indicator');
-    
-    if (!adminIndicator) {
-      adminIndicator = document.createElement('div');
-      adminIndicator.className = 'admin-indicator';
-      adminIndicator.textContent = 'Admin Modu';
-      
-      // Add click event to open admin info panel
-      adminIndicator.addEventListener('click', function() {
-        showAdminInfoPanel();
-      });
-      
-      // Add cursor pointer style to indicate it's clickable
-      adminIndicator.style.cursor = 'pointer';
-      
-      document.body.appendChild(adminIndicator);
-    }
-    
-    adminIndicator.style.display = 'block';
-    
-    // Also show the admin logs button
-    const adminLogsButton = document.getElementById('adminLogsButton');
-    if (adminLogsButton) {
-      adminLogsButton.style.display = 'flex';
-    }
-  }
-  
   // Function to show admin info panel
-  function showAdminInfoPanel() {
-    // Create admin info modal if it doesn't exist
-    let adminInfoModal = document.getElementById('adminInfoModal');
-    
-    if (!adminInfoModal) {
-      adminInfoModal = document.createElement('div');
-      adminInfoModal.id = 'adminInfoModal';
-      adminInfoModal.className = 'modal';
-      
-      const modalContent = document.createElement('div');
-      modalContent.className = 'modal-content';
-      
-      const closeBtn = document.createElement('span');
-      closeBtn.className = 'close-button';
-      closeBtn.innerHTML = '&times;';
-      closeBtn.onclick = function() {
-        adminInfoModal.style.display = 'none';
-      };
-      
-      const title = document.createElement('h2');
-      title.textContent = 'Admin Bilgileri';
-      
-      const infoPanel = document.createElement('div');
-      infoPanel.className = 'admin-info-panel';
-      
-      const usernameItem = document.createElement('div');
-      usernameItem.className = 'admin-info-item';
-      
-      const usernameLabel = document.createElement('div');
-      usernameLabel.className = 'admin-info-label';
-      usernameLabel.textContent = 'Kullanıcı Adı:';
-      
-      const usernameValue = document.createElement('div');
-      usernameValue.className = 'admin-info-value';
-      usernameValue.textContent = localStorage.getItem('adminUsername') || 'Admin';
-      
-      usernameItem.appendChild(usernameLabel);
-      usernameItem.appendChild(usernameValue);
-      
-      const logoutBtn = document.createElement('button');
-      logoutBtn.className = 'logout-button';
-      logoutBtn.textContent = 'Çıkış Yap';
-      logoutBtn.onclick = function() {
-        localStorage.removeItem('authenticated');
-        localStorage.removeItem('adminUsername');
-        adminInfoModal.style.display = 'none';
-        
-        // Remove admin indicator
-        const adminIndicator = document.querySelector('.admin-indicator');
-        if (adminIndicator) {
-          adminIndicator.style.display = 'none';
-          adminLogsButton.style.display = 'none';
-        }
-        
-        // Reload data to update UI without admin privileges
-        loadData();
-      };
-      
-      infoPanel.appendChild(usernameItem);
-      infoPanel.appendChild(logoutBtn);
-      
-      modalContent.appendChild(closeBtn);
-      modalContent.appendChild(title);
-      modalContent.appendChild(infoPanel);
-      
-      adminInfoModal.appendChild(modalContent);
-      document.body.appendChild(adminInfoModal);
-      
-      // Close modal when clicking outside
-      window.addEventListener('click', function(event) {
-        if (event.target === adminInfoModal) {
-          adminInfoModal.style.display = 'none';
-        }
-      });
-    }
-    
-    adminInfoModal.style.display = 'block';
-  }
+
 });
+function showAdminInfoPanel() {
+  // Create admin info modal if it doesn't exist
+  let adminInfoModal = document.getElementById('adminInfoModal');
+  
+  if (!adminInfoModal) {
+    adminInfoModal = document.createElement('div');
+    adminInfoModal.id = 'adminInfoModal';
+    adminInfoModal.className = 'modal';
+    
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+    
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'close-button';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = function() {
+      adminInfoModal.style.display = 'none';
+    };
+    
+    const title = document.createElement('h2');
+    title.textContent = 'Admin Bilgileri';
+    
+    const infoPanel = document.createElement('div');
+    infoPanel.className = 'admin-info-panel';
+    
+    const usernameItem = document.createElement('div');
+    usernameItem.className = 'admin-info-item';
+    
+    const usernameLabel = document.createElement('div');
+    usernameLabel.className = 'admin-info-label';
+    usernameLabel.textContent = 'Kullanıcı Adı:';
+    
+    const usernameValue = document.createElement('div');
+    usernameValue.className = 'admin-info-value';
+    usernameValue.textContent = localStorage.getItem('adminUsername') || 'Admin';
+    
+    usernameItem.appendChild(usernameLabel);
+    usernameItem.appendChild(usernameValue);
+    
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'logout-button';
+    logoutBtn.textContent = 'Çıkış Yap';
+    logoutBtn.onclick = function() {
+      localStorage.removeItem('authenticated');
+      localStorage.removeItem('adminUsername');
+      adminInfoModal.style.display = 'none';
+      
+      // Remove admin indicator
+      const adminIndicator = document.querySelector('.admin-indicator');
+      const adminLogsButton = document.getElementById('adminLogsButton'); // Add this line to get the admin logs butto
+      const loginLogsButton = document.getElementById('loginLogsButton');
+
+      if (adminIndicator) {
+        adminIndicator.style.display = 'none';
+        adminLogsButton.style.display = 'none';
+        loginLogsButton.style.display = 'none';
+      }      
+      // Reload data to update UI without admin privileges
+      loadData();
+    };
+    
+    infoPanel.appendChild(usernameItem);
+    infoPanel.appendChild(logoutBtn);
+    
+    modalContent.appendChild(closeBtn);
+    modalContent.appendChild(title);
+    modalContent.appendChild(infoPanel);
+    
+    adminInfoModal.appendChild(modalContent);
+    document.body.appendChild(adminInfoModal);
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+      if (event.target === adminInfoModal) {
+        adminInfoModal.style.display = 'none';
+      }
+    });
+  }
+  adminInfoModal.style.display = 'block';
+}
 async function logUnauthorizedAccess(action) {
   try {
     // Collect device information
@@ -1127,7 +1099,6 @@ async function logUnauthorizedAccess(action) {
       windowHeight: window.innerHeight
     };
     
-    // Format date for alert message
     const now = new Date();
     const day = now.getDate();
     const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
@@ -1146,7 +1117,6 @@ async function logUnauthorizedAccess(action) {
       body: JSON.stringify({ action, deviceInfo })
     });
     
-    // Show alert with formatted date
     alert(`Bu işlemi yapabilmek için Ali Kaçar ile iletişime geçiniz.`);
   } catch (error) {
     console.error('Error logging unauthorized access:', error);
@@ -1155,14 +1125,20 @@ async function logUnauthorizedAccess(action) {
 }
 // Add this script to handle the admin logs button
 document.addEventListener('DOMContentLoaded', function() {
+  const adminIndicator = document.querySelector('.admin-indicator');
   const adminLogsButton = document.getElementById('adminLogsButton');
+  const loginLogsButton = document.getElementById('loginLogsButton');
   
   // Check if user is authenticated as admin
   function checkAdminAuth() {
     if (localStorage.getItem('authenticated') === 'true') {
+      adminIndicator.style.display = 'flex';
       adminLogsButton.style.display = 'flex';
+      loginLogsButton.style.display = 'flex';
     } else {
+      adminIndicator.style.display = 'none';
       adminLogsButton.style.display = 'none';
+      loginLogsButton.style.display = 'none';
     }
   }
   
@@ -1210,4 +1186,82 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
     }
   });
+});
+
+// Add this function to log page visits
+async function logPageVisit() {
+  try {
+    // Collect device information
+    const deviceInfo = {
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      platform: navigator.platform,
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight
+    };
+    
+    // Send log to server
+    await fetch('/api/log-visit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceInfo })
+    });
+  } catch (error) {
+    console.error('Error logging page visit:', error);
+  }
+}
+
+// Update the showAdminIndicator function to also show the login logs button
+function showAdminIndicator() {
+  // Create admin indicator if it doesn't exist
+  let adminIndicator = document.querySelector('.admin-indicator');
+  if (!adminIndicator) {
+    adminIndicator = document.createElement('div');
+    adminIndicator.className = 'admin-indicator';
+    adminIndicator.textContent = 'Admin Modu';
+    
+    // Add click event to open admin info panel
+    adminIndicator.addEventListener('click', function() {
+      console.log('Admin Modu clicked'); // Debugging log
+      showAdminInfoPanel();
+    });
+    
+    // Add cursor pointer style to indicate it's clickable
+    adminIndicator.style.cursor = 'pointer';
+    
+    document.body.appendChild(adminIndicator);
+  }
+  
+  adminIndicator.style.display = 'block';
+  
+  // Show the admin logs button
+  const adminLogsButton = document.getElementById('adminLogsButton');
+  if (adminLogsButton) {
+    adminLogsButton.style.display = 'flex';
+  }
+  
+  // Show the login logs button
+  const loginLogsButton = document.getElementById('loginLogsButton');
+  if (loginLogsButton) {
+    loginLogsButton.style.display = 'flex';
+  }
+}
+
+// Add this to your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+  // Log the page visit
+  logPageVisit();
+  
+  // Add event listener for login logs button
+  const loginLogsButton = document.getElementById('loginLogsButton');
+  if (loginLogsButton) {
+    loginLogsButton.addEventListener('click', function() {
+      // Navigate to login logs page
+      window.location.href = '/login-logs.html';
+    });
+  }
+  
+  // Rest of your existing code...
 });

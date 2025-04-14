@@ -6,11 +6,83 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<!-- Admin logs button - positioned at the bottom right corner -->
-<button id="adminLogsButton" class="admin-logs-button" title="Yetkisiz Erişim Kayıtları">
-  <img src="images/log-icon.png" alt="Logs" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22white%22><path d=%22M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z%22/></svg>';">
-  Kayıtlar
-</button>
+  <!-- Admin logs button - positioned at the bottom right corner -->
+  <button id="adminLogsButton" class="admin-logs-button" title="Yetkisiz Erişim Kayıtları">
+    <img src="images/log-icon.png" alt="Logs" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22white%22><path d=%22M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z%22/></svg>';">
+    Erişim Kayıtları
+  </button>
+  
+  <!-- Login logs button - positioned at the bottom right corner above the admin logs button -->
+  <button id="loginLogsButton" class="login-logs-button" title="Giriş Kayıtları">
+    <img src="images/login-icon.png" alt="Login Logs" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22white%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+    Giriş Kayıtları
+  </button>
+
+  <!-- Add this style section to fix button widths -->
+  <style>
+    .admin-logs-button, .login-logs-button {
+      width: 160px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 500;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      border: none;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .admin-mode-button {
+      width: 220px;
+      background-color: #34A853;
+      color: white;
+    }
+    
+    .admin-mode-button:hover {
+      background-color: #2d9249;
+    }
+    
+    .admin-logs-button img, .login-logs-button img, .admin-mode-button img {
+      margin-right: 8px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .login-logs-button {
+      background-color: #4285F4;
+      color: white;
+      margin-bottom:11px ;
+    }
+    
+    .login-logs-button:hover {
+      background-color: #3367d6;
+    }
+    
+    .admin-logs-button {
+      background-color: #EA4335;
+      color: white;
+    }
+    
+    .admin-logs-button:hover {
+      background-color: #d33426;
+    }
+    
+   
+    
+    .admin-logs-button:hover, .login-logs-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .admin-logs-button:active, .login-logs-button:active {
+      transform: translateY(0);
+    }
+  </style>
 
   <div class="container"> 
     <h1 id="adminLogin">📚 Kitap Okuma Takibi</h1>

@@ -7,7 +7,12 @@
   <link rel="stylesheet" href="style.css">
   <style>
     .logs-container {
-      margin: 20px;
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
     
     .log-table {
@@ -89,6 +94,26 @@
       color: red;
       margin-top: 10px;
     }
+    
+    .back-button {
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: inline-block;
+      margin-bottom: 20px;
+      padding: 5px 25px;
+      background-color: #081a3e;
+      color: white;
+      border-radius: 0px 25px 0px 25px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    
+    .back-button:hover {
+      background-color: #010e28;
+    }
   </style>
 </head>
 <body>
@@ -103,11 +128,16 @@
   </div>
   
   <div id="logsSection" class="logs-container" style="display: none;">
-    <h1>Yetkisiz Erişim Kayıtları</h1>
-    <button id="refreshButton" class="refresh-button">
-      <span class="refresh-icon">↻</span>
-      <span class="refresh-text">Yenile</span>
-    </button>
+    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+      <h1 style="margin: 0 0 20px 0; text-align: center;">Yetkisiz Erişim Kayıtları</h1>
+      <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
+        <a href="/" class="back-button">Ana Sayfa</a>
+        <button id="refreshButton" class="refresh-button">
+          <span class="refresh-icon">↻</span>
+          <span class="refresh-text">Yenile</span>
+        </button>
+      </div>
+    </div>
     <table class="log-table">
       <thead>
         <tr>
@@ -126,11 +156,12 @@
   <style>
     /* Refresh button styling */
     .refresh-button {
-      background-color: #4a90e2;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #19366f;
       color: white;
       border: none;
-      border-radius: 4px;
-      padding: 8px 16px;
+      border-radius: 8px;
+      padding: 7px 14px;
       font-size: 14px;
       cursor: pointer;
       display: flex;
@@ -141,7 +172,7 @@
     }
     
     .refresh-button:hover {
-      background-color: #357ab8;
+      background-color: #152f62;
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
@@ -234,15 +265,19 @@
           console.error('Login error:', error);
           loginError.textContent = 'Giriş işlemi sırasında bir hata oluştu';
         }
+        
+        // Clear the username and password fields after login attempt
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
       });
       
       // Handle refresh button click
       refreshButton.addEventListener('click', function() {
         // Check if user is authenticated
         if (localStorage.getItem('authenticated') !== 'true') {
-          alert('Yetkisiz erişim tespit edildi. Ana sayfaya yönlendiriliyorsunuz.');
-          // Redirect to home page instead of trying to close the window
-          window.location.href = '/index.html';
+          // Show login section instead of redirecting
+          loginSection.style.display = 'block';
+          logsSection.style.display = 'none';
           return;
         }
         
@@ -279,6 +314,22 @@
             document.querySelector('.log-table').classList.remove('fade-in');
           }, 500);
           
+          // Create a map of IP addresses to colors
+          const ipColors = {};
+          const uniqueIPs = [...new Set(logs.map(log => log.ipAddress || 'Bilinmiyor'))];
+          
+          // Generate colors for each unique IP
+          const colors = [
+            '#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4', 
+            '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', 
+            '#dcbeff', '#9A6324', '#800000', '#aaffc3', '#808000', 
+            '#ffd8b1', '#000075', '#a9a9a9', '#000000', '#ffe119'
+          ];
+          
+          uniqueIPs.forEach((ip, index) => {
+            ipColors[ip] = colors[index % colors.length];
+          });
+          
           // Add logs to table
           logs.forEach((log, index) => {
             const row = document.createElement('tr');
@@ -296,7 +347,8 @@
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             
-            const formattedDate = `${day} ${month} ${year} ${hours}:${minutes}`;
+            // Format date with styled day and month
+            const formattedDate = `<span style="font-weight: bold; color: #11171c;">${day} ${month}</span> ${year} ${hours}:${minutes}`;
             
             // Map action codes to readable descriptions
             const actionMap = {
@@ -317,11 +369,15 @@
               `${log.deviceInfo.platform} - ${log.deviceInfo.userAgent.split(') ')[0]})` : 
               'Bilinmiyor';
             
+            // Get IP address and its color
+            const ipAddress = log.ipAddress || 'Bilinmiyor';
+            const ipColor = ipColors[ipAddress];
+            
             row.innerHTML = `
               <td>${actionText}</td>
               <td>${formattedDate}</td>
               <td>${deviceInfo}</td>
-              <td>${log.ipAddress}</td>
+              <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
             `;
             
             logsTableBody.appendChild(row);
@@ -333,7 +389,7 @@
           // Show success indicator on button
           const originalText = refreshButton.querySelector('.refresh-text').textContent;
           refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-          refreshButton.style.backgroundColor = '#4CAF50';
+          refreshButton.style.backgroundColor = '#000080';
           
           // Reset button after 2 seconds
           setTimeout(() => {
