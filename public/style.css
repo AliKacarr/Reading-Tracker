@@ -979,18 +979,7 @@ th.today-column {
   to {opacity: 1; transform: translateY(0);}
 }
 
-.close-button {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: color 0.2s;
-}
 
-.close-button:hover {
-  color: #333;
-}
 
 .modal h2 {
   margin-top: 0;
@@ -1053,7 +1042,7 @@ th.today-column {
   background-color: #f9f9f9;
   border-radius: 6px;
   margin-top: 15px;
-  border: 1px solid #eee;
+  border: 2px solid #eee;
 }
 
 .admin-info-panel h3 {
@@ -1072,24 +1061,31 @@ th.today-column {
 }
 
 .admin-info-label {
+  font-size: 17px;
+  padding: 2px;
   font-weight: 500;
-  width: 120px;
-  color: #666;
+  width: 110px;
+  color: #1e1717;
+  display: flex;
+  align-items: center;
 }
 
 .admin-info-value {
-  color: #333;
+  font-size: 19px;
+  color: rgb(0, 0, 0);
+  display: flex;
+  align-items: center;
 }
 
 .logout-button {
   background-color: #f44336;
   color: white;
   border: none;
-  padding: 8px 15px;
+  padding: 7px 13px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
-  margin-top: 15px;
+  margin-top: 50px;
   transition: background-color 0.3s;
 }
 
@@ -1148,9 +1144,9 @@ th.today-column {
 }
 
 .close-button {
-  color: #aaa;
+  color: #7f7e7e;
   float: right;
-  font-size: 28px;
+  font-size: 30px;
   font-weight: bold;
   cursor: pointer;
   transition: color 0.2s;
@@ -1219,4 +1215,58 @@ th.today-column {
   font-size: 12px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   display: none;
+}
+/* Admin indicator and logs button styling */
+.admin-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4a90e2;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  display: none;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.admin-indicator:hover {
+  background-color: #3a7bc8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+}
+
+.admin-logs-button {
+  position: fixed;
+  bottom: 65px;
+  right: 20px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  z-index: 100;
+}
+
+.admin-logs-button:hover {
+  background-color: #e74c3c;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+}
+
+.admin-logs-button img {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
 }

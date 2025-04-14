@@ -383,7 +383,7 @@ function calculateStreak(userStats) {
 async function toggleStatus(userId, date) {
   // Check if user is authenticated
   if (!isAuthenticated()) {
-    alert('Bu işlemi yapmak için yetkiniz yok.');
+    logUnauthorizedAccess('toggle-status');
     return;
   }
 
@@ -409,7 +409,7 @@ async function toggleStatus(userId, date) {
 async function deleteUser(id) {
   // Check if user is authenticated
   if (!isAuthenticated()) {
-    alert('Bu işlemi yapmak için yetkiniz yok.');
+    logUnauthorizedAccess('delete-user');
     return;
   }
 
@@ -435,7 +435,7 @@ newUserForm.addEventListener('submit', async (e) => {
   
   // Check if user is authenticated
   if (!isAuthenticated()) {
-    alert('Bu işlemi yapmak için yetkiniz yok.');
+    logUnauthorizedAccess('add-user');
     return;
   }
   
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function toggleDeleteButton(userId) {
   // Check if user is authenticated
   if (!isAuthenticated()) {
-    alert('Bu işlemi yapmak için yetkiniz yok.');
+    logUnauthorizedAccess('toggle-delete-button');
     return;
   }
   
@@ -567,7 +567,7 @@ function toggleDeleteButton(userId) {
 function editUserName(userId) {
   // Check if user is authenticated
   if (!isAuthenticated()) {
-    alert('Bu işlemi yapmak için yetkiniz yok.');
+    logUnauthorizedAccess('edit-user-name');
     return;
   }
   
@@ -590,7 +590,7 @@ function editUserName(userId) {
 async function saveUserName(userId) {
   // Check if user is authenticated
   if (!isAuthenticated()) {
-    alert('Bu işlemi yapmak için yetkiniz yok.');
+    logUnauthorizedAccess('save-user-name');
     return;
   }
   
@@ -624,7 +624,7 @@ async function saveUserName(userId) {
 function changeUserImage(userId) {
   // Check if user is authenticated
   if (!isAuthenticated()) {
-    alert('Bu işlemi yapmak için yetkiniz yok.');
+    logUnauthorizedAccess('change-user-image');
     return;
   }
   
@@ -1013,10 +1013,25 @@ document.addEventListener('DOMContentLoaded', function() {
       adminIndicator = document.createElement('div');
       adminIndicator.className = 'admin-indicator';
       adminIndicator.textContent = 'Admin Modu';
+      
+      // Add click event to open admin info panel
+      adminIndicator.addEventListener('click', function() {
+        showAdminInfoPanel();
+      });
+      
+      // Add cursor pointer style to indicate it's clickable
+      adminIndicator.style.cursor = 'pointer';
+      
       document.body.appendChild(adminIndicator);
     }
     
     adminIndicator.style.display = 'block';
+    
+    // Also show the admin logs button
+    const adminLogsButton = document.getElementById('adminLogsButton');
+    if (adminLogsButton) {
+      adminLogsButton.style.display = 'flex';
+    }
   }
   
   // Function to show admin info panel
@@ -1071,6 +1086,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const adminIndicator = document.querySelector('.admin-indicator');
         if (adminIndicator) {
           adminIndicator.style.display = 'none';
+          adminLogsButton.style.display = 'none';
         }
         
         // Reload data to update UI without admin privileges
@@ -1097,4 +1113,101 @@ document.addEventListener('DOMContentLoaded', function() {
     
     adminInfoModal.style.display = 'block';
   }
+});
+async function logUnauthorizedAccess(action) {
+  try {
+    // Collect device information
+    const deviceInfo = {
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      platform: navigator.platform,
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight
+    };
+    
+    // Format date for alert message
+    const now = new Date();
+    const day = now.getDate();
+    const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+                        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    const month = monthNames[now.getMonth()];
+    const year = now.getFullYear();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    const formattedDate = `${day} ${month} ${year} ${hours}:${minutes}`;
+    
+    // Send log to server
+    await fetch('/api/log-unauthorized', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, deviceInfo })
+    });
+    
+    // Show alert with formatted date
+    alert(`Bu işlemi yapmak için yetkiniz yok. (${formattedDate})`);
+  } catch (error) {
+    console.error('Error logging unauthorized access:', error);
+    logUnauthorizedAccess('error');
+  }
+}
+// Add this script to handle the admin logs button
+document.addEventListener('DOMContentLoaded', function() {
+  const adminLogsButton = document.getElementById('adminLogsButton');
+  
+  // Check if user is authenticated as admin
+  function checkAdminAuth() {
+    if (localStorage.getItem('authenticated') === 'true') {
+      adminLogsButton.style.display = 'flex';
+    } else {
+      adminLogsButton.style.display = 'none';
+    }
+  }
+  
+  // Check auth status when page loads
+  checkAdminAuth();
+  
+  // Add click event to the button
+  adminLogsButton.addEventListener('click', function() {
+    window.location.href = '/admin-logs.html';
+  });
+  
+  // Listen for authentication changes
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'authenticated') {
+      checkAdminAuth();
+    }
+  });
+  
+  // Also check after login/logout
+  const originalSetItem = localStorage.setItem;
+  localStorage.setItem = function(key, value) {
+    originalSetItem.call(this, key, value);
+    if (key === 'authenticated') {
+      checkAdminAuth();
+    }
+  };
+});
+document.addEventListener('DOMContentLoaded', function() {
+  // Add CSS rules for table cells
+  const style = document.createElement('style');
+  style.textContent = `
+    #trackerTable td {
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Prevent default behavior on cell content
+  document.addEventListener('mousedown', function(e) {
+    if (e.target.tagName === 'TD' && (e.target.innerText === '✔️' || e.target.innerText === '❌' || e.target.innerText === '➖')) {
+      e.preventDefault();
+    }
+  });
 });

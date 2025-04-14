@@ -312,3 +312,48 @@ app.get('/api/setup-admin', async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
+
+
+// Add this model for access logs
+const AccessLog = mongoose.model('AccessLog', {
+  action: String,
+  timestamp: Date,
+  deviceInfo: Object,
+  ipAddress: String
+});
+
+// Add this endpoint to log unauthorized access attempts
+app.post('/api/log-unauthorized', async (req, res) => {
+  try {
+    const { action, deviceInfo } = req.body;
+    
+    // Get client IP address
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    
+    // Create a new log entry
+    const log = new AccessLog({
+      action,
+      timestamp: new Date(),
+      deviceInfo,
+      ipAddress
+    });
+    
+    await log.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error logging unauthorized access:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Add this endpoint to view logs (admin only)
+app.get('/api/access-logs', async (req, res) => {
+  try {
+    // Admin kontrolü yapmadan doğrudan logları getir
+    const logs = await AccessLog.find().sort({ timestamp: -1 });
+    res.json(logs);
+  } catch (error) {
+    console.error('Error fetching access logs:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
