@@ -540,30 +540,60 @@ async function createFileBackup() {
   fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
   
   console.log(`File backup created at: ${backupPath}`);
+  
+  // Clean up old file backups
+  cleanupOldFileBackups(backupDir, 10);
+  
   return backupPath;
+}
+
+/**
+ * Cleans up old file backups, keeping only the most recent ones
+ */
+function cleanupOldFileBackups(backupDir, keepCount) {
+  try {
+    // Get all backup files
+    const files = fs.readdirSync(backupDir)
+      .filter(file => file.startsWith('backup-') && file.endsWith('.json'))
+      .map(file => ({
+        name: file,
+        path: path.join(backupDir, file),
+        time: fs.statSync(path.join(backupDir, file)).mtime.getTime()
+      }))
+      .sort((a, b) => b.time - a.time); // Sort by modification time, newest first
+    
+    // If we have more than keepCount, delete the oldest ones
+    if (files.length > keepCount) {
+      const filesToDelete = files.slice(keepCount);
+      
+      for (const file of filesToDelete) {
+        fs.unlinkSync(file.path);
+        console.log(`Deleted old backup file: ${file.name}`);
+      }
+    }
+  } catch (err) {
+    console.error('Error cleaning up old file backups:', err);
+  }
 }
 
 /**
  * Schedules automatic database backups
  */
 function scheduleBackup() {
-  // Schedule backups to run daily at 11:59 PM
-  const dailyBackupJob = schedule.scheduleJob('59 23 * * *', performBackup);
-  console.log("Backup scheduler started. Backups will run daily at 11:59 PM.");
+  // Schedule backups to run every 1440 minutes (24 hours)
+  const backupJob = schedule.scheduleJob('0 0 * * *', performBackup);
+  console.log("Backup scheduler started. Backups will run daily at midnight.");
   
   // Handle graceful shutdown
   process.on('SIGINT', async () => {
     console.log('Backup service shutting down...');
-    dailyBackupJob.cancel();
+    backupJob.cancel();
     process.exit(0);
   });
   
-  return dailyBackupJob;
+  return backupJob;
 }
 
-// Export only one set of functions
-module.exports = {
-  scheduleBackup,
-  performBackup,
-  createFileBackup
-};
+// Start the backup scheduler
+const backupJob = scheduleBackup();
+
