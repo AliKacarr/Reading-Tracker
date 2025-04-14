@@ -7,7 +7,7 @@ require('dotenv').config();
 const schedule = require('node-schedule');
 const app = express();
 const port = 3000;
-
+ 
 // MongoDB connection from .env file
 mongoose.connect(process.env.MONGO_URI, { dbName: process.env.DB_NAME });
 
