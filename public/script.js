@@ -1147,7 +1147,7 @@ async function logUnauthorizedAccess(action) {
     });
     
     // Show alert with formatted date
-    alert(`Bu işlemi yapmak için yetkiniz yok. (${formattedDate})`);
+    alert(`Bu işlemi yapabilmek için Ali Kaçar ile iletişime geçiniz.`);
   } catch (error) {
     console.error('Error logging unauthorized access:', error);
     logUnauthorizedAccess('error');
