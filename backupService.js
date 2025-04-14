@@ -87,6 +87,68 @@ async function cleanupOldBackups(db, prefix, keepCount) {
 }
 
 // Function to schedule the backup
+const fs = require('fs');
+const path = require('path');
+const mongoose = require('mongoose');
+// Remove this line since schedule is already imported in server.js
+// const schedule = require('node-schedule');
+
+/**
+ * Schedules automatic database backups
+ */
+function scheduleBackup() {
+  // Get the schedule module from the parent scope
+  const schedule = require('node-schedule');
+  
+  // Schedule backup to run at midnight every day
+  const job = schedule.scheduleJob('0 0 * * *', async function() {
+    try {
+      console.log('Starting scheduled database backup...');
+      await createBackup();
+      console.log('Scheduled backup completed successfully');
+    } catch (error) {
+      console.error('Scheduled backup failed:', error);
+    }
+  });
+  
+  console.log('Database backup scheduled to run at midnight daily');
+  return job;
+}
+
+/**
+ * Creates a backup of the MongoDB database
+ */
+async function createBackup() {
+  const timestamp = new Date().toISOString().replace(/:/g, '-');
+  const backupDir = path.join(__dirname, 'backups');
+  
+  // Create backups directory if it doesn't exist
+  if (!fs.existsSync(backupDir)) {
+    fs.mkdirSync(backupDir);
+  }
+  
+  // Get all collections
+  const collections = mongoose.connection.collections;
+  const backupData = {};
+  
+  // For each collection, fetch all documents
+  for (const [name, collection] of Object.entries(collections)) {
+    const documents = await collection.find({}).toArray();
+    backupData[name] = documents;
+  }
+  
+  // Write backup to file
+  const backupPath = path.join(backupDir, `backup-${timestamp}.json`);
+  fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
+  
+  console.log(`Backup created at: ${backupPath}`);
+  return backupPath;
+}
+
+module.exports = {
+  scheduleBackup,
+  createBackup
+};
 function scheduleBackup() {
   // Schedule backups to run daily at specified time
   const dailyBackupJob = schedule.scheduleJob('59 23 * * *', performBackup);

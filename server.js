@@ -421,8 +421,3 @@ app.get('/api/login-logs', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-// Serve the login-logs.html page
-app.get('/login-logs.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'login-logs.html'));
-});
