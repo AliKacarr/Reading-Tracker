@@ -475,9 +475,7 @@ async function performBackup() {
     await cleanupOldBackups(backupDb, 'u_backup_', 10);
     await cleanupOldBackups(backupDb, 'rs_backup_', 10);
     
-    // Also create a file backup
-    await createFileBackup();
-    
+  
   } catch (err) {
     console.error("Error during backup:", err);
   } finally {
@@ -513,72 +511,6 @@ async function cleanupOldBackups(db, prefix, keepCount) {
   }
 }
 
-/**
- * Creates a file backup of the MongoDB database
- */
-async function createFileBackup() {
-  const timestamp = new Date().toISOString().replace(/:/g, '-');
-  const backupDir = path.join(__dirname, 'backups');
-  
-  // Create backups directory if it doesn't exist
-  if (!fs.existsSync(backupDir)) {
-    fs.mkdirSync(backupDir);
-  }
-  
-  // Get all collections
-  const collections = mongoose.connection.collections;
-  const backupData = {};
-  
-  // For each collection, fetch all documents
-  for (const [name, collection] of Object.entries(collections)) {
-    const documents = await collection.find({}).toArray();
-    backupData[name] = documents;
-  }
-  
-  // Write backup to file
-  const backupPath = path.join(backupDir, `backup-${timestamp}.json`);
-  fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
-  
-  console.log(`File backup created at: ${backupPath}`);
-  
-  // Clean up old file backups
-  cleanupOldFileBackups(backupDir, 10);
-  
-  return backupPath;
-}
-
-/**
- * Cleans up old file backups, keeping only the most recent ones
- */
-function cleanupOldFileBackups(backupDir, keepCount) {
-  try {
-    // Get all backup files
-    const files = fs.readdirSync(backupDir)
-      .filter(file => file.startsWith('backup-') && file.endsWith('.json'))
-      .map(file => ({
-        name: file,
-        path: path.join(backupDir, file),
-        time: fs.statSync(path.join(backupDir, file)).mtime.getTime()
-      }))
-      .sort((a, b) => b.time - a.time); // Sort by modification time, newest first
-    
-    // If we have more than keepCount, delete the oldest ones
-    if (files.length > keepCount) {
-      const filesToDelete = files.slice(keepCount);
-      
-      for (const file of filesToDelete) {
-        fs.unlinkSync(file.path);
-        console.log(`Deleted old backup file: ${file.name}`);
-      }
-    }
-  } catch (err) {
-    console.error('Error cleaning up old file backups:', err);
-  }
-}
-
-/**
- * Schedules automatic database backups
- */
 function scheduleBackup() {
   // Schedule backups to run every 1440 minutes (24 hours)
   const backupJob = schedule.scheduleJob('0 0 * * *', performBackup);
