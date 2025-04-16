@@ -1092,24 +1092,10 @@ async function logUnauthorizedAccess(action) {
     // Collect device information
     const deviceInfo = {
       userAgent: navigator.userAgent,
-      language: navigator.language,
-      platform: navigator.platform,
       screenWidth: window.screen.width,
       screenHeight: window.screen.height,
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight
     };
     
-    const now = new Date();
-    const day = now.getDate();
-    const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
-                        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-    const month = monthNames[now.getMonth()];
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    
-    const formattedDate = `${day} ${month} ${year} ${hours}:${minutes}`;
     
     // Send log to server
     await fetch('/api/log-unauthorized', {
@@ -1197,12 +1183,8 @@ async function logPageVisit() {
     // Collect device information
     const deviceInfo = {
       userAgent: navigator.userAgent,
-      language: navigator.language,
-      platform: navigator.platform,
       screenWidth: window.screen.width,
       screenHeight: window.screen.height,
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight
     };
     
     // Send log to server

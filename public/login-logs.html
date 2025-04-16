@@ -1,45 +1,59 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Giriş Kayıtları</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     .logs-container {
       max-width: 1100px;
-      margin: 30px auto;
-      padding: 40px;
+      margin: 23px auto;
+      padding: 25px;
+      padding-inline: 40px;
       background-color: #fff;
       border-radius: 8px;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
     }
-    
+
     .logs-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
     }
-    
-    .logs-table th, .logs-table td {
-      padding: 10px;
+
+    .logs-table th,
+    .logs-table td {
+      padding: 12px 15px;
       text-align: left;
       border-bottom: 1px solid #eee;
     }
-    
+
     .logs-table th {
-      background-color: #f5f5f5;
+      background-color: #19366f;
+      color: white;
       font-weight: 600;
-      color: #333;
     }
-    
-    .logs-table tr:hover {
+
+    /* Add zebra striping for tables */
+    .logs-table tbody tr:nth-child(even) {
       background-color: #f9f9f9;
     }
-    
+
+    .logs-table tbody tr:nth-child(odd) {
+      background-color: #ffffff;
+    }
+
+    .logs-table tr:hover {
+      background-color: #f0f7ff;
+    }
+
     .back-button {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: inline-block;
-      margin-bottom: 20px;
       padding: 5px 25px;
       background-color: #081a3e;
       color: white;
@@ -51,21 +65,21 @@
       font-weight: 500;
       transition: background-color 0.3s;
     }
-    
+
     .back-button:hover {
       background-color: #010e28;
     }
-    
+
     .no-logs {
       text-align: center;
       padding: 30px;
       color: #666;
       font-style: italic;
     }
-    
+
     /* Refresh button styling */
     .refresh-button {
-      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #19366f;
       color: white;
       border: none;
@@ -76,55 +90,70 @@
       display: flex;
       align-items: center;
       transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-    
+
     .refresh-button:hover {
       background-color: #152f62;
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
-    
+
     .refresh-button:active {
       transform: translateY(0);
     }
-    
+
     .refresh-icon {
       display: inline-block;
       margin-right: 8px;
       font-size: 16px;
       transition: transform 0.5s ease;
     }
-    
+
     .refresh-button.loading .refresh-icon {
       animation: spin 1s linear infinite;
     }
-    
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
-    
+
     /* Table refresh animation */
     @keyframes highlightNew {
-      0% { background-color: rgba(74, 144, 226, 0.3); }
-      100% { background-color: transparent; }
+      0% {
+        background-color: rgba(74, 144, 226, 0.3);
+      }
+
+      100% {
+        background-color: transparent;
+      }
     }
-    
+
     .highlight-row {
       animation: highlightNew 2s ease-out;
     }
-    
+
     /* Fade in animation for table */
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
-    
+
     .fade-in {
       animation: fadeIn 0.5s ease-in;
     }
+
     /* Login container styling */
     .login-container {
       max-width: 400px;
@@ -135,21 +164,21 @@
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
-    
+
     .login-form {
       display: flex;
       flex-direction: column;
       gap: 15px;
       margin-top: 20px;
     }
-    
+
     .login-form input {
       padding: 10px 15px;
       border: 1px solid #ddd;
       border-radius: 4px;
       font-size: 14px;
     }
-    
+
     .login-form button {
       padding: 10px;
       background-color: #081a3e;
@@ -161,21 +190,146 @@
       font-weight: 500;
       transition: background-color 0.3s;
     }
-    
+
     .login-form button:hover {
       background-color: #010e28;
     }
-    
+
     .error-message {
       color: #f44336;
       margin-top: 15px;
       font-size: 14px;
     }
-    
+
+    /* Pagination styles */
+    #paginationContainer button:disabled,
+    #dateGroupPaginationContainer button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    #paginationInfo,
+    #dateGroupPaginationInfo {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Date grouping styles */
+    .date-group-container {
+      margin-top: 30px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .date-group-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .back-to-all {
+      background-color: #e7f0ff;
+      border: none;
+      color: #19366f;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .back-to-all:hover {
+      background-color: #d0e1ff;
+    }
+
+    .back-icon {
+      margin-right: 8px;
+    }
+
+    #selectedDateTitle {
+      margin: 0;
+      color: #19366f;
+    }
+
+    .date-summary-container {
+      margin-top: 40px;
+    }
+
+    .date-summary-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .date-summary-item {
+      background-color: rgb(245, 245, 245);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.308);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-left: 4px solid #19366f;
+    }
+
+    .date-summary-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 1px 3px 10px rgba(156, 129, 255, 0.9);
+      background-color: rgb(241, 241, 241);
+    }
+
+    .date-summary-item-active {
+      background-color: #eef5ff;
+      box-shadow: 0 3px 10px rgba(25, 54, 111, 0.762);
+      border-left: 6px solid #ff5722;
+      transform: translateY(-3px);
+    }
+
+    .date-summary-item-active:hover {
+      box-shadow: 0 3px 10px rgba(25, 54, 111, 0.4);
+      background-color: #e9f2ff;
+    }
+
+    .date-summary-item-active h4 {
+      color: #ff5722;
+    }
+
+    .date-summary-item h4 {
+      margin: 0 0 10px 0;
+      color: #19366f;
+    }
+
+    .date-summary-item p {
+      margin: 5px 0;
+      color: #666;
+    }
+
+    .date-summary-count {
+      display: inline-block;
+      background-color: #19366f;
+      color: white;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .time-column {
+      width: 100px;
+    }
   </style>
 </head>
+
 <body>
-  
+
   <div id="loginSection" class="login-container">
     <h2>Admin Girişi</h2>
     <form id="loginForm" class="login-form">
@@ -188,7 +342,7 @@
 
   <div id="logsSection" class="logs-container" style="display: none;">
     <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-      <h1 style="margin: 0 0 20px 0; text-align: center;">Giriş Kayıtları</h1>
+      <h1 style="margin: 0 0 10px 0; text-align: center;">Giriş Kayıtları</h1>
       <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
         <a href="/" class="back-button">Ana Sayfa</a>
         <button id="refreshButton" class="refresh-button">
@@ -197,36 +351,93 @@
         </button>
       </div>
     </div>
-    
+
     <table class="logs-table">
       <thead>
         <tr>
           <th>Tarih</th>
           <th>IP Adresi</th>
-          <th>Tarayıcı</th>
-          <th>İşletim Sistemi</th>
+          <th>Cihaz Bilgisi</th>
           <th>Ekran Boyutu</th>
-          <th>Dil</th>
         </tr>
       </thead>
       <tbody id="logsTableBody">
         <!-- Logs will be loaded here -->
       </tbody>
     </table>
-    
+
+    <!-- Add pagination controls -->
+    <div id="paginationContainer"
+      style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
+      <div id="paginationInfo">1-10 / 100 kayıt gösteriliyor</div>
+      <div style="display: flex; gap: 10px;">
+        <button id="prevPageBtn" class="refresh-button" style="margin-bottom: 0; padding: 5px 10px;">
+          <span style="margin-right: 5px;">←</span> Önceki
+        </button>
+        <button id="nextPageBtn" class="refresh-button" style="margin-bottom: 0; padding: 5px 10px;">
+          Sonraki <span style="margin-left: 5px;">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Add date grouping container -->
+    <div id="dateGroupContainer" class="date-group-container" style="display: none;">
+      <div class="date-group-header">
+        <button id="backToAllLogs" class="back-to-all">
+          <span class="back-icon">←</span> Tüm Kayıtlara Dön
+        </button>
+        <h2 id="selectedDateTitle">Tarih Kayıtları</h2>
+      </div>
+      <table class="logs-table">
+        <thead>
+          <tr>
+            <th>Saat</th>
+            <th>IP Adresi</th>
+            <th>Cihaz Bilgisi</th>
+            <th>Ekran Boyutu</th>
+          </tr>
+        </thead>
+        <tbody id="dateGroupTableBody">
+          <!-- Date-specific logs will be loaded here -->
+        </tbody>
+      </table>
+
+      <!-- Add pagination controls for date group -->
+      <div id="dateGroupPaginationContainer"
+        style="display: none; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
+        <div id="dateGroupPaginationInfo">1-10 / 100 kayıt gösteriliyor</div>
+        <div style="display: flex; gap: 10px;">
+          <button id="prevDatePageBtn" class="refresh-button" style="margin-bottom: 0; padding: 5px 10px;">
+            <span style="margin-right: 5px;">←</span> Önceki
+          </button>
+          <button id="nextDatePageBtn" class="refresh-button" style="margin-bottom: 0; padding: 5px 10px;">
+            Sonraki <span style="margin-left: 5px;">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add date summary section -->
+    <div id="dateSummaryContainer" class="date-summary-container">
+      <h3>Tarihe Göre Kayıtlar</h3>
+      <div id="dateSummaryList" class="date-summary-list">
+        <!-- Date summary items will be added here -->
+      </div>
+    </div>
+
     <div id="noLogs" class="no-logs" style="display: none;">
       Henüz kayıt bulunmamaktadır.
     </div>
   </div>
-  
-  
+
+
   <script>
-    document.addEventListener('DOMContentLoaded', async function() {
+    document.addEventListener('DOMContentLoaded', async function () {
       const loginSection = document.getElementById('loginSection');
       const logsSection = document.getElementById('logsSection');
       const loginForm = document.getElementById('loginForm');
       const loginError = document.getElementById('loginError');
-      
+
       // Check if already authenticated
       if (localStorage.getItem('authenticated') === 'true') {
         loginSection.style.display = 'none';
@@ -237,14 +448,14 @@
         loginSection.style.display = 'block';
         logsSection.style.display = 'none';
       }
-      
+
       // Handle login form submission
-      loginForm.addEventListener('submit', async function(e) {
+      loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        
+
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        
+
         try {
           const response = await fetch('/api/admin-login', {
             method: 'POST',
@@ -253,9 +464,9 @@
             },
             body: JSON.stringify({ username, password })
           });
-          
+
           const data = await response.json();
-          
+
           if (data.success) {
             localStorage.setItem('authenticated', 'true');
             localStorage.setItem('adminUsername', username);
@@ -272,158 +483,270 @@
         document.getElementById('username').value = '';
         document.getElementById('password').value = '';
       });
-      
+
       // Add refresh button functionality
       const refreshButton = document.getElementById('refreshButton');
-      refreshButton.addEventListener('click', function() {
+      refreshButton.addEventListener('click', function () {
         if (localStorage.getItem('authenticated') === 'true') {
           // Add loading animation to button
           refreshButton.classList.add('loading');
-          
+
+          // Store the current view state and selected date if any
+          const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
+          const selectedDateTitle = document.getElementById('selectedDateTitle').textContent;
+          const selectedDate = selectedDateTitle.replace(' Kayıtları', '');
+
           // Load logs
-          loadLogs();
+          loadLogs().then(() => {
+            // If we were viewing a date group, restore that view
+            if (isDateGroupVisible && selectedDate) {
+              // Find the date group in the updated data
+              const dateCards = document.querySelectorAll('.date-summary-item');
+              for (const card of dateCards) {
+                if (card.querySelector('h4').textContent === selectedDate) {
+                  // Simulate a click on the date card to show that date's logs
+                  card.click();
+                  break;
+                }
+              }
+            }
+          });
         } else {
           // Show login section if not authenticated
           loginSection.style.display = 'block';
           logsSection.style.display = 'none';
         }
       });
-      
+
+      // Add back button functionality
+      document.getElementById('backToAllLogs').addEventListener('click', () => {
+        document.getElementById('dateGroupContainer').style.display = 'none';
+        document.getElementById('dateGroupPaginationContainer').style.display = 'none';
+        document.querySelector('.logs-table').style.display = 'table';
+        document.getElementById('paginationContainer').style.display = 'flex';
+        document.getElementById('dateSummaryContainer').style.display = 'block';
+      });
+
       // Function to load logs
       async function loadLogs() {
         try {
           // Fetch login logs
           const response = await fetch('/api/login-logs');
           const data = await response.json();
-          
+
           // Debug: Log the raw data from the server
           console.log('API Response:', data);
-          
+
           // Ensure logs is an array
           const logs = Array.isArray(data) ? data : (data.logs || []);
           console.log('Processed logs array:', logs);
-          
+
           const tableBody = document.getElementById('logsTableBody');
           const noLogs = document.getElementById('noLogs');
-          
+
           // Clear existing logs
           tableBody.innerHTML = '';
-          
+
           // Add fade-in class to table
           document.querySelector('.logs-table').classList.add('fade-in');
-          
+
           // Remove fade-in class after animation completes
           setTimeout(() => {
             document.querySelector('.logs-table').classList.remove('fade-in');
           }, 500);
-          
+
           if (!logs || logs.length === 0) {
             console.log('No logs found or empty array');
             noLogs.style.display = 'block';
-            
+            document.getElementById('dateSummaryContainer').style.display = 'none';
+            document.getElementById('paginationContainer').style.display = 'none';
+
             // Remove loading animation from button if it exists
             if (refreshButton) {
               refreshButton.classList.remove('loading');
             }
-            
+
             return;
           } else {
             noLogs.style.display = 'none';
+            document.getElementById('dateSummaryContainer').style.display = 'block';
+            document.getElementById('paginationContainer').style.display = 'flex';
           }
-          
+
           // Sort logs by date (newest first)
           logs.sort((a, b) => new Date(b.date) - new Date(a.date));
-          
-          // Create a map of IP addresses to colors
-          const ipColors = {};
+
+          // Create a map of IP addresses to colors - Make it global
+          window.ipColors = {};
           const uniqueIPs = [...new Set(logs.map(log => log.ipAddress || 'Bilinmiyor'))];
-          
+
           // Generate colors for each unique IP
           const colors = [
-            '#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4', 
-            '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', 
-            '#dcbeff', '#9A6324', '#800000', '#aaffc3', '#808000', 
+            '#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4',
+            '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990',
+            '#dcbeff', '#9A6324', '#800000', '#aaffc3', '#808000',
             '#ffd8b1', '#000075', '#a9a9a9', '#000000', '#ffe119'
           ];
-          
+
           uniqueIPs.forEach((ip, index) => {
-            ipColors[ip] = colors[index % colors.length];
+            window.ipColors[ip] = colors[index % colors.length];
           });
-          
-          // Populate table
+
+          // Group logs by date
+          const logsByDate = {};
           logs.forEach(log => {
-            console.log('Processing log:', log);
-            const row = document.createElement('tr');
-            
-            // Add highlight class to show new data
-            row.classList.add('highlight-row');
-            
-            // Format date
             const date = new Date(log.date);
             const day = date.getDate();
             const month = getMonthName(date.getMonth());
             const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            
-            // Format date with styled day and month
-            const formattedDate = `<span style="font-weight: bold; color: #11171c;">${day} ${month}</span> ${year} ${hours}:${minutes}`;
-            
-            // Check if deviceInfo exists
-            if (!log.deviceInfo) {
-              console.error('Missing deviceInfo for log:', log);
-              return; // Skip this log
+            const dateKey = `${day} ${month} ${year}`;
+
+            if (!logsByDate[dateKey]) {
+              logsByDate[dateKey] = [];
             }
-            
-            const ipAddress = log.ipAddress || 'Bilinmiyor';
-            const ipColor = ipColors[ipAddress];
-            
-            row.innerHTML = `
-              <td>${formattedDate}</td>
-              <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
-              <td>${getBrowserInfo(log.deviceInfo.userAgent || '')}</td>
-              <td>${getOSInfo(log.deviceInfo.userAgent || '')}</td>
-              <td>${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}</td>
-              <td>${log.deviceInfo.language || 'Bilinmiyor'}</td>
-            `;
-            
-            tableBody.appendChild(row);
+
+            logsByDate[dateKey].push(log);
           });
-          
-          // If we got here but no rows were added, show the no logs message
-          if (tableBody.children.length === 0) {
-            noLogs.style.display = 'block';
+
+          // Create date summary cards
+          const dateSummaryList = document.getElementById('dateSummaryList');
+          dateSummaryList.innerHTML = '';
+
+          // Sort dates (newest first)
+          const sortedDates = Object.keys(logsByDate).sort((a, b) => {
+            const dateA = new Date(a.replace(/(\d+) (\w+) (\d+)/, '$3 $2 $1'));
+            const dateB = new Date(b.replace(/(\d+) (\w+) (\d+)/, '$3 $2 $1'));
+            return dateB - dateA;
+          });
+
+          sortedDates.forEach(dateKey => {
+            const dateCount = logsByDate[dateKey].length;
+            const uniqueIPs = new Set(logsByDate[dateKey].map(log => log.ipAddress)).size;
+
+            const dateCard = document.createElement('div');
+            dateCard.className = 'date-summary-item';
+            dateCard.innerHTML = `
+              <h4>${dateKey}</h4>
+              <p>IP Adresleri: <span style="color: black; font-weight: 500;">${uniqueIPs}</span> farklı</p>
+              <p>Giriş: <span class="date-summary-count">${dateCount}</span></p>
+            `;
+
+            dateCard.addEventListener('click', () => {
+              showDateGroup(dateKey, logsByDate[dateKey]);
+            });
+
+            dateSummaryList.appendChild(dateCard);
+          });
+
+          // Initialize pagination
+          const itemsPerPage = 10;
+          let currentPage = 1;
+          const totalPages = Math.ceil(logs.length / itemsPerPage);
+
+          // Function to display logs for current page
+          function displayLogsForPage(page) {
+            tableBody.innerHTML = '';
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, logs.length);
+
+            for (let i = startIndex; i < endIndex; i++) {
+              const log = logs[i];
+              const row = document.createElement('tr');
+
+              // Add highlight class to show new data
+              row.classList.add('highlight-row');
+
+              // Format date
+              const date = new Date(log.date);
+              const day = date.getDate();
+              const month = getMonthName(date.getMonth());
+              const year = date.getFullYear();
+              const hours = String(date.getHours()).padStart(2, '0');
+              const minutes = String(date.getMinutes()).padStart(2, '0');
+
+              // Format date with styled day and month
+              const formattedDate = `<span style="font-weight: bold; color: #11171c;">${day} ${month}</span> ${year} ${hours}:${minutes}`;
+
+              // Check if deviceInfo exists
+              if (!log.deviceInfo) {
+                console.error('Missing deviceInfo for log:', log);
+                continue; // Skip this log
+              }
+
+              const ipAddress = log.ipAddress || 'Bilinmiyor';
+              const ipColor = window.ipColors[ipAddress];
+
+              // Format device info
+              const deviceInfo = formatDeviceInfo(log.deviceInfo);
+
+              row.innerHTML = `
+                <td>${formattedDate}</td>
+                <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
+                <td>${deviceInfo}</td>
+                <td>${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}</td>
+              `;
+
+              tableBody.appendChild(row);
+            }
+
+            // Update pagination info
+            document.getElementById('paginationInfo').textContent =
+              `${startIndex + 1}-${endIndex} / ${logs.length} kayıt gösteriliyor`;
+
+            // Update button states
+            document.getElementById('prevPageBtn').disabled = page === 1;
+            document.getElementById('nextPageBtn').disabled = page === totalPages;
           }
-          
+
+          // Display first page
+          displayLogsForPage(currentPage);
+
+          // Set up pagination button handlers
+          document.getElementById('prevPageBtn').onclick = () => {
+            if (currentPage > 1) {
+              currentPage--;
+              displayLogsForPage(currentPage);
+            }
+          };
+
+          document.getElementById('nextPageBtn').onclick = () => {
+            if (currentPage < totalPages) {
+              currentPage++;
+              displayLogsForPage(currentPage);
+            }
+          };
+
           // Remove loading animation from button
           if (refreshButton) {
             refreshButton.classList.remove('loading');
-            
+
             // Show success indicator on button
             const originalText = refreshButton.querySelector('.refresh-text').textContent;
             refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
             refreshButton.style.backgroundColor = '#000080';
-            
+
             // Reset button after 2 seconds
             setTimeout(() => {
               refreshButton.querySelector('.refresh-text').textContent = originalText;
               refreshButton.style.backgroundColor = '';
             }, 2000);
           }
-          
+
         } catch (error) {
           console.error('Error loading logs:', error);
           document.getElementById('noLogs').textContent = 'Kayıtlar yüklenirken bir hata oluştu.';
           document.getElementById('noLogs').style.display = 'block';
-          
+          document.getElementById('dateSummaryContainer').style.display = 'none';
+          document.getElementById('paginationContainer').style.display = 'none';
+
           // Remove loading animation from button
           if (refreshButton) {
             refreshButton.classList.remove('loading');
-            
+
             // Show error indicator on button
             refreshButton.querySelector('.refresh-text').textContent = 'Hata!';
             refreshButton.style.backgroundColor = '#f44336';
-            
+
             // Reset button after 2 seconds
             setTimeout(() => {
               refreshButton.querySelector('.refresh-text').textContent = 'Yenile';
@@ -432,34 +755,174 @@
           }
         }
       }
+
+      // Function to show logs for a specific date
+      function showDateGroup(dateKey, dateGroup) {
+        // Hide the main logs table but keep the date summary visible
+        const mainTable = document.querySelectorAll('.logs-table')[0]; // Get the first table
+        mainTable.style.display = 'none';
+
+        document.getElementById('dateGroupContainer').style.display = 'block';
+        document.getElementById('selectedDateTitle').textContent = `${dateKey} Kayıtları`;
+
+        // Don't hide the date summary container
+        // document.getElementById('dateSummaryContainer').style.display = 'none';
+
+        // Show pagination for date view with different ID
+        document.getElementById('paginationContainer').style.display = 'none';
+        document.getElementById('dateGroupPaginationContainer').style.display = 'flex';
+
+        // Highlight the selected date card
+        const allDateCards = document.querySelectorAll('.date-summary-item');
+        allDateCards.forEach(card => {
+          // Remove active class from all cards
+          card.classList.remove('date-summary-item-active');
+
+          // Add active class to the selected card
+          if (card.querySelector('h4').textContent.includes(dateKey)) {
+            card.classList.add('date-summary-item-active');
+          }
+        });
+
+        const dateGroupTableBody = document.getElementById('dateGroupTableBody');
+        dateGroupTableBody.innerHTML = '';
+
+        // Sort by time (newest first)
+        dateGroup.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Initialize pagination for date group
+        const itemsPerPage = 10;
+        let currentPage = 1;
+        const totalPages = Math.ceil(dateGroup.length / itemsPerPage);
+
+        // Function to display logs for current page
+        function displayLogsForPage(page) {
+          dateGroupTableBody.innerHTML = '';
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = Math.min(startIndex + itemsPerPage, dateGroup.length);
+
+          for (let i = startIndex; i < endIndex; i++) {
+            const log = dateGroup[i];
+            const row = document.createElement('tr');
+            row.classList.add('highlight-row');
+
+            const date = new Date(log.date);
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+
+            const ipAddress = log.ipAddress || 'Bilinmiyor';
+            const ipColor = window.ipColors[ipAddress];
+
+            // Format device info
+            const deviceInfo = formatDeviceInfo(log.deviceInfo);
+
+            row.innerHTML = `
+              <td>${hours}:${minutes}:${seconds}</td>
+              <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
+              <td>${deviceInfo}</td>
+              <td>${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}</td>
+            `;
+
+            dateGroupTableBody.appendChild(row);
+          }
+
+          // Update pagination info
+          document.getElementById('dateGroupPaginationInfo').textContent =
+            `${startIndex + 1}-${endIndex} / ${dateGroup.length} kayıt gösteriliyor`;
+
+          // Update button states
+          const prevBtn = document.getElementById('prevDatePageBtn');
+          const nextBtn = document.getElementById('nextDatePageBtn');
+
+          if (page === 1) {
+            prevBtn.disabled = true;
+            prevBtn.style.opacity = '0.5';
+            prevBtn.style.cursor = 'not-allowed';
+          } else {
+            prevBtn.disabled = false;
+            prevBtn.style.opacity = '1';
+            prevBtn.style.cursor = 'pointer';
+          }
+
+          if (page === totalPages) {
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+            nextBtn.style.cursor = 'not-allowed';
+          } else {
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+            nextBtn.style.cursor = 'pointer';
+          }
+        }
+
+        // Display first page
+        try {
+          displayLogsForPage(currentPage);
+        } catch (error) {
+          console.error('Error displaying logs:', error);
+          dateGroupTableBody.innerHTML = '<tr><td colspan="4">Kayıtlar gösterilirken bir hata oluştu.</td></tr>';
+        }
+
+        // Set up pagination button handlers for date group
+        document.getElementById('prevDatePageBtn').onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            displayLogsForPage(currentPage);
+          }
+        };
+
+        document.getElementById('nextDatePageBtn').onclick = () => {
+          if (currentPage < totalPages) {
+            currentPage++;
+            displayLogsForPage(currentPage);
+          }
+        };
+      }
+
+      // Helper function to format device info
+      function formatDeviceInfo(deviceInfo) {
+        if (!deviceInfo) return 'Bilinmiyor';
+
+        const userAgent = deviceInfo.userAgent || '';
+
+        // Check for Windows devices
+        const windowsVersion = userAgent.match(/Windows NT [0-9.]+/);
+        const windowsArch = userAgent.match(/Win64|Win32/);
+
+        // Check for Android devices
+        const androidVersion = userAgent.match(/Android [0-9.]+/);
+
+        if (windowsVersion && windowsArch) {
+          return `${windowsVersion[0]} - ${windowsArch[0]}`;
+        } else if (windowsVersion) {
+          return windowsVersion[0];
+        } else if (androidVersion) {
+          // For Android devices, show "Linux - Android X"
+          return `Linux - ${androidVersion[0]}`;
+        } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+          // For iOS devices
+          const iosDevice = userAgent.match(/iPhone|iPad/)[0];
+          const iosVersion = userAgent.match(/OS ([0-9_]+)/);
+          return iosVersion ? `${iosDevice} - iOS ${iosVersion[1].replace('_', '.')}` : iosDevice;
+        } else if (userAgent.includes('Mac OS')) {
+          // For Mac devices
+          const macVersion = userAgent.match(/Mac OS X ([0-9_]+)/);
+          return macVersion ? `Mac OS X ${macVersion[1].replace(/_/g, '.')}` : 'Mac OS';
+        } else {
+          // Default fallback to platform or unknown
+          return deviceInfo.platform || 'Bilinmiyor';
+        }
+      }
     });
-    
-    // Helper functions remain unchanged
+
+    // Helper functions
     function getMonthName(monthIndex) {
-      const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
-                      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+      const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
       return months[monthIndex];
-    }
-    
-    function getBrowserInfo(userAgent) {
-      if (!userAgent) return 'Bilinmiyor';
-      if (userAgent.includes('Firefox')) return 'Firefox';
-      if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
-      if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
-      if (userAgent.includes('Edg')) return 'Edge';
-      if (userAgent.includes('MSIE') || userAgent.includes('Trident')) return 'Internet Explorer';
-      return 'Diğer';
-    }
-    
-    function getOSInfo(userAgent) {
-      if (!userAgent) return 'Bilinmiyor';
-      if (userAgent.includes('Windows')) return 'Windows';
-      if (userAgent.includes('Mac OS')) return 'macOS';
-      if (userAgent.includes('Linux')) return 'Linux';
-      if (userAgent.includes('Android')) return 'Android';
-      if (userAgent.includes('iOS') || userAgent.includes('iPhone') || userAgent.includes('iPad')) return 'iOS';
-      return 'Diğer';
     }
   </script>
 </body>
+
 </html>
