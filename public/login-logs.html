@@ -576,11 +576,21 @@
           // Sort logs by date (newest first)
           logs.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-          // Create a map of IP addresses to colors - Make it global
+          // Create a map of IP+device+screen combinations to colors
           window.ipColors = {};
-          const uniqueIPs = [...new Set(logs.map(log => log.ipAddress || 'Bilinmiyor'))];
+          
+          // Create unique combinations of IP, device info, and screen size
+          const uniqueCombinations = [];
+          logs.forEach(log => {
+            const deviceInfo = formatDeviceInfo(log.deviceInfo);
+            const screenSize = `${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}`;
+            const ipDeviceScreen = `${log.ipAddress || 'Bilinmiyor'}-${deviceInfo}-${screenSize}`;
+            if (!uniqueCombinations.includes(ipDeviceScreen)) {
+              uniqueCombinations.push(ipDeviceScreen);
+            }
+          });
 
-          // Generate colors for each unique IP
+          // Generate colors for each unique combination
           const colors = [
             '#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4',
             '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990',
@@ -588,8 +598,8 @@
             '#ffd8b1', '#000075', '#a9a9a9', '#000000', '#ffe119'
           ];
 
-          uniqueIPs.forEach((ip, index) => {
-            window.ipColors[ip] = colors[index % colors.length];
+          uniqueCombinations.forEach((combo, index) => {
+            window.ipColors[combo] = colors[index % colors.length];
           });
 
           // Group logs by date
@@ -674,16 +684,16 @@
               }
 
               const ipAddress = log.ipAddress || 'Bilinmiyor';
-              const ipColor = window.ipColors[ipAddress];
-
-              // Format device info
               const deviceInfo = formatDeviceInfo(log.deviceInfo);
+              const screenSize = `${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}`;
+              const ipDeviceScreen = `${ipAddress}-${deviceInfo}-${screenSize}`;
+              const ipColor = window.ipColors[ipDeviceScreen];
 
               row.innerHTML = `
                 <td>${formattedDate}</td>
                 <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
                 <td>${deviceInfo}</td>
-                <td>${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}</td>
+                <td>${screenSize}</td>
               `;
 
               tableBody.appendChild(row);
@@ -812,16 +822,16 @@
             const seconds = String(date.getSeconds()).padStart(2, '0');
 
             const ipAddress = log.ipAddress || 'Bilinmiyor';
-            const ipColor = window.ipColors[ipAddress];
-
-            // Format device info
             const deviceInfo = formatDeviceInfo(log.deviceInfo);
+            const screenSize = `${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}`;
+            const ipDeviceScreen = `${ipAddress}-${deviceInfo}-${screenSize}`;
+            const ipColor = window.ipColors[ipDeviceScreen];
 
             row.innerHTML = `
               <td>${hours}:${minutes}:${seconds}</td>
               <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
               <td>${deviceInfo}</td>
-              <td>${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}</td>
+              <td>${screenSize}</td>
             `;
 
             dateGroupTableBody.appendChild(row);

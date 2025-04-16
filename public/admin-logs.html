@@ -618,11 +618,20 @@
               document.querySelector('.log-table').classList.remove('fade-in');
             }, 500);
 
-            // Create a map of IP addresses to colors
+            // Create a map of IP+device combinations to colors
             ipColors = {}; // Reset the global ipColors
-            const uniqueIPs = [...new Set(logs.map(log => log.ipAddress || 'Bilinmiyor'))];
 
-            // Generate colors for each unique IP
+            // Create unique combinations of IP and device info
+            const uniqueCombinations = [];
+            logs.forEach(log => {
+              const deviceInfo = formatDeviceInfo(log.deviceInfo);
+              const ipDevice = `${log.ipAddress || 'Bilinmiyor'}-${deviceInfo}`;
+              if (!uniqueCombinations.includes(ipDevice)) {
+                uniqueCombinations.push(ipDevice);
+              }
+            });
+
+            // Generate colors for each unique combination
             const colors = [
               '#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4',
               '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990',
@@ -630,8 +639,8 @@
               '#ffd8b1', '#000075', '#a9a9a9', '#000000', '#ffe119'
             ];
 
-            uniqueIPs.forEach((ip, index) => {
-              ipColors[ip] = colors[index % colors.length];
+            uniqueCombinations.forEach((combo, index) => {
+              ipColors[combo] = colors[index % colors.length];
             });
 
             // Remove the redundant code that adds all logs to the table
@@ -836,11 +845,11 @@
 
               const actionText = actionMap[log.action] || log.action;
 
+              // Get IP address and device info for color
               const ipAddress = log.ipAddress || 'Bilinmiyor';
-              const ipColor = ipColors[ipAddress];
-
-              // Format device info
               const deviceInfo = formatDeviceInfo(log.deviceInfo);
+              const ipDeviceCombo = `${ipAddress}-${deviceInfo}`;
+              const ipColor = ipColors[ipDeviceCombo];
 
               row.innerHTML = `
               <td>${actionText}</td>
@@ -936,11 +945,13 @@
           const actionText = actionMap[log.action] || log.action;
 
           // Format device info
-          const deviceInfo = formatDeviceInfo(log.deviceInfo);
+          // Device info is already declared above, so we remove this redundant declaration
 
-          // Get IP address and its color
+          // Get IP address and device info for color
           const ipAddress = log.ipAddress || 'Bilinmiyor';
-          const ipColor = ipColors[ipAddress];
+          const deviceInfo = formatDeviceInfo(log.deviceInfo);
+          const ipDeviceCombo = `${ipAddress}-${deviceInfo}`;
+          const ipColor = ipColors[ipDeviceCombo];
 
           row.innerHTML = `
           <td>${actionText}</td>
