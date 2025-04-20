@@ -533,11 +533,10 @@ const backupJob = scheduleBackup();
 app.post('/api/verify-admin', async (req, res) => {
   try {
     const { username } = req.body;
-    console.log("Received verification request for username:", username);
 
     // Use the existing mongoose connection instead of creating a new client
     const admin = await Admin.findOne({ username });
-    
+
     res.json({ valid: !!admin });
   } catch (error) {
     console.error('Error verifying admin:', error);

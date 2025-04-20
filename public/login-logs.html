@@ -534,12 +534,9 @@
           const response = await fetch('/api/login-logs');
           const data = await response.json();
 
-          // Debug: Log the raw data from the server
-          console.log('API Response:', data);
 
           // Ensure logs is an array
           const logs = Array.isArray(data) ? data : (data.logs || []);
-          console.log('Processed logs array:', logs);
 
           const tableBody = document.getElementById('logsTableBody');
           const noLogs = document.getElementById('noLogs');
@@ -578,7 +575,7 @@
 
           // Create a map of IP+device+screen combinations to colors
           window.ipColors = {};
-          
+
           // Create unique combinations of IP, device info, and screen size
           const uniqueCombinations = [];
           logs.forEach(log => {

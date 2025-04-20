@@ -1,675 +1,766 @@
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7fa;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .container {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 10px;
-    padding-inline: 40px;
-    background-color: #ffffff;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-  }
-  
-  h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #333;
-  }
-  
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f7fa;
+  margin: 0;
+  padding: 0;
+}
 
-  
-  /* Düzen alanı */
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 10px;
+  padding-inline: 40px;
+  background-color: #ffffff;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+
+
+/* Düzen alanı */
+.main-area {
+  display: flex;
+  gap: 20px;
+  padding: 5px 15px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.settings-section {
+  padding: 0px 10px;
+  padding-bottom: 20px;
+}
+
+#ayarlar {
+  margin-top: 10px;
+}
+
+/* Updating the user list and delete button styles */
+ul#deleteList {
+  list-style: none;
+  padding: 0;
+  min-width: 100px;
+  margin-top: 10px;
+}
+
+ul#deleteList li {
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  background: #f9f9f9;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+ul#deleteList li span {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.admin-logs-button {
+  position: fixed;
+  bottom: 65px;
+  right: 20px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+.admin-logs-button:hover {
+  background-color: #e74c3c;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+.admin-logs-button img {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+/* Login logs button styling */
+.login-logs-button {
+  position: fixed;
+  bottom: 100px;
+  /* Position above the admin logs button */
+  right: 20px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: none;
+  /* Hidden by default, shown when admin is logged in */
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+.login-logs-button:hover {
+  background-color: #357ab8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+.login-logs-button img {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.delete-button {
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-button img {
+  display: block;
+  width: 20px;
+  height: 20px;
+}
+
+.delete-button:hover {
+  background-color: #d9363e;
+}
+
+
+.submit-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.custom-file-input {
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+/* Improving overall layout balance */
+.main-area {
+  display: flex;
+  gap: 50px;
+  /* Increased from 30px to 50px to add more space between sections */
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Consistent heading styles */
+h3 {
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #555;
+  font-size: 18px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #eee;
+  width: 300px;
+}
+
+/* Tablo */
+.table-area {
+  flex: 3;
+  min-width: 600px;
+  overflow-x: auto;
+  padding: 15px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+/* Hücre üzerine gelindiğinde geçici renk */
+/* Remove the conflicting hover rules */
+td:hover:not(.status-cell) {
+  background-color: #e0f7fa;
+  cursor: pointer;
+}
+
+/* Only apply hover effect to cells without a color class */
+td:not(.green):not(.pink):not(.lila):not(.red):hover {
+  background-color: #e0f7fa;
+  cursor: pointer;
+}
+
+/* All cells should be clickable */
+td {
+  cursor: pointer;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+}
+
+/* Renk kodlamaları */
+.green {
+  background-color: rgb(76, 217, 100);
+  /* More vibrant green with less yellow tint */
+}
+
+.pink {
+  background-color: rgb(255, 220, 90);
+  /* Lighter yellow */
+}
+
+.lila {
+  background-color: rgb(255, 170, 60);
+  /* Medium orange */
+}
+
+.red {
+  background-color: rgb(255, 100, 60);
+  /* Darker red-orange */
+}
+
+/* Yeni kullanıcı */
+.new-user {
+  flex: 1;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
   .main-area {
-    display: flex;
-    gap: 20px;
-    padding: 5px 15px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  
-  .settings-section{
-    padding: 0px 10px;
-    padding-bottom: 20px;
-  }
-  #ayarlar{
-    margin-top: 10px;
-  }
-  /* Updating the user list and delete button styles */
-  ul#deleteList {
-    list-style: none;
-    padding: 0;
-    min-width: 100px;
-    margin-top: 10px;
-  }
-  
-  ul#deleteList li {
-    margin: 8px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 15px;
-    background: #f9f9f9;
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-  }
-  
-  ul#deleteList li span {
-    flex-grow: 1;
-    text-align: left;
-  }
-  
-  .delete-button {
-    background: #ff4d4f;
-    border: none;
-    color: white;
-    padding: 6px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-left: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .delete-button img {
-    display: block;
-    width: 20px;
-    height: 20px;
-  }
-  
-  .delete-button:hover {
-    background-color: #d9363e;
-  }
-  
-  
-  .submit-button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-left: 10px;
-  }
-  
-  .custom-file-input {
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    display: inline-block;
-    margin-right: 10px;
-  }
-  
-  /* Improving overall layout balance */
-  .main-area {
-    display: flex;
-    gap: 50px; /* Increased from 30px to 50px to add more space between sections */
-    align-items: flex-start;
-    flex-wrap: wrap;
-    margin-top: 20px;
-  }
-
-  /* Consistent heading styles */
-  h3 {
-    margin-top: 30px;
-    margin-bottom: 15px;
-    color: #555;
-    font-size: 18px;
-    padding-bottom: 5px;
-    border-bottom: 2px solid #eee; 
-    width:300px;
-  }
-  
-  /* Tablo */
-  .table-area {
-    flex: 3;
-    min-width: 600px;
-    overflow-x: auto;
-    padding: 15px;
-  }
-  
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-    font-size: 14px;
-    transition: background-color 0.2s ease;
-  }
-  
-  /* Hücre üzerine gelindiğinde geçici renk */
-  /* Remove the conflicting hover rules */
-    td:hover:not(.status-cell) {
-      background-color: #e0f7fa;
-      cursor: pointer;
-    }
-
-    /* Only apply hover effect to cells without a color class */
-    td:not(.green):not(.pink):not(.lila):not(.red):hover {
-      background-color: #e0f7fa;
-      cursor: pointer;
-    }
-    
-    /* All cells should be clickable */
-    td {
-      cursor: pointer;
-    }
-  th {
-    background-color: #f0f0f0;
-    font-weight: 600;
-  }
-  
-  /* Renk kodlamaları */
-  .green {
-    background-color: rgb(76, 217, 100); /* More vibrant green with less yellow tint */
-  }
-  
-  .pink {
-    background-color: rgb(255, 220, 90); /* Lighter yellow */
-  }
-  
-  .lila {
-    background-color: rgb(255, 170, 60); /* Medium orange */
-  }
-  
-  .red {
-    background-color: rgb(255, 100, 60); /* Darker red-orange */
-  }
-  
-  /* Yeni kullanıcı */
-  .new-user {
-    flex: 1;
-  }
- 
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .main-area {
-      flex-direction: column;
-    }
-  }
-  
-  /* Profil resmi stilleri - daire şeklinde ve boyut sınırlaması */
-  .profile-image {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
-    border: 1px solid #ddd;
-  }
-  
-  /* Style the last column (streak column) with larger font */
-  td:last-child {
-    font-size: 20px;
-    color: red;
-    font-weight: 500;
-  }
-  
-  /* Style the last column header */
-  tr th:last-child {
-    font-size: 20px;
-  }
-  /* User management styles */
-  .user-item {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-  }
-  
-  .user-actions {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .settings-button {
-    background: #f0f0f0;
-    border: none;
-    color: #555;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  .settings-button:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .user-profile-image {
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  
-  .user-profile-image:hover {
-    opacity: 0.8;
-  }
-  
-  .user-name {
-    cursor: pointer;
-    padding: 3px 6px;
-    border-radius: 3px;
-    transition: background-color 0.2s;
-  }
-  
-  .user-name:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .edit-name-input {
-    padding: 4px 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    margin-right: 5px;
-  }
-  
-  .save-name-button {
-    background: #6adf6e;
-    border: none;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-  
-  .save-name-button:hover {
-    background-color: #45a049;
-  }
-  
-  ul#deleteList li {
-    margin: 8px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 15px;
-    background: #f9f9f9;
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-  }
-  
-  ul#deleteList li span {
-    flex-grow: 1;
-    text-align: left;
-  }
-  
-  .delete-button {
-    background: #ff4d4f;
-    border: none;
-    color: white;
-    padding: 6px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    margin-left: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .delete-button img {
-    display: block;
-  }
-  
-  .delete-button:hover {
-    background-color: #d9363e;
-  }
-  
-  
-  .submit-button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-left: 10px;
-  }
-  
-  .custom-file-input {
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    display: inline-block;
-    margin-right: 10px;
-  }
-  
-  /* Improving overall layout balance */
-  .main-area {
-    display: flex;
-    gap: 50px; /* Increased from 30px to 50px to add more space between sections */
-    align-items: flex-start;
-    flex-wrap: wrap;
-    margin-top: 20px;
-  }
-
-
-  
-  /* Tablo */
-  .table-area {
-    flex: 3;
-    min-width: 600px;
-    overflow-x: auto;
-    padding: 15px;
-  }
-  
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-    font-size: 14px;
-    transition: background-color 0.2s ease;
-  }
-  
-  /* Hücre üzerine gelindiğinde geçici renk */
-  /* Remove the conflicting hover rules */
-    td:hover:not(.status-cell) {
-      background-color: #e0f7fa;
-      cursor: pointer;
-    }
-    
-    /* Keep colored cells' background color on hover */
-    .green:hover {
-      background-color: rgb(56, 197, 80) !important; /* Slightly darker green on hover */
-    }
-    
-    .pink:hover {
-      background-color: rgb(255, 200, 70) !important; /* Slightly darker yellow on hover */
-    }
-    
-    .lila:hover {
-      background-color: rgb(255, 150, 40) !important; /* Slightly darker orange on hover */
-    }
-    
-    .red:hover {
-      background-color: rgb(255, 80, 40) !important; /* Slightly darker red-orange on hover */
-    }
-    
-    
-    /* All cells should be clickable */
-    td {
-      cursor: pointer;
-    }
-  th {
-    background-color: #f0f0f0;
-    font-weight: 600;
-  }
-  
-
-
-  
-  /* Profil resmi stilleri - daire şeklinde ve boyut sınırlaması */
-  .profile-image {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
-    border: 1px solid #ddd;
-  }
-  
-  /* Style the last column (streak column) with larger font */
-  td:last-child {
-    font-size: 20px;
-    color: red;
-    font-weight: 500;
-  }
-  
-  /* Style the last column header */
-  tr th:last-child {
-    font-size: 20px;
-  }
-  .user-item {
-    display: flex;
-    align-items: center;
-  }
-  
-  
-  .file-input-container {
-    display: flex;
-    align-items: center;
-    margin-top: 5px;
-    flex-wrap: wrap;
-  }
-  
-  input[type="file"] {
-    position: absolute;
-    width: 0.1px;
-    height: 0.1px;
-    opacity: 0;
-    overflow: hidden;
-    z-index: -1;
-  }
-  
-  /* Add these styles to your existing CSS */
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .image-upload {
-    margin-top: 15px;
-  }
-  
-  .primary-button {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .secondary-button {
-    background-color: #5b9bd5;
-    color: white;
-  }
-  
-  .submit-button {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-left: 10px;
-  }
-  
-  .custom-file-input {
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    display: inline-block;
-    margin-right: 10px;
-    transition: background-color 0.3s;
-  }
-  
-  .primary-button:hover {
-    background-color: #45a049;
-  }
-  
-  .secondary-button:hover {
-    background-color: #4a8bc6;
-  }
-  
-  #file-name {
-    color: #666;
-    font-size: 14px;
-    display: inline-block;
-    vertical-align: middle;
-  }
-  
-  
-  /* Add styling for the date in the header */
-  th {
-    background-color: #f0f0f0;
-    font-weight: 600;
-    border-bottom: 2px solid #ddd;
-    padding: 12px 10px;
-    color: #888; /* Gray color for the date text */
-  }
-  
-  /* Style the first column (name column) with larger font */
-    td:first-child {
-      font-size: 17px;
-      font-weight: 500;
-    }
-    
-    /* Style the first column header differently */
-    tr th:first-child {
-      background-color: #f5f5f5;
-      color: #333;
-      font-size: 16px;
-    }
-  
-  /* Style the date part in the header */
-  th {
-    color: #666;
-  }
-  
-  /* Add a specific style for the date text */
-  .date-text {
-    color: #888;
-    font-size: 11px;
-  }
-  
-  /* Day of week styling */
-  .day-of-week {
-    font-size: 17px;
-    font-weight: 600;
-    color: #5b9bd5;
-    display: block;
-    margin-top: 3px;
-  }
-  
-  /* Make the table header more distinct */
-  th {
-    background-color: #f0f0f0;
-    font-weight: 600;
-    border-bottom: 2px solid #ddd;
-    padding: 12px 10px;
-  }
-  
-  /* Style the first column header differently */
-  tr th:first-child {
-    background-color: #f5f5f5;
-    color: #333;
-  }
-
-  /* Week navigation styling */
-  .week-navigation {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-    padding: 10px 0;
-    border-top: 1px solid #eee;
-  }
-  
-  .nav-group {
-    display: flex;
     flex-direction: column;
-    gap: 5px;
   }
-  
-  .nav-button {
-    background-color: #fcebfc;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 8px 15px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #555;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
+}
+
+/* Profil resmi stilleri - daire şeklinde ve boyut sınırlaması */
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+}
+
+/* Style the last column (streak column) with larger font */
+td:last-child {
+  font-size: 20px;
+  color: red;
+  font-weight: 500;
+}
+
+/* Style the last column header */
+tr th:last-child {
+  font-size: 20px;
+}
+
+/* User management styles */
+.user-item {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.settings-button {
+  background: #f0f0f0;
+  border: none;
+  color: #555;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.settings-button:hover {
+  background-color: #e0e0e0;
+}
+
+.user-profile-image {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.user-profile-image:hover {
+  opacity: 0.8;
+}
+
+.user-name {
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.user-name:hover {
+  background-color: #f0f0f0;
+}
+
+.edit-name-input {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+.save-name-button {
+  background: #6adf6e;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.save-name-button:hover {
+  background-color: #45a049;
+}
+
+ul#deleteList li {
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  background: #f9f9f9;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+ul#deleteList li span {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.delete-button {
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-button img {
+  display: block;
+}
+
+.delete-button:hover {
+  background-color: #d9363e;
+}
+
+
+.submit-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.custom-file-input {
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+/* Improving overall layout balance */
+.main-area {
+  display: flex;
+  gap: 50px;
+  /* Increased from 30px to 50px to add more space between sections */
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+
+
+/* Tablo */
+.table-area {
+  flex: 3;
+  min-width: 600px;
+  overflow-x: auto;
+  padding: 15px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+/* Hücre üzerine gelindiğinde geçici renk */
+/* Remove the conflicting hover rules */
+td:hover:not(.status-cell) {
+  background-color: #e0f7fa;
+  cursor: pointer;
+}
+
+/* Keep colored cells' background color on hover */
+.green:hover {
+  background-color: rgb(56, 197, 80) !important;
+  /* Slightly darker green on hover */
+}
+
+.pink:hover {
+  background-color: rgb(255, 200, 70) !important;
+  /* Slightly darker yellow on hover */
+}
+
+.lila:hover {
+  background-color: rgb(255, 150, 40) !important;
+  /* Slightly darker orange on hover */
+}
+
+.red:hover {
+  background-color: rgb(255, 80, 40) !important;
+  /* Slightly darker red-orange on hover */
+}
+
+
+/* All cells should be clickable */
+td {
+  cursor: pointer;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+}
+
+
+
+
+/* Profil resmi stilleri - daire şeklinde ve boyut sınırlaması */
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  border: 1px solid #ddd;
+}
+
+/* Style the last column (streak column) with larger font */
+td:last-child {
+  font-size: 20px;
+  color: red;
+  font-weight: 500;
+}
+
+/* Style the last column header */
+tr th:last-child {
+  font-size: 20px;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+}
+
+
+.file-input-container {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+
+input[type="file"] {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+/* Add these styles to your existing CSS */
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.image-upload {
+  margin-top: 15px;
+}
+
+.primary-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.secondary-button {
+  background-color: #5b9bd5;
+  color: white;
+}
+
+.submit-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.custom-file-input {
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-block;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.primary-button:hover {
+  background-color: #45a049;
+}
+
+.secondary-button:hover {
+  background-color: #4a8bc6;
+}
+
+#file-name {
+  color: #666;
+  font-size: 14px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+/* Add styling for the date in the header */
+th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+  border-bottom: 2px solid #ddd;
+  padding: 12px 10px;
+  color: #888;
+  /* Gray color for the date text */
+}
+
+/* Style the first column (name column) with larger font */
+td:first-child {
+  font-size: 17px;
+  font-weight: 500;
+}
+
+/* Style the first column header differently */
+tr th:first-child {
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 16px;
+}
+
+/* Style the date part in the header */
+th {
+  color: #666;
+}
+
+/* Add a specific style for the date text */
+.date-text {
+  color: #888;
+  font-size: 11px;
+}
+
+/* Day of week styling */
+.day-of-week {
+  font-size: 17px;
+  font-weight: 600;
+  color: #5b9bd5;
+  display: block;
+  margin-top: 3px;
+}
+
+/* Make the table header more distinct */
+th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+  border-bottom: 2px solid #ddd;
+  padding: 12px 10px;
+}
+
+/* Style the first column header differently */
+tr th:first-child {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Week navigation styling */
+.week-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-button {
+  background-color: #fcebfc;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+  background-color: #e9e9e9;
+  color: #333;
+}
+
+.today-button {
+  background-color: #5b9bd5;
+  color: white;
+  border: none;
+}
+
+.today-button:hover {
+  background-color: #80c4fc;
+}
+
+.arrow {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 5px;
+}
+
+.current-week {
+  font-size: 16px;
+  font-weight: 600;
+  color: #5b9bd5;
+  padding: 5px 15px;
+  border-radius: 4px;
+  background-color: #f0f7ff;
+  height: 25px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fire emoji animation */
+.fire-emoji {
+  display: inline-block;
+  animation: flame 4s infinite;
+  transform-origin: bottom center;
+  position: relative;
+}
+
+@keyframes flame {
+  0% {
+    transform: scale(1) translateX(0) rotate(0deg);
+    opacity: 0.95;
   }
-  
-  .nav-button:hover {
-    background-color: #e9e9e9;
-    color: #333;
+
+  20% {
+    transform: scale(1.03) translateX(-1px) rotate(-2deg);
+    opacity: 1;
   }
-  
-  .today-button {
-    background-color: #5b9bd5;
-    color: white;
-    border: none;
+
+  40% {
+    transform: scale(0.98) translateX(1px) rotate(3deg);
+    opacity: 0.92;
   }
-  
-  .today-button:hover {
-    background-color: #80c4fc;
+
+  60% {
+    transform: scale(1.02) translateX(0) rotate(1deg);
+    opacity: 0.98;
   }
-  
-  .arrow {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 5px;
+
+  80% {
+    transform: scale(0.99) translateX(-1px) rotate(-1deg);
+    opacity: 0.94;
   }
-  
-  .current-week {
-    font-size: 16px;
-    font-weight: 600;
-    color: #5b9bd5;
-    padding: 5px 15px;
-    border-radius: 4px;
-    background-color: #f0f7ff;
-    height: 25px;
-    line-height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+  100% {
+    transform: scale(1) translateX(0) rotate(0deg);
+    opacity: 0.95;
   }
-  
-  /* Fire emoji animation */
-    .fire-emoji {
-      display: inline-block;
-      animation: flame 4s infinite;
-      transform-origin: bottom center;
-      position: relative;
-    }
-    
-    @keyframes flame {
-      0% {
-        transform: scale(1) translateX(0) rotate(0deg);
-        opacity: 0.95;
-      }
-      20% {
-        transform: scale(1.03) translateX(-1px) rotate(-2deg);
-        opacity: 1;
-      }
-      40% {
-        transform: scale(0.98) translateX(1px) rotate(3deg);
-        opacity: 0.92;
-      }
-      60% {
-        transform: scale(1.02) translateX(0) rotate(1deg);
-        opacity: 0.98;
-      }
-      80% {
-        transform: scale(0.99) translateX(-1px) rotate(-1deg);
-        opacity: 0.94;
-      }
-      100% {
-        transform: scale(1) translateX(0) rotate(0deg);
-        opacity: 0.95;
-      }
-    }
+}
 
 /* Settings section styling */
 .settings-section {
@@ -730,12 +821,14 @@ th.today-column::before {
   border-radius: 4px;
   font-size: 12px;
   font-weight: normal;
-  z-index: 10; /* Ensure it appears above other elements */
+  z-index: 10;
+  /* Ensure it appears above other elements */
 }
 
 /* Remove the extra padding since we're not placing the label inside */
 th.today-column {
-  padding-top: 10px; /* Reset to normal padding */
+  padding-top: 10px;
+  /* Reset to normal padding */
 }
 
 /* Make sure the day of week is more prominent for today */
@@ -769,8 +862,10 @@ th.today-column {
   padding: 15px;
   width: 53%;
   background-color: #f9f9f9;
-  position: relative; /* Add position relative for absolute positioning of refresh button */
-  min-height: 150px; /* Set minimum height */
+  position: relative;
+  /* Add position relative for absolute positioning of refresh button */
+  min-height: 150px;
+  /* Set minimum height */
 }
 
 .quote-container {
@@ -778,7 +873,8 @@ th.today-column {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  height: 100%; /* Make container fill the section */
+  height: 100%;
+  /* Make container fill the section */
 }
 
 .quote-icon {
@@ -795,7 +891,7 @@ th.today-column {
 }
 
 .quote-title {
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, 'Times New Roman', Times, serif;
   font-size: 13px;
   font-weight: 450;
   color: #666;
@@ -808,11 +904,15 @@ th.today-column {
   line-height: 1.6;
   padding: 3px;
   border-radius: 5px;
-  width: 98%; /* Make text use full width */
-  overflow-wrap: break-word; /* Ensure long words break */
+  width: 98%;
+  /* Make text use full width */
+  overflow-wrap: break-word;
+  /* Ensure long words break */
   word-wrap: break-word;
-  height: auto; /* Allow height to adjust */
-  min-height: 50px; /* Minimum height for the text */
+  height: auto;
+  /* Allow height to adjust */
+  min-height: 50px;
+  /* Minimum height for the text */
 }
 
 /* Responsive styles for quote section */
@@ -821,7 +921,7 @@ th.today-column {
     width: 400px;
     min-height: 50px;
   }
-  
+
 }
 
 
@@ -856,14 +956,19 @@ th.today-column {
 
 /* Animation for refresh icon when clicked */
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .refresh-quote.spinning {
   animation: spin 1s linear;
 }
-  
+
 /* Stats section styling */
 .stats-section {
   margin-top: 30px;
@@ -895,8 +1000,15 @@ th.today-column {
 
 /* Add a subtle animation when the chart loads */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .chart-container canvas {
@@ -908,12 +1020,12 @@ th.today-column {
   .chart-container {
     height: 350px;
   }
-  
+
   .stats-section {
     padding: 15px;
   }
 }
- 
+
 /* Enhanced styling for the new user input field */
 #newUserInput {
   padding: 10px 12px;
@@ -942,8 +1054,8 @@ th.today-column {
   border-color: #bbb;
 }
 
-#adminLogin{
-  cursor:pointer;
+#adminLogin {
+  cursor: pointer;
   width: 370px;
   margin: auto;
   text-align: center;
@@ -975,8 +1087,15 @@ th.today-column {
 }
 
 @keyframes modalFadeIn {
-  from {opacity: 0; transform: translateY(-20px);}
-  to {opacity: 1; transform: translateY(0);}
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -1127,8 +1246,15 @@ th.today-column {
 }
 
 @keyframes modalFadeIn {
-  from {opacity: 0; transform: translateY(-20px);}
-  to {opacity: 1; transform: translateY(0);}
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .close-button {
@@ -1203,7 +1329,7 @@ th.today-column {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   display: none;
   transition: all 0.3s ease;
   z-index: 100;
@@ -1212,69 +1338,5 @@ th.today-column {
 .admin-indicator:hover {
   background-color: #3a7bc8;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
-}
-
-.admin-logs-button {
-  position: fixed;
-  bottom: 65px;
-  right: 20px;
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 15px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-  z-index: 100;
-}
-
-.admin-logs-button:hover {
-  background-color: #e74c3c;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
-}
-
-.admin-logs-button img {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-}
-/* Login logs button styling */
-.login-logs-button {
-  position: fixed;
-  bottom: 100px; /* Position above the admin logs button */
-  right: 20px;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 15px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: none; /* Hidden by default, shown when admin is logged in */
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-  z-index: 100;
-}
-
-.login-logs-button:hover {
-  background-color: #357ab8;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.25);
-}
-
-.login-logs-button img {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
