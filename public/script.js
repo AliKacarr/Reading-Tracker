@@ -480,11 +480,47 @@ if (profileImageInput && fileNameDisplay) {
   });
 }
 
-
 // Initialize the app
 // Add this function to check if the user is authenticated
 function isAuthenticated() {
   return localStorage.getItem('authenticated') === 'true';
+}
+
+async function verifyAdminUsername() {
+  const username = localStorage.getItem('adminUsername');
+
+  if (!username) return false;
+
+  try {
+    const response = await fetch('/api/verify-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username })
+    });
+
+    const data = await response.json();
+    if (!data.valid) {
+      // Admin username no longer exists in database, clear authentication
+      localStorage.removeItem('authenticated');
+      localStorage.removeItem('adminUsername');
+
+      // Hide admin elements
+      const adminIndicator = document.querySelector('.admin-indicator');
+      const adminLogsButton = document.getElementById('adminLogsButton');
+      const loginLogsButton = document.getElementById('loginLogsButton');
+
+      if (adminIndicator) adminIndicator.style.display = 'none';
+      if (adminLogsButton) adminLogsButton.style.display = 'none';
+      if (loginLogsButton) loginLogsButton.style.display = 'none';
+
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error verifying admin username:', error);
+    return false;
+  }
 }
 
 // Uncomment the authentication line in the DOMContentLoaded event
@@ -1114,6 +1150,9 @@ async function logUnauthorizedAccess(action) {
 }
 // Add this script to handle the admin logs button
 document.addEventListener('DOMContentLoaded', function () {
+  if (localStorage.getItem('authenticated') === 'true') {
+    verifyAdminUsername();
+  }
   logPageVisit();
   const adminIndicator = document.querySelector('.admin-indicator');
   const adminLogsButton = document.getElementById('adminLogsButton');
@@ -1122,13 +1161,13 @@ document.addEventListener('DOMContentLoaded', function () {
   // Check if user is authenticated as admin
   function checkAdminAuth() {
     if (localStorage.getItem('authenticated') === 'true') {
-      adminIndicator.style.display = 'flex';
-      adminLogsButton.style.display = 'flex';
-      loginLogsButton.style.display = 'flex';
+      if (adminIndicator) adminIndicator.style.display = 'flex';
+      if (adminLogsButton) adminLogsButton.style.display = 'flex';
+      if (loginLogsButton) loginLogsButton.style.display = 'flex';
     } else {
-      adminIndicator.style.display = 'none';
-      adminLogsButton.style.display = 'none';
-      loginLogsButton.style.display = 'none';
+      if (adminIndicator) adminIndicator.style.display = 'none';
+      if (adminLogsButton) adminLogsButton.style.display = 'none';
+      if (loginLogsButton) loginLogsButton.style.display = 'none';
     }
   }
 

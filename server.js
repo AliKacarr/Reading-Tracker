@@ -7,7 +7,7 @@ require('dotenv').config();
 const schedule = require('node-schedule');
 const app = express();
 const port = 3000;
- 
+
 // MongoDB connection from .env file
 mongoose.connect(process.env.MONGO_URI, { dbName: process.env.DB_NAME });
 
@@ -57,7 +57,7 @@ app.get('/api/data', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const users = await User.find();
-    
+
     // If date range is provided, filter stats by date range
     let statsQuery = {};
     if (startDate && endDate) {
@@ -65,7 +65,7 @@ app.get('/api/data', async (req, res) => {
         date: { $gte: startDate, $lte: endDate }
       };
     }
-    
+
     const stats = await ReadingStatus.find(statsQuery);
     res.json({ users, stats });
   } catch (err) {
@@ -77,7 +77,7 @@ app.get('/api/data', async (req, res) => {
 app.post('/api/update-status', async (req, res) => {
   try {
     const { userId, date, status } = req.body;
-    
+
     if (status) {
       // Durumu güncelle veya oluştur
       await ReadingStatus.findOneAndUpdate(
@@ -89,7 +89,7 @@ app.post('/api/update-status', async (req, res) => {
       // Durumu sil (boş durum)
       await ReadingStatus.findOneAndDelete({ userId, date });
     }
-    
+
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -101,10 +101,10 @@ app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
   try {
     const { name } = req.body;
     const profileImage = req.file ? req.file.filename : null;
-    
+
     const user = new User({ name, profileImage });
     await user.save();
-    
+
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -115,10 +115,10 @@ app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
 app.post('/api/delete-user', async (req, res) => {
   try {
     const { id } = req.body;
-    
+
     // Kullanıcıyı sil
     const user = await User.findByIdAndDelete(id);
-    
+
     // Kullanıcının profil resmini sil
     if (user && user.profileImage) {
       const imagePath = path.join(__dirname, 'uploads', user.profileImage);
@@ -126,10 +126,10 @@ app.post('/api/delete-user', async (req, res) => {
         fs.unlinkSync(imagePath);
       }
     }
-    
+
     // Kullanıcının okuma durumlarını sil
     await ReadingStatus.deleteMany({ userId: id });
-    
+
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -159,7 +159,7 @@ app.get('/api/all-data', async (req, res) => {
 // Update user name
 app.post('/api/update-user', async (req, res) => {
   const { userId, name } = req.body;
-  
+
   try {
     await User.findByIdAndUpdate(
       userId,
@@ -175,13 +175,13 @@ app.post('/api/update-user', async (req, res) => {
 // Update user profile image
 app.post('/api/update-user-image', upload.single('profileImage'), async (req, res) => {
   const { userId } = req.body;
-  
+
   try {
     // If a file was uploaded
     if (req.file) {
       // Find the user to get their old profile image
       const user = await User.findById(userId);
-      
+
       // Delete the old profile image if it exists
       if (user && user.profileImage) {
         const oldImagePath = path.join(__dirname, 'uploads', user.profileImage);
@@ -189,13 +189,13 @@ app.post('/api/update-user-image', upload.single('profileImage'), async (req, re
           fs.unlinkSync(oldImagePath);
         }
       }
-      
+
       // Update with the new image
       await User.findByIdAndUpdate(
         userId,
         { profileImage: req.file.filename }
       );
-      
+
       res.json({ success: true, filename: req.file.filename });
     } else {
       res.status(400).json({ error: 'No image file provided' });
@@ -211,18 +211,18 @@ app.get('/api/random-quote', async (req, res) => {
   try {
     // Count total documents in the sentences collection
     const count = await Sentence.countDocuments();
-    
+
     // If there are no sentences, return a default message
     if (count === 0) {
       return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
     }
-    
+
     // Generate a random index
     const random = Math.floor(Math.random() * count);
-    
+
     // Skip to the random document and get it
     const randomSentence = await Sentence.findOne().skip(random);
-    
+
     res.json({ sentence: randomSentence.sentence });
   } catch (error) {
     console.error('Error fetching random quote:', error);
@@ -236,14 +236,14 @@ app.get('/api/reading-stats', async (req, res) => {
   try {
     const users = await User.find().sort({ name: 1 });
     const stats = await ReadingStatus.find();
-    
+
     // Process stats for each user
     const userStats = users.map(user => {
       // Count "okudum" entries for this user
-      const userReadings = stats.filter(stat => 
+      const userReadings = stats.filter(stat =>
         stat.userId === user._id.toString() && stat.status === 'okudum'
       );
-      
+
       return {
         userId: user._id,
         name: user.name,
@@ -251,7 +251,7 @@ app.get('/api/reading-stats', async (req, res) => {
         okudum: userReadings.length
       };
     });
-    
+
     res.json(userStats);
   } catch (error) {
     console.error('Error fetching reading stats:', error);
@@ -271,10 +271,10 @@ const Admin = mongoose.model('Admin', {
 app.post('/api/admin-login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     // Find admin in the adminData collection
     const admin = await Admin.findOne({ username, password });
-    
+
     if (admin) {
       res.json({ success: true });
     } else {
@@ -290,13 +290,13 @@ app.post('/api/admin-login', async (req, res) => {
 app.get('/api/setup-admin', async (req, res) => {
   try {
     const adminCount = await Admin.countDocuments();
-    
+
     if (adminCount === 0) {
       const admin = new Admin({
         username: 'admin',
         password: 'admin123' // Change this to a secure password
       });
-      
+
       await admin.save();
       res.json({ success: true, message: 'Admin account created' });
     } else {
@@ -321,10 +321,10 @@ const AccessLog = mongoose.model('AccessLog', {
 app.post('/api/log-unauthorized', async (req, res) => {
   try {
     const { action, deviceInfo } = req.body;
-    
+
     // Get client IP address
     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    
+
     // Create a new log entry
     const log = new AccessLog({
       action,
@@ -332,7 +332,7 @@ app.post('/api/log-unauthorized', async (req, res) => {
       deviceInfo,
       ipAddress
     });
-    
+
     await log.save();
     res.json({ success: true });
   } catch (error) {
@@ -370,12 +370,12 @@ app.post('/api/log-visit', async (req, res) => {
   try {
     const { deviceInfo } = req.body;
     const ipAddress = requestIp.getClientIp(req);
-    
+
     const log = new LoginLog({
       ipAddress,
       deviceInfo
     });
-    
+
     await log.save();
     res.json({ success: true });
   } catch (error) {
@@ -387,21 +387,21 @@ app.post('/api/log-visit', async (req, res) => {
 app.get('/api/login-logs', async (req, res) => {
   try {
     const logs = await LoginLog.find().sort({ date: -1 });
-    
+
     // Format the dates before sending to client
     const formattedLogs = logs.map(log => {
       const date = new Date(log.date);
       const day = date.getDate();
-      const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
-                          'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+      const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
       const month = monthNames[date.getMonth()];
       const year = date.getFullYear();
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      
+
       // Create a formatted date string
       const formattedDate = `${day} ${month} ${year} ${hours}:${minutes}`;
-      
+
       // Return the log with both raw date (for sorting) and formatted date
       return {
         ...log._doc,
@@ -409,7 +409,7 @@ app.get('/api/login-logs', async (req, res) => {
         formattedDate: formattedDate
       };
     });
-    
+
     res.json(formattedLogs);
   } catch (error) {
     console.error('Error fetching login logs:', error);
@@ -435,47 +435,47 @@ const backupDbName = process.env.BACKUP_DB_NAME || 'backups';
 async function performBackup() {
   console.log("Backup: Starting...");
   const client = new MongoClient(uri);
-  
+
   try {
     await client.connect();
     console.log("Connected to MongoDB for backup");
-    
+
     // Source database (the one we're backing up)
     const sourceDb = client.db(dbName);
-    
+
     // Target database (where backups will be stored)
     const backupDb = client.db(backupDbName);
-    
+
     // Get current date/time for collection naming
     const now = new Date();
-    
+
     // Format date as "13 Nisan" style
     const day = now.getDate();
-    const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
-                        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
     const month = monthNames[now.getMonth()];
     const year = now.getFullYear();
     const timestamp = `${day} ${month} ${year}`;
-    
+
     // Backup users collection
     const users = await sourceDb.collection('users').find({}).toArray();
     const usersCollectionName = `u_backup_${timestamp}`;
     await backupDb.collection(usersCollectionName).insertMany(users);
-    
+
     // Backup reading statuses collection
     const statuses = await sourceDb.collection('readingstatuses').find({}).toArray();
     const statusesCollectionName = `rs_backup_${timestamp}`;
     await backupDb.collection(statusesCollectionName).insertMany(statuses);
-    
+
     console.log(`Backup completed at ${now.toLocaleString()}`);
     console.log(`Users backed up to collection: ${usersCollectionName}`);
     console.log(`Reading statuses backed up to collection: ${statusesCollectionName}`);
-    
+
     // Clean up old backups
     await cleanupOldBackups(backupDb, 'u_backup_', 10);
     await cleanupOldBackups(backupDb, 'rs_backup_', 10);
-    
-  
+
+
   } catch (err) {
     console.error("Error during backup:", err);
   } finally {
@@ -489,18 +489,18 @@ async function cleanupOldBackups(db, prefix, keepCount) {
   try {
     // Get all collections in the backup database
     const collections = await db.listCollections().toArray();
-    
+
     // Filter collections that match our prefix
     const backupCollections = collections
       .filter(col => col.name.startsWith(prefix))
       .map(col => col.name)
       .sort()
       .reverse();
-    
+
     // If we have more than keepCount, delete the oldest ones
     if (backupCollections.length > keepCount) {
       const collectionsToDelete = backupCollections.slice(keepCount);
-      
+
       for (const collectionName of collectionsToDelete) {
         await db.collection(collectionName).drop();
         console.log(`Deleted old backup collection: ${collectionName}`);
@@ -515,17 +515,33 @@ function scheduleBackup() {
   // Schedule backups to run every 1440 minutes (24 hours)
   const backupJob = schedule.scheduleJob('0 0 * * *', performBackup);
   console.log("Backup scheduler started. Backups will run daily at midnight.");
-  
+
   // Handle graceful shutdown
   process.on('SIGINT', async () => {
     console.log('Backup service shutting down...');
     backupJob.cancel();
     process.exit(0);
   });
-  
+
   return backupJob;
 }
 
 // Start the backup scheduler
 const backupJob = scheduleBackup();
+
+// Add this route to verify if an admin username still exists in the database
+app.post('/api/verify-admin', async (req, res) => {
+  try {
+    const { username } = req.body;
+    console.log("Received verification request for username:", username);
+
+    // Use the existing mongoose connection instead of creating a new client
+    const admin = await Admin.findOne({ username });
+    
+    res.json({ valid: !!admin });
+  } catch (error) {
+    console.error('Error verifying admin:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
