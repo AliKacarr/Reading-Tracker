@@ -1340,3 +1340,118 @@ th.today-column {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
+
+/* Add this at the end of your CSS file */
+
+/* Cookie Consent Banner */
+.cookie-consent-banner {
+  position: fixed;
+  bottom: 25px;
+  left: 25px;
+  max-width: 390px;
+  background-color: #ffffff;
+  box-shadow: 1px 4px 12px rgba(0, 0, 0, 0.318);
+  border-radius: 8px;
+  z-index: 1000;
+  display: none;
+  /* Hidden by default, shown via JS */
+  animation: slideIn 0.5s forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.cookie-content {
+  padding: 22px;
+}
+
+.cookie-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cookie-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.cookie-header h3 {
+  margin: 0;
+  padding: 0;
+  border: none;
+  font-size: 18px;
+  color: #333;
+}
+
+.cookie-content p {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #555;
+}
+
+.cookie-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.cookie-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cookie-button.accept {
+  background-color: #4285F4;
+  color: white;
+}
+
+.cookie-button.accept:hover {
+  background-color: #3367d6;
+}
+
+.cookie-button.decline {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.cookie-button.decline:hover {
+  background-color: #e0e0e0;
+}
+
+/* Pulsating effect for the accept button */
+@keyframes pulsate {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 0 10px rgba(66, 133, 244, 0);
+    transform: scale(1.05);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(66, 133, 244, 0);
+    transform: scale(1);
+  }
+}
+
+.pulsate-button {
+  animation: pulsate 1.5s infinite;
+}

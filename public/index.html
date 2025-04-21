@@ -8,6 +8,22 @@
 </head>
 
 <body>
+  <!-- Cookie Consent Banner -->
+  <div id="cookieConsentBanner" class="cookie-consent-banner">
+    <div class="cookie-content">
+      <div class="cookie-header">
+        <div class="cookie-icon">🍪</div>
+        <h3>Çerez İzni</h3>
+      </div>
+      <p>Bu site, size en iyi deneyimi sunmak için çerezleri kullanmaktadır. Çerezler, tercihlerinizi hatırlamak ve site
+        kullanımınızı analiz etmek için kullanılır.</p>
+      <div class="cookie-buttons">
+        <button id="declineCookies" class="cookie-button decline">Reddet</button>
+        <button id="acceptCookies" class="cookie-button accept">Kabul Et</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin logs button - positioned at the bottom right corner -->
   <button id="adminLogsButton" class="admin-logs-button" title="Yetkisiz Erişim Kayıtları" style="display: none;">
     <img src="images/log-icon.png" alt="Logs"
@@ -206,8 +222,8 @@
   </div>
 
 
-  <!-- Add Chart.js library before your script.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Remove the old Chart.js script, keep only the latest version -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
 
