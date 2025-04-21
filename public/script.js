@@ -1034,7 +1034,8 @@ document.addEventListener('DOMContentLoaded', function () {
         loadData();
       } else {
         loginError.textContent = 'Geçersiz kullanıcı adı veya şifre';
-        logUnauthorizedAccess('error-admin-login');
+        logUnauthorizedAccess('admin-login');
+        return;
       }
     } catch (error) {
       console.error('Login error:', error);
