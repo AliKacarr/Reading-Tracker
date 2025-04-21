@@ -5,347 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Yetkisiz Erişim Kayıtları</title>
-  <style>
-    .logs-container {
-      max-width: 1100px;
-      margin: 23px auto;
-      padding: 25px;
-      padding-inline: 40px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .log-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    .log-table th,
-    .log-table td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-
-    .log-table th {
-      background-color: #f0f0f0;
-      font-weight: 600;
-    }
-
-    .log-table tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    .log-table tr:hover {
-      background-color: #e0f7fa;
-    }
-
-    .action-column {
-      width: 150px;
-    }
-
-    .timestamp-column {
-      width: 200px;
-    }
-
-    .device-column {
-      width: 300px;
-    }
-
-    .ip-column {
-      width: 150px;
-    }
-
-    .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .login-form input {
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-
-    .login-form button {
-      padding: 10px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .login-form button:hover {
-      background-color: #45a049;
-    }
-
-    .error-message {
-      color: red;
-      margin-top: 10px;
-    }
-
-    .back-button {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: inline-block;
-      padding: 5px 25px;
-      background-color: #081a3e;
-      color: white;
-      border-radius: 0px 25px 0px 25px;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-      transition: background-color 0.3s;
-    }
-
-    .back-button:hover {
-      background-color: #010e28;
-    }
-
-    /* Refresh button styling */
-    .refresh-button {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #19366f;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 7px 14px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .refresh-button:hover {
-      background-color: #152f62;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .refresh-button:active {
-      transform: translateY(0);
-    }
-
-    .refresh-icon {
-      display: inline-block;
-      margin-right: 8px;
-      font-size: 16px;
-      transition: transform 0.5s ease;
-    }
-
-    .refresh-button.loading .refresh-icon {
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* Table refresh animation */
-    @keyframes highlightNew {
-      0% {
-        background-color: rgba(74, 144, 226, 0.3);
-      }
-
-      100% {
-        background-color: transparent;
-      }
-    }
-
-    .highlight-row {
-      animation: highlightNew 2s ease-out;
-    }
-
-    /* Fade in animation for table */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-
-    /* Pagination styles */
-    #paginationContainer button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    #paginationInfo {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 14px;
-    }
-
-    /* Date grouping styles */
-    .date-group-container {
-      margin-top: 30px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .date-group-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .back-to-all {
-      background-color: #e7f0ff;
-      border: none;
-      color: #19366f;
-      padding: 8px 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      margin-right: 20px;
-      transition: all 0.2s ease;
-    }
-
-    .back-to-all:hover {
-      background-color: #d0e1ff;
-    }
-
-    .back-icon {
-      margin-right: 8px;
-    }
-
-    #selectedDateTitle {
-      margin: 0;
-      color: #19366f;
-    }
-
-    .date-summary-container {
-      margin-top: 40px;
-    }
-
-    .date-summary-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .date-summary-item {
-      background-color: rgb(245, 245, 245);
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.308);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border-left: 4px solid #19366f;
-    }
-
-    .date-summary-item:hover {
-      transform: translateY(-3px);
-      box-shadow: 1px 3px 10px rgba(156, 129, 255, 0.9);
-      background-color: rgb(241, 241, 241);
-    }
-
-    /* Add active state styling for selected date */
-    .date-summary-item-active {
-      background-color: #eef5ff;
-      box-shadow: 0 3px 10px rgba(25, 54, 111, 0.762);
-      border-left: 6px solid #ff5722;
-      transform: translateY(-3px);
-    }
-
-    .date-summary-item-active:hover {
-      box-shadow: 0 3px 10px rgba(25, 54, 111, 0.4);
-      background-color: #e9f2ff;
-    }
-
-    .date-summary-item-active h4 {
-      color: #ff5722;
-    }
-
-    .date-summary-item h4 {
-      margin: 0 0 10px 0;
-      color: #19366f;
-    }
-
-    .date-summary-item p {
-      margin: 5px 0;
-      color: #666;
-    }
-
-    .date-summary-count {
-      display: inline-block;
-      background-color: #19366f;
-      color: white;
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 12px;
-      margin-left: 8px;
-    }
-
-    /* Improve existing table styles */
-    .log-table {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .log-table th {
-      background-color: #19366f;
-      color: white;
-      padding: 12px 15px;
-    }
-
-    .log-table td {
-      padding: 12px 15px;
-    }
-
-    /* Add zebra striping for both tables */
-    .log-table tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    .log-table tbody tr:nth-child(odd) {
-      background-color: #ffffff;
-    }
-
-    .log-table tr:hover {
-      background-color: #f0f7ff;
-    }
-
-    .time-column {
-      width: 100px;
-    }
-  </style>
+  <link rel="stylesheet" href="admin-logs.css">
 </head>
 
 <body>
@@ -364,10 +24,13 @@
       <h1 style="margin: 0 0 10px 0; text-align: center;">Yetkisiz Erişim Kayıtları</h1>
       <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
         <a href="/" class="back-button">Ana Sayfa</a>
-        <button id="refreshButton" class="refresh-button">
-          <span class="refresh-icon">↻</span>
-          <span class="refresh-text">Yenile</span>
-        </button>
+        <div style="display: flex; align-items: center;">
+          <div id="filterContainer" style="margin-right: 10px;"></div>
+          <button id="refreshButton" class="refresh-button">
+            <span class="refresh-icon">↻</span>
+            <span class="refresh-text">Yenile</span>
+          </button>
+        </div>
       </div>
     </div>
     <table class="log-table">
@@ -502,12 +165,16 @@
 
         // Handle refresh button click
         refreshButton.addEventListener('click', function () {
-          // Check if user is authenticated
           if (localStorage.getItem('authenticated') !== 'true') {
-            // Show login section instead of redirecting
             loginSection.style.display = 'block';
             logsSection.style.display = 'none';
             return;
+          }
+
+          // Clear any active filters
+          const filterContainer = document.getElementById('filterContainer');
+          if (filterContainer) {
+            filterContainer.innerHTML = '';
           }
 
           // Add loading animation to button
@@ -518,19 +185,39 @@
           const selectedDateTitle = document.getElementById('selectedDateTitle').textContent;
           const selectedDate = selectedDateTitle.replace(' Kayıtları', '');
 
+          // Record the start time of the refresh
+          const refreshStartTime = Date.now();
+          const minimumAnimationTime = 1500; // 1.5 seconds minimum animation time
+
           // Load logs
           loadLogs().then(() => {
-            // If we were viewing a date group, restore that view
-            if (isDateGroupVisible && selectedDate) {
-              // Find the date group in the updated data
-              const dateCards = document.querySelectorAll('.date-summary-item');
-              for (const card of dateCards) {
-                if (card.querySelector('h4').textContent.includes(selectedDate)) {
-                  // Simulate a click on the date card to show that date's logs
-                  card.click();
-                  break;
+            const refreshDuration = Date.now() - refreshStartTime;
+            if (refreshDuration < minimumAnimationTime) {
+              setTimeout(() => {
+                finishRefresh();
+              }, minimumAnimationTime - refreshDuration);
+            } else {
+              finishRefresh();
+            }
+
+            function finishRefresh() {
+              if (isDateGroupVisible && selectedDate) {
+                const dateCards = document.querySelectorAll('.date-summary-item');
+                for (const card of dateCards) {
+                  if (card.querySelector('h4').textContent.includes(selectedDate)) {
+                    card.click();
+                    break;
+                  }
                 }
               }
+              refreshButton.classList.remove('loading');
+              const originalText = refreshButton.querySelector('.refresh-text').textContent;
+              refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
+              refreshButton.classList.add('success');
+              setTimeout(() => {
+                refreshButton.querySelector('.refresh-text').textContent = originalText;
+                refreshButton.classList.remove('success');
+              }, 2000);
             }
           });
         });
@@ -607,6 +294,9 @@
               dateSummaryList.appendChild(dateSummaryItem);
             });
 
+            // Generate IP colors before showing logs
+            generateIpColors(logs);
+
             // Show all logs initially
             showAllLogs(logs);
 
@@ -618,50 +308,19 @@
               document.querySelector('.log-table').classList.remove('fade-in');
             }, 500);
 
-            // Create a map of IP+device combinations to colors
-            ipColors = {}; // Reset the global ipColors
-
-            // Create unique combinations of IP and device info
-            const uniqueCombinations = [];
-            logs.forEach(log => {
-              const deviceInfo = formatDeviceInfo(log.deviceInfo);
-              const ipDevice = `${log.ipAddress || 'Bilinmiyor'}-${deviceInfo}`;
-              if (!uniqueCombinations.includes(ipDevice)) {
-                uniqueCombinations.push(ipDevice);
-              }
-            });
-
-            // Generate colors for each unique combination
-            const colors = [
-              '#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4',
-              '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990',
-              '#dcbeff', '#9A6324', '#800000', '#aaffc3', '#808000',
-              '#ffd8b1', '#000075', '#a9a9a9', '#000000', '#ffe119'
-            ];
-
-            uniqueCombinations.forEach((combo, index) => {
-              ipColors[combo] = colors[index % colors.length];
-            });
-
-            // Remove the redundant code that adds all logs to the table
-            // logs.forEach((log, index) => {
-            //   const row = createLogRow(log);
-            //   logsTableBody.appendChild(row);
-            // });
-
             // Remove loading animation from button
             refreshButton.classList.remove('loading');
 
             // Show success indicator on button
-            const originalText = refreshButton.querySelector('.refresh-text').textContent;
-            refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-            refreshButton.style.backgroundColor = '#000080';
+            // const originalText = refreshButton.querySelector('.refresh-text').textContent;
+            // refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
+            // refreshButton.style.backgroundColor = '#000080';
 
             // Reset button after 2 seconds
-            setTimeout(() => {
-              refreshButton.querySelector('.refresh-text').textContent = originalText;
-              refreshButton.style.backgroundColor = '';
-            }, 2000);
+            // setTimeout(() => {
+            //   refreshButton.querySelector('.refresh-text').textContent = originalText;
+            //   refreshButton.style.backgroundColor = '';
+            // }, 2000);
 
           } catch (error) {
             console.error('Error loading logs:', error);
@@ -680,6 +339,34 @@
               refreshButton.style.backgroundColor = '';
             }, 2000);
           }
+        }
+
+        // Function to generate IP colors
+        function generateIpColors(logs) {
+          // Reset the global ipColors
+          ipColors = {};
+
+          // Create unique combinations of IP and device info
+          const uniqueCombinations = [];
+          logs.forEach(log => {
+            const deviceInfo = formatDeviceInfo(log.deviceInfo);
+            const ipDevice = `${log.ipAddress || 'Bilinmiyor'}-${deviceInfo}`;
+            if (!uniqueCombinations.includes(ipDevice)) {
+              uniqueCombinations.push(ipDevice);
+            }
+          });
+
+          // Generate colors for each unique combination
+          const colors = [
+            '#e6194B', '#3cb44b', '#4363d8', '#f58231', '#911eb4',
+            '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990',
+            '#dcbeff', '#9A6324', '#800000', '#aaffc3', '#808000',
+            '#ffd8b1', '#000075', '#a9a9a9', '#000000', '#ffe119'
+          ];
+
+          uniqueCombinations.forEach((combo, index) => {
+            ipColors[combo] = colors[index % colors.length];
+          });
         }
 
         // Helper function to format device info
@@ -780,6 +467,12 @@
 
         // Function to show logs for a specific date
         function showDateGroup(dateKey, dateGroup) {
+          // Clear any active filters
+          const filterContainer = document.getElementById('filterContainer');
+          if (filterContainer) {
+            filterContainer.innerHTML = '';
+          }
+
           document.querySelector('.log-table').style.display = 'none';
           document.getElementById('dateGroupContainer').style.display = 'block';
           document.getElementById('selectedDateTitle').textContent = `${dateKey} Kayıtları`;
@@ -811,7 +504,7 @@
           let currentPage = 1;
           const totalPages = Math.ceil(dateGroup.length / itemsPerPage);
 
-          // Function to display logs for current page
+          // Function to display logs for current page in date group view
           function displayLogsForPage(page) {
             dateGroupTableBody.innerHTML = '';
             const startIndex = (page - 1) * itemsPerPage;
@@ -821,9 +514,6 @@
               const log = dateGroup[i];
               const row = document.createElement('tr');
               row.classList.add('highlight-row');
-
-              // Remove the inline styling for zebra striping
-              // We'll use CSS for consistent styling instead
 
               const date = new Date(log.timestamp);
               const hours = String(date.getHours()).padStart(2, '0');
@@ -854,11 +544,21 @@
               row.innerHTML = `
               <td>${actionText}</td>
               <td>${hours}:${minutes}:${seconds}</td>
-              <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
+              <td class="ip-cell" style="color: ${ipColor}; font-weight: bold; cursor: pointer;" data-ip="${ipAddress}" data-device="${deviceInfo}">${ipAddress}</td>
               <td>${deviceInfo}</td>
             `;
 
+              // Add click event to IP cell for filtering
+              const ipCell = row.querySelector('.ip-cell');
+              ipCell.addEventListener('click', function () {
+                filterByIpDevice(ipAddress, deviceInfo);
+              });
+
               dateGroupTableBody.appendChild(row);
+              // Add click event to IP cell
+              row.querySelector('.ip-cell').addEventListener('click', function () {
+                filterByIpDevice(ipAddress, deviceInfo);
+              });
             }
 
             // Update pagination info
@@ -941,12 +641,7 @@
             'refresh-RandomQuote': 'Bir söz yenileme',
             'error': 'Bağlantı hatası'
           };
-
           const actionText = actionMap[log.action] || log.action;
-
-          // Format device info
-          // Device info is already declared above, so we remove this redundant declaration
-
           // Get IP address and device info for color
           const ipAddress = log.ipAddress || 'Bilinmiyor';
           const deviceInfo = formatDeviceInfo(log.deviceInfo);
@@ -956,25 +651,150 @@
           row.innerHTML = `
           <td>${actionText}</td>
           <td>${formattedDate}</td>
-          <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
+          <td class="ip-cell" style="color: ${ipColor}; font-weight: bold; cursor: pointer;" data-ip="${ipAddress}" data-device="${deviceInfo}">${ipAddress}</td>
           <td>${deviceInfo}</td>
         `;
+          // Add click event to IP cell
+          row.querySelector('.ip-cell').addEventListener('click', function () {
+            filterByIpDevice(ipAddress, deviceInfo);
+          });
 
           return row;
         }
+        // Add function to filter logs by IP and device
+        function filterByIpDevice(ip, device) {
+          // Check if we're in date group view
+          const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
+          const selectedDateTitle = document.getElementById('selectedDateTitle').textContent;
+          const selectedDate = selectedDateTitle.replace(' Kayıtları', '');
 
+          // Remove existing filter notification if it exists
+          const existingNotification = document.getElementById('ipFilterNotification');
+          if (existingNotification) {
+            existingNotification.remove();
+          }
+
+          // Create filter notification
+          const filterNotification = document.createElement('div');
+          filterNotification.id = 'ipFilterNotification';
+
+          // Add date information to the filter notification if we're in date view
+          let filterText = `<strong>Filtre Aktif:</strong> ${ip}`;
+          if (isDateGroupVisible) {
+            filterText += ` (${selectedDate})`;
+          }
+
+          filterNotification.innerHTML = `
+            <div class="filter-text">${filterText}</div>
+            <button id="clearIpFilter" title="Filtreyi Kaldır">×</button>
+          `;
+
+          // Get the filter container and add the notification
+          const filterContainer = document.getElementById('filterContainer');
+          filterContainer.innerHTML = ''; // Clear any existing content
+          filterContainer.appendChild(filterNotification);
+
+          // Add event listener to clear filter button
+          document.getElementById('clearIpFilter').addEventListener('click', function () {
+            filterContainer.innerHTML = ''; // Clear the filter notification
+
+            // If we were in date view, go back to that date view
+            loadLogs().then(() => {
+              // If we were viewing a date group, restore that view
+              if (isDateGroupVisible && selectedDate) {
+                // Find the date group in the updated data
+                const dateCards = document.querySelectorAll('.date-summary-item');
+                for (const card of dateCards) {
+                  if (card.querySelector('h4').textContent.includes(selectedDate)) {
+                    // Simulate a click on the date card to show that date's logs
+                    card.click();
+                    break;
+                  }
+                }
+              } else {
+                // Otherwise reload all logs
+                loadLogs();
+              }
+            });
+          });
+
+          // Fetch all logs and filter them
+          fetch('/api/access-logs', {
+            headers: {
+              'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
+            }
+          })
+            .then(response => response.json())
+            .then(logs => {
+              // Filter logs by IP and device
+              let filteredLogs = logs.filter(log =>
+                log.ipAddress === ip && formatDeviceInfo(log.deviceInfo) === device
+              );
+
+              // If we're in date view, further filter by the selected date
+              if (isDateGroupVisible) {
+                const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+                  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+
+                filteredLogs = filteredLogs.filter(log => {
+                  const date = new Date(log.timestamp);
+                  const dateKey = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+                  return dateKey === selectedDate;
+                });
+              }
+
+              // Generate colors for the filtered logs
+              generateIpColors(filteredLogs);
+
+              // Always go to all logs view to show filtered results
+              document.getElementById('dateGroupContainer').style.display = 'none';
+              document.getElementById('dateGroupPaginationContainer').style.display = 'none';
+              document.querySelector('.log-table').style.display = 'table';
+              document.getElementById('paginationContainer').style.display = 'flex';
+
+              // Keep the active state on the date card if we were in date view
+              if (isDateGroupVisible) {
+                const allDateCards = document.querySelectorAll('.date-summary-item');
+                allDateCards.forEach(card => {
+                  if (card.querySelector('h4').textContent.includes(selectedDate)) {
+                    card.classList.add('date-summary-item-active');
+                  } else {
+                    card.classList.remove('date-summary-item-active');
+                  }
+                });
+              } else {
+                // Remove active state from all date cards if we weren't in date view
+                const allDateCards = document.querySelectorAll('.date-summary-item');
+                allDateCards.forEach(card => {
+                  card.classList.remove('date-summary-item-active');
+                });
+              }
+
+              // Show the filtered logs
+              showAllLogs(filteredLogs);
+            })
+            .catch(error => {
+              console.error('Error filtering logs:', error);
+            });
+        }
         // Add back button functionality
         document.getElementById('backToAllLogs').addEventListener('click', () => {
           document.getElementById('dateGroupContainer').style.display = 'none';
           document.getElementById('dateGroupPaginationContainer').style.display = 'none';
           document.querySelector('.log-table').style.display = 'table';
           document.getElementById('paginationContainer').style.display = 'flex';
-
           // Remove active state from all date cards
           const allDateCards = document.querySelectorAll('.date-summary-item');
           allDateCards.forEach(card => {
             card.classList.remove('date-summary-item-active');
           });
+          // Clear any filter notification
+          const filterContainer = document.getElementById('filterContainer');
+          if (filterContainer) {
+            filterContainer.innerHTML = '';
+          }
+          // Always reload all logs to reset any filter
+          loadLogs();
         });
       });
     </script>

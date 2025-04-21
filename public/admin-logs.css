@@ -1,0 +1,399 @@
+.logs-container {
+    max-width: 1100px;
+    margin: 23px auto;
+    padding: 25px;
+    padding-inline: 40px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.log-table th,
+.log-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.log-table th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+}
+
+.log-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.log-table tr:hover {
+    background-color: #e0f7fa;
+}
+
+.action-column {
+    width: 150px;
+}
+
+.timestamp-column {
+    width: 200px;
+}
+
+.device-column {
+    width: 300px;
+}
+
+.ip-column {
+    width: 150px;
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form input {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.login-form button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.login-form button:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.back-button {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: inline-block;
+    padding: 5px 25px;
+    background-color: #081a3e;
+    color: white;
+    border-radius: 0px 25px 0px 25px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #010e28;
+}
+
+/* Refresh button styling */
+.refresh-button {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #19366f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.refresh-button:hover {
+    background-color: #152f62;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.refresh-button:active {
+    transform: translateY(0);
+}
+
+.refresh-icon {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 16px;
+    transition: transform 0.5s ease;
+}
+
+.refresh-button.loading .refresh-icon {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Table refresh animation */
+@keyframes highlightNew {
+    0% {
+        background-color: rgba(74, 144, 226, 0.3);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+.highlight-row {
+    animation: highlightNew 2s ease-out;
+}
+
+/* Fade in animation for table */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* Pagination styles */
+#paginationContainer button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+#paginationInfo {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+}
+
+/* Date grouping styles */
+.date-group-container {
+    margin-top: 30px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.date-group-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.back-to-all {
+    background-color: #e7f0ff;
+    border: none;
+    color: #19366f;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    transition: all 0.2s ease;
+}
+
+.back-to-all:hover {
+    background-color: #d0e1ff;
+}
+
+.back-icon {
+    margin-right: 8px;
+}
+
+#selectedDateTitle {
+    margin: 0;
+    color: #19366f;
+}
+
+.date-summary-container {
+    margin-top: 40px;
+}
+
+.date-summary-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.date-summary-item {
+    background-color: rgb(245, 245, 245);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.308);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 4px solid #19366f;
+}
+
+.date-summary-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 1px 3px 10px rgba(156, 129, 255, 0.9);
+    background-color: rgb(241, 241, 241);
+}
+
+/* Add active state styling for selected date */
+.date-summary-item-active {
+    background-color: #eef5ff;
+    box-shadow: 0 3px 10px rgba(25, 54, 111, 0.762);
+    border-left: 6px solid #ff5722;
+    transform: translateY(-3px);
+}
+
+.date-summary-item-active:hover {
+    box-shadow: 0 3px 10px rgba(25, 54, 111, 0.4);
+    background-color: #e9f2ff;
+}
+
+.date-summary-item-active h4 {
+    color: #ff5722;
+}
+
+.date-summary-item h4 {
+    margin: 0 0 10px 0;
+    color: #19366f;
+}
+
+.date-summary-item p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.date-summary-count {
+    display: inline-block;
+    background-color: #19366f;
+    color: white;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+/* Improve existing table styles */
+.log-table {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.log-table th {
+    background-color: #19366f;
+    color: white;
+    padding: 12px 15px;
+}
+
+.log-table td {
+    padding: 12px 15px;
+}
+
+/* Add zebra striping for both tables */
+.log-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.log-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.log-table tr:hover {
+    background-color: #f0f7ff;
+}
+
+.time-column {
+    width: 100px;
+}
+
+/* Filter notification styling */
+#ipFilterNotification {
+    display: inline-flex;
+    align-items: center;
+    background-color: #19366f;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#ipFilterNotification .filter-text {
+    margin-right: 15px;
+}
+
+#clearIpFilter {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 21px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+#clearIpFilter:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Add styles for the filter container */
+.filter-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+}
+
+/* Success animation for refresh button */
+@keyframes successPulse {
+    0% {
+        background-color: #19366f;
+    }
+    50% {
+        background-color: #000080;
+    }
+    100% {
+        background-color: #19366f;
+    }
+}
+
+.refresh-button.success {
+    animation: successPulse 2s ease;
+}

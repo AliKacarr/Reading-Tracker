@@ -5,327 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Giriş Kayıtları</title>
-  <style>
-    .logs-container {
-      max-width: 1100px;
-      margin: 23px auto;
-      padding: 25px;
-      padding-inline: 40px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .logs-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .logs-table th,
-    .logs-table td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-
-    .logs-table th {
-      background-color: #19366f;
-      color: white;
-      font-weight: 600;
-    }
-
-    /* Add zebra striping for tables */
-    .logs-table tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    .logs-table tbody tr:nth-child(odd) {
-      background-color: #ffffff;
-    }
-
-    .logs-table tr:hover {
-      background-color: #f0f7ff;
-    }
-
-    .back-button {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: inline-block;
-      padding: 5px 25px;
-      background-color: #081a3e;
-      color: white;
-      border-radius: 0px 25px 0px 25px;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-      transition: background-color 0.3s;
-    }
-
-    .back-button:hover {
-      background-color: #010e28;
-    }
-
-    .no-logs {
-      text-align: center;
-      padding: 30px;
-      color: #666;
-      font-style: italic;
-    }
-
-    /* Refresh button styling */
-    .refresh-button {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #19366f;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 7px 14px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .refresh-button:hover {
-      background-color: #152f62;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .refresh-button:active {
-      transform: translateY(0);
-    }
-
-    .refresh-icon {
-      display: inline-block;
-      margin-right: 8px;
-      font-size: 16px;
-      transition: transform 0.5s ease;
-    }
-
-    .refresh-button.loading .refresh-icon {
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* Table refresh animation */
-    @keyframes highlightNew {
-      0% {
-        background-color: rgba(74, 144, 226, 0.3);
-      }
-
-      100% {
-        background-color: transparent;
-      }
-    }
-
-    .highlight-row {
-      animation: highlightNew 2s ease-out;
-    }
-
-    /* Fade in animation for table */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-
-    /* Login container styling */
-    .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 30px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .login-form input {
-      padding: 10px 15px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-
-    .login-form button {
-      padding: 10px;
-      background-color: #081a3e;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 500;
-      transition: background-color 0.3s;
-    }
-
-    .login-form button:hover {
-      background-color: #010e28;
-    }
-
-    .error-message {
-      color: #f44336;
-      margin-top: 15px;
-      font-size: 14px;
-    }
-
-    /* Pagination styles */
-    #paginationContainer button:disabled,
-    #dateGroupPaginationContainer button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    #paginationInfo,
-    #dateGroupPaginationInfo {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 14px;
-      color: #666;
-    }
-
-    /* Date grouping styles */
-    .date-group-container {
-      margin-top: 30px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .date-group-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .back-to-all {
-      background-color: #e7f0ff;
-      border: none;
-      color: #19366f;
-      padding: 8px 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      margin-right: 20px;
-      transition: all 0.2s ease;
-    }
-
-    .back-to-all:hover {
-      background-color: #d0e1ff;
-    }
-
-    .back-icon {
-      margin-right: 8px;
-    }
-
-    #selectedDateTitle {
-      margin: 0;
-      color: #19366f;
-    }
-
-    .date-summary-container {
-      margin-top: 40px;
-    }
-
-    .date-summary-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .date-summary-item {
-      background-color: rgb(245, 245, 245);
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.308);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border-left: 4px solid #19366f;
-    }
-
-    .date-summary-item:hover {
-      transform: translateY(-3px);
-      box-shadow: 1px 3px 10px rgba(156, 129, 255, 0.9);
-      background-color: rgb(241, 241, 241);
-    }
-
-    .date-summary-item-active {
-      background-color: #eef5ff;
-      box-shadow: 0 3px 10px rgba(25, 54, 111, 0.762);
-      border-left: 6px solid #ff5722;
-      transform: translateY(-3px);
-    }
-
-    .date-summary-item-active:hover {
-      box-shadow: 0 3px 10px rgba(25, 54, 111, 0.4);
-      background-color: #e9f2ff;
-    }
-
-    .date-summary-item-active h4 {
-      color: #ff5722;
-    }
-
-    .date-summary-item h4 {
-      margin: 0 0 10px 0;
-      color: #19366f;
-    }
-
-    .date-summary-item p {
-      margin: 5px 0;
-      color: #666;
-    }
-
-    .date-summary-count {
-      display: inline-block;
-      background-color: #19366f;
-      color: white;
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 12px;
-      margin-left: 8px;
-    }
-
-    .time-column {
-      width: 100px;
-    }
-  </style>
+  <link rel="stylesheet" href="login-logs.css">
 </head>
 
 <body>
@@ -345,10 +25,13 @@
       <h1 style="margin: 0 0 10px 0; text-align: center;">Giriş Kayıtları</h1>
       <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
         <a href="/" class="back-button">Ana Sayfa</a>
-        <button id="refreshButton" class="refresh-button">
-          <span class="refresh-icon">↻</span>
-          <span class="refresh-text">Yenile</span>
-        </button>
+        <div style="display: flex; align-items: center;">
+          <div id="filterContainer" style="margin-right: 10px;"></div>
+          <button id="refreshButton" class="refresh-button">
+            <span class="refresh-icon">↻</span>
+            <span class="refresh-text">Yenile</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -485,9 +168,14 @@
       });
 
       // Add refresh button functionality
-      const refreshButton = document.getElementById('refreshButton');
       refreshButton.addEventListener('click', function () {
         if (localStorage.getItem('authenticated') === 'true') {
+          // Clear any active filters
+          const filterContainer = document.getElementById('filterContainer');
+          if (filterContainer) {
+            filterContainer.innerHTML = '';
+          }
+
           // Add loading animation to button
           refreshButton.classList.add('loading');
 
@@ -496,19 +184,51 @@
           const selectedDateTitle = document.getElementById('selectedDateTitle').textContent;
           const selectedDate = selectedDateTitle.replace(' Kayıtları', '');
 
-          // Load logs
-          loadLogs().then(() => {
-            // If we were viewing a date group, restore that view
-            if (isDateGroupVisible && selectedDate) {
-              // Find the date group in the updated data
-              const dateCards = document.querySelectorAll('.date-summary-item');
-              for (const card of dateCards) {
-                if (card.querySelector('h4').textContent === selectedDate) {
-                  // Simulate a click on the date card to show that date's logs
-                  card.click();
-                  break;
+          // Record the start time of the refresh
+          const refreshStartTime = Date.now();
+          const minimumAnimationTime = 1500; // 1.5 seconds minimum animation time
+
+          // Load logs without updating button state
+          loadLogs(false).then(() => {
+            // Calculate how long the refresh has been running
+            const refreshDuration = Date.now() - refreshStartTime;
+
+            // If the refresh was too quick, wait before finishing
+            if (refreshDuration < minimumAnimationTime) {
+              setTimeout(() => {
+                finishRefresh();
+              }, minimumAnimationTime - refreshDuration);
+            } else {
+              finishRefresh();
+            }
+
+            function finishRefresh() {
+              // If we were viewing a date group, restore that view immediately
+              if (isDateGroupVisible && selectedDate) {
+                // Find the date group in the updated data
+                const dateCards = document.querySelectorAll('.date-summary-item');
+                for (const card of dateCards) {
+                  if (card.querySelector('h4').textContent.includes(selectedDate)) {
+                    // Simulate a click on the date card to show that date's logs
+                    card.click();
+                    break;
+                  }
                 }
               }
+
+              // Remove loading animation from button
+              refreshButton.classList.remove('loading');
+
+              // Show success indicator on button
+              const originalText = refreshButton.querySelector('.refresh-text').textContent;
+              refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
+              refreshButton.classList.add('success');
+
+              // Reset button after 2 seconds
+              setTimeout(() => {
+                refreshButton.querySelector('.refresh-text').textContent = originalText;
+                refreshButton.classList.remove('success');
+              }, 2000);
             }
           });
         } else {
@@ -525,15 +245,32 @@
         document.querySelector('.logs-table').style.display = 'table';
         document.getElementById('paginationContainer').style.display = 'flex';
         document.getElementById('dateSummaryContainer').style.display = 'block';
+
+        // Clear any IP filters
+        const filterContainer = document.getElementById('filterContainer');
+        if (filterContainer) {
+          filterContainer.innerHTML = '';
+        }
+
+        // Remove active highlight from all date cards
+        const allDateCards = document.querySelectorAll('.date-summary-item');
+        allDateCards.forEach(card => {
+          card.classList.remove('date-summary-item-active');
+        });
+
+        // --- FIX: Always reload all logs when returning to all logs view ---
+        loadLogs(true);
       });
 
       // Function to load logs
-      async function loadLogs() {
+      async function loadLogs(updateButtonState = true) {
         try {
+          // Store the current view state
+          const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
+
           // Fetch login logs
           const response = await fetch('/api/login-logs');
           const data = await response.json();
-
 
           // Ensure logs is an array
           const logs = Array.isArray(data) ? data : (data.logs || []);
@@ -558,8 +295,9 @@
             document.getElementById('dateSummaryContainer').style.display = 'none';
             document.getElementById('paginationContainer').style.display = 'none';
 
-            // Remove loading animation from button if it exists
-            if (refreshButton) {
+            // Only update button state if this is a direct call (not from refresh button)
+            if (updateButtonState) {
+              // Remove loading animation from button
               refreshButton.classList.remove('loading');
             }
 
@@ -567,7 +305,11 @@
           } else {
             noLogs.style.display = 'none';
             document.getElementById('dateSummaryContainer').style.display = 'block';
-            document.getElementById('paginationContainer').style.display = 'flex';
+
+            // Only show pagination if we're not in date view
+            if (!isDateGroupVisible) {
+              document.getElementById('paginationContainer').style.display = 'flex';
+            }
           }
 
           // Sort logs by date (newest first)
@@ -688,7 +430,8 @@
 
               row.innerHTML = `
                 <td>${formattedDate}</td>
-                <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
+                <td style="color: ${ipColor}; font-weight: bold; cursor: pointer;" 
+                    onclick="filterByIp('${ipAddress}')">${ipAddress}</td>
                 <td>${deviceInfo}</td>
                 <td>${screenSize}</td>
               `;
@@ -727,16 +470,17 @@
           if (refreshButton) {
             refreshButton.classList.remove('loading');
 
+            // --- REMOVE THESE LINES ---
             // Show success indicator on button
-            const originalText = refreshButton.querySelector('.refresh-text').textContent;
-            refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-            refreshButton.style.backgroundColor = '#000080';
+            // const originalText = refreshButton.querySelector('.refresh-text').textContent;
+            // refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
+            // refreshButton.style.backgroundColor = '#000080';
 
             // Reset button after 2 seconds
-            setTimeout(() => {
-              refreshButton.querySelector('.refresh-text').textContent = originalText;
-              refreshButton.style.backgroundColor = '';
-            }, 2000);
+            // setTimeout(() => {
+            //   refreshButton.querySelector('.refresh-text').textContent = originalText;
+            //   refreshButton.style.backgroundColor = '';
+            // }, 2000);
           }
 
         } catch (error) {
@@ -765,15 +509,18 @@
 
       // Function to show logs for a specific date
       function showDateGroup(dateKey, dateGroup) {
+        // Clear any active IP filters when switching dates
+        const filterContainer = document.getElementById('filterContainer');
+        if (filterContainer && filterContainer.innerHTML !== '') {
+          filterContainer.innerHTML = '';
+        }
+
         // Hide the main logs table but keep the date summary visible
         const mainTable = document.querySelectorAll('.logs-table')[0]; // Get the first table
         mainTable.style.display = 'none';
 
         document.getElementById('dateGroupContainer').style.display = 'block';
         document.getElementById('selectedDateTitle').textContent = `${dateKey} Kayıtları`;
-
-        // Don't hide the date summary container
-        // document.getElementById('dateSummaryContainer').style.display = 'none';
 
         // Show pagination for date view with different ID
         document.getElementById('paginationContainer').style.display = 'none';
@@ -826,7 +573,8 @@
 
             row.innerHTML = `
               <td>${hours}:${minutes}:${seconds}</td>
-              <td style="color: ${ipColor}; font-weight: bold;">${ipAddress}</td>
+              <td style="color: ${ipColor}; font-weight: bold; cursor: pointer;" 
+                  onclick="filterByIp('${ipAddress}')">${ipAddress}</td>
               <td>${deviceInfo}</td>
               <td>${screenSize}</td>
             `;
@@ -929,6 +677,112 @@
         'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
       return months[monthIndex];
     }
+
+    // Function to filter logs by IP address
+    window.filterByIp = function (ipAddress) {
+      // Create filter notification
+      const filterContainer = document.getElementById('filterContainer');
+      if (!filterContainer) {
+        // Create filter container if it doesn't exist
+        const refreshButtonContainer = document.querySelector('.refresh-button').parentElement;
+        const newFilterContainer = document.createElement('div');
+        newFilterContainer.id = 'filterContainer';
+        newFilterContainer.style.marginRight = '10px';
+        refreshButtonContainer.insertBefore(newFilterContainer, refreshButtonContainer.firstChild);
+      }
+
+      // Clear any existing filters
+      document.getElementById('filterContainer').innerHTML = '';
+
+      // Check if we're in date view
+      const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
+      const selectedDateTitle = document.getElementById('selectedDateTitle').textContent;
+      const selectedDate = selectedDateTitle.replace(' Kayıtları', '');
+
+      // Create filter notification
+      const ipFilterNotification = document.createElement('div');
+      ipFilterNotification.id = 'ipFilterNotification';
+      ipFilterNotification.innerHTML = `
+        <span class="filter-text">${ipAddress} IP adresine göre filtrelendi</span>
+        <button id="clearIpFilter">×</button>
+      `;
+      document.getElementById('filterContainer').appendChild(ipFilterNotification);
+
+      // Add event listener to clear filter button
+      document.getElementById('clearIpFilter').addEventListener('click', function (e) {
+        e.stopPropagation(); // Prevent the click from bubbling up
+        document.getElementById('filterContainer').innerHTML = '';
+
+        if (isDateGroupVisible) {
+          // If we were in date view, go back to that date view
+          const dateCards = document.querySelectorAll('.date-summary-item');
+          for (const card of dateCards) {
+            if (card.querySelector('h4').textContent.includes(selectedDate)) {
+              // Simulate a click on the date card to show that date's logs
+              card.click();
+              break;
+            }
+          }
+        } else {
+          // Instead of manual reload, trigger the refresh button
+          refreshButton.click();
+        }
+      });
+
+      if (isDateGroupVisible) {
+        // We're in date view, filter the date group table
+        const filteredLogs = Array.from(document.querySelectorAll('#dateGroupTableBody tr')).filter(row => {
+          return row.querySelector('td:nth-child(2)').textContent.trim() === ipAddress;
+        });
+
+        // Hide all rows in date group table
+        document.querySelectorAll('#dateGroupTableBody tr').forEach(row => {
+          row.style.display = 'none';
+        });
+
+        // Show only filtered rows
+        filteredLogs.forEach(row => {
+          row.style.display = '';
+        });
+
+        // Update pagination info
+        document.getElementById('dateGroupPaginationInfo').textContent =
+          `1-${filteredLogs.length} / ${filteredLogs.length} kayıt gösteriliyor`;
+
+        // Disable pagination buttons
+        document.getElementById('prevDatePageBtn').disabled = true;
+        document.getElementById('nextDatePageBtn').disabled = true;
+      } else {
+        // We're in main view, filter the main table
+        const filteredLogs = Array.from(document.querySelectorAll('#logsTableBody tr')).filter(row => {
+          return row.querySelector('td:nth-child(2)').textContent.trim() === ipAddress;
+        });
+
+        // Hide date group container and show main table
+        document.getElementById('dateGroupContainer').style.display = 'none';
+        document.getElementById('dateGroupPaginationContainer').style.display = 'none';
+        document.querySelector('.logs-table').style.display = 'table';
+        document.getElementById('paginationContainer').style.display = 'flex';
+
+        // Hide all rows
+        document.querySelectorAll('#logsTableBody tr').forEach(row => {
+          row.style.display = 'none';
+        });
+
+        // Show only filtered rows
+        filteredLogs.forEach(row => {
+          row.style.display = '';
+        });
+
+        // Update pagination info
+        document.getElementById('paginationInfo').textContent =
+          `1-${filteredLogs.length} / ${filteredLogs.length} kayıt gösteriliyor`;
+
+        // Disable pagination buttons
+        document.getElementById('prevPageBtn').disabled = true;
+        document.getElementById('nextPageBtn').disabled = true;
+      }
+    };
   </script>
 </body>
 
