@@ -1146,6 +1146,10 @@ function showAdminInfoPanel() {
   adminInfoModal.style.display = 'block';
 }
 async function logUnauthorizedAccess(action) {
+  if (localStorage.getItem('cookieConsent') !== 'accepted') {
+    return;
+  }
+
   try {
     // Collect device information
     const deviceInfo = {
@@ -1248,6 +1252,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Add this function to log page visits
 async function logPageVisit() {
+  if (localStorage.getItem('cookieConsent') !== 'accepted') {
+    return;
+  }
   try {
     // Collect device information
     const deviceInfo = {
