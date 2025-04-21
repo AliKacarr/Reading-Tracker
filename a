@@ -403,3 +403,120 @@ async function toggleStatus(userId, date) {
     // Update the chart after changing a cell status
     loadReadingStats();
 }
+
+async function deleteUser(id) {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+        logUnauthorizedAccess('delete-user');
+        return;
+    }
+
+    await fetch('/api/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+    });
+
+    loadData();
+    loadReadingStats();
+}
+
+// Helper function to get day of week in Turkish
+function getDayOfWeekInTurkish(date) {
+    const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+    return days[date.getDay()];
+}
+
+// Yeni kullanıcı ekleme - resim yükleme ile birlikte
+newUserForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+        logUnauthorizedAccess('add-user');
+        return;
+    }
+
+    const input = document.getElementById('newUserInput');
+    const imageInput = document.getElementById('profileImage');
+    const name = input.value.trim();
+
+    if (!name) return;
+
+    const formData = new FormData();
+    formData.append('name', name);
+
+    if (imageInput.files.length > 0) {
+        formData.append('profileImage', imageInput.files[0]);
+    }
+
+    await fetch('/api/add-user', {
+        method: 'POST',
+        body: formData
+    });
+
+    input.value = '';
+    imageInput.value = '';
+    loadData();
+    loadReadingStats();
+});
+
+// File input display handler
+const profileImageInput = document.getElementById('profileImage');
+const fileNameDisplay = document.getElementById('file-name');
+const fileInputLabel = document.getElementById('file-input-label');
+
+if (profileImageInput && fileNameDisplay) {
+    profileImageInput.addEventListener('change', function () {
+        if (this.files.length > 0) {
+            fileNameDisplay.textContent = this.files[0].name;
+            fileInputLabel.textContent = "Değiştir"; // Change button text to "Değiştir" when a file is selected
+        } else {
+            fileNameDisplay.textContent = 'Resim seçilmedi';
+            fileInputLabel.textContent = "Resim Seç";
+        }
+    });
+}
+
+// Initialize the app
+// Add this function to check if the user is authenticated
+function isAuthenticated() {
+    return localStorage.getItem('authenticated') === 'true';
+}
+
+async function verifyAdminUsername() {
+    const username = localStorage.getItem('adminUsername');
+
+    if (!username) return false;
+
+    try {
+        const response = await fetch('/api/verify-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+        });
+
+        const data = await response.json();
+        if (!data.valid) {
+            // Admin username no longer exists in database, clear authentication
+            localStorage.removeItem('authenticated');
+            localStorage.removeItem('adminUsername');
+
+            // Hide admin elements
+            const adminIndicator = document.querySelector('.admin-indicator');
+            const adminLogsButton = document.getElementById('adminLogsButton');
+            const loginLogsButton = document.getElementById('loginLogsButton');
+
+            if (adminIndicator) adminIndicator.style.display = 'none';
+            if (adminLogsButton) adminLogsButton.style.display = 'none';
+            if (loginLogsButton) loginLogsButton.style.display = 'none';
+
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error verifying admin username:', error);
+        return false;
+    }
+}

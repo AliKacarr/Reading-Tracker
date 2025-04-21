@@ -1,3 +1,4 @@
+
 const table = document.getElementById('trackerTable');
 const deleteList = document.getElementById('deleteList');
 const newUserForm = document.getElementById('newUserForm');
@@ -777,6 +778,25 @@ async function loadReadingStats() {
       return total > 0 ? Math.round((user.okudum / total) * 100) : 0;
     });
 
+    // Find the highest success rate
+    const highestSuccessRate = Math.max(...successRates);
+
+    // Create background colors array based on success rates
+    const okudumBackgroundColors = enhancedUserStats.map((user, index) => {
+      // If this user has the highest success rate, highlight with a more vibrant color
+      return successRates[index] === highestSuccessRate
+        ? 'rgba(76, 217, 99, 0.95)' // Brighter green for highest success rate
+        : 'rgba(68, 206, 91, 0.79)'; // Regular green for others
+    });
+
+    // Create border colors array based on success rates
+    const okudumBorderColors = enhancedUserStats.map((user, index) => {
+      // If this user has the highest success rate, highlight with a thicker border
+      return successRates[index] === highestSuccessRate
+        ? 'rgba(50, 180, 80, 1)' // Darker green border for highest success rate
+        : 'rgba(76, 217, 100, 1)'; // Regular green border for others
+    });
+
     // Check if Chart.js is loaded
     if (typeof Chart === 'undefined') {
       console.error('Chart.js is not loaded');
@@ -797,9 +817,12 @@ async function loadReadingStats() {
           {
             label: 'Okudum',
             data: okudumData,
-            backgroundColor: 'rgba(76, 217, 100, 0.7)',
-            borderColor: 'rgba(76, 217, 100, 1)',
-            borderWidth: 1
+            backgroundColor: okudumBackgroundColors,
+            borderColor: okudumBorderColors,
+            borderWidth: enhancedUserStats.map((user, index) =>
+              successRates[index] === highestSuccessRate ? 2 : 1
+            ),
+            hoverBackgroundColor: 'rgba(63, 194, 63, 0.9)'
           },
           {
             label: 'Okumadım',
@@ -873,7 +896,6 @@ async function loadReadingStats() {
               }
             }
           },
-          // Add this new plugin to display success rates on top of the bars
           datalabels: {
             display: function (context) {
               // Only show for the first dataset (Okudum)
@@ -881,12 +903,13 @@ async function loadReadingStats() {
             },
             formatter: function (value, context) {
               const index = context.dataIndex;
-              return `%${successRates[index]}`;
+              // Add crown emoji for users with the highest success rate
+              return successRates[index] === highestSuccessRate ? `👑 %${successRates[index]}` : `%${successRates[index]}`;
             },
-            align: 'start',        // Changed from 'end' to 'start'
+            align: 'start',        // Align at the end of the bar
             anchor: 'end',
-            offset: 5,             // Increased offset
-            rotation: 0,           // Ensure text is horizontal
+            offset: 0,         // Position above the bar
+            rotation: 0,         // Ensure text is horizontal
             color: '#000000',
             backgroundColor: 'rgba(255, 255, 255, 0.9)', // More opaque background
             borderColor: 'rgba(0, 0, 0, 0.2)',
@@ -894,7 +917,7 @@ async function loadReadingStats() {
             borderRadius: 4,
             font: {
               weight: 'bold',
-              size: 12
+              size: 15 // Set a fixed larger font size for all labels
             },
             padding: {
               top: 4,
@@ -902,7 +925,6 @@ async function loadReadingStats() {
               left: 6,
               right: 6
             },
-            // Add z-index to ensure labels appear above bars
             z: 100
           }
         }
@@ -1375,4 +1397,3 @@ document.addEventListener('DOMContentLoaded', function () {
   // Check cookie consent when the page loads
   checkCookieConsent();
 });
-
