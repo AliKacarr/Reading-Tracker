@@ -903,17 +903,28 @@ async function loadReadingStats() {
             },
             formatter: function (value, context) {
               const index = context.dataIndex;
+              const successRate = successRates[index];
+              const isHighest = successRate === highestSuccessRate;
+              const isLowest = successRate === Math.min(...successRates);
+
               // Add crown emoji for users with the highest success rate
-              return successRates[index] === highestSuccessRate ? `👑 %${successRates[index]}` : `%${successRates[index]}`;
+              // Add alert emoji for users with the lowest success rate
+              if (isHighest) {
+                return `👑 %${successRate}`;
+              } else if (isLowest) {
+                return `💀 %${successRate}`;
+              } else {
+                return `%${successRate}`;
+              }
             },
             align: 'start',        // Align at the end of the bar
             anchor: 'end',
-            offset: 0,         // Position above the bar
-            rotation: 0,         // Ensure text is horizontal
+            offset: 0,             // Position above the bar
+            rotation: 0,           // Ensure text is horizontal
             color: '#000000',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)', // More opaque background
+            backgroundColor: 'rgba(255, 244, 244, 0.9)', // More opaque background
             borderColor: 'rgba(0, 0, 0, 0.2)',
-            borderWidth: 1,
+            borderWidth: 1.2,
             borderRadius: 4,
             font: {
               weight: 'bold',
@@ -1146,7 +1157,8 @@ function showAdminInfoPanel() {
   adminInfoModal.style.display = 'block';
 }
 async function logUnauthorizedAccess(action) {
-  if (localStorage.getItem('cookieConsent') !== 'accepted') {
+  const allowedActions = ['cookies-decline-1', 'cookies-decline-2'];
+  if (!allowedActions.includes(action) && localStorage.getItem('cookieConsent') !== 'accepted') {
     return;
   }
 
@@ -1165,7 +1177,7 @@ async function logUnauthorizedAccess(action) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, deviceInfo })
     });
-    if (action == "refresh-RandomQuote") {
+    if (action == "refresh-RandomQuote" || allowedActions.includes(action)) {
       return;
     }
     alert(`Bu işlemi yapabilmek için Ali Kaçar ile iletişime geçiniz.`);
@@ -1370,6 +1382,8 @@ document.addEventListener('DOMContentLoaded', function () {
     localStorage.setItem('cookieConsentDate', date.toISOString());
 
     cookieConsentBanner.style.display = 'none';
+
+    logPageVisit();
   });
 
   // Handle decline button click
@@ -1387,6 +1401,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Add pulsating effect to the accept button and change button colors
       acceptCookiesBtn.classList.add('pulsate-button');
       acceptCookiesBtn.style.backgroundColor = '#FFD700'; // Gold color for accept
+      logUnauthorizedAccess('cookies-decline-1');
       // Banner stays visible
     } else if (declineAttempts >= 2) {
       // Second decline: Open second YouTube video, close banner, and save decline status
@@ -1399,6 +1414,7 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.setItem('cookieConsentDate', date.toISOString());
       // Close the banner
       cookieConsentBanner.style.display = 'none';
+      logUnauthorizedAccess('cookies-decline-2');
     }
   });
   // Check cookie consent when the page loads
