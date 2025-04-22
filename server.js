@@ -544,3 +544,37 @@ app.post('/api/verify-admin', async (req, res) => {
   }
 });
 
+// Get all users
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find().sort({ name: 1 });
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+// Get user stats for a specific month
+app.get('/api/user-monthly-stats', async (req, res) => {
+  try {
+    const { userId, year, month } = req.query;
+    
+    // Create date range for the month
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+    const lastDay = new Date(year, parseInt(month), 0).getDate();
+    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    
+    // Find all stats for this user in the date range
+    const stats = await Stat.find({
+      userId: userId,
+      date: { $gte: startDate, $lte: endDate }
+    });
+    
+    res.json({ stats });
+  } catch (error) {
+    console.error('Error fetching user monthly stats:', error);
+    res.status(500).json({ error: 'Failed to fetch user monthly stats' });
+  }
+});
+

@@ -154,7 +154,7 @@ async function loadData() {
     // Format the header with formatted date and day of week, add today class if needed
     theadHTML += `<th class="${todayClass}"><span class="date-text">${formattedDate}</span><br><span class="day-of-week">${dayOfWeek}</span></th>`;
   }
-  theadHTML += `<th><img src="/images/red-arrow.png" alt="Seri" width="20" height="20"> Seri</th></tr>`;
+  theadHTML += `<th><img src="/images/red-arrow.png" alt="Streak" width="20" height="20"> Streak</th></tr>`;
   table.querySelector('thead').innerHTML = theadHTML;
 
   // Update the user list rendering in loadData function
@@ -1002,6 +1002,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const closeButton = document.querySelector('.close-button');
   const adminLoginForm = document.getElementById('adminLoginForm');
   const loginError = document.getElementById('loginError');
+  const adminUsername = document.getElementById('adminUsername');
+  const adminPassword = document.getElementById('adminPassword');
 
   // Check if already authenticated
   if (localStorage.getItem('authenticated') === 'true') {
@@ -1074,7 +1076,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
   // Function to show admin info panel
+  adminUsername.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent form submission
+      adminPassword.focus(); // Move focus to adminPassword field
+    }
+  });
 
+  // Add event listener for Enter key in adminPassword field
+  adminPassword.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent default behavior
+      adminLoginForm.submit(); // Submit the form
+    }
+  });
 });
 function showAdminInfoPanel() {
   // Create admin info modal if it doesn't exist

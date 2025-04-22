@@ -211,14 +211,6 @@ table {
   margin-top: 10px;
 }
 
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-  font-size: 14px;
-  transition: background-color 0.2s ease;
-}
 
 /* Hücre üzerine gelindiğinde geçici renk */
 /* Remove the conflicting hover rules */
@@ -238,10 +230,6 @@ td {
   cursor: pointer;
 }
 
-th {
-  background-color: #f0f0f0;
-  font-weight: 600;
-}
 
 /* Renk kodlamaları */
 .green {
@@ -288,14 +276,15 @@ th {
 }
 
 /* Style the last column (streak column) with larger font */
-td:last-child {
+/* Style the streak column in the tracker table */
+#trackerTable td:last-child {
   font-size: 20px;
   color: red;
   font-weight: 500;
 }
 
-/* Style the last column header */
-tr th:last-child {
+/* Style the streak column header in the tracker table */
+#trackerTable tr th:last-child {
   font-size: 20px;
 }
 
@@ -490,15 +479,6 @@ td:hover:not(.status-cell) {
 }
 
 
-/* All cells should be clickable */
-td {
-  cursor: pointer;
-}
-
-th {
-  background-color: #f0f0f0;
-  font-weight: 600;
-}
 
 
 
@@ -513,17 +493,6 @@ th {
   border: 1px solid #ddd;
 }
 
-/* Style the last column (streak column) with larger font */
-td:last-child {
-  font-size: 20px;
-  color: red;
-  font-weight: 500;
-}
-
-/* Style the last column header */
-tr th:last-child {
-  font-size: 20px;
-}
 
 .user-item {
   display: flex;
@@ -603,7 +572,7 @@ input[type="file"] {
 
 
 /* Add styling for the date in the header */
-th {
+#trackerTable th {
   background-color: #f0f0f0;
   font-weight: 600;
   border-bottom: 2px solid #ddd;
@@ -613,22 +582,19 @@ th {
 }
 
 /* Style the first column (name column) with larger font */
-td:first-child {
+#trackerTable td:first-child {
   font-size: 17px;
   font-weight: 500;
 }
 
 /* Style the first column header differently */
-tr th:first-child {
+#trackerTable th:first-child {
   background-color: #f5f5f5;
   color: #333;
   font-size: 16px;
 }
 
-/* Style the date part in the header */
-th {
-  color: #666;
-}
+
 
 /* Add a specific style for the date text */
 .date-text {
@@ -654,7 +620,7 @@ th {
 }
 
 /* Style the first column header differently */
-tr th:first-child {
+#trackerTable tr th:first-child {
   background-color: #f5f5f5;
   color: #333;
 }
@@ -706,6 +672,16 @@ tr th:first-child {
   font-size: 18px;
   font-weight: bold;
   margin: 0 5px;
+}
+
+.arrow-icon {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-image: url('images/arrow-icon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin-inline: 10px;
 }
 
 .current-week {
