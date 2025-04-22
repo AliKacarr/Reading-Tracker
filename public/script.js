@@ -1036,7 +1036,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Handle form submission
   adminLoginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
-
     const username = document.getElementById('adminUsername').value;
     const password = document.getElementById('adminPassword').value;
 
@@ -1087,7 +1086,12 @@ document.addEventListener('DOMContentLoaded', function () {
   adminPassword.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent default behavior
-      adminLoginForm.submit(); // Submit the form
+      // Manually trigger the form submission handler
+      const submitEvent = new Event('submit', {
+        bubbles: true,
+        cancelable: true
+      });
+      adminLoginForm.dispatchEvent(submitEvent);
     }
   });
 });
