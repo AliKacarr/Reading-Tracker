@@ -223,7 +223,7 @@ async function loadData() {
           <button class="save-name-button" onclick="saveUserName('${user._id}')" style="display:none;">✔️</button>
         </div>
         <div class="user-actions">
-          <button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button>
+          <button class="settings-button" style="display:none" onclick="toggleDeleteButton('${user._id}')">⚙️</button>
           <button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')">
             <img src="/images/user-delete.png" alt="Sil" width="16" height="16">
           </button>
