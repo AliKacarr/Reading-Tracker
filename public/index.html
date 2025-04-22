@@ -21,7 +21,7 @@
         kullanımınızı analiz etmek için kullanılır.</p>
       <div class="cookie-buttons">
         <button id="declineCookies" class="cookie-button decline">Reddet</button>
-        <button id="acceptCookies" class="cookie-button accept">Kabul Et</button>
+        <button id="acceptCookies" class="cookie-button accept pulsate-button">Kabul Et</button>
       </div>
     </div>
   </div>
@@ -41,75 +41,6 @@
   </button>
 
   <!-- Add this style section to fix button widths -->
-  <style>
-    .admin-logs-button,
-    .login-logs-button {
-      width: 160px;
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-weight: 500;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: all 0.2s ease;
-      border: none;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-
-    .admin-mode-button {
-      width: 220px;
-      background-color: #34A853;
-      color: white;
-    }
-
-    .admin-mode-button:hover {
-      background-color: #2d9249;
-    }
-
-    .admin-logs-button img,
-    .login-logs-button img,
-    .admin-mode-button img {
-      margin-right: 8px;
-      width: 18px;
-      height: 18px;
-    }
-
-    .login-logs-button {
-      background-color: #4285F4;
-      color: white;
-      margin-bottom: 11px;
-    }
-
-    .login-logs-button:hover {
-      background-color: #3367d6;
-    }
-
-    .admin-logs-button {
-      background-color: #EA4335;
-      color: white;
-    }
-
-    .admin-logs-button:hover {
-      background-color: #d33426;
-    }
-
-
-
-    .admin-logs-button:hover,
-    .login-logs-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .admin-logs-button:active,
-    .login-logs-button:active {
-      transform: translateY(0);
-    }
-  </style>
 
   <div class="container">
     <h1 id="adminLogin">📚 Kitap Okuma Takibi</h1>

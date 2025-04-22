@@ -412,14 +412,23 @@ async function deleteUser(id) {
     return;
   }
 
-  await fetch('/api/delete-user', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id })
-  });
+  // Find the user name for the confirmation message
+  const userElement = document.querySelector(`li[data-user-id="${id}"]`);
+  const userName = userElement ? userElement.querySelector('.user-name').textContent : 'this user';
 
-  loadData();
-  loadReadingStats();
+  // Ask for confirmation before deleting
+  const confirmed = confirm(`Are you sure you want to delete - ${userName} -? This action cannot be undone.`);
+
+  if (confirmed) {
+    await fetch('/api/delete-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+
+    loadData();
+    loadReadingStats();
+  }
 }
 
 // Helper function to get day of week in Turkish
@@ -1196,7 +1205,7 @@ async function logUnauthorizedAccess(action) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, deviceInfo })
     });
-    if (action == "refresh-RandomQuote" || allowedActions.includes(action)) {
+    if (action == "refresh-RandomQuote" || action.includes("monthly-calendar-user-change") || allowedActions.includes(action)) {
       return;
     }
     alert(`Bu işlemi yapabilmek için Ali Kaçar ile iletişime geçiniz.`);
@@ -1407,35 +1416,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Handle decline button click
   declineCookiesBtn.addEventListener('click', function () {
-    declineAttempts++;
+    // Save decline status to localStorage
+    localStorage.setItem('cookieConsent', 'declined');
 
-    if (declineAttempts === 1) {
-      // First decline: Open first YouTube video but keep banner visible
-      window.open("https://www.youtube.com/shorts/_amCocGWPa4", "_blank");
-      const cookieContent = cookieConsentBanner.querySelector('.cookie-content p');
-      if (cookieContent) {
-        cookieContent.textContent = 'Reddetmen bizi üzdü. Halen çerez istemiyor musunuz?';
-      }
+    // Store date with Turkey timezone adjustment (+3 hours) 
+    const date = new Date();
+    date.setHours(date.getHours() + 3);
+    localStorage.setItem('cookieConsentDate', date.toISOString());
 
-      // Add pulsating effect to the accept button and change button colors
-      acceptCookiesBtn.classList.add('pulsate-button');
-      acceptCookiesBtn.style.backgroundColor = '#FFD700'; // Gold color for accept
-      logUnauthorizedAccess('cookies-decline-1');
-      // Banner stays visible
-    } else if (declineAttempts >= 2) {
-      // Second decline: Open second YouTube video, close banner, and save decline status
-      window.open("https://www.youtube.com/watch?v=hhuUUrVJXaY", "_blank");
-      // Save decline status to localStorage
-      localStorage.setItem('cookieConsent', 'declined');
-      // Store date with Turkey timezone adjustment (+3 hours)
-      const date = new Date();
-      date.setHours(date.getHours() + 3);
-      localStorage.setItem('cookieConsentDate', date.toISOString());
-      // Close the banner
-      cookieConsentBanner.style.display = 'none';
-      logUnauthorizedAccess('cookies-decline-2');
-    }
+    // Close the banner
+    cookieConsentBanner.style.display = 'none';
+
   });
+
   // Check cookie consent when the page loads
   checkCookieConsent();
 });

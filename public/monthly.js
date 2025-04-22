@@ -85,7 +85,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Listen for user selection changes
     userSelector.addEventListener('change', function () {
+        const previousUser = selectedUser;
         selectedUser = this.value;
+
+        // Log the user selection change
+        if (typeof logUnauthorizedAccess === 'function') {
+            logUnauthorizedAccess(`monthly-calendar-user-change: ${previousUser}-to-${selectedUser}`);
+        }
+
         generateCalendar(currentMonth, currentYear);
     });
 

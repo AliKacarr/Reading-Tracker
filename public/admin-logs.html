@@ -522,18 +522,23 @@
 
               // Map action codes to readable descriptions
               const actionMap = {
-                'toggle-status': 'Okuma durumu değiştirme',
-                'delete-user': 'Kullanıcı silme',
-                'add-user': 'Kullanıcı ekleme',
                 'toggle-delete-button': 'Ayarlar butonu tıklama',
                 'edit-user-name': 'Kullanıcı adı düzenleme',
                 'save-user-name': 'Kullanıcı adı kaydetme',
                 'change-user-image': 'Profil resmi değiştirme',
                 'refresh-RandomQuote': 'Bir söz yenileme',
                 'admin-login': 'Yönetici girişi hatası',
-                'cookies-decline-1': 'cookies-decline-1',
-                'cookies-decline-2': 'cookies-decline-2',
-                'error': 'Bağlantı hatası'
+                'error': 'Bağlantı hatası',
+                // Add the new action type with a function to handle the dynamic content
+                'monthly-calendar-user-change': function (action) {
+                  // Extract the user names from the action string
+                  const match = action.match(/monthly-calendar-user-change: (.+)-to-(.+)/);
+                  if (match) {
+                    const [_, prevUser, newUser] = match;
+                    return `Takvim kullanıcı değişimi: ${prevUser || 'Seçilmemiş'} → ${newUser || 'Seçilmemiş'}`;
+                  }
+                  return 'Takvim kullanıcı değişimi';
+                }
               };
 
               const actionText = actionMap[log.action] || log.action;
@@ -634,18 +639,23 @@
 
           // Map action codes to readable descriptions
           const actionMap = {
-            'toggle-status': 'Okuma durumu değiştirme',
-            'delete-user': 'Kullanıcı silme',
-            'add-user': 'Kullanıcı ekleme',
             'toggle-delete-button': 'Ayarlar butonu tıklama',
             'edit-user-name': 'Kullanıcı adı düzenleme',
             'save-user-name': 'Kullanıcı adı kaydetme',
             'change-user-image': 'Profil resmi değiştirme',
             'refresh-RandomQuote': 'Bir söz yenileme',
             'admin-login': 'Yönetici girişi hatası',
-            'cookies-decline-1': 'cookies-decline-1',
-            'cookies-decline-2': 'cookies-decline-2',
-            'error': 'Bağlantı hatası'
+            'error': 'Bağlantı hatası',
+            // Add the new action type with a function to handle the dynamic content
+            'monthly-calendar-user-change': function (action) {
+              // Extract the user names from the action string
+              const match = action.match(/monthly-calendar-user-change: (.+)-to-(.+)/);
+              if (match) {
+                const [_, prevUser, newUser] = match;
+                return `Takvim kullanıcı değişimi: ${prevUser || 'Seçilmemiş'} → ${newUser || 'Seçilmemiş'}`;
+              }
+              return 'Takvim kullanıcı değişimi';
+            }
           };
 
           const actionText = actionMap[log.action] || log.action;
@@ -804,6 +814,7 @@
           loadLogs();
         });
       });
+
     </script>
 </body>
 
