@@ -5,8 +5,10 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="images/favicon.png" type="image/x-icon" />
   <title>Reading Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="monthly.css" />
+  <link rel="stylesheet" href="videos.css" />
 </head>
 
 <body>
@@ -162,6 +164,41 @@
       </div>
     </div>
 
+    <div class="videos">
+      <h3>Çatı Katı Elazığ - Videolar</h3>
+      <div class="top-bar">
+        <button id="randomBtn">
+          <i class="fa-solid fa-shuffle"></i> Rastgele Videolar
+        </button>
+        <button id="latestBtn">
+          <i class="fa-solid fa-forward-fast"></i> En Son Eklenen Videolar
+        </button>
+        <button id="mostViewedBtn">
+          <i class="fa-solid fa-chart-line"></i> En Çok İzlenen Videolar
+        </button>
+        <button id="refreshBtn">
+          <i class="fa-solid fa-rotate"></i> Yenile
+        </button>
+      </div>
+      <div id="videos" class="videos-container" style="position: relative;">
+        <!-- Videos will be rendered here -->
+      </div>
+
+      <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+        <div class="loading">
+          <i class="fa-solid fa-spinner fa-spin" style="font-size:32px;margin-bottom:10px;"></i><br>
+          Videolar yükleniyor...
+        </div>
+      </div>
+
+      <div id="videoModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <iframe id="videoFrame" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
     <div class="main-area" style="display: none;">
       <div class="user-list">
         <h3>👤 Kullanıcılar</h3>
@@ -213,6 +250,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
   <script src="monthly.js"></script>
+  <script src="videos.js"></script>
 </body>
 
 </html>
