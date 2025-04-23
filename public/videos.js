@@ -1,5 +1,3 @@
-// YouTube API anahtarı - Kendi API anahtarınızı buraya ekleyin
-const API_KEY = 'AIzaSyDAFuHCL1rzxILKvTJRhGKDfIglZo5eTvo';
 // Çatikatim kanalının ID'si
 const CHANNEL_ID = 'UCa4B618R90dxe7N9OK0LJyQ';
 
@@ -8,7 +6,20 @@ const videosContainer = document.getElementById('videos');
 const videoModal = document.getElementById('videoModal');
 const videoFrame = document.getElementById('videoFrame');
 const closeBtn = document.querySelector('.close');
-const loadingOverlay = document.getElementById('loadingOverlay'); // <-- Add this line
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+// API anahtarını sunucudan al
+fetch('/api/config')
+    .then(response => response.json())
+    .then(config => {
+        API_KEY = config.youtubeApiKey;
+        // API anahtarı alındıktan sonra videoları yükle
+        showRandomVideos();
+    })
+    .catch(error => {
+        console.error('API anahtarı alınırken hata oluştu:', error);
+        videosContainer.innerHTML = `<div class="error">Yapılandırma yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
+    });
 
 // Kanalın rastgele videosunu getir
 async function fetchAllVideos(playlistId) {
@@ -216,6 +227,3 @@ function closeModal() {
     videoModal.style.display = 'none';
     videoFrame.src = '';
 }
-
-// Sayfa yüklendiğinde en son eklenen videoları göster
-document.addEventListener('DOMContentLoaded', showRandomVideos());

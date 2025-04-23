@@ -591,3 +591,10 @@ app.get('/api/quote-images', (req, res) => {
     res.json({ images: imageFiles });
   });
 });
+
+// API anahtarını istemciye sağlayan endpoint
+app.get('/api/config', (req, res) => {
+  res.json({
+    youtubeApiKey: process.env.YOUTUBE_API_KEY || 'YOUR_DEFAULT_API_KEY'
+  });
+});

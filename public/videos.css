@@ -62,7 +62,7 @@
 
 .play-icon {
     position: absolute;
-    top: 43%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: white;
@@ -70,6 +70,13 @@
     opacity: 0.85;
     pointer-events: none;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+    width: 80px;
+    height: 80px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .video-title {
