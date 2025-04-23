@@ -56,7 +56,7 @@
 }
 
 .play-icon {
-    font-family: Arial, 'Segoe UI Symbol', 'Noto Sans Symbols', sans-serif;
+    font-family: "DejaVu Sans", "Arial Unicode MS", "Noto Sans Symbols", "Courier New", monospace;
     position: absolute;
     top: 43%;
     left: 50%;
