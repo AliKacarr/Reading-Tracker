@@ -90,6 +90,7 @@
   background-color: #d4edda !important;
   color: #155724 !important;
   font-weight: bold;
+  height: 80px;
   border: 2px solid #4CAF50 !important;
   /* Okunan günler için yeşil kenar */
 }
@@ -98,6 +99,7 @@
   box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
   background-color: #f8d7da !important;
   color: #721c24 !important;
+  height: 80px;
   border: 2px solid #dc3545 !important;
   /* Okunmayan günler için kırmızı kenar */
 }
