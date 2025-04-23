@@ -44,14 +44,9 @@
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
     cursor: pointer;
     position: relative;
     /* Added for play icon positioning */
-}
-
-.video-card:hover {
-    transform: translateY(-5px);
 }
 
 .thumbnail {
@@ -61,22 +56,35 @@
 }
 
 .play-icon {
+    font-family: Arial, 'Segoe UI Symbol', 'Noto Sans Symbols', sans-serif;
     position: absolute;
-    top: 50%;
+    top: 43%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: white;
-    font-size: 60px;
-    opacity: 0.85;
+    font-size: 40px;
+    opacity: 0.9;
     pointer-events: none;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
-    width: 80px;
-    height: 80px;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 75px;
+    height: 75px;
+    background-color: rgba(0, 0, 0, 0.6);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
+    border: 2px solid rgba(255, 255, 255, 0.18);
+    transition: all 0.25s cubic-bezier(.4, 2, .6, 1);
+}
+
+.video-card:hover .play-icon {
+    font-size: 45px;
+    width: 80px;
+    height: 80px;
+    background-color: rgba(0, 0, 0, 0.7);
+    opacity: 1;
+    border-width: 3px;
 }
 
 .video-title {
