@@ -559,18 +559,18 @@ app.get('/api/users', async (req, res) => {
 app.get('/api/user-monthly-stats', async (req, res) => {
   try {
     const { userId, year, month } = req.query;
-    
+
     // Create date range for the month
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
     const lastDay = new Date(year, parseInt(month), 0).getDate();
     const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-    
+
     // Find all stats for this user in the date range
     const stats = await Stat.find({
       userId: userId,
       date: { $gte: startDate, $lte: endDate }
     });
-    
+
     res.json({ stats });
   } catch (error) {
     console.error('Error fetching user monthly stats:', error);
@@ -578,3 +578,16 @@ app.get('/api/user-monthly-stats', async (req, res) => {
   }
 });
 
+app.get('/api/quote-images', (req, res) => {
+  const quotesDir = path.join(__dirname, 'public', 'quotes');
+  fs.readdir(quotesDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Unable to list images' });
+    }
+    // Filter for image files only (jpg, png, jpeg, gif, webp)
+    const imageFiles = files.filter(file =>
+      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
+    );
+    res.json({ images: imageFiles });
+  });
+});

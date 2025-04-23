@@ -220,12 +220,12 @@ async function loadData() {
           <img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/>
           <span class="user-name" onclick="editUserName('${user._id}')">${user.name}</span>
           <input type="text" class="edit-name-input" value="${user.name}" style="display:none;">
-          <button class="save-name-button" onclick="saveUserName('${user._id}')" style="display:none;">✔️</button>
+          <button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none;">✔️</button>
         </div>
         <div class="user-actions">
           <button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button>
           <button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')">
-            <img src="/images/user-delete.png" alt="Sil" width="16" height="16">
+            <img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="16" height="16">
           </button>
         </div>
       </li>`;
@@ -428,6 +428,7 @@ async function deleteUser(id) {
 
     loadData();
     loadReadingStats();
+    showSuccessMessage('Kullanıcı başarıyla silindi!');
   }
 }
 
@@ -467,10 +468,34 @@ newUserForm.addEventListener('submit', async (e) => {
 
   input.value = '';
   imageInput.value = '';
+  fileNameDisplay.textContent = 'Resim seçilmedi';
+  fileInputLabel.textContent = 'Resim Seç';
   loadData();
   loadReadingStats();
+  showSuccessMessage('Kullanıcı başarıyla eklendi!');
 });
+function showSuccessMessage(message) {
+  const messageElement = document.createElement('div');
+  messageElement.className = 'success-message';
+  messageElement.textContent = message;
+  document.body.appendChild(messageElement);
 
+  // Style the message
+  messageElement.style.position = 'fixed';
+  messageElement.style.top = '20px';
+  messageElement.style.right = '20px';
+  messageElement.style.backgroundColor = '#d4edda';
+  messageElement.style.color = '#155724';
+  messageElement.style.padding = '10px';
+  messageElement.style.borderRadius = '5px';
+  messageElement.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+  messageElement.style.zIndex = '1000';
+
+  // Remove the message after 3 seconds
+  setTimeout(() => {
+    document.body.removeChild(messageElement);
+  }, 3000);
+}
 // File input display handler
 const profileImageInput = document.getElementById('profileImage');
 const fileNameDisplay = document.getElementById('file-name');
@@ -516,10 +541,12 @@ async function verifyAdminUsername() {
       const adminIndicator = document.querySelector('.admin-indicator');
       const adminLogsButton = document.getElementById('adminLogsButton');
       const loginLogsButton = document.getElementById('loginLogsButton');
+      const mainArea = document.querySelector('.main-area');
 
       if (adminIndicator) adminIndicator.style.display = 'none';
       if (adminLogsButton) adminLogsButton.style.display = 'none';
       if (loginLogsButton) loginLogsButton.style.display = 'none';
+      if (mainArea) mainArea.style.display = 'none';
 
       return false;
     }
@@ -565,23 +592,7 @@ document.addEventListener('DOMContentLoaded', function () {
   loadData();
   fetchRandomQuote();
 
-  // Add event listener for refresh button
-  const refreshButton = document.getElementById('refreshQuote');
-  if (refreshButton) {
-    refreshButton.addEventListener('click', function () {
-      // Add spinning animation class
-      this.classList.add('spinning');
 
-      // Fetch new quote
-      fetchRandomQuote();
-      logUnauthorizedAccess('refresh-RandomQuote');
-
-      // Remove spinning class after animation completes
-      setTimeout(() => {
-        this.classList.remove('spinning');
-      }, 1000);
-    });
-  }
 });
 
 // Add these new functions for user management
@@ -1155,11 +1166,13 @@ function showAdminInfoPanel() {
       const adminIndicator = document.querySelector('.admin-indicator');
       const adminLogsButton = document.getElementById('adminLogsButton'); // Add this line to get the admin logs butto
       const loginLogsButton = document.getElementById('loginLogsButton');
+      const mainArea = document.querySelector('.main-area');
 
       if (adminIndicator) {
         adminIndicator.style.display = 'none';
         adminLogsButton.style.display = 'none';
         loginLogsButton.style.display = 'none';
+        mainArea.style.display = 'none';
       }
       // Reload data to update UI without admin privileges
       loadData();
@@ -1223,6 +1236,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminIndicator = document.querySelector('.admin-indicator');
   const adminLogsButton = document.getElementById('adminLogsButton');
   const loginLogsButton = document.getElementById('loginLogsButton');
+  const mainArea = document.querySelector('.main-area');
 
   // Check if user is authenticated as admin
   function checkAdminAuth() {
@@ -1230,10 +1244,12 @@ document.addEventListener('DOMContentLoaded', function () {
       if (adminIndicator) adminIndicator.style.display = 'flex';
       if (adminLogsButton) adminLogsButton.style.display = 'flex';
       if (loginLogsButton) loginLogsButton.style.display = 'flex';
+      if (mainArea) mainArea.style.display = 'flex';
     } else {
       if (adminIndicator) adminIndicator.style.display = 'none';
       if (adminLogsButton) adminLogsButton.style.display = 'none';
       if (loginLogsButton) loginLogsButton.style.display = 'none';
+      if (mainArea) mainArea.style.display = 'none';
     }
   }
 
@@ -1348,6 +1364,12 @@ function showAdminIndicator() {
   if (loginLogsButton) {
     loginLogsButton.style.display = 'flex';
   }
+
+  const mainArea = document.querySelector('.main-area');
+  if (mainArea) {
+    mainArea.style.display = 'flex';
+  }
+
 }
 // Add this at the beginning of your script.js file, before any other code
 
@@ -1431,4 +1453,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Check cookie consent when the page loads
   checkCookieConsent();
+});
+
+async function showRandomQuoteImage() {
+  const img = document.getElementById('quoteImage');
+  if (!img) return;
+
+  try {
+    const response = await fetch('/api/quote-images');
+    const data = await response.json();
+    const images = data.images;
+    if (!images || images.length === 0) {
+      img.style.display = 'none';
+      return;
+    }
+    const randomIndex = Math.floor(Math.random() * images.length);
+    img.src = `quotes/${images[randomIndex]}`;
+    img.style.display = 'block';
+  } catch (error) {
+    img.style.display = 'none';
+    console.error('Error loading quote image:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  showRandomQuoteImage();
+
+  const refreshBtn = document.getElementById('refreshQuote');
+  if (refreshBtn) {
+    refreshBtn.onclick = function () {
+      fetchRandomQuote();
+      logUnauthorizedAccess('refresh-RandomQuote');
+      this.classList.add('spinning');
+      setTimeout(() => {
+        this.classList.remove('spinning');
+      }, 1000);
+    };
+  }
+
+  const refreshImageBtn = document.getElementById('refreshQuoteImage');
+  if (refreshImageBtn) {
+    refreshImageBtn.onclick = function () {
+      showRandomQuoteImage();
+      this.classList.add('spinning');
+      setTimeout(() => {
+        this.classList.remove('spinning');
+      }, 1000);
+    };
+  }
 });

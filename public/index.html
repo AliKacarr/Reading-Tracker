@@ -138,15 +138,10 @@
       </div>
     </div>
 
-    <div class="main-area">
-      <div class="user-list">
-        <h3>👤 Kullanıcılar</h3>
-        <ul id="deleteList"></ul>
-      </div>
-
-      <div class="new-user">
-
-        <!-- Add the Quote of the Day section -->
+    <!-- Add the Quote of the Day section -->
+    <div class="quote">
+      <h3>💬 Vecizeler</h3>
+      <div class="quote-flex-container">
         <div class="quote-section">
           <button class="refresh-quote" id="refreshQuote" title="Yeni söz getir">↻</button>
           <div class="quote-container">
@@ -160,10 +155,25 @@
             </div>
           </div>
         </div>
+        <div class="quote-image-container" style="position:relative;">
+          <button class="refresh-image" id="refreshQuoteImage" title="Yeni görsel getir">↻</button>
+          <img id="quoteImage" src="" alt="Vecize görseli" style="display:none;" />
+        </div>
+      </div>
+    </div>
+
+    <div class="main-area" style="display: none;">
+      <div class="user-list">
+        <h3>👤 Kullanıcılar</h3>
+        <ul id="deleteList"></ul>
+      </div>
+
+      <div class="new-user">
+
 
         <!-- Add the Add User section -->
-        <h3>➕ Kullanıcı Ekle</h3>
         <form id="newUserForm" enctype="multipart/form-data">
+          <h3>➕ Kullanıcı Ekle</h3>
           <div class="form-group">
             <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
             <button type="submit" class="submit-button primary-button">Ekle</button>
