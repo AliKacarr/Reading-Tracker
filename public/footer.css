@@ -1,0 +1,161 @@
+.site-footer {
+  background: #ffffff;
+  color: #222;
+  padding-top: 10px;
+  font-size: 15px;
+  margin-top: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.footer-section {
+  flex: 1 1 220px;
+  margin: 10px 0;
+  min-width: 180px;
+  text-align: center;
+}
+
+.footer-section h4 {
+  color: #2b67c4;
+  margin: 0 auto 10px auto;
+  font-size: 17px;
+  font-weight: bold;
+  display: inline-block;
+  border-bottom: 2px solid #2b67c4;
+  padding-bottom: 4px;
+  width: auto;
+}
+
+.footer-section.kurumsal ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  text-align: center;
+  display: block;
+}
+
+.footer-section.kurumsal ul li {
+  margin-bottom: 8px;
+  text-align: center;
+  display: block;
+}
+
+.footer-section.kurumsal ul li a {
+  color: #222;
+  text-decoration: none;
+  transition: color 0.2s, border-bottom 0.2s;
+  position: relative;
+  padding-bottom: 2px;
+}
+
+.footer-section.kurumsal ul li a::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 2px;
+  background: #2b67c4;
+  transition: width 0.2s;
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+}
+
+.footer-section.kurumsal ul li a:hover {
+  color: #2b67c4;
+}
+
+.footer-section.kurumsal ul li a:hover::after {
+  width: 100%;
+}
+
+.footer-section.social-media .social-icons a {
+  transition: color 0.2s, transform 0.2s;
+}
+
+.footer-section.social-media .social-icons a:hover {
+  color: #1a417a;
+  transform: scale(1.18) rotate(-6deg);
+}
+
+.footer-section.social-media {
+  text-align: center;
+}
+
+.footer-section.social-media .social-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer-section.social-media a {
+  color: #2b67c4;
+  font-size: 26px;
+  transition: color 0.2s;
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  display: inline-block;
+  margin: 0;
+}
+
+.footer-section.social-media a:hover {
+  color: #1a417a;
+  background: none;
+}
+
+.footer-section.app-download .app-btn {
+  display: inline-block;
+  background: #2b67c4;
+  color: #fff;
+  padding: 7px 14px;
+  border-radius: 22px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 8px;
+  transition: background 0.2s;
+  font-size: 14px;
+}
+
+.footer-section.app-download .app-btn i {
+  margin-right: 7px;
+  font-size: 16px;
+}
+
+.footer-section.app-download .app-btn:hover {
+  background: #1a417a;
+  color: #fff;
+}
+
+.footer-bottom {
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  border-top: none;
+  padding-top: 0;
+  background: transparent;
+}
+
+@media (max-width: 800px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-section {
+    margin: 15px 0;
+    text-align: center;
+  }
+
+}

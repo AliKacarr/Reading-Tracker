@@ -824,7 +824,7 @@ th.today-column {
 /* Quote of the Day section styling */
 .quote-section {
 
-  flex: 5 5 0;
+  flex: 5 5 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -920,33 +920,6 @@ th.today-column {
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
-.refresh-image {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #5b9bd5;
-  font-size: 20px;
-  width: 38px;
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  z-index: 2;
-}
-
-.refresh-image:hover {
-  background-color: rgba(91, 155, 213, 0.1);
-  transform: rotate(30deg);
-}
-
-.refresh-image.spinning {
-  animation: spin 1s linear;
-}
 
 #quoteImage:hover {
   box-shadow: 0 8px 24px rgba(91, 155, 213, 0.18);
@@ -973,22 +946,23 @@ th.today-column {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: none;
+  background-color: rgba(107, 172, 233, 0.148);
   border: none;
   cursor: pointer;
-  color: #5b9bd5;
-  font-size: 20px;
-  width: 45px;
-  height: 45px;
+  color: #565656;
+  font-size: 15px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: all 0.2s ease;
+  z-index: 2;
 }
 
 .refresh-quote:hover {
-  background-color: rgba(91, 155, 213, 0.1);
+  background-color: rgba(81, 143, 202, 0.505);
   transform: rotate(30deg);
 }
 
@@ -1103,7 +1077,7 @@ th.today-column {
 
 #adminLogin {
   cursor: pointer;
-  width: 370px;
+  width: 500px;
   margin: auto;
   text-align: center;
   padding: 17px;

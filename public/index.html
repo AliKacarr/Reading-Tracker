@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="monthly.css" />
   <link rel="stylesheet" href="videos.css" />
+  <link rel="stylesheet" href="footer.css" />
 </head>
 
 <body>
@@ -45,7 +46,7 @@
   <!-- Add this style section to fix button widths -->
 
   <div class="container">
-    <h1 id="adminLogin">📚 Kitap Okuma Takibi</h1>
+    <h1 id="adminLogin">📚 Risale-i Nur Okuma Takibi</h1>
 
     <!-- Admin Login Modal -->
     <div id="adminLoginModal" class="modal">
@@ -158,7 +159,7 @@
           </div>
         </div>
         <div class="quote-image-container" style="position:relative;">
-          <button class="refresh-image" id="refreshQuoteImage" title="Yeni görsel getir">↻</button>
+          <button class="refresh-quote" id="refreshQuoteImage" title="Yeni görsel getir">↻</button>
           <img id="quoteImage" src="" alt="Vecize görseli" style="display:none;" />
         </div>
       </div>
@@ -229,7 +230,7 @@
     </div>
     <!-- Add this after the user list section, before the closing container div -->
     <div class="settings-section">
-      <h3 id="ayarlar">Ayarlar</h3>
+      <h3 id="ayarlar">Tercihler</h3>
       <div class="setting-item">
         <label for="firstDaySelect">Haftanın İlk Günü:</label>
         <select id="firstDaySelect" class="day-select">
@@ -243,9 +244,53 @@
         </select>
       </div>
     </div>
+    <!-- Footer başlangıcı -->
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-section kurumsal">
+          <h4 style="width: 100px;">Kurumsal</h4>
+          <ul>
+            <li><a href="mailto:ateizmfikri@gmail.com">Bize Ulaşın</a></li>
+            <li><a href="hakkimizda.html">Hakkımızda</a></li>
+            <li><a href="gizlilik-politikasi.html">Gizlilik Politikası</a></li>
+            <li><a href="cerez-politikasi.html">Çerez Politikası</a></li>
+          </ul>
+        </div>
+        <div class="footer-section social-media">
+          <h4 style="width: 150px;">Sosyal Medya</h4>
+          <div class="social-icons">
+            <a href="https://www.instagram.com/catikatimelazig/" target="_blank" aria-label="Instagram"><i
+                class="fab fa-instagram"></i></a>
+            <a href="https://www.youtube.com/c/%C3%87atikatim" target="_blank" aria-label="YouTube"><i
+                class="fab fa-youtube"></i></a>
+            <a href="https://open.spotify.com/show/1QIENVd5g588MS1eF1ZcKi" target="_blank" aria-label="Spotify"><i
+                class="fab fa-spotify"></i></a>
+            <a href="https://wa.me/905539275523" target="_blank" aria-label="WhatsApp"><i
+                class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+        <div class="footer-section app-download">
+          <h4 style="width: 220px;">Mobil Uygulamamız</h4>
+          <div class="app-download-row"
+            style="display: flex; justify-content: center; align-items: flex-start; gap: 18px; margin-bottom: 0;">
+            <img src="images/app-logo.png" alt="Ateizm fikrine cevaplar logo"
+              style="width:61px; height:61px; border-radius:12px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span style="font-weight: 600; font-size: 16px;">Ateizm fikrine cevaplar</span>
+              <a href="https://play.google.com/store/apps/details?id=com.ateizmfikrinecevaplar&hl=tr" target="_blank"
+                class="app-btn" style="margin-top: 8px;">
+                <i class="fab fa-google-play"></i> Google Play'den İndir
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>Çatı Katı Elazığ İlim ve Kültür Derneği &copy; Tüm hakları saklıdır.</span>
+      </div>
+    </footer>
+    <!-- Footer bitişi -->
   </div>
-
-
   <!-- Add Chart.js library before your script.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
