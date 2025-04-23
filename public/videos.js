@@ -8,6 +8,8 @@ const videoFrame = document.getElementById('videoFrame');
 const closeBtn = document.querySelector('.close');
 const loadingOverlay = document.getElementById('loadingOverlay');
 
+let isFirstLoad = true;
+
 // API anahtarını sunucudan al
 fetch('/api/config')
     .then(response => response.json())
@@ -80,7 +82,7 @@ function renderVideos(videos) {
             videoCard.className = 'video-card';
             videoCard.innerHTML = `
                 <img src="${thumbnail}" alt="${title}" class="thumbnail">
-                <span class="play-icon">&#9658;</span>
+                <span class="play-icon"><i class="fa-solid fa-play"></i></span>
                 <div class="video-title">
                     <div class="title-text">${title}</div>
                     <div class="view-count"><i class="fa-solid fa-eye"></i> ${formattedViewCount}</div>
@@ -166,9 +168,10 @@ async function showRandomVideos() {
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('randomBtn').classList.add('active');
 
-    // Remove this line that adds the active class (since we'll make it always visible)
-    // document.getElementById('refreshBtn').classList.add('active');
-    loadingOverlay.style.display = 'flex';
+    // Sadece ilk yüklemede loadingOverlay'i gösterme
+    if (!isFirstLoad) {
+        loadingOverlay.style.display = 'flex';
+    }
     try {
         const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
         const channelData = await channelResponse.json();
@@ -182,6 +185,7 @@ async function showRandomVideos() {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
     }
     loadingOverlay.style.display = 'none';
+    isFirstLoad = false; // İlk yükleme tamamlandıktan sonra false yap
 }
 
 // Butonlara tıklama olayları
