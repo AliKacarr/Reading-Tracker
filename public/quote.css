@@ -73,8 +73,7 @@
     width: 98%;
     background-color: #f9f9f9;
     position: relative;
-    min-height: 150px;
-    height: 240px;
+    min-height: 235px;
     box-sizing: border-box;
     margin-top: 0;
 }
@@ -161,7 +160,7 @@
 }
 
 .refresh-quote.spinning {
-    animation: spin 1s linear;
+    animation: spin 0.6s linear;
 }
 
 .quote h3 {

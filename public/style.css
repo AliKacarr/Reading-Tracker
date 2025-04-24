@@ -135,7 +135,7 @@ ul#deleteList li span {
 }
 
 .delete-button {
-  background: #ff4d4f;
+  background-color: #e889ab;
   border: none;
   color: white;
   padding: 6px 8px;
@@ -340,10 +340,10 @@ td {
   background: #6adf6e;
   border: none;
   color: white;
-  padding: 4px 8px;
+  padding: 6px 11px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 16px;
 }
 
 .save-name-button:hover {
@@ -367,19 +367,6 @@ ul#deleteList li span {
   text-align: left;
 }
 
-.delete-button {
-  background: #ff4d4f;
-  border: none;
-  color: white;
-  padding: 6px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  margin-left: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
 .delete-button img {
   display: block;
@@ -784,7 +771,7 @@ th.today-column::before {
   border-radius: 4px;
   font-size: 12px;
   font-weight: normal;
-  z-index: 10;
+  z-index: 3;
   /* Ensure it appears above other elements */
 }
 
@@ -915,7 +902,7 @@ th.today-column {
 .modal {
   display: none;
   position: fixed;
-  z-index: 1000;
+  z-index: 100;
   left: 0;
   top: 0;
   width: 100%;
@@ -924,13 +911,13 @@ th.today-column {
   overflow: auto;
 }
 
-.modal-content {
+.modal-content.admin {
   background-color: #fff;
   margin: 10% auto;
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 400px;
+  width: 320px;
   max-width: 90%;
   animation: modalFadeIn 0.3s;
 }
@@ -1074,7 +1061,7 @@ th.today-column {
 .modal {
   display: none;
   position: fixed;
-  z-index: 1000;
+  z-index: 100;
   left: 0;
   top: 0;
   width: 100%;
@@ -1083,16 +1070,6 @@ th.today-column {
   overflow: auto;
 }
 
-.modal-content {
-  background-color: #fff;
-  margin: 10% auto;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 400px;
-  max-width: 90%;
-  animation: modalFadeIn 0.3s;
-}
 
 @keyframes modalFadeIn {
   from {
@@ -1119,13 +1096,7 @@ th.today-column {
   color: #333;
 }
 
-.modal h2 {
-  margin-top: 0;
-  color: #333;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-}
+
 
 .modal .form-group {
   margin-bottom: 20px;
@@ -1174,14 +1145,14 @@ th.today-column {
   right: 20px;
   background-color: #4a90e2;
   color: white;
-  padding: 8px 37px;
+  padding: 8px 38px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   display: none;
   transition: all 0.3s ease;
-  z-index: 100;
+  z-index: 99;
 }
 
 .admin-indicator:hover {
@@ -1229,7 +1200,7 @@ th.today-column {
 .login-logs-button {
   background-color: #4285F4;
   color: white;
-  margin-bottom: 11px;
+  margin-bottom: 15px;
 }
 
 .login-logs-button:hover {
@@ -1269,7 +1240,7 @@ th.today-column {
   background-color: #ffffff;
   box-shadow: 1px 4px 12px rgba(0, 0, 0, 0.318);
   border-radius: 8px;
-  z-index: 1000;
+  z-index: 80;
   display: none;
   /* Hidden by default, shown via JS */
   animation: slideIn 0.5s forwards;

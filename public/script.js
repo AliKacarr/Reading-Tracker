@@ -220,12 +220,12 @@ async function loadData() {
           <img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/>
           <span class="user-name" onclick="editUserName('${user._id}')">${user.name}</span>
           <input type="text" class="edit-name-input" value="${user.name}" style="display:none;">
-          <button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none;">✔️</button>
+          <button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; display:flex justify-content:center;">✔</button>
         </div>
         <div class="user-actions">
           <button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button>
           <button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')">
-            <img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="16" height="16">
+            <img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="13" height="15">
           </button>
         </div>
       </li>`;
@@ -658,6 +658,11 @@ async function saveUserName(userId) {
   const newName = nameInput.value.trim();
   if (!newName) return; // Don't save empty names
 
+  // Hide input and save button, show name span
+  nameSpan.style.display = 'inline-block';
+  nameInput.style.display = 'none';
+  saveButton.style.display = 'none';
+
   // Update the user name in the database
   await fetch('/api/update-user', {
     method: 'POST',
@@ -665,10 +670,6 @@ async function saveUserName(userId) {
     body: JSON.stringify({ userId, name: newName })
   });
 
-  // Hide input and save button, show name span
-  nameSpan.style.display = 'inline-block';
-  nameInput.style.display = 'none';
-  saveButton.style.display = 'none';
 
   // Reload data to update all views
   loadData();
@@ -724,7 +725,6 @@ async function fetchRandomQuote() {
     const quoteTextElement = document.getElementById('quoteText');
     if (quoteTextElement) {
       // Show loading state
-      quoteTextElement.innerHTML = '<div class="loading-quote">Yükleniyor...</div>';
 
       const response = await fetch('/api/random-quote');
       const data = await response.json();
@@ -1125,7 +1125,7 @@ function showAdminInfoPanel() {
     adminInfoModal.className = 'modal';
 
     const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content';
+    modalContent.className = 'modal-content admin';
 
     const closeBtn = document.createElement('span');
     closeBtn.className = 'close-button';

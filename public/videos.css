@@ -134,7 +134,7 @@
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 100;
     left: 0;
     top: 0;
     width: 100%;
@@ -143,7 +143,7 @@
     background-color: rgba(0, 0, 0, 0.9);
 }
 
-.modal-content {
+.modal-content.video {
     position: relative;
     margin: 5% auto;
     width: 80%;
