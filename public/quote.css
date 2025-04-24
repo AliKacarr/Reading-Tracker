@@ -60,6 +60,7 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
+    /* flex-grow: 1, flex-shrink: 1, flex-basis: 0 - Makes elements grow and shrink equally */
     flex: 1 1 0;
 }
 
@@ -108,14 +109,6 @@
     transform: scale(1.03);
 }
 
-/* Responsive styles for quote section */
-@media (max-width: 1500px) {
-    .quote-section {
-        width: 400px;
-        min-height: 50px;
-    }
-
-}
 
 
 .loading-quote {
