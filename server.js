@@ -598,3 +598,65 @@ app.get('/api/config', (req, res) => {
     youtubeApiKey: process.env.YOUTUBE_API_KEY || 'YOUR_DEFAULT_API_KEY'
   });
 });
+
+// Rastgele ayet modeli
+const ayetSchema = new mongoose.Schema({
+  sentence: String
+});
+
+const Ayet = mongoose.model('Ayet', ayetSchema, 'ayetler');
+
+// Hadis modeli
+const hadisSchema = new mongoose.Schema({
+  sentence: String
+});
+
+const Hadis = mongoose.model('Hadis', hadisSchema, 'hadisler');
+
+// Rastgele ayet getiren endpoint
+app.get('/api/random-ayet', async (req, res) => {
+  try {
+    // Ayetler koleksiyonundaki toplam belge sayısını say
+    const count = await Ayet.countDocuments();
+
+    // Eğer hiç ayet yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "Andolsun ki, Resûlullah, sizin için, Allah'a ve Ahiret gününe kavuşmayı umanlar ve Allah'ı çok zikredenler için güzel bir örnektir. (Ahzâb sûresi, 33/21)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomAyet = await Ayet.findOne().skip(random);
+
+    res.json({ sentence: randomAyet.sentence });
+  } catch (error) {
+    console.error('Rastgele ayet alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+// Rastgele hadis endpoint'i
+app.get('/api/random-hadis', async (req, res) => {
+  try {
+    // Hadisler koleksiyonundaki toplam belge sayısını say
+    const count = await Hadis.countDocuments();
+
+    // Eğer hiç hadis yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomHadis = await Hadis.findOne().skip(random);
+
+    res.json({ sentence: randomHadis.sentence });
+  } catch (error) {
+    console.error('Rastgele hadis alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});

@@ -1,0 +1,174 @@
+.quote {
+    margin-inline: 20px;
+}
+
+/* Quote of the Day section styling */
+.quote-section {
+
+    flex: 5 5 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    margin-top: 25px;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    width: 53%;
+    background-color: #f9f9f9;
+    position: relative;
+    /* Add position relative for absolute positioning of refresh button */
+    min-height: 150px;
+    height: fit-content;
+    /* Set minimum height */
+}
+
+.quote-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    /* Make container fill the section */
+}
+
+.quote-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.quote-icon img {
+    width: 50px;
+    height: 55px;
+    margin-bottom: 3px;
+}
+
+.quote-title {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 13px;
+    font-weight: 450;
+    color: #666;
+}
+
+.quote-text {
+    font-style: italic;
+    color: #555;
+    font-size: 20px;
+    line-height: 1.6;
+    padding: 3px;
+    border-radius: 5px;
+    width: 98%;
+    /* Make text use full width */
+    overflow-wrap: break-word;
+    /* Ensure long words break */
+    word-wrap: break-word;
+    height: auto;
+    /* Allow height to adjust */
+    min-height: 50px;
+    /* Minimum height for the text */
+}
+
+.quote-flex-container {
+    display: flex;
+    align-items: stretch;
+    /* Make both sections the same height */
+    gap: 32px;
+}
+
+
+
+.quote-image-container {
+    min-width: 220px;
+    max-width: 260px;
+    height: 400px;
+    display: flex-start;
+    margin-top: 20px;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    position: relative;
+}
+
+#quoteImage {
+    width: 100%;
+    max-width: 220px;
+    height: 400px;
+    object-fit: fill;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    background: #fff;
+    display: block;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+
+#quoteImage:hover {
+    box-shadow: 0 8px 24px rgba(91, 155, 213, 0.18);
+    transform: scale(1.03);
+}
+
+/* Responsive styles for quote section */
+@media (max-width: 1500px) {
+    .quote-section {
+        width: 400px;
+        min-height: 50px;
+    }
+
+}
+
+
+.loading-quote {
+    color: #999;
+    font-size: 14px;
+}
+
+/* Refresh button styling */
+.refresh-quote {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(107, 172, 233, 0.148);
+    border: none;
+    cursor: pointer;
+    color: #565656;
+    font-size: 15px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 2;
+}
+
+.refresh-quote:hover {
+    background-color: rgba(81, 143, 202, 0.505);
+    transform: rotate(30deg);
+}
+
+/* Animation for refresh icon when clicked */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.refresh-quote.spinning {
+    animation: spin 1s linear;
+}
+
+.quote h3 {
+    color: #444;
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f7ff;
+    width: 100%;
+}

@@ -591,8 +591,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Load data with the initial first day setting
   loadData();
   fetchRandomQuote();
-
-
+  fetchRandomHadis();
+  fetchRandomAyet();
 });
 
 // Add these new functions for user management
@@ -1501,4 +1501,75 @@ document.addEventListener('DOMContentLoaded', function () {
       }, 1000);
     };
   }
+
+  const refreshAyatButton = document.getElementById('refreshAyat');
+  if (refreshAyatButton) {
+    refreshAyatButton.addEventListener('click', function () {
+      fetchRandomAyet();
+      this.classList.add('spinning');
+      fetchRandomAyet().then(() => {
+        setTimeout(() => {
+          this.classList.remove('spinning');
+        }, 1000);
+      });
+    });
+  }
+
+  const refreshHadithButton = document.getElementById('refreshHadith');
+  if (refreshHadithButton) {
+    refreshHadithButton.addEventListener('click', function () {
+      fetchRandomHadis();
+      this.classList.add('spinning');
+      fetchRandomHadis().then(() => {
+        setTimeout(() => {
+          this.classList.remove('spinning');
+        }, 1000);
+      });
+    });
+  }
 });
+
+async function fetchRandomAyet() {
+  try {
+    const response = await fetch('/api/random-ayet');
+    if (!response.ok) {
+      throw new Error('Ayet getirme hatası');
+    }
+    const data = await response.json();
+
+    // Ayet metnini sayfada göster
+    const ayatTextElement = document.getElementById('ayatText');
+    if (ayatTextElement) {
+      ayatTextElement.innerHTML = data.sentence || 'Ayet yüklenemedi';
+    }
+  } catch (error) {
+    console.error('Ayet getirme hatası:', error);
+    const ayatTextElement = document.getElementById('ayatText');
+    if (ayatTextElement) {
+      ayatTextElement.innerHTML = 'Ayet yüklenemedi';
+    }
+  }
+}
+
+// Rastgele hadis getirme fonksiyonu
+async function fetchRandomHadis() {
+  try {
+    const response = await fetch('/api/random-hadis');
+    if (!response.ok) {
+      throw new Error('Hadis getirme hatası');
+    }
+    const data = await response.json();
+
+    // Hadis metnini sayfada göster
+    const hadithTextElement = document.getElementById('hadithText');
+    if (hadithTextElement) {
+      hadithTextElement.innerHTML = data.sentence || 'Hadis yüklenemedi';
+    }
+  } catch (error) {
+    console.error('Hadis getirme hatası:', error);
+    const hadithTextElement = document.getElementById('hadithText');
+    if (hadithTextElement) {
+      hadithTextElement.innerHTML = 'Hadis yüklenemedi';
+    }
+  }
+}

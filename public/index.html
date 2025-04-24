@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="videos.css" />
   <link rel="stylesheet" href="footer.css" />
   <link rel="stylesheet" href="preferences.css" />
+  <link rel="stylesheet" href="quote.css" />
 </head>
 
 <body>
@@ -32,15 +33,18 @@
 
   <!-- Admin logs button - positioned at the bottom right corner -->
   <button id="adminLogsButton" class="admin-logs-button" title="Yetkisiz Erişim Kayıtları" style="display: none;">
-    <img src="images/log-icon.png" alt="Logs"
-      onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22white%22><path d=%22M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z%22/></svg>';">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24" height="24">
+      <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6z" />
+    </svg>
     Erişim Kayıtları
   </button>
 
   <!-- Login logs button - positioned at the bottom right corner above the admin logs button -->
   <button id="loginLogsButton" class="login-logs-button" title="Giriş Kayıtları" style="display: none;">
-    <img src="images/login-icon.png" alt="Login Logs"
-      onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22white%22><path d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/></svg>';">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24" height="24">
+      <path
+        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+    </svg>
     Giriş Kayıtları
   </button>
 
@@ -144,8 +148,34 @@
 
     <!-- Add the Quote of the Day section -->
     <div class="quote">
-      <h3>💬 Vecizeler</h3>
+      <h3>💬 1 Ayet 1 Hadis 1 Söz</h3>
       <div class="quote-flex-container">
+        <div class="quote-section">
+          <button class="refresh-quote" id="refreshAyat" title="Yeni ayet getir">↻</button>
+          <div class="quote-container">
+            <div class="quote-icon">
+              <img src="images/ayat-icon.png" alt="Ayet İkonu" />
+              <div class="quote-title">BİR AYET</div>
+            </div>
+            <div id="ayatText" class="quote-text">
+              <!-- Ayat will be loaded here -->
+              <div class="loading-quote">Yükleniyor...</div>
+            </div>
+          </div>
+        </div>
+        <div class="quote-section">
+          <button class="refresh-quote" id="refreshHadith" title="Yeni hadis getir">↻</button>
+          <div class="quote-container">
+            <div class="quote-icon">
+              <img src="images/hadith-icon.png" alt="Hadis İkonu" />
+              <div class="quote-title">BİR HADİS</div>
+            </div>
+            <div id="hadithText" class="quote-text">
+              <!-- Hadith will be loaded here -->
+              <div class="loading-quote">Yükleniyor...</div>
+            </div>
+          </div>
+        </div>
         <div class="quote-section">
           <button class="refresh-quote" id="refreshQuote" title="Yeni söz getir">↻</button>
           <div class="quote-container">
