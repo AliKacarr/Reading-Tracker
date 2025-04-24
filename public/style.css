@@ -912,7 +912,7 @@ th.today-column {
   width: 100%;
   max-width: 220px;
   height: 320px;
-  object-fit: cover;
+  object-fit: fill;
   border-radius: 18px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
   background: #fff;
