@@ -138,13 +138,19 @@
 }
 
 .footer-bottom {
-  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
   text-align: center;
   font-size: 14px;
   color: #666;
   border-top: none;
-  padding-top: 0;
   background: transparent;
+}
+
+@media (max-width: 600px) {
+  .footer-bottom {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 800px) {
