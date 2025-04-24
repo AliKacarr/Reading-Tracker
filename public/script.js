@@ -1504,28 +1504,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const refreshAyatButton = document.getElementById('refreshAyat');
   if (refreshAyatButton) {
-    refreshAyatButton.addEventListener('click', function () {
+    refreshAyatButton.onclick = function () {
       fetchRandomAyet();
       this.classList.add('spinning');
-      fetchRandomAyet().then(() => {
-        setTimeout(() => {
-          this.classList.remove('spinning');
-        }, 1000);
-      });
-    });
+      setTimeout(() => {
+        this.classList.remove('spinning');
+      }, 1000);
+    };
   }
 
   const refreshHadithButton = document.getElementById('refreshHadith');
   if (refreshHadithButton) {
-    refreshHadithButton.addEventListener('click', function () {
+    refreshHadithButton.onclick = function () {
       fetchRandomHadis();
       this.classList.add('spinning');
-      fetchRandomHadis().then(() => {
-        setTimeout(() => {
-          this.classList.remove('spinning');
-        }, 1000);
-      });
-    });
+      setTimeout(() => {
+        this.classList.remove('spinning');
+      }, 1000);
+    };
   }
 });
 
