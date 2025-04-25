@@ -608,7 +608,7 @@ th {
 
 /* Style the first column header differently */
 #trackerTable tr th:first-child {
-  background-color: #f5f5f5;
+  background-color: #f2f2f2;
   color: #333;
 }
 
@@ -835,7 +835,7 @@ th.today-column {
   max-height: 1000px;
   margin-top: 15px;
   padding: 15px;
-  background: linear-gradient(to bottom, #fcfcfc, #f9f9f9);
+  background: linear-gradient(to bottom, rgba(252, 252, 252, 0.451), rgba(249, 249, 249, 0.429));
   border-radius: 8px;
   border: 1px solid #eee;
 }
