@@ -735,14 +735,14 @@ th {
 .setting-item label {
   margin-right: 15px;
   font-weight: 500;
-  color: #555;
+  color: #3b3b3b;
 }
 
 .day-select {
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: white;
+  background-color: rgba(255, 249, 248, 0.64);
   font-size: 14px;
   color: #333;
   cursor: pointer;
@@ -835,7 +835,7 @@ th.today-column {
   max-height: 1000px;
   margin-top: 15px;
   padding: 15px;
-  background: linear-gradient(to bottom, rgba(252, 252, 252, 0.451), rgba(249, 249, 249, 0.429));
+  background: linear-gradient(to bottom, rgba(255, 246, 246, 0.451), rgba(255, 246, 246, 0.45));
   border-radius: 8px;
   border: 1px solid #eee;
 }
