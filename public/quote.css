@@ -54,14 +54,26 @@
     flex-direction: row;
     align-items: flex-start;
     gap: 12px;
+    flex: 2 1 0;
 }
 
 .quote-vertical-group {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    /* flex-grow: 1, flex-shrink: 1, flex-basis: 0 - Makes elements grow and shrink equally */
-    flex: 1 1 0;
+    flex: 1.5 1 0;
+    /* Sol sütun daha geniş */
+}
+
+.quote-image-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 0;
+    position: relative;
+    gap: 24px;
+    flex: 1 1;
 }
 
 .quote-section {
@@ -74,42 +86,50 @@
     width: 98%;
     background-color: #f9f9f9;
     position: relative;
-    min-height: 235px;
+    min-height: 250px;
     box-sizing: border-box;
     margin-top: 0;
 }
 
-.quote-image-container {
-    min-width: 300px;
-    max-width: 330px;
+
+.quote-section-image {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-content: flex-start;
-    height: 800px;
-    margin-top: 0;
+    padding: 0;
+    width: 372px;
+    height: 525px;
     position: relative;
+    min-height: 250px;
+    margin-top: 0;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    overflow: hidden;
 }
 
 #quoteImage {
     width: 100%;
-    width: 330px;
-    height: 500px;
+    height: 100%;
     object-fit: fill;
     border-radius: 18px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
-    background: #fff;
     display: block;
     transition: box-shadow 0.2s, transform 0.2s;
 }
 
+.refresh-quote#refreshQuoteImage {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 3;
+    background-color: rgba(107, 172, 233, 0.148);
+}
 
 #quoteImage:hover {
     box-shadow: 0 8px 24px rgba(91, 155, 213, 0.18);
     transform: scale(1.03);
 }
-
-
 
 .loading-quote {
     color: #999;

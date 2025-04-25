@@ -613,6 +613,13 @@ const hadisSchema = new mongoose.Schema({
 
 const Hadis = mongoose.model('Hadis', hadisSchema, 'hadisler');
 
+// Hadis modeli
+const duaSchema = new mongoose.Schema({
+  sentence: String
+});
+
+const Dua = mongoose.model('Dua', duaSchema, 'dualar');
+
 // Rastgele ayet getiren endpoint
 app.get('/api/random-ayet', async (req, res) => {
   try {
@@ -657,6 +664,30 @@ app.get('/api/random-hadis', async (req, res) => {
     res.json({ sentence: randomHadis.sentence });
   } catch (error) {
     console.error('Rastgele hadis alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+// Rastgele dua endpoint'i
+app.get('/api/random-dua', async (req, res) => {
+  try {
+    // Dualar koleksiyonundaki toplam belge sayısını say
+    const count = await Dua.countDocuments();
+
+    // Eğer hiç dua yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "Allah’ım! Senden Seni sevmeyi Seni sevenleri sevmeyi ve Senin sevgine ulaştıran ameli yapmayı isterim. Allah’ım! Senin sevgini, bana canımdan, ailemden ve soğuk sudan daha sevgili kıl. (Tirmizî, Deavât,73)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomDua = await Dua.findOne().skip(random);
+
+    res.json({ sentence: randomDua.sentence });
+  } catch (error) {
+    console.error('Rastgele dua alınırken hata oluştu:', error);
     res.status(500).json({ error: 'Sunucu hatası', message: error.message });
   }
 });

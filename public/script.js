@@ -589,10 +589,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Load data with the initial first day setting
-  loadData();
+  fetchRandomAyet();
   fetchRandomQuote();
   fetchRandomHadis();
-  fetchRandomAyet();
+  fetchRandomDua();
+  loadData();
 });
 
 // Add these new functions for user management
@@ -1523,6 +1524,17 @@ document.addEventListener('DOMContentLoaded', function () {
       }, 1000);
     };
   }
+
+  const refreshDuaButton = document.getElementById('refreshDua');
+  if (refreshDuaButton) {
+    refreshDuaButton.onclick = function () {
+      fetchRandomDua();
+      this.classList.add('spinning');
+      setTimeout(() => {
+        this.classList.remove('spinning');
+      }, 1000);
+    };
+  }
 });
 
 async function fetchRandomAyet() {
@@ -1566,6 +1578,28 @@ async function fetchRandomHadis() {
     const hadithTextElement = document.getElementById('hadithText');
     if (hadithTextElement) {
       hadithTextElement.innerHTML = 'Hadis yüklenemedi';
+    }
+  }
+}
+
+async function fetchRandomDua() {
+  try {
+    const response = await fetch('/api/random-dua');
+    if (!response.ok) {
+      throw new Error('Dua getirme hatası');
+    }
+    const data = await response.json();
+
+    // Dua metnini sayfada göster
+    const duaTextElement = document.getElementById('duaText');
+    if (duaTextElement) {
+      duaTextElement.innerHTML = data.sentence || 'Dua yüklenemedi';
+    }
+  } catch (error) {
+    console.error('Dua getirme hatası:', error);
+    const duaTextElement = document.getElementById('duaText');
+    if (duaTextElement) {
+      duaTextElement.innerHTML = 'Dua yüklenemedi';
     }
   }
 }
