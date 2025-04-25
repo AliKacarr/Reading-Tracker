@@ -1,6 +1,9 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f4f7fa;
+  background-image: url('../images/background3.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   margin: 0;
   padding: 0;
 }
