@@ -1,6 +1,6 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-image: url('../images/background3.jpg');
+  background-image: url('../images/background4.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -9,6 +9,10 @@ body {
 }
 
 .container {
+  background-image: url('../images/background3.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   max-width: 1000px;
   margin: 30px auto;
   padding: 10px;
@@ -812,7 +816,6 @@ th.today-column {
 .stats-section {
   margin-top: 30px;
   padding: 0px 20px;
-  background-color: #ffffff;
   max-width: 93%;
 }
 
