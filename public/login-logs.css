@@ -47,7 +47,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: inline-block;
     padding: 5px 25px;
-    background-color: #081a3e;
+    background-color: #19366f;
     color: white;
     border-radius: 0px 25px 0px 25px;
     border: none;
@@ -59,7 +59,7 @@
 }
 
 .back-button:hover {
-    background-color: #010e28;
+    background-color: #152f62;
 }
 
 .no-logs {

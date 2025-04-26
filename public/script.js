@@ -417,7 +417,7 @@ async function deleteUser(id) {
   const userName = userElement ? userElement.querySelector('.user-name').textContent : 'this user';
 
   // Ask for confirmation before deleting
-  const confirmed = confirm(`Are you sure you want to delete - ${userName} -? This action cannot be undone.`);
+  const confirmed = confirm(`Silmek istediğine emin misin: ->  ${userName}  <- Bu işlem geri alınamaz.`);
 
   if (confirmed) {
     await fetch('/api/delete-user', {
@@ -638,9 +638,6 @@ function editUserName(userId) {
   nameInput.style.display = 'inline-block';
   saveButton.style.display = 'inline-block';
 
-  // Focus the input
-  nameInput.focus();
-  nameInput.select();
 }
 
 // Save user name

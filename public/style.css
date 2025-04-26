@@ -140,10 +140,10 @@ ul#deleteList li span {
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
-  margin-left: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .delete-button img {
@@ -290,6 +290,7 @@ td {
   display: flex;
   align-items: center;
   flex-grow: 1;
+  min-width: 0;
 }
 
 .user-actions {
@@ -338,16 +339,20 @@ td {
   border-radius: 4px;
   font-size: 14px;
   margin-right: 5px;
+  min-width: 0;
+  max-width: 105px;
 }
 
 .save-name-button {
   background: #6adf6e;
   border: none;
   color: white;
-  padding: 6px 11px;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+  flex-shrink: 0;
+  /* Butonun küçülmesini engelle */
 }
 
 .save-name-button:hover {
@@ -364,6 +369,7 @@ ul#deleteList li {
   padding: 8px 12px;
   border-radius: 4px;
   border: 1px solid #ddd;
+  gap: 8px;
 }
 
 ul#deleteList li span {
@@ -474,12 +480,6 @@ td:hover:not(.status-cell) {
   object-fit: cover;
   margin-right: 10px;
   border: 1px solid #ddd;
-}
-
-
-.user-item {
-  display: flex;
-  align-items: center;
 }
 
 
