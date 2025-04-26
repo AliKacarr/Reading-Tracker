@@ -6,9 +6,7 @@ const videosContainer = document.getElementById('videos');
 const videoModal = document.getElementById('videoModal');
 const videoFrame = document.getElementById('videoFrame');
 const closeBtn = document.querySelector('.close');
-const loadingOverlay = document.getElementById('loadingOverlay');
 
-let isFirstLoad = true;
 
 // API anahtarını sunucudan al
 fetch('/api/config')
@@ -57,50 +55,52 @@ function getRandomVideos(videos, count) {
 function renderVideos(videos) {
     videosContainer.innerHTML = '';
 
-    // Önce tüm video ID'lerini topla
     const videoIds = videos.map(item => item.snippet.resourceId.videoId);
 
-    // Video detaylarını getir (görüntülenme sayıları için)
     fetchVideosDetails(videoIds).then(details => {
-        // ID -> viewCount eşleştirmesi yap
         const viewMap = {};
         details.forEach(item => {
             viewMap[item.id] = parseInt(item.statistics.viewCount, 10) || 0;
         });
 
-        // Videoları render et
-        videos.forEach(item => {
-            const videoId = item.snippet.resourceId.videoId;
-            const title = item.snippet.title;
-            const thumbnail = item.snippet.thumbnails.high.url;
-            const viewCount = viewMap[videoId] || 0;
+        // Videoları sırayla ekle
+        videos.forEach((item, idx) => {
+            setTimeout(() => {
+                const videoId = item.snippet.resourceId.videoId;
+                const title = item.snippet.title;
+                const thumbnail = item.snippet.thumbnails.high.url;
+                const viewCount = viewMap[videoId] || 0;
+                const formattedViewCount = new Intl.NumberFormat('tr-TR').format(viewCount);
 
-            // Görüntülenme sayısını formatla
-            const formattedViewCount = new Intl.NumberFormat('tr-TR').format(viewCount);
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                videoCard.style.opacity = '0';
+                videoCard.innerHTML = `
+                    <img src="${thumbnail}" alt="${title}" class="thumbnail">
+                    <span class="play-icon"><i class="fa-solid fa-play"></i></span>
+                    <div class="video-title">
+                        <div class="title-text">${title}</div>
+                        <div class="view-count"><i class="fa-solid fa-eye"></i> ${formattedViewCount}</div>
+                    </div>
+                `;
 
-            const videoCard = document.createElement('div');
-            videoCard.className = 'video-card';
-            videoCard.innerHTML = `
-                <img src="${thumbnail}" alt="${title}" class="thumbnail">
-                <span class="play-icon"><i class="fa-solid fa-play"></i></span>
-                <div class="video-title">
-                    <div class="title-text">${title}</div>
-                    <div class="view-count"><i class="fa-solid fa-eye"></i> ${formattedViewCount}</div>
-                </div>
-            `;
+                videoCard.addEventListener('click', () => {
+                    openVideoModal(videoId);
+                });
 
-            videoCard.addEventListener('click', () => {
-                openVideoModal(videoId);
-            });
+                videosContainer.appendChild(videoCard);
 
-            videosContainer.appendChild(videoCard);
+                // Fade-in animasyonu başlat
+                setTimeout(() => {
+                    videoCard.style.transition = 'opacity 0.5s, transform 0.5s';
+                    videoCard.style.opacity = '1';
+                    videoCard.style.transform = 'translateY(0)';
+                }, 10);
+            }, idx * 120); // Her video için gecikme
         });
 
-        // Yükleme overlay'ini kapat
-        loadingOverlay.style.display = 'none';
     }).catch(error => {
         console.error("Video detayları alınırken hata oluştu:", error);
-        loadingOverlay.style.display = 'none';
     });
 }
 
@@ -110,7 +110,6 @@ async function showLatestVideos() {
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('latestBtn').classList.add('active');
 
-    loadingOverlay.style.display = 'flex';
     try {
         const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
         const channelData = await channelResponse.json();
@@ -123,7 +122,6 @@ async function showLatestVideos() {
         renderVideos(videosData.items);
     } catch (error) {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
-        loadingOverlay.style.display = 'none';
     }
 }
 
@@ -133,9 +131,7 @@ async function showMostViewedVideos() {
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('mostViewedBtn').classList.add('active');
 
-    // Remove this line that hides the refresh button
-    // document.getElementById('refreshBtn').classList.remove('active');
-    loadingOverlay.style.display = 'flex';
+
     try {
         const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
         const channelData = await channelResponse.json();
@@ -159,7 +155,6 @@ async function showMostViewedVideos() {
     } catch (error) {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
     }
-    loadingOverlay.style.display = 'none';
 }
 
 // Rastgele videolar
@@ -168,10 +163,7 @@ async function showRandomVideos() {
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('randomBtn').classList.add('active');
 
-    // Sadece ilk yüklemede loadingOverlay'i gösterme
-    if (!isFirstLoad) {
-        loadingOverlay.style.display = 'flex';
-    }
+
     try {
         const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
         const channelData = await channelResponse.json();
@@ -184,8 +176,6 @@ async function showRandomVideos() {
     } catch (error) {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
     }
-    loadingOverlay.style.display = 'none';
-    isFirstLoad = false; // İlk yükleme tamamlandıktan sonra false yap
 }
 
 // Butonlara tıklama olayları
@@ -231,3 +221,13 @@ function closeModal() {
     videoModal.style.display = 'none';
     videoFrame.src = '';
 }
+
+const refreshBtn = document.getElementById('refreshBtn');
+const refreshIcon = refreshBtn.querySelector('i');
+let rotateDeg = 0;
+
+refreshBtn.addEventListener('click', function () {
+    rotateDeg += 180;
+    refreshIcon.style.transition = 'transform 0.6s';
+    refreshIcon.style.transform = `rotate(${rotateDeg}deg)`;
+});

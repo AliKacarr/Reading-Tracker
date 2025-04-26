@@ -11,24 +11,13 @@
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
     position: relative;
-}
-
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    pointer-events: all;
+    min-height: 660px;
 }
 
 
 .video-card {
+    opacity: 0;
+    transform: translateY(20px);
     background-color: white;
     border-radius: 8px;
     overflow: hidden;
@@ -36,6 +25,12 @@
     cursor: pointer;
     position: relative;
     /* Added for play icon positioning */
+    height: 320px;
+    /* Kart yüksekliği sabit */
+    max-height: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 .thumbnail {
@@ -145,26 +140,8 @@ iframe {
 }
 
 
-
-.loading {
-    text-align: center;
-    font-size: 24px;
-    margin: 0;
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 200px;
-    background-color: transparent;
-    gap: 15px;
-}
-
-
-
 .error {
     text-align: center;
-    color: red;
     margin-top: 50px;
 }
 
@@ -231,16 +208,20 @@ iframe {
     height: 40px;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
-
 
 #refreshBtn i {
-    margin-right: 10px;
+    margin-inline: 10px;
     font-size: 22px;
     color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+
 #refreshBtn:hover {
-    background: linear-gradient(90deg, #4b87e4 0%, #2b67c4 100%);
+    background: linear-gradient(45deg, #4b87e4 0%, #2b67c4 100%);
     transform: scale(1.05);
 }
