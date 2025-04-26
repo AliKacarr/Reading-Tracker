@@ -1033,7 +1033,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (localStorage.getItem('authenticated') === 'true') {
       showAdminInfoPanel();
     } else {
-      adminLoginModal.style.display = 'block';
+      adminLoginModal.style.display = 'flex';
     }
   });
 
@@ -1143,7 +1143,7 @@ function showAdminInfoPanel() {
 
     const usernameLabel = document.createElement('div');
     usernameLabel.className = 'admin-info-label';
-    usernameLabel.textContent = 'Kullanıcı Adı:';
+    usernameLabel.textContent = 'Yönetici Adı:';
 
     const usernameValue = document.createElement('div');
     usernameValue.className = 'admin-info-value';
@@ -1193,7 +1193,7 @@ function showAdminInfoPanel() {
       }
     });
   }
-  adminInfoModal.style.display = 'block';
+  adminInfoModal.style.display = 'flex';
 }
 async function logUnauthorizedAccess(action) {
   const allowedActions = ['cookies-decline-1', 'cookies-decline-2'];

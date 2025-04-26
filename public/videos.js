@@ -216,7 +216,7 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
 // Video modalını aç
 function openVideoModal(videoId) {
     videoFrame.src = `https://www.youtube.com/embed/${videoId}`;
-    videoModal.style.display = 'block';
+    videoModal.style.display = 'flex';
 }
 
 // Modal kapatma işlemleri
