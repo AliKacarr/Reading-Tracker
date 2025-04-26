@@ -1,19 +1,10 @@
 /* Monthly Calendar Styles */
 .videos {
-    margin-top: 30px;
     margin-bottom: 20px;
-    padding: 0px 20px;
+    padding: 10px 20px;
     max-width: 95%;
 }
 
-.videos h3 {
-    color: #444;
-    font-size: 20px;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #f0f7ff;
-    width: 100%;
-}
 
 .videos-container {
     display: grid;
@@ -193,7 +184,7 @@ iframe {
     display: flex;
     gap: 20px;
     margin-bottom: 30px;
-    padding: 15px 0;
+    padding: 5px 0;
     align-items: center;
     justify-content: flex-start;
 }

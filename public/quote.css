@@ -175,12 +175,3 @@
 .refresh-quote.spinning {
     animation: spin 0.6s linear;
 }
-
-.quote h3 {
-    color: #444;
-    font-size: 20px;
-    margin-bottom: 20px;
-    padding-bottom: 5px;
-    border-bottom: 2px solid #f0f7ff;
-    width: 100%;
-}

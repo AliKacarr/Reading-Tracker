@@ -39,3 +39,45 @@
 .toggle-input:checked+.toggle-label::before {
     transform: translateX(25px);
 }
+
+.settings-section {
+    padding: 0px 20px;
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+#ayarlar {
+    margin-top: 10px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.setting-item label {
+    margin-right: 15px;
+    font-weight: 500;
+    color: #3b3b3b;
+}
+
+.day-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: rgba(255, 249, 248, 0.64);
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.day-select:hover {
+    border-color: #aaa;
+}
+
+.day-select:focus {
+    outline: none;
+    border-color: #5b9bd5;
+    box-shadow: 0 0 0 2px rgba(91, 155, 213, 0.2);
+}

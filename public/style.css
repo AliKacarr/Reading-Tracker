@@ -39,15 +39,6 @@ h1 {
   flex-wrap: wrap;
 }
 
-.settings-section {
-  padding: 0px 20px;
-  padding-bottom: 20px;
-  padding-top: 20px;
-}
-
-#ayarlar {
-  margin-top: 10px;
-}
 
 /* Updating the user list and delete button styles */
 ul#deleteList {
@@ -197,13 +188,20 @@ ul#deleteList li span {
 /* Consistent heading styles */
 h3 {
   margin-top: 30px;
-  margin-bottom: 15px;
   color: #555;
   font-size: 18px;
-  padding-bottom: 5px;
-  border-bottom: 2px solid #eee;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eaeaea;
+  width: 98%;
+}
+
+.user-list,
+#newUserForm,
+.settings-section h3 {
   width: 300px;
 }
+
 
 table {
   border-collapse: collapse;
@@ -275,8 +273,7 @@ td {
   border: 1px solid #ddd;
 }
 
-/* Style the last column (streak column) with larger font */
-/* Style the streak column in the tracker table */
+
 #trackerTable td:last-child {
   font-size: 20px;
   color: red;
@@ -411,7 +408,6 @@ ul#deleteList li span {
   flex-wrap: wrap;
   margin-top: 20px;
 }
-
 
 
 /* Tablo */
@@ -726,38 +722,6 @@ th {
 }
 
 
-.setting-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.setting-item label {
-  margin-right: 15px;
-  font-weight: 500;
-  color: #3b3b3b;
-}
-
-.day-select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: rgba(255, 249, 248, 0.64);
-  font-size: 14px;
-  color: #333;
-  cursor: pointer;
-}
-
-.day-select:hover {
-  border-color: #aaa;
-}
-
-.day-select:focus {
-  outline: none;
-  border-color: #5b9bd5;
-  box-shadow: 0 0 0 2px rgba(91, 155, 213, 0.2);
-}
-
 /* Today's column highlighting */
 .today-column {
   background-color: rgba(91, 155, 213, 0.1);
@@ -816,25 +780,13 @@ th.today-column {
 .stats-section {
   margin-top: 30px;
   padding: 0px 20px;
-  max-width: 93%;
 }
 
-
-.stats-section h3 {
-  color: #444;
-  font-size: 20px;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f0f7ff;
-  width: 100%;
-}
 
 .chart-container {
   width: 100%;
   height: 450px;
   max-height: 1000px;
-  margin-top: 15px;
-  padding: 15px;
   background: linear-gradient(to bottom, rgba(255, 246, 246, 0.451), rgba(255, 246, 246, 0.45));
   border-radius: 8px;
   border: 1px solid #eaeaea;
@@ -861,10 +813,6 @@ th.today-column {
 @media (max-width: 768px) {
   .chart-container {
     height: 350px;
-  }
-
-  .stats-section {
-    padding: 15px;
   }
 }
 
@@ -1004,16 +952,6 @@ th.today-column {
   border-radius: 6px;
   margin-top: 15px;
   border: 2px solid #eee;
-}
-
-.admin-info-panel h3 {
-  margin-top: 0;
-  color: #333;
-  font-size: 18px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-  width: 100%;
 }
 
 .admin-info-item {
@@ -1162,7 +1100,7 @@ th.today-column {
 }
 
 .admin-indicator:hover {
-  background-color: #3a7bc8;
+  background-color: #3367d6;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
@@ -1185,15 +1123,6 @@ th.today-column {
   font-size: 14px;
 }
 
-.admin-mode-button {
-  width: 220px;
-  background-color: #34A853;
-  color: white;
-}
-
-.admin-mode-button:hover {
-  background-color: #2d9249;
-}
 
 .admin-logs-button img,
 .login-logs-button img,
@@ -1204,22 +1133,22 @@ th.today-column {
 }
 
 .login-logs-button {
-  background-color: #4285F4;
+  background-color: #43b581;
   color: white;
   margin-bottom: 15px;
 }
 
 .login-logs-button:hover {
-  background-color: #3367d6;
+  background-color: #36996a;
 }
 
 .admin-logs-button {
-  background-color: #EA4335;
+  background-color: #ff9800;
   color: white;
 }
 
 .admin-logs-button:hover {
-  background-color: #d33426;
+  background-color: #e68900;
 }
 
 
