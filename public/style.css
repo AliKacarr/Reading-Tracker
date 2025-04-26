@@ -870,12 +870,25 @@ th.today-column {
 .modal-content.admin {
   background-color: #fff;
   margin: 10% auto;
-  padding: 40px 50px 35px 50px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 320px;
-  max-width: 90%;
+  padding: 55px 65px 45px 65px;
+  width: 400px;
+  max-width: 98%;
   animation: modalFadeIn 0.3s;
+}
+
+.modal-content.admin h2 {
+  font-size: 2.1rem;
+}
+
+.modal-content.admin label {
+  font-size: 1.15rem;
+}
+
+.modal-content.admin input {
+  font-size: 1.15rem;
+  padding: 14px;
 }
 
 @keyframes modalFadeIn {
@@ -936,9 +949,9 @@ th.today-column {
   background-color: #4CAF50;
   color: white;
   border: none;
-  padding: 10px 20px;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 1.18rem;
+  padding: 13px 28px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -949,7 +962,8 @@ th.today-column {
 
 /* Admin info panel styling */
 .admin-info-panel {
-  padding: 15px;
+  padding: 25px;
+  font-size: 1.18rem;
   background-color: #f9f9f9;
   border-radius: 6px;
   margin-top: 15px;
@@ -962,7 +976,7 @@ th.today-column {
 }
 
 .admin-info-label {
-  font-size: 17px;
+  font-size: 1.18rem;
   padding: 2px;
   font-weight: 500;
   width: 110px;
@@ -972,7 +986,7 @@ th.today-column {
 }
 
 .admin-info-value {
-  font-size: 19px;
+  font-size: 1.25rem;
   color: rgb(0, 0, 0);
   display: flex;
   align-items: center;
@@ -982,11 +996,11 @@ th.today-column {
   background-color: #f44336;
   color: white;
   border: none;
-  padding: 7px 13px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  margin-top: 50px;
+  font-size: 1.1rem;
+  padding: 11px 22px;
+  margin-top: 35px;
   transition: background-color 0.3s;
 }
 
