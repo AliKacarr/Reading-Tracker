@@ -105,10 +105,10 @@ async function loadData() {
   if (weekOffset < 0) {
     // We're in a previous week, show the right "Bu Hafta" button
     prevWeekTodayBtn.style.display = 'none';
-    nextWeekTodayBtn.style.display = 'block';
+    nextWeekTodayBtn.style.display = 'flex';
   } else if (weekOffset > 0) {
     // We're in a future week, show the left "Bu Hafta" button
-    prevWeekTodayBtn.style.display = 'block';
+    prevWeekTodayBtn.style.display = 'flex';
     nextWeekTodayBtn.style.display = 'none';
   } else {
     // We're in the current week, hide both "Bu Hafta" buttons
@@ -154,7 +154,7 @@ async function loadData() {
     // Format the header with formatted date and day of week, add today class if needed
     theadHTML += `<th class="${todayClass}"><span class="date-text">${formattedDate}</span><br><span class="day-of-week">${dayOfWeek}</span></th>`;
   }
-  theadHTML += `<th><img src="/images/red-arrow.png" alt="Streak" width="20" height="20"> Streak</th></tr>`;
+  theadHTML += `<th><img src="/images/red-arrow.png" alt="Streak" width="20" height="20"> Seri</th></tr>`;
   table.querySelector('thead').innerHTML = theadHTML;
 
   // Update the user list rendering in loadData function
