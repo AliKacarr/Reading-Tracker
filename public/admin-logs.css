@@ -1,4 +1,15 @@
+body {
+    background-image: url('../images/arkaplan2.jpg');
+    background-size: fill;
+    background-position: center;
+    background-repeat: repeat;
+}
+
 .logs-container {
+    background-image: url('../images/background4.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     max-width: 1100px;
     margin: 23px auto;
     padding: 25px;
