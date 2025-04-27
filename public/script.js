@@ -1216,10 +1216,6 @@ async function logUnauthorizedAccess(action) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action, deviceInfo })
     });
-    if (action == "refresh-RandomQuote" || action.includes("monthly-calendar-user-change") || allowedActions.includes(action)) {
-      return;
-    }
-    alert(`Bu işlemi yapabilmek için Ali Kaçar ile iletişime geçiniz.`);
   } catch (error) {
     console.error('Error logging unauthorized access:', error);
     logUnauthorizedAccess('error');

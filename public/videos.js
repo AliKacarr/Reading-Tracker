@@ -109,8 +109,12 @@ function renderVideos(videos) {
     });
 }
 
+let isLoading = false;
+
 // En son eklenen videolar
 async function showLatestVideos() {
+    if (isLoading) return;
+    isLoading = true;
     // Set active button
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('latestBtn').classList.add('active');
@@ -127,15 +131,18 @@ async function showLatestVideos() {
         renderVideos(videosData.items);
     } catch (error) {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
+    } finally {
+        isLoading = false;
     }
 }
 
 // En çok izlenen videolar
 async function showMostViewedVideos() {
+    if (isLoading) return;
+    isLoading = true;
     // Set active button
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('mostViewedBtn').classList.add('active');
-
 
     try {
         const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
@@ -159,15 +166,19 @@ async function showMostViewedVideos() {
         renderVideos(allVideos.slice(0, 6));
     } catch (error) {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
+    } finally {
+        isLoading = false;
     }
 }
 
 // Rastgele videolar
 async function showRandomVideos() {
+    if (isLoading) return;
+    isLoading = true;
+    console.log('Rastgele videolar yükleniyor...');
     // Set active button
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('randomBtn').classList.add('active');
-
 
     try {
         const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
@@ -180,6 +191,8 @@ async function showRandomVideos() {
         renderVideos(randomVideos);
     } catch (error) {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
+    } finally {
+        isLoading = false;
     }
 }
 
