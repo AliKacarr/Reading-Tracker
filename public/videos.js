@@ -175,7 +175,6 @@ async function showMostViewedVideos() {
 async function showRandomVideos() {
     if (isLoading) return;
     isLoading = true;
-    console.log('Rastgele videolar yükleniyor...');
     // Set active button
     document.querySelectorAll('.top-bar button').forEach(btn => btn.classList.remove('active'));
     document.getElementById('randomBtn').classList.add('active');

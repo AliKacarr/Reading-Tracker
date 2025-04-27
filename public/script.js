@@ -589,11 +589,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Load data with the initial first day setting
+  loadData();
   fetchRandomAyet();
   fetchRandomQuote();
   fetchRandomHadis();
   fetchRandomDua();
-  loadData();
 });
 
 // Add these new functions for user management
@@ -984,7 +984,7 @@ document.addEventListener('DOMContentLoaded', function () {
       window.ChartDataLabels = window.ChartDataLabels;
 
       // Load the chart after all dependencies are loaded
-      setTimeout(loadReadingStats, 1000);
+      setTimeout(loadReadingStats, 100);
     };
 
     document.head.appendChild(dataLabelsScript);
