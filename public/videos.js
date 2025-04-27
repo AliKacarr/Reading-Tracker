@@ -63,40 +63,45 @@ function renderVideos(videos) {
             viewMap[item.id] = parseInt(item.statistics.viewCount, 10) || 0;
         });
 
-        // Videoları sırayla ekle
-        videos.forEach((item, idx) => {
+        // Tüm video kartlarını topluca oluştur ve ekle
+        const fragment = document.createDocumentFragment();
+
+        videos.forEach((item) => {
+            const videoId = item.snippet.resourceId.videoId;
+            const title = item.snippet.title;
+            const thumbnail = item.snippet.thumbnails.high.url;
+            const viewCount = viewMap[videoId] || 0;
+            const formattedViewCount = new Intl.NumberFormat('tr-TR').format(viewCount);
+
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.style.opacity = '0';
+            videoCard.innerHTML = `
+                <img src="${thumbnail}" alt="${title}" class="thumbnail">
+                <span class="play-icon"><i class="fa-solid fa-play"></i></span>
+                <div class="video-title">
+                    <div class="title-text">${title}</div>
+                    <div class="view-count"><i class="fa-solid fa-eye"></i> ${formattedViewCount}</div>
+                </div>
+            `;
+
+            videoCard.addEventListener('click', () => {
+                openVideoModal(videoId);
+            });
+
+            fragment.appendChild(videoCard);
+        });
+
+        videosContainer.appendChild(fragment);
+
+        // Fade-in animasyonunu topluca başlat
+        const videoCards = videosContainer.querySelectorAll('.video-card');
+        videoCards.forEach((card, idx) => {
             setTimeout(() => {
-                const videoId = item.snippet.resourceId.videoId;
-                const title = item.snippet.title;
-                const thumbnail = item.snippet.thumbnails.high.url;
-                const viewCount = viewMap[videoId] || 0;
-                const formattedViewCount = new Intl.NumberFormat('tr-TR').format(viewCount);
-
-                const videoCard = document.createElement('div');
-                videoCard.className = 'video-card';
-                videoCard.style.opacity = '0';
-                videoCard.innerHTML = `
-                    <img src="${thumbnail}" alt="${title}" class="thumbnail">
-                    <span class="play-icon"><i class="fa-solid fa-play"></i></span>
-                    <div class="video-title">
-                        <div class="title-text">${title}</div>
-                        <div class="view-count"><i class="fa-solid fa-eye"></i> ${formattedViewCount}</div>
-                    </div>
-                `;
-
-                videoCard.addEventListener('click', () => {
-                    openVideoModal(videoId);
-                });
-
-                videosContainer.appendChild(videoCard);
-
-                // Fade-in animasyonu başlat
-                setTimeout(() => {
-                    videoCard.style.transition = 'opacity 0.5s, transform 0.5s';
-                    videoCard.style.opacity = '1';
-                    videoCard.style.transform = 'translateY(0)';
-                }, 10);
-            }, idx * 120); // Her video için gecikme
+                card.style.transition = 'opacity 0.5s, transform 0.5s';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 10);
         });
 
     }).catch(error => {
