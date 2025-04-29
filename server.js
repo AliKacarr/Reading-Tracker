@@ -691,3 +691,63 @@ app.get('/api/random-dua', async (req, res) => {
     res.status(500).json({ error: 'Sunucu hatası', message: error.message });
   }
 });
+
+// En uzun seriler endpoint'i
+app.get('/api/longest-streaks', async (req, res) => {
+  try {
+    const users = await User.find();
+    const stats = await ReadingStatus.find();
+
+    const results = users.map(user => {
+      // Kullanıcının okuma kayıtlarını tarihe göre sırala
+      const userStats = stats
+        .filter(s => s.userId === user._id.toString() && s.status === 'okudum')
+        .map(s => s.date)
+        .sort();
+
+      // En uzun ardışık seri hesaplama
+      let maxStreak = 0, currentStreak = 0;
+      let streakStart = null, streakEnd = null;
+      let maxStart = null, maxEnd = null;
+
+      for (let i = 0; i < userStats.length; i++) {
+        if (i === 0 || (new Date(userStats[i]) - new Date(userStats[i - 1]) === 86400000)) {
+          currentStreak++;
+          if (currentStreak === 1) streakStart = userStats[i];
+          streakEnd = userStats[i];
+        } else {
+          if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+            maxStart = streakStart;
+            maxEnd = streakEnd;
+          }
+          currentStreak = 1;
+          streakStart = userStats[i];
+          streakEnd = userStats[i];
+        }
+      }
+      // Son seri kontrolü
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+        maxStart = streakStart;
+        maxEnd = streakEnd;
+      }
+
+      return {
+        userId: user._id,
+        name: user.name,
+        profileImage: user.profileImage,
+        streak: maxStreak,
+        startDate: maxStart,
+        endDate: maxEnd
+      };
+    });
+
+    // Gün sayısına göre azalan sırala
+    results.sort((a, b) => b.streak - a.streak);
+
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
