@@ -1,17 +1,18 @@
 .longest-series-section {
     margin-top: 30px;
-    padding: 0px 20px;
+    padding: 5px 20px;
 }
 
 #longestSeriesChart {
     display: flex;
     flex-direction: column-reverse;
     gap: 12px;
-    padding: 20px 0px;
+    padding: 25px 0px;
     align-items: center;
     background: #f7fafd;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+    min-height: 200px;
 }
 
 .longest-series-bar-row {

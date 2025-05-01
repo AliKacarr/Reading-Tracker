@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
             chart.innerHTML = '';
             const maxStreak = data.length > 0 ? data[0].streak : 1;
             const minBarWidth = 120; // px
-            const maxBarWidth = 600; // px
+            const maxBarWidth = 550; // px
 
             // Doğru rank algoritması
             let rankList = [];
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let streakToRank = {};
             let rankCount = 1;
 
-            // Önce tüm unique streak'leri sırala ve sırayla rank ata
+            // Unique streak'leri sırala ve sırayla rank ata
             data.forEach(user => {
                 if (!(user.streak in streakToRank)) {
                     if (rankCount > 3) return; // Sadece ilk 3 rank için
@@ -29,6 +29,21 @@ document.addEventListener('DOMContentLoaded', function () {
             data.forEach(user => {
                 rankList.push(streakToRank[user.streak]);
             });
+
+            // --- RENK HESAPLAMASI İÇİN YENİ KOD ---
+            // Tüm unique streak'leri büyükten küçüğe sırala
+            const uniqueStreaks = [...new Set(data.map(u => u.streak))].sort((a, b) => b - a);
+            const startHue = 230;
+            const endHue = 200;
+            const streakColorMap = {};
+            uniqueStreaks.forEach((streak, idx) => {
+                const percentage = uniqueStreaks.length === 1 ? 0 : idx / (uniqueStreaks.length - 1);
+                const currentHue = startHue + (endHue - startHue) * percentage;
+                const startColor = `hsl(${currentHue}, 85%, 55%)`;
+                const endColor = `hsl(${currentHue}, 85%, 65%)`;
+                streakColorMap[streak] = { startColor, endColor };
+            });
+            // --- RENK HESAPLAMASI SONU ---
 
             data.forEach((user, idx) => {
                 // Normalize bar width
@@ -50,12 +65,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const bar = document.createElement('div');
                 bar.className = 'longest-series-bar';
                 bar.style.width = barWidth + 'px';
-                const percentage = data.indexOf(user) / (data.length - 1);
-                const startHue = 50; // Blue
-                const endHue = 10; // Green
-                const currentHue = startHue + (endHue - startHue) * percentage;
-                const startColor = `hsl(${currentHue}, 85%, 55%)`;
-                const endColor = `hsl(${currentHue}, 85%, 65%)`;
+
+                // Aynı streak'e sahip olanlar aynı renkte olacak
+                const { startColor, endColor } = streakColorMap[user.streak];
                 bar.style.background = `linear-gradient(90deg, ${startColor}, ${endColor})`;
 
                 // Sadece ilk 3 için rank kutucuğu göster
@@ -92,6 +104,5 @@ function formatDateParts(dateStr) {
     const date = new Date(dateStr);
     const day = date.toLocaleDateString('tr-TR', { day: '2-digit' });
     const month = date.toLocaleDateString('tr-TR', { month: 'short' });
-    const year = date.toLocaleDateString('tr-TR', { year: 'numeric' });
-    return `<span class="date-daymonth">${day} ${month}</span> <span class="date-year">${year}</span>`;
+    return `<span class="date-daymonth">${day} ${month}</span>`;
 }

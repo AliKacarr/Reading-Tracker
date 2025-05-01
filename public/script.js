@@ -854,6 +854,14 @@ async function loadReadingStats() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 10,    // üstten boşluk (px)
+            bottom: 10,  // alttan boşluk (px)
+            left: 10,   // soldan boşluk (px)
+            right: 10   // sağdan boşluk (px)
+          }
+        },
         scales: {
           x: {
             stacked: true,
@@ -862,11 +870,15 @@ async function loadReadingStats() {
               text: 'Kullanıcılar',
               color: '#000000',
               font: {
-                weight: 'bold'
+                weight: 'bold',
+                size: 15 // Yazı boyutunu artırdık
               }
             },
             ticks: {
-              color: '#000000'
+              color: '#000000',
+              font: {
+                size: 16
+              }
             },
             grid: {
               display: false
@@ -880,11 +892,15 @@ async function loadReadingStats() {
               text: 'Gün Sayısı',
               color: '#000000',
               font: {
-                weight: 'bold'
+                weight: 'bold',
+                size: 15 // Yazı boyutunu artırdık
               }
             },
             ticks: {
-              color: '#000000'
+              color: '#000000',
+              font: {
+                size: 13 // Kullanıcı isimlerinin yazı boyutu artırıldı
+              }
             },
             grid: {
               color: 'rgba(0, 0, 0, 0.1)'
@@ -910,7 +926,8 @@ async function loadReadingStats() {
             labels: {
               color: '#000000',
               font: {
-                weight: 'bold'
+                weight: 'bold',
+                size: 14
               }
             }
           },

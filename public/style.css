@@ -188,11 +188,11 @@ ul#deleteList li span {
 /* Consistent heading styles */
 h3 {
   margin-top: 30px;
-  color: #555;
-  font-size: 18px;
+  color: #444444;
+  font-size: 20px;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #44444423;
   width: 98%;
 }
 
@@ -613,8 +613,6 @@ th {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
-  padding: 10px 0;
-  border-top: 1px solid #eee;
 }
 
 .nav-group {
@@ -779,13 +777,13 @@ th.today-column {
 /* Stats section styling */
 .stats-section {
   margin-top: 30px;
-  padding: 0px 20px;
+  padding: 5px 20px;
 }
 
 
 .chart-container {
   width: 100%;
-  height: 450px;
+  height: 500px;
   max-height: 1000px;
   background: linear-gradient(to bottom, rgba(255, 246, 246, 0.451), rgba(255, 246, 246, 0.45));
   border-radius: 8px;
@@ -1214,7 +1212,6 @@ th.today-column {
   margin: 0;
   padding: 0;
   border: none;
-  font-size: 18px;
   color: #333;
 }
 

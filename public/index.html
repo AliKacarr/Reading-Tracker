@@ -52,7 +52,10 @@
   <!-- Add this style section to fix button widths -->
 
   <div class="container">
-    <h1 id="adminLogin">📚 Risale-i Nur Okuma Takibi</h1>
+    <h1 id="adminLogin" style="display: flex; align-items: center; justify-content: center;">
+      <img src="images/open-book.png" alt="Favicon" style="height: 1.4em; margin-right: 15px;">
+      Risale-i Nur Okuma Takibi
+    </h1>
 
     <!-- Admin Login Modal -->
     <div id="adminLoginModal" class="modal">
@@ -220,7 +223,8 @@
     </div>
 
     <div class="videos">
-      <h3>Çatı Katı Elazığ
+      <h3><i class="fa-regular fa-circle-play" style=" font-size: 1.3em; padding-left:2px; padding-right: 8px;"></i>Çatı
+        Katı Elazığ
         - Videolar</h3>
       <div class="top-bar">
         <button id="randomBtn">
@@ -278,7 +282,8 @@
     </div>
     <!-- Add this after the user list section, before the closing container div -->
     <div class="settings-section">
-      <h3 id="ayarlar">Tercihler</h3>
+      <h3 id="ayarlar"><i class="fa-classic fa-solid fa-sliders fa-fw"
+          style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i>Tercihler</h3>
       <div class="setting-item">
         <label for="firstDaySelect">Tablonun İlk Günü:</label>
         <select id="firstDaySelect" class="day-select">

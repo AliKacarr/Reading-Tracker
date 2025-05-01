@@ -1,8 +1,7 @@
 /* Monthly Calendar Styles */
 .monthly-calendar-section {
-  margin-top: 30px;
   border-radius: 10px;
-  padding-inline: 20px;
+  padding: 20px;
   width: 100%;
   max-width: 95%;
   overflow: hidden;
