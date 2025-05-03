@@ -320,7 +320,7 @@ function calculateStreak(userStats) {
 
   // Bugünün tarihini al (Türkiye saatine göre)
   const today = new Date();
-  today.setHours(today.getHours() + 3); // Türkiye saatine ayarla
+  today.setHours(today.getHours()); // Türkiye saatine ayarla
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const day = String(today.getDate()).padStart(2, '0');
