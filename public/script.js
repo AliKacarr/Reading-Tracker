@@ -172,7 +172,7 @@ async function loadData() {
 
     // Profil resmi ekle - varsayılan resim olarak default.png kullan
     const profileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
-    row += `<img src="${profileImage}" alt="${user.name}" class="profile-image" />`;
+    row += `<img src="${profileImage}" alt="${user.name}" class="profile-image" loading="lazy" />`;
     row += `${user.name}</td>`;
 
     // For each date in the current view, determine the cell class based on streak data
