@@ -391,6 +391,7 @@ async function toggleStatus(userId, date) {
   loadData();
   // Update the chart after changing a cell status
   loadReadingStats();
+  renderLongestSeries();
 }
 
 async function deleteUser(id) {
@@ -416,6 +417,7 @@ async function deleteUser(id) {
 
     loadData();
     loadReadingStats();
+    renderLongestSeries();
     showSuccessMessage('Kullanıcı başarıyla silindi!');
   }
 }
@@ -460,6 +462,7 @@ newUserForm.addEventListener('submit', async (e) => {
   fileInputLabel.textContent = 'Resim Seç';
   loadData();
   loadReadingStats();
+  renderLongestSeries();
   showSuccessMessage('Kullanıcı başarıyla eklendi!');
 });
 function showSuccessMessage(message) {
@@ -661,6 +664,7 @@ async function saveUserName(userId) {
   loadData();
   // Update the chart after changing a user's name
   loadReadingStats();
+  renderLongestSeries();
 }
 
 // Change user profile image
@@ -701,6 +705,7 @@ function changeUserImage(userId) {
       loadData();
       // Update the chart after changing a user's profile image
       loadReadingStats();
+      renderLongestSeries();
     }
   });
 }
@@ -990,6 +995,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Load the chart after all dependencies are loaded
       setTimeout(loadReadingStats, 100);
+      setTimeout(renderLongestSeries, 100);
     };
 
     document.head.appendChild(dataLabelsScript);

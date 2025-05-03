@@ -1,5 +1,4 @@
-// ... existing code ...
-document.addEventListener('DOMContentLoaded', function () {
+function renderLongestSeries() {
     fetch('/api/longest-streaks')
         .then(res => res.json())
         .then(data => {
@@ -97,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 chart.appendChild(row);
             });
         });
-});
+}
 
 function formatDateParts(dateStr) {
     if (!dateStr) return '-';

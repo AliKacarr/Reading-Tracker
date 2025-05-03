@@ -533,7 +533,7 @@
                 // Add the new action type with a function to handle the dynamic content
                 'monthly-calendar-user-change': function (action) {
                   // Extract the user names from the action string
-                  const match = action.match(/monthly-calendar-user-change: (.+)-to-(.+)/);
+                  const match = action.match(/Aylık istatislikler değiştirme: (.+)-to-(.+)/);
                   if (match) {
                     const [_, prevUser, newUser] = match;
                     return `Takvim kullanıcı değişimi: ${prevUser || 'Seçilmemiş'} → ${newUser || 'Seçilmemiş'}`;
@@ -650,7 +650,7 @@
             // Add the new action type with a function to handle the dynamic content
             'monthly-calendar-user-change': function (action) {
               // Extract the user names from the action string
-              const match = action.match(/monthly-calendar-user-change: (.+)-to-(.+)/);
+              const match = action.match(/Aylık istatislikler değiştirme: (.+)-to-(.+)/);
               if (match) {
                 const [_, prevUser, newUser] = match;
                 return `Takvim kullanıcı değişimi: ${prevUser || 'Seçilmemiş'} → ${newUser || 'Seçilmemiş'}`;
