@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="preferences.css" />
   <link rel="stylesheet" href="quote.css" />
   <link rel="stylesheet" href="longest-series.css" />
+  <link rel="stylesheet" href="user-cards.css" />
 </head>
 
 <body>
@@ -77,6 +78,11 @@
           <div id="loginError" class="error-message"></div>
         </form>
       </div>
+    </div>
+
+    <!-- Kullanıcı Kartları Bölümü -->
+    <div class="user-cards-container">
+      <!-- Kullanıcı kartları JavaScript ile buraya eklenecek -->
     </div>
 
     <div class="table-area">
@@ -255,7 +261,7 @@
     <div class="main-area" style="display: none;">
       <div class="user-list">
         <h3>👤 Kullanıcılar</h3>
-        <ul id="deleteList"></ul>
+        <ul id="userList"></ul>
       </div>
 
       <div class="new-user">
@@ -275,6 +281,12 @@
               <label for="profileImage" class="custom-file-input secondary-button" id="file-input-label">Resim
                 Seç</label>
               <span id="file-name">Resim seçilmedi</span>
+            </div>
+            <!-- Resim ön izleme alanı -->
+            <div id="imagePreviewContainer" style="display: none; margin-top: 10px; position: relative;">
+              <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
+              <button type="button" id="closePreview" class="close-preview-button"><i
+                  class="fa-solid fa-xmark"></i></button>
             </div>
           </div>
         </form>
@@ -364,6 +376,7 @@
   <script src="monthly.js"></script>
   <script src="videos.js"></script>
   <script src="longest-series.js"></script>
+  <script src="user-cards.js"></script>
 </body>
 
 </html>

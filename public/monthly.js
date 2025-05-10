@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (dayStat.status === 'okudum') {
                             cell.classList.add('read');
                             const statusIndicator = document.createElement('div');
-                            statusIndicator.className = 'reading-status';
+                            statusIndicator.className = 'monthly-reading-status';
                             statusIndicator.textContent = '✔️';
                             cell.style.backgroundColor = '#d4edda';
                             cell.style.color = '#155724';
@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         } else if (dayStat.status === 'okumadım') {
                             cell.classList.add('not-read');
                             const statusIndicator = document.createElement('div');
-                            statusIndicator.className = 'reading-status';
+                            statusIndicator.className = 'monthly-reading-status';
                             statusIndicator.textContent = '❌';
                             cell.style.backgroundColor = '#f8d7da';
                             cell.style.color = '#721c24';
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         } else if (dayStat.status === 'not-applicable') {
                             cell.classList.add('not-applicable');
                             const statusIndicator = document.createElement('div');
-                            statusIndicator.className = 'reading-status';
+                            statusIndicator.className = 'monthly-reading-status';
                             statusIndicator.textContent = '➖';
                             cell.style.backgroundColor = '#e2e3e5';
                             cell.style.color = '#383d41';

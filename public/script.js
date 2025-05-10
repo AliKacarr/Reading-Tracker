@@ -1,6 +1,6 @@
 
 const table = document.getElementById('trackerTable');
-const deleteList = document.getElementById('deleteList');
+const userList = document.getElementById('userList');
 const newUserForm = document.getElementById('newUserForm');
 const prevWeekBtn = document.getElementById('prevWeek');
 const nextWeekBtn = document.getElementById('nextWeek');
@@ -159,7 +159,7 @@ async function loadData() {
 
   // Update the user list rendering in loadData function
   let tbodyHTML = '';
-  deleteList.innerHTML = ''; // Silme butonlarını temizle
+  userList.innerHTML = ''; // Silme butonlarını temizle
 
   // Check if user is authenticated for interactive elements
   const isUserAuthenticated = isAuthenticated();
@@ -214,7 +214,7 @@ async function loadData() {
     // Silme butonunu dış listeye ekle - profil resmi ile birlikte
     const userProfileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
     // Update the user list rendering in loadData function to use an image for the delete button
-    deleteList.innerHTML += `
+    userList.innerHTML += `
       <li data-user-id="${user._id}">
         <div class="user-item">
           <img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/>
@@ -460,6 +460,8 @@ newUserForm.addEventListener('submit', async (e) => {
   imageInput.value = '';
   fileNameDisplay.textContent = 'Resim seçilmedi';
   fileInputLabel.textContent = 'Resim Seç';
+  imagePreviewContainer.style.display = 'none';
+
   loadData();
   loadReadingStats();
   renderLongestSeries();
@@ -491,16 +493,45 @@ function showSuccessMessage(message) {
 const profileImageInput = document.getElementById('profileImage');
 const fileNameDisplay = document.getElementById('file-name');
 const fileInputLabel = document.getElementById('file-input-label');
+const imagePreview = document.getElementById('imagePreview');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+const closePreviewButton = document.getElementById('closePreview');
+
+// Resim önizleme kapatma fonksiyonu
+function resetImagePreview() {
+  imagePreviewContainer.style.display = 'none';
+  fileNameDisplay.textContent = 'Resim seçilmedi';
+  fileInputLabel.textContent = 'Resim Seç';
+  profileImageInput.value = ''; // Input değerini de temizle
+}
 
 if (profileImageInput && fileNameDisplay) {
   profileImageInput.addEventListener('change', function () {
     if (this.files.length > 0) {
       fileNameDisplay.textContent = this.files[0].name;
       fileInputLabel.textContent = "Değiştir"; // Change button text to "Değiştir" when a file is selected
+
+      // Resim ön izlemesi göster
+      const file = this.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        imagePreview.src = e.target.result;
+        imagePreviewContainer.style.display = 'flex';
+      }
+
+      reader.readAsDataURL(file);
     } else {
-      fileNameDisplay.textContent = 'Resim seçilmedi';
-      fileInputLabel.textContent = "Resim Seç";
+      resetImagePreview();
     }
+  });
+}
+
+// Çarpı butonuna tıklama olayı
+if (closePreviewButton) {
+  closePreviewButton.addEventListener('click', function(e) {
+    e.preventDefault(); // Formun gönderilmesini engelle
+    resetImagePreview();
   });
 }
 

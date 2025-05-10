@@ -113,43 +113,8 @@
     text-align: center;
 }
 
-.series-rank {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    font-size: 1.15em;
-    font-weight: bold;
-    border-radius: 50%;
-    background: #e0e0e0;
-    color: #555;
-    margin-right: 10px;
-}
-
-.series-rank.first {
-    background: gold;
-    color: #fff;
-}
-
-.series-rank.second {
-    background: #b4b4b4;
-    color: #fff;
-}
-
-.series-rank.third {
-    background: #cd7f32;
-    color: #fff;
-}
-
 .date-daymonth {
     color: #888;
     /* Daha koyu gri */
     font-weight: 500;
-}
-
-.date-year {
-    color: #a0a0a0;
-    /* Daha açık gri */
-    font-weight: 400;
 }

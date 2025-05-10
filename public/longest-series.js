@@ -10,8 +10,6 @@ function renderLongestSeries() {
 
             // Doğru rank algoritması
             let rankList = [];
-            let currentRank = 1;
-            let prevStreak = null;
             let streakToRank = {};
             let rankCount = 1;
 
