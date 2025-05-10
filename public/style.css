@@ -29,19 +29,37 @@ h1 {
 }
 
 
+h3 {
+  margin-top: 30px;
+  color: #444444;
+  font-size: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #44444423;
+  width: 98%;
+}
 
-/* Düzen alanı */
+.user-list,
+#newUserForm,
+.settings-section h3 {
+  width: 300px;
+}
+
 .main-area {
-  /*silinecek*/
   display: flex;
-  gap: 20px;
+  gap: 50px;
   padding: 5px 15px;
   align-items: flex-start;
   flex-wrap: wrap;
+  margin-top: 20px;
 }
 
+@media (max-width: 768px) {
+  .main-area {
+    flex-direction: column;
+  }
+}
 
-/* Updating the user list and delete button styles */
 ul#userList {
   list-style: none;
   padding: 0;
@@ -69,72 +87,62 @@ ul#userList li span {
 
 
 .admin-logs-button {
-  position: fixed;
   bottom: 65px;
   right: 20px;
   background-color: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 15px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  z-index: 100;
 }
 
 .admin-logs-button:hover {
   background-color: #e68900;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
 
-.admin-logs-button img {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-}
 
-/* Login logs button styling */
 .login-logs-button {
-  /*silinecek*/
-  position: fixed;
-  bottom: 100px;
-  /* Position above the admin logs button */
+  bottom: 108px;
   right: 20px;
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 15px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: none;
-  /* Hidden by default, shown when admin is logged in */
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  z-index: 100;
+  background-color: #43b581;
 }
 
 .login-logs-button:hover {
-  /*silinecek*/
-  background-color: #357ab8;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+  background-color: #36996a;
 }
 
-.login-logs-button img {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
+.admin-logs-button,
+.login-logs-button {
+  position: fixed;
+  width: 160px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  border: none;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.admin-logs-button:hover,
+.login-logs-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.admin-logs-button svg,
+.login-logs-button svg {
+  margin-right: 6px;
+}
+
+.admin-logs-button:active,
+.login-logs-button:active {
+  transform: translateY(0);
 }
 
 .delete-button {
@@ -152,7 +160,6 @@ ul#userList li span {
 }
 
 .delete-button img {
-  /*silinecek*/
   display: block;
   width: 20px;
   height: 20px;
@@ -164,42 +171,14 @@ ul#userList li span {
 
 
 .submit-button {
-  /*silinecek*/
-  padding: 8px 15px;
+  padding: 12px 18px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   margin-left: 10px;
 }
 
-/* Improving overall layout balance */
-.main-area {
-  /*silinecek*/
-  display: flex;
-  gap: 50px;
-  /* Increased from 30px to 50px to add more space between sections */
-  align-items: flex-start;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-
-/* Consistent heading styles */
-h3 {
-  margin-top: 30px;
-  color: #444444;
-  font-size: 20px;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #44444423;
-  width: 98%;
-}
-
-.user-list,
-#newUserForm,
-.settings-section h3 {
-  width: 300px;
-}
 
 
 table {
@@ -272,13 +251,6 @@ td {
   flex: 1;
 }
 
-
-/* Responsive */
-@media (max-width: 768px) {
-  .main-area {
-    flex-direction: column;
-  }
-}
 
 .profile-image {
   width: 40px;
@@ -376,34 +348,6 @@ td {
 }
 
 
-.delete-button img {
-  /*silinecek*/
-  display: block;
-}
-
-
-.submit-button {
-  /*silinecek*/
-  padding: 8px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-left: 10px;
-}
-
-
-/* Improving overall layout balance */
-.main-area {
-  /*silinecek*/
-  display: flex;
-  gap: 50px;
-  /* Increased from 30px to 50px to add more space between sections */
-  align-items: flex-start;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-
 
 /* Tablo */
 .table-area {
@@ -441,12 +385,6 @@ input[type="file"] {
   z-index: -1;
 }
 
-/* Add these styles to your existing CSS */
-
-.form-group {
-  /*silinecek*/
-  margin-bottom: 15px;
-}
 
 .image-upload {
   margin-top: 15px;
@@ -462,18 +400,8 @@ input[type="file"] {
   color: white;
 }
 
-.submit-button {
-  /*silinecek*/
-  padding: 8px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-left: 10px;
-}
-
 .custom-file-input {
-  padding: 7px 15px;
+  padding: 10px 15px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
@@ -502,11 +430,11 @@ input[type="file"] {
   width: 130px;
   height: 130px;
   border-radius: 8px;
-  object-fit: cover;
+  object-fit: fill;
   border: 1px solid #ddd;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   display: block;
-  margin-top: 10px;
+  transition: transform 0.2s;
 }
 
 #imagePreviewContainer {
@@ -518,6 +446,10 @@ input[type="file"] {
   margin-top: 15px;
 }
 
+.profile-preview-image:hover {
+  box-shadow: 0 8px 24px rgba(91, 155, 213, 0.18);
+  transform: scale(1.03);
+}
 
 /* Add styling for the date in the header */
 #trackerTable th {
@@ -552,7 +484,6 @@ input[type="file"] {
 
 /* Day of week styling */
 .day-of-week {
-  /*silinecek*/
   font-size: 17px;
   font-weight: 600;
   color: #5b9bd5;
@@ -718,7 +649,6 @@ th.today-column {
 
 /* Make sure the day of week is more prominent for today */
 .today-column .day-of-week {
-  /*silinecek*/
   color: #1e88e5;
   font-weight: 700;
 }
@@ -783,8 +713,8 @@ th.today-column {
 
 /* Enhanced styling for the new user input field */
 #newUserInput {
-  padding: 10px 12px;
-  font-size: 14px;
+  padding: 12px 12px;
+  font-size: 15px;
   border: 1px solid #ddd;
   border-radius: 6px;
   transition: all 0.3s ease;
@@ -868,18 +798,11 @@ th.today-column {
   }
 }
 
-
-
 .modal h2 {
   margin-top: 0;
   color: #333;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
-  margin-bottom: 20px;
-}
-
-.modal .form-group {
-  /*silinecek*/
   margin-bottom: 20px;
 }
 
@@ -998,13 +921,6 @@ th.today-column {
 
 
 
-.modal .form-group {
-  /*silinecek*/
-  margin-bottom: 20px;
-  width: 95%;
-}
-
-
 /* Admin indicator and logs button styling */
 .admin-indicator {
   position: fixed;
@@ -1028,60 +944,6 @@ th.today-column {
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
 
-.admin-logs-button,
-.login-logs-button {
-  /*silinecek*/
-  width: 160px;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-weight: 500;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-  border: none;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-
-.admin-logs-button img,
-.login-logs-button img,
-.admin-mode-button img {
-  margin-right: 8px;
-  width: 18px;
-  height: 18px;
-}
-
-.login-logs-button {
-  /*silinecek*/
-  background-color: #43b581;
-  color: white;
-  margin-bottom: 15px;
-}
-
-.login-logs-button:hover {
-  /*silinecek*/
-  background-color: #36996a;
-}
-
-
-
-.admin-logs-button:hover,
-/*silinecek*/
-.login-logs-button:hover {
-  /*silinecek*/
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.admin-logs-button:active,
-.login-logs-button:active {
-  transform: translateY(0);
-}
 
 /* Add this at the end of your CSS file */
 
@@ -1200,7 +1062,7 @@ th.today-column {
 /* Resim önizleme kapatma butonu */
 .close-preview-button {
   position: absolute;
-  top: 13px;
+  top: 2px;
   left: 109px;
   background-color: rgba(255, 255, 255, 0.7);
   border: none;
