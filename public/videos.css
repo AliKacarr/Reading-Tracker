@@ -1,4 +1,17 @@
-/* Monthly Calendar Styles */
+.video-modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+}
+
 .videos {
     margin-bottom: 20px;
     padding: 20px;
@@ -117,7 +130,7 @@
 }
 
 
-.modal-content.video {
+.modal-content-video {
     position: relative;
     margin: 5% auto;
     width: 80%;

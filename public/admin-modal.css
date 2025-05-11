@@ -1,0 +1,261 @@
+#secretAdminLogin {
+    cursor: pointer;
+    width: 500px;
+    margin: auto;
+    text-align: center;
+    padding: 17px;
+}
+
+.admin-modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.admin-modal h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-modal label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.admin-modal input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.admin-modal input:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.modal-content-admin {
+    background-color: #fff;
+    margin: 10% auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 55px 65px 45px 65px;
+    width: 400px;
+    max-width: 98%;
+    animation: modalFadeIn 0.3s;
+}
+
+.modal-content-admin h2 {
+    font-size: 2.1rem;
+}
+
+.modal-content-admin label {
+    font-size: 1.15rem;
+}
+
+.modal-content-admin input {
+    font-size: 1.15rem;
+    padding: 14px;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-actions {
+    text-align: right;
+    margin-top: 25px;
+}
+
+.form-actions button {
+    display: flex;
+    margin: auto;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.18rem;
+    padding: 13px 28px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-actions button:hover {
+    background-color: #45a049;
+}
+
+/* Admin info panel styling */
+.admin-info-panel {
+    padding: 25px;
+    font-size: 1.18rem;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    margin-top: 15px;
+    border: 2px solid #eee;
+}
+
+.admin-info-item {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.admin-info-label {
+    font-size: 1.18rem;
+    padding: 2px;
+    font-weight: 500;
+    width: 110px;
+    color: #1e1717;
+    display: flex;
+    align-items: center;
+}
+
+.admin-info-value {
+    font-size: 1.25rem;
+    color: rgb(0, 0, 0);
+    display: flex;
+    align-items: center;
+}
+
+.logout-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 11px 22px;
+    margin-top: 35px;
+    transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f;
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: center;
+    min-height: 20px;
+}
+
+
+.close-button {
+    color: #7f7e7e;
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+
+/* Admin indicator and logs button styling */
+.admin-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4a90e2;
+    color: white;
+    padding: 8px 38px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    display: none;
+    transition: all 0.3s ease;
+    z-index: 99;
+}
+
+.admin-indicator:hover {
+    background-color: #3367d6;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+
+.admin-logs-button {
+    bottom: 65px;
+    right: 20px;
+    background-color: #ff9800;
+}
+
+.admin-logs-button:hover {
+    background-color: #e68900;
+}
+
+.login-logs-button {
+    bottom: 108px;
+    right: 20px;
+    background-color: #43b581;
+}
+
+.login-logs-button:hover {
+    background-color: #36996a;
+}
+
+.admin-logs-button,
+.login-logs-button {
+    position: fixed;
+    width: 160px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    border: none;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: white;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.admin-logs-button:hover,
+.login-logs-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.admin-logs-button svg,
+.login-logs-button svg {
+    margin-right: 6px;
+}
+
+.admin-logs-button:active,
+.login-logs-button:active {
+    transform: translateY(0);
+}

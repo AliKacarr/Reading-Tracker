@@ -7,8 +7,13 @@
   <title>Reading Tracker</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin-modal.css" />
+  <link rel="stylesheet" href="cookies.css" />
+  <link rel="stylesheet" href="tracker-table.css" />
+  <link rel="stylesheet" href="stats-section.css" />
   <link rel="stylesheet" href="monthly.css" />
   <link rel="stylesheet" href="videos.css" />
+  <link rel="stylesheet" href="main-area.css" />
   <link rel="stylesheet" href="footer.css" />
   <link rel="stylesheet" href="preferences.css" />
   <link rel="stylesheet" href="quote.css" />
@@ -53,14 +58,14 @@
   <!-- Add this style section to fix button widths -->
 
   <div class="container">
-    <h1 id="adminLogin" style="display: flex; align-items: center; justify-content: center;">
+    <h1 id="secretAdminLogin" style="display: flex; align-items: center; justify-content: center;">
       <img src="images/open-book.png" alt="Favicon" style="height: 1.4em; margin-right: 15px;">
       Risale-i Nur Okuma Takibi
     </h1>
 
     <!-- Admin Login Modal -->
-    <div id="adminLoginModal" class="modal">
-      <div class="modal-content admin">
+    <div id="adminLoginModal" class="admin-modal">
+      <div class="modal-content-admin">
         <span class="close-button">&times;</span>
         <h2>Admin Girişi</h2>
         <form id="adminLoginForm">
@@ -73,7 +78,7 @@
             <input type="password" id="adminPassword" required>
           </div>
           <div class="form-actions">
-            <button type="submit" class="primary-button">Giriş Yap</button>
+            <button type="submit">Giriş Yap</button>
           </div>
           <div id="loginError" class="error-message"></div>
         </form>
@@ -250,8 +255,8 @@
         <!-- Videos will be rendered here -->
       </div>
 
-      <div id="videoModal" class="modal">
-        <div class="modal-content video">
+      <div id="videoModal" class="video-modal">
+        <div class="modal-content-video">
           <span class="close">&times;</span>
           <iframe id="videoFrame" frameborder="0" allowfullscreen loading="lazy"></iframe>
         </div>
@@ -272,13 +277,13 @@
           <h3>➕ Kullanıcı Ekle</h3>
           <div class="ad-user-form-group">
             <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
-            <button type="submit" class="submit-button primary-button">Ekle</button>
+            <button type="submit" class="submit-button">Ekle</button>
           </div>
           <div class="image-upload">
             <label for="profileImage">Profil Resmi:</label>
             <div class="file-input-container">
               <input type="file" id="profileImage" name="profileImage" accept="image/*" />
-              <label for="profileImage" class="custom-file-input secondary-button" id="file-input-label">Resim
+              <label for="profileImage" class="custom-file-input" id="file-input-label">Resim
                 Seç</label>
               <span id="file-name">Resim seçilmedi</span>
             </div>

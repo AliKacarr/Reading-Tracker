@@ -529,7 +529,7 @@ if (profileImageInput && fileNameDisplay) {
 
 // Çarpı butonuna tıklama olayı
 if (closePreviewButton) {
-  closePreviewButton.addEventListener('click', function(e) {
+  closePreviewButton.addEventListener('click', function (e) {
     e.preventDefault(); // Formun gönderilmesini engelle
     resetImagePreview();
   });
@@ -1057,7 +1057,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 // Admin Login Functionality
 document.addEventListener('DOMContentLoaded', function () {
-  const adminLogin = document.getElementById('adminLogin');
+  const adminLogin = document.getElementById('secretAdminLogin');
   const adminLoginModal = document.getElementById('adminLoginModal');
   const closeButton = document.querySelector('.close-button');
   const adminLoginForm = document.getElementById('adminLoginForm');
@@ -1162,10 +1162,10 @@ function showAdminInfoPanel() {
   if (!adminInfoModal) {
     adminInfoModal = document.createElement('div');
     adminInfoModal.id = 'adminInfoModal';
-    adminInfoModal.className = 'modal';
+    adminInfoModal.className = 'admin-modal';
 
     const modalContent = document.createElement('div');
-    modalContent.className = 'modal-content admin';
+    modalContent.className = 'modal-content-admin';
 
     const closeBtn = document.createElement('span');
     closeBtn.className = 'close-button';
