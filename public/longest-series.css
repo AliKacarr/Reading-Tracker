@@ -121,12 +121,10 @@
 
 .date-daymonth {
     color: #888;
-    /* Daha koyu gri */
     font-weight: 500;
 }
 
-/* Fire emoji animation */
-.fire-emoji {
+.longest-fire-emoji {
     display: inline-block;
     animation: flame 4s infinite;
     transform-origin: bottom center;

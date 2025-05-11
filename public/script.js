@@ -1,5 +1,5 @@
 
-const table = document.getElementById('trackerTable');
+const trackerTable = document.getElementById('trackerTable');
 const userList = document.getElementById('userList');
 const newUserForm = document.getElementById('newUserForm');
 const prevWeekBtn = document.getElementById('prevWeek');
@@ -155,7 +155,7 @@ async function loadData() {
     theadHTML += `<th class="${todayClass}"><span class="date-text">${formattedDate}</span><br><span class="day-of-week">${dayOfWeek}</span></th>`;
   }
   theadHTML += `<th><img src="/images/red-arrow.png" alt="Streak" width="20" height="20"> Seri</th></tr>`;
-  table.querySelector('thead').innerHTML = theadHTML;
+  trackerTable.querySelector('thead').innerHTML = theadHTML;
 
   // Update the user list rendering in loadData function
   let tbodyHTML = '';
@@ -207,7 +207,7 @@ async function loadData() {
     }
 
     const streak = calculateStreak(userStats);
-    row += `<td>${streak > 0 ? `<span class="fire-emoji">🔥</span> ${streak}` : '-'}</td>`;
+    row += `<td>${streak > 0 ? `<span class="weekly-fire-emoji">🔥</span> ${streak}` : '-'}</td>`;
     row += `</tr>`;
     tbodyHTML += row;
 
@@ -231,7 +231,11 @@ async function loadData() {
       </li>`;
   }
 
-  table.querySelector('tbody').innerHTML = tbodyHTML;
+  trackerTable.querySelector('tbody').innerHTML = tbodyHTML;
+
+  // Week navigation'ı tekrar görünür yap
+  const weekNav = document.querySelector('.week-navigation');
+  if (weekNav) weekNav.style.display = 'flex';
 }
 
 // Function to find consecutive "okumadım" streaks for a user

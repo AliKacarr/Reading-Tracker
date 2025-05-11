@@ -81,7 +81,7 @@ function renderLongestSeries() {
                 bar.innerHTML = `
                   ${rankHTML}
                   <span class="series-info">${user.name}</span>
-                  <span class="series-count"><b><span class="fire-emoji">🔥</span>${user.streak}</b></span>
+                  <span class="series-count"><b><span class="longest-fire-emoji">🔥</span>${user.streak}</b></span>
                 `;
 
                 // Bitiş tarihi

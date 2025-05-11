@@ -43,30 +43,3 @@ h3 {
 .settings-section h3 {
   width: 300px;
 }
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  margin-top: 10px;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
-  font-size: 14px;
-  transition: background-color 0.2s ease;
-}
-
-/* All cells should be clickable */
-td {
-  cursor: pointer;
-}
-
-th {
-  background-color: #f0f0f0;
-  font-weight: 600;
-  border-bottom: 2px solid #ddd;
-  padding: 12px 10px;
-}

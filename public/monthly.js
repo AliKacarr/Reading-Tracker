@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             cell.style.backgroundColor = '#f8d7da';
                             cell.style.color = '#721c24';
                             cell.appendChild(statusIndicator);
-                        } else if (dayStat.status === 'not-applicable') {
+                        } else {
                             cell.classList.add('not-applicable');
                             const statusIndicator = document.createElement('div');
                             statusIndicator.className = 'monthly-reading-status';
