@@ -388,8 +388,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     generateCalendar(currentMonth, currentYear);
 
                     // Also refresh the main table if possible
-                    if (window.loadData) {
-                        window.loadData();
+                    if (window.loadTrackerTable) {
+                        window.loadTrackerTable();
                     }
                 }
             })

@@ -41,7 +41,6 @@ body {
     font-weight: 600;
 }
 
-/* Add zebra striping for tables */
 .logs-table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
@@ -80,7 +79,6 @@ body {
     font-style: italic;
 }
 
-/* Refresh button styling */
 .refresh-button {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #19366f;
@@ -127,7 +125,6 @@ body {
     }
 }
 
-/* Table refresh animation */
 @keyframes highlightNew {
     0% {
         background-color: rgba(74, 144, 226, 0.3);
@@ -142,7 +139,6 @@ body {
     animation: highlightNew 2s ease-out;
 }
 
-/* Fade in animation for table */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -157,7 +153,6 @@ body {
     animation: fadeIn 0.5s ease-in;
 }
 
-/* Login container styling */
 .login-container {
     max-width: 400px;
     margin: 100px auto;
@@ -204,7 +199,6 @@ body {
     font-size: 14px;
 }
 
-/* Pagination styles */
 #paginationContainer button:disabled,
 #dateGroupPaginationContainer button:disabled {
     opacity: 0.5;
@@ -220,7 +214,6 @@ body {
     color: #666;
 }
 
-/* Date grouping styles */
 .date-group-container {
     margin-top: 30px;
     background-color: #f8f9fa;
@@ -329,7 +322,6 @@ body {
     width: 100px;
 }
 
-/* IP Filter notification styling */
 #ipFilterNotification {
     display: inline-flex;
     align-items: center;
@@ -364,7 +356,6 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Success animation for refresh button */
 @keyframes successPulse {
     0% {
         background-color: #19366f;

@@ -16,6 +16,7 @@
     font-size: 20px;
     color: red;
     font-weight: 500;
+    border: 1px solid #ccc;
 }
 
 /* Style the streak column header in the tracker table */
@@ -104,17 +105,25 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     text-align: center;
     font-size: 14px;
     transition: background-color 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #trackerTable td:first-child {
     font-size: 17px;
     font-weight: 500;
+    border: 1px solid #c9c9c9;
+    min-width: 0;
+    width: 200px;
 }
 
 #trackerTable th:first-child {
     background-color: #f7f7f7;
     color: #333;
     font-size: 16px;
+    width: 200px;
 }
 
 .date-text {
@@ -134,6 +143,21 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 #trackerTable tr th:first-child {
     background-color: #f2f2f2;
     color: #333;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.user-item-name {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 .week-navigation {
@@ -291,4 +315,16 @@ th.today-column {
 
 .red.today-column {
     background-color: rgb(255, 100, 60);
+}
+
+/* Tablo animasyonu */
+#trackerTable tbody {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#trackerTable tbody.tracker-table-visible {
+    opacity: 1;
+    transform: translateY(0);
 }

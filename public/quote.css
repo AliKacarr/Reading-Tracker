@@ -8,7 +8,6 @@
     align-items: center;
     text-align: center;
     height: 100%;
-    /* Make container fill the section */
 }
 
 .quote-icon {
@@ -39,14 +38,10 @@
     padding: 3px;
     border-radius: 5px;
     width: 98%;
-    /* Make text use full width */
     overflow-wrap: break-word;
-    /* Ensure long words break */
     word-wrap: break-word;
     height: auto;
-    /* Allow height to adjust */
     min-height: 50px;
-    /* Minimum height for the text */
 }
 
 .quote-flex-container {
@@ -62,7 +57,6 @@
     flex-direction: column;
     gap: 24px;
     flex: 1.5 1 0;
-    /* Sol sütun daha geniş */
 }
 
 .quote-image-container {
@@ -136,7 +130,6 @@
     font-size: 14px;
 }
 
-/* Refresh button styling */
 .refresh-quote {
     position: absolute;
     top: 10px;
@@ -161,7 +154,6 @@
     transform: rotate(30deg);
 }
 
-/* Animation for refresh icon when clicked */
 @keyframes spin {
     0% {
         transform: rotate(0deg);

@@ -119,7 +119,6 @@ body {
     background-color: #152f62;
 }
 
-/* Refresh button styling */
 .refresh-button {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #19366f;
@@ -166,7 +165,6 @@ body {
     }
 }
 
-/* Table refresh animation */
 @keyframes highlightNew {
     0% {
         background-color: rgba(74, 144, 226, 0.3);
@@ -181,7 +179,6 @@ body {
     animation: highlightNew 2s ease-out;
 }
 
-/* Fade in animation for table */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -196,7 +193,6 @@ body {
     animation: fadeIn 0.5s ease-in;
 }
 
-/* Pagination styles */
 #paginationContainer button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -209,7 +205,6 @@ body {
     font-size: 14px;
 }
 
-/* Date grouping styles */
 .date-group-container {
     margin-top: 30px;
     background-color: #f8f9fa;
@@ -278,7 +273,6 @@ body {
     background-color: rgb(241, 241, 241);
 }
 
-/* Add active state styling for selected date */
 .date-summary-item-active {
     background-color: #eef5ff;
     box-shadow: 0 3px 10px rgba(25, 54, 111, 0.762);
@@ -315,7 +309,6 @@ body {
     margin-left: 8px;
 }
 
-/* Improve existing table styles */
 .log-table {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
@@ -332,7 +325,6 @@ body {
     padding: 12px 15px;
 }
 
-/* Add zebra striping for both tables */
 .log-table tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
@@ -349,7 +341,6 @@ body {
     width: 100px;
 }
 
-/* Filter notification styling */
 #ipFilterNotification {
     display: inline-flex;
     align-items: center;
@@ -384,7 +375,6 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Add styles for the filter container */
 .filter-container {
     display: flex;
     align-items: center;
@@ -392,7 +382,6 @@ body {
     margin-bottom: 15px;
 }
 
-/* Success animation for refresh button */
 @keyframes successPulse {
     0% {
         background-color: #19366f;

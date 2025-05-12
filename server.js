@@ -449,13 +449,11 @@ async function performBackup() {
     // Get current date/time for collection naming
     const now = new Date();
 
-    // Format date as "13 Nisan" style
-    const day = now.getDate();
-    const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-    const month = monthNames[now.getMonth()];
+    // Format date as "YYYY-MM-DD"
     const year = now.getFullYear();
-    const timestamp = `${day} ${month} ${year}`;
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const timestamp = `${year}-${month}-${day}`;
 
     // Backup users collection
     const users = await sourceDb.collection('users').find({}).toArray();

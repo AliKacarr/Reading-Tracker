@@ -107,7 +107,6 @@
     background-color: #45a049;
 }
 
-/* Admin info panel styling */
 .admin-info-panel {
     padding: 25px;
     font-size: 1.18rem;
@@ -178,7 +177,6 @@
 }
 
 
-/* Admin indicator and logs button styling */
 .admin-indicator {
     position: fixed;
     bottom: 20px;

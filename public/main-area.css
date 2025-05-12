@@ -38,7 +38,7 @@ ul#userList li span {
     text-align: left;
 }
 
-.user-item {
+.kullanıcı-item {
     display: flex;
     align-items: center;
     flex-grow: 1;
@@ -59,6 +59,11 @@ ul#userList li span {
     padding: 3px 6px;
     border-radius: 3px;
     transition: background-color 0.2s;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 .user-name:hover {
@@ -134,12 +139,10 @@ ul#userList li span {
     background-color: #d9363e;
 }
 
-/* Yeni kullanıcı alanı*/
 .new-user {
     flex: 1;
 }
 
-/* Enhanced styling for the new user input field */
 #newUserInput {
     padding: 12px 12px;
     font-size: 15px;
