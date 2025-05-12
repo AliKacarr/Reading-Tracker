@@ -20,9 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
         'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
     ];
 
-    // Day names in Turkish (starting from Monday)
-    const dayNames = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Pzr'];
-
     // Add user selector above the calendar
     const userSelectorContainer = document.createElement('div');
     userSelectorContainer.className = 'user-selector-container';
@@ -119,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Function to generate the calendar
-    function generateCalendar(month, year) {
+    function generateCalendar(month, year, showLoading = true) {
         // Update month display
         monthYearHeader.textContent = `${monthNames[month]} ${year}`;
 
@@ -137,14 +134,14 @@ document.addEventListener('DOMContentLoaded', function () {
             existingLoader.remove();
         }
 
-        // Create new loading indicator
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.className = 'calendar-loading';
-        loadingIndicator.innerHTML = '<div class="spinner"></div><p>Yükleniyor...</p>';
-
-        // Add loading indicator directly to the calendar container
-        if (calendarContainer) {
-            calendarContainer.appendChild(loadingIndicator);
+        // Sadece showLoading true ise loading göster
+        if (showLoading) {
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'calendar-loading';
+            loadingIndicator.innerHTML = '<div class="spinner"></div><p>Yükleniyor...</p>';
+            if (calendarContainer) {
+                calendarContainer.appendChild(loadingIndicator);
+            }
         }
 
         // Get first day of month (0 = Sunday, 1 = Monday, etc.)
@@ -314,55 +311,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Function to get reading status for a specific user and date
-    // Function to get reading status for a specific user and date
-    function getUserReadingStatus(userName, day, month, year) {
-        // Get the date string in the format used in your main table
-        const dateStr = formatDateForTable(day, month, year);
-
-        // Fetch user data from API instead of trying to read from the table
-        return fetch('/api/all-data')
-            .then(response => response.json())
-            .then(data => {
-                // Find the user by name
-                const user = data.users.find(u => u.name === userName);
-                if (!user) return null;
-
-                // Find the status for this date
-                const stat = data.stats.find(s => s.userId === user._id && s.date === dateStr);
-                if (!stat) return null;
-
-                // Return the appropriate status class
-                if (stat.status === 'okudum') return 'read';
-                if (stat.status === 'okumadım') return 'not-read';
-                if (stat.status === 'not-applicable') return 'not-applicable';
-                return null;
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-                return null;
-            });
-    }
-
-    // Function to toggle reading status for a specific user and date
-    // Function to toggle reading status for a specific user and date
     function toggleUserReadingStatus(userName, day, month, year) {
-        // Get the date string in the format used in your API
         const dateStr = formatDateForTable(day, month, year);
 
-        // Find the user ID
         fetch('/api/all-data')
             .then(response => response.json())
             .then(data => {
                 const user = data.users.find(u => u.name === userName);
                 if (!user) throw new Error('User not found');
 
-                // Find current status
                 const stat = data.stats.find(s => s.userId === user._id && s.date === dateStr);
                 let currentStatus = stat ? stat.status : '';
                 let newStatus = '';
 
-                // Cycle through statuses: empty -> okudum -> okumadım -> empty
                 if (currentStatus === '') {
                     newStatus = 'okudum';
                 } else if (currentStatus === 'okudum') {
@@ -371,7 +332,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     newStatus = '';
                 }
 
-                // Update the status in the database
                 return fetch('/api/update-status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -384,10 +344,8 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .then(response => {
                 if (response && response.ok) {
-                    // Refresh the calendar
-                    generateCalendar(currentMonth, currentYear);
+                    generateCalendar(currentMonth, currentYear, false);
 
-                    // Also refresh the main table if possible
                     if (window.loadTrackerTable) {
                         window.loadTrackerTable();
                     }
@@ -398,36 +356,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // Find the user's row in the main table
-    function toggleUserReadingStatus(userName, day, month, year) {
-        // Get the date string in the format used in your main table
-        const dateStr = formatDateForTable(day, month, year);
 
-        // Find the user's row in the main table
-        const userRows = document.querySelectorAll('#trackerTable tbody tr');
-        for (let i = 0; i < userRows.length; i++) {
-            const row = userRows[i];
-            const name = row.querySelector('td:first-child').textContent;
-
-            if (name === userName) {
-                // Find the cell for this date
-                const cells = row.querySelectorAll('td');
-                for (let j = 1; j < cells.length; j++) {
-                    const headerCell = document.querySelector(`#trackerTable thead th:nth-child(${j + 1})`);
-                    if (headerCell && headerCell.getAttribute('data-date') === dateStr) {
-                        // Simulate a click on the cell to toggle status
-                        cells[j].click();
-                        return;
-                    }
-                }
-            }
-        }
-    }
 
     // Helper function to format date for table lookup
     function formatDateForTable(day, month, year) {
-        // Format should match the data-date attribute in your table headers
-        // Adjust this based on your actual date format
         return `${year}-${(month + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     }
 

@@ -8,9 +8,26 @@ const schedule = require('node-schedule');
 const app = express();
 const port = 3000;
 
-// MongoDB connection from .env file
 mongoose.connect(process.env.MONGO_URI, { dbName: process.env.DB_NAME });
 
+app.use(express.static('public'));
+app.use('/images', express.static('uploads'));
+app.use(express.json());
+
+//resim yükleme
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = 'uploads';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
 
 // Kullanıcı modeli
 const User = mongoose.model('User', {
@@ -25,68 +42,33 @@ const ReadingStatus = mongoose.model('ReadingStatus', {
   status: String
 });
 
-// Günün sözü modeli
-// Add this new model for sentences after your existing models
-const Sentence = mongoose.model('Sentence', {
-  sentence: String
-});
 
-// Statik dosyalar için klasör
-app.use(express.static('public'));
-app.use('/images', express.static('uploads'));
-app.use(express.json());
-
-// Multer ayarları - resim yükleme için
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const dir = 'uploads';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-    cb(null, dir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ storage: storage });
-
-// API endpoint'leri
-app.get('/api/data', async (req, res) => {
+//**************************************************************************** tüm verileri çek
+app.get('/api/all-data', async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-    const users = await User.find();
-
-    // If date range is provided, filter stats by date range
-    let statsQuery = {};
-    if (startDate && endDate) {
-      statsQuery = {
-        date: { $gte: startDate, $lte: endDate }
-      };
-    }
-
-    const stats = await ReadingStatus.find(statsQuery);
+    const users = await User.find().sort({ name: 1 });
+    const stats = await ReadingStatus.find();
     res.json({ users, stats });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Sunucu hatası' });
+  } catch (error) {
+    console.error('Error fetching all data:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
+
+//**************************************************************************** tracker-table
+// //okuma durumu güncelleme
 app.post('/api/update-status', async (req, res) => {
   try {
     const { userId, date, status } = req.body;
 
     if (status) {
-      // Durumu güncelle veya oluştur
       await ReadingStatus.findOneAndUpdate(
         { userId, date },
         { userId, date, status },
         { upsert: true }
       );
     } else {
-      // Durumu sil (boş durum)
       await ReadingStatus.findOneAndDelete({ userId, date });
     }
 
@@ -97,6 +79,242 @@ app.post('/api/update-status', async (req, res) => {
   }
 });
 
+
+//**************************************************************************** stats-section
+//stats-section tablosu
+app.get('/api/reading-stats', async (req, res) => {
+  try {
+    const users = await User.find().sort({ name: 1 });
+    const stats = await ReadingStatus.find();
+
+    const userStats = users.map(user => {
+      const userReadings = stats.filter(stat =>
+        stat.userId === user._id.toString() && stat.status === 'okudum'
+      );
+
+      return {
+        userId: user._id,
+        name: user.name,
+        profileImage: user.profileImage,
+        okudum: userReadings.length
+      };
+    });
+
+    res.json(userStats);
+  } catch (error) {
+    console.error('Error fetching reading stats:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+//**************************************************************************** longest-series
+//longest-series tablosu
+app.get('/api/longest-streaks', async (req, res) => {
+  try {
+    const users = await User.find();
+    const stats = await ReadingStatus.find();
+
+    const results = users.map(user => {
+      // Kullanıcının okuma kayıtlarını tarihe göre sırala
+      const userStats = stats
+        .filter(s => s.userId === user._id.toString() && s.status === 'okudum')
+        .map(s => s.date)
+        .sort();
+
+      let maxStreak = 0, currentStreak = 0;
+      let streakStart = null, streakEnd = null;
+      let maxStart = null, maxEnd = null;
+
+      for (let i = 0; i < userStats.length; i++) {
+        if (i === 0 || (new Date(userStats[i]) - new Date(userStats[i - 1]) === 86400000)) {
+          currentStreak++;
+          if (currentStreak === 1) streakStart = userStats[i];
+          streakEnd = userStats[i];
+        } else {
+          if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+            maxStart = streakStart;
+            maxEnd = streakEnd;
+          }
+          currentStreak = 1;
+          streakStart = userStats[i];
+          streakEnd = userStats[i];
+        }
+      }
+
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+        maxStart = streakStart;
+        maxEnd = streakEnd;
+      }
+
+      return {
+        userId: user._id,
+        name: user.name,
+        profileImage: user.profileImage,
+        streak: maxStreak,
+        startDate: maxStart,
+        endDate: maxEnd
+      };
+    });
+
+    results.sort((a, b) => b.streak - a.streak);
+
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+//**************************************************************************** quote
+// Günün sözü modeli
+const Sentence = mongoose.model('Sentence', {
+  sentence: String
+});
+
+// Rastgele ayet modeli
+const ayetSchema = new mongoose.Schema({
+  sentence: String
+});
+
+const Ayet = mongoose.model('Ayet', ayetSchema, 'ayetler');
+
+// Hadis modeli
+const hadisSchema = new mongoose.Schema({
+  sentence: String
+});
+
+const Hadis = mongoose.model('Hadis', hadisSchema, 'hadisler');
+
+// Hadis modeli
+const duaSchema = new mongoose.Schema({
+  sentence: String
+});
+
+const Dua = mongoose.model('Dua', duaSchema, 'dualar');
+
+app.get('/api/quote-images', (req, res) => {
+  const quotesDir = path.join(__dirname, 'public', 'quotes');
+  fs.readdir(quotesDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Unable to list images' });
+    }
+    // Filter for image files only (jpg, png, jpeg, gif, webp)
+    const imageFiles = files.filter(file =>
+      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
+    );
+    res.json({ images: imageFiles });
+  });
+});
+
+app.get('/api/random-quote', async (req, res) => {
+  try {
+    // Count total documents in the sentences collection
+    const count = await Sentence.countDocuments();
+
+    // If there are no sentences, return a default message
+    if (count === 0) {
+      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
+    }
+
+    // Generate a random index
+    const random = Math.floor(Math.random() * count);
+
+    // Skip to the random document and get it
+    const randomSentence = await Sentence.findOne().skip(random);
+
+    res.json({ sentence: randomSentence.sentence });
+  } catch (error) {
+    console.error('Error fetching random quote:', error);
+    res.status(500).json({ error: 'Server error', message: error.message });
+  }
+});
+
+// Rastgele ayet getiren endpoint
+app.get('/api/random-ayet', async (req, res) => {
+  try {
+    // Ayetler koleksiyonundaki toplam belge sayısını say
+    const count = await Ayet.countDocuments();
+
+    // Eğer hiç ayet yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "Andolsun ki, Resûlullah, sizin için, Allah'a ve Ahiret gününe kavuşmayı umanlar ve Allah'ı çok zikredenler için güzel bir örnektir. (Ahzâb sûresi, 33/21)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomAyet = await Ayet.findOne().skip(random);
+
+    res.json({ sentence: randomAyet.sentence });
+  } catch (error) {
+    console.error('Rastgele ayet alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+// Rastgele hadis endpoint'i
+app.get('/api/random-hadis', async (req, res) => {
+  try {
+    // Hadisler koleksiyonundaki toplam belge sayısını say
+    const count = await Hadis.countDocuments();
+
+    // Eğer hiç hadis yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomHadis = await Hadis.findOne().skip(random);
+
+    res.json({ sentence: randomHadis.sentence });
+  } catch (error) {
+    console.error('Rastgele hadis alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+// Rastgele dua endpoint'i
+app.get('/api/random-dua', async (req, res) => {
+  try {
+    // Dualar koleksiyonundaki toplam belge sayısını say
+    const count = await Dua.countDocuments();
+
+    // Eğer hiç dua yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "Allah’ım! Senden Seni sevmeyi Seni sevenleri sevmeyi ve Senin sevgine ulaştıran ameli yapmayı isterim. Allah’ım! Senin sevgini, bana canımdan, ailemden ve soğuk sudan daha sevgili kıl. (Tirmizî, Deavât,73)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomDua = await Dua.findOne().skip(random);
+
+    res.json({ sentence: randomDua.sentence });
+  } catch (error) {
+    console.error('Rastgele dua alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+//**************************************************************************** videos
+//Youtube API anahtarını döndür
+app.get('/api/config', (req, res) => {
+  res.json({
+    youtubeApiKey: process.env.YOUTUBE_API_KEY || 'YOUR_DEFAULT_API_KEY'
+  });
+});
+
+
+//**************************************************************************** main-area
+//Kullanıcı ekleme
 app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
   try {
     const { name } = req.body;
@@ -112,6 +330,7 @@ app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
   }
 });
 
+// Kullanıcıyı silme
 app.post('/api/delete-user', async (req, res) => {
   try {
     const { id } = req.body;
@@ -137,26 +356,7 @@ app.post('/api/delete-user', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Uygulama http://localhost:${port} adresinde çalışıyor`);
-});
-
-
-// Add this new endpoint to fetch all data for streak calculations
-app.get('/api/all-data', async (req, res) => {
-  try {
-    const users = await User.find().sort({ name: 1 });
-    const stats = await ReadingStatus.find();
-    res.json({ users, stats });
-  } catch (error) {
-    console.error('Error fetching all data:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Add these endpoints to your server.js file
-
-// Update user name
+// Kullanıcı ismini güncelleme
 app.post('/api/update-user', async (req, res) => {
   const { userId, name } = req.body;
 
@@ -172,7 +372,7 @@ app.post('/api/update-user', async (req, res) => {
   }
 });
 
-// Update user profile image
+// Kullanıcı resmini güncelleme
 app.post('/api/update-user-image', upload.single('profileImage'), async (req, res) => {
   const { userId } = req.body;
 
@@ -206,68 +406,15 @@ app.post('/api/update-user-image', upload.single('profileImage'), async (req, re
   }
 });
 
-// Add this new endpoint to fetch a random quote
-app.get('/api/random-quote', async (req, res) => {
-  try {
-    // Count total documents in the sentences collection
-    const count = await Sentence.countDocuments();
 
-    // If there are no sentences, return a default message
-    if (count === 0) {
-      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
-    }
-
-    // Generate a random index
-    const random = Math.floor(Math.random() * count);
-
-    // Skip to the random document and get it
-    const randomSentence = await Sentence.findOne().skip(random);
-
-    res.json({ sentence: randomSentence.sentence });
-  } catch (error) {
-    console.error('Error fetching random quote:', error);
-    res.status(500).json({ error: 'Server error', message: error.message });
-  }
-});
-
-
-// Add this new endpoint to get reading statistics for all users
-app.get('/api/reading-stats', async (req, res) => {
-  try {
-    const users = await User.find().sort({ name: 1 });
-    const stats = await ReadingStatus.find();
-
-    // Process stats for each user
-    const userStats = users.map(user => {
-      // Count "okudum" entries for this user
-      const userReadings = stats.filter(stat =>
-        stat.userId === user._id.toString() && stat.status === 'okudum'
-      );
-
-      return {
-        userId: user._id,
-        name: user.name,
-        profileImage: user.profileImage,
-        okudum: userReadings.length
-      };
-    });
-
-    res.json(userStats);
-  } catch (error) {
-    console.error('Error fetching reading stats:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
+//********************************************************** Admin
 // Admin model
 const Admin = mongoose.model('Admin', {
   username: String,
   password: String
 });
 
-
-// Admin login endpoint
+// Admin doğrulama
 app.post('/api/admin-login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -287,29 +434,6 @@ app.post('/api/admin-login', async (req, res) => {
 });
 
 // Add an initial admin if none exists (you can remove this after first run)
-app.get('/api/setup-admin', async (req, res) => {
-  try {
-    const adminCount = await Admin.countDocuments();
-
-    if (adminCount === 0) {
-      const admin = new Admin({
-        username: 'admin',
-        password: 'admin123' // Change this to a secure password
-      });
-
-      await admin.save();
-      res.json({ success: true, message: 'Admin account created' });
-    } else {
-      res.json({ success: true, message: 'Admin account already exists' });
-    }
-  } catch (error) {
-    console.error('Setup admin error:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-
-// Add this model for access logs
 const AccessLog = mongoose.model('AccessLog', {
   action: String,
   timestamp: Date,
@@ -317,7 +441,7 @@ const AccessLog = mongoose.model('AccessLog', {
   ipAddress: String
 });
 
-// Add this endpoint to log unauthorized access attempts
+//Yetkisiz erişimleri kaydetme
 app.post('/api/log-unauthorized', async (req, res) => {
   try {
     const { action, deviceInfo } = req.body;
@@ -341,7 +465,7 @@ app.post('/api/log-unauthorized', async (req, res) => {
   }
 });
 
-// Add this endpoint to view logs (admin only)
+//Erişim kayıtlarını yükleme
 app.get('/api/access-logs', async (req, res) => {
   try {
     // Admin kontrolü yapmadan doğrudan logları getir
@@ -353,10 +477,8 @@ app.get('/api/access-logs', async (req, res) => {
   }
 });
 
-// Add this to your imports
 const requestIp = require('request-ip');
 
-// Add this to your MongoDB schema definitions
 const loginLogSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   ipAddress: String,
@@ -365,7 +487,7 @@ const loginLogSchema = new mongoose.Schema({
 
 const LoginLog = mongoose.model('LoginLog', loginLogSchema);
 
-// Add these API endpoints
+//Giriş kayıtlarını getirme
 app.post('/api/log-visit', async (req, res) => {
   try {
     const { deviceInfo } = req.body;
@@ -384,6 +506,7 @@ app.post('/api/log-visit', async (req, res) => {
   }
 });
 
+//giriş kayıtları
 app.get('/api/login-logs', async (req, res) => {
   try {
     const logs = await LoginLog.find().sort({ date: -1 });
@@ -417,14 +540,29 @@ app.get('/api/login-logs', async (req, res) => {
   }
 });
 
+// admin doğrulama
+app.post('/api/verify-admin', async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    // Use the existing mongoose connection instead of creating a new client
+    const admin = await Admin.findOne({ username });
+
+    res.json({ valid: !!admin });
+  } catch (error) {
+    console.error('Error verifying admin:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Uygulama http://localhost:${port} adresinde çalışıyor`);
+});
+
+
 // Backup service *******************************************************************
 
 const { MongoClient } = require('mongodb');
-//const schedule = require('node-schedule');
-//const fs = require('fs');
-//const path = require('path');
-//const mongoose = require('mongoose');
-//require('dotenv').config();
 
 // MongoDB connection string from .env file
 const uri = process.env.MONGO_URI;
@@ -526,226 +664,3 @@ function scheduleBackup() {
 
 // Start the backup scheduler
 const backupJob = scheduleBackup();
-
-// Add this route to verify if an admin username still exists in the database
-app.post('/api/verify-admin', async (req, res) => {
-  try {
-    const { username } = req.body;
-
-    // Use the existing mongoose connection instead of creating a new client
-    const admin = await Admin.findOne({ username });
-
-    res.json({ valid: !!admin });
-  } catch (error) {
-    console.error('Error verifying admin:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Get all users
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await User.find().sort({ name: 1 });
-    res.json(users);
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).json({ error: 'Failed to fetch users' });
-  }
-});
-
-// Get user stats for a specific month
-app.get('/api/user-monthly-stats', async (req, res) => {
-  try {
-    const { userId, year, month } = req.query;
-
-    // Create date range for the month
-    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-    const lastDay = new Date(year, parseInt(month), 0).getDate();
-    const endDate = `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-
-    // Find all stats for this user in the date range
-    const stats = await Stat.find({
-      userId: userId,
-      date: { $gte: startDate, $lte: endDate }
-    });
-
-    res.json({ stats });
-  } catch (error) {
-    console.error('Error fetching user monthly stats:', error);
-    res.status(500).json({ error: 'Failed to fetch user monthly stats' });
-  }
-});
-
-app.get('/api/quote-images', (req, res) => {
-  const quotesDir = path.join(__dirname, 'public', 'quotes');
-  fs.readdir(quotesDir, (err, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Unable to list images' });
-    }
-    // Filter for image files only (jpg, png, jpeg, gif, webp)
-    const imageFiles = files.filter(file =>
-      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
-    );
-    res.json({ images: imageFiles });
-  });
-});
-
-// API anahtarını istemciye sağlayan endpoint
-app.get('/api/config', (req, res) => {
-  res.json({
-    youtubeApiKey: process.env.YOUTUBE_API_KEY || 'YOUR_DEFAULT_API_KEY'
-  });
-});
-
-// Rastgele ayet modeli
-const ayetSchema = new mongoose.Schema({
-  sentence: String
-});
-
-const Ayet = mongoose.model('Ayet', ayetSchema, 'ayetler');
-
-// Hadis modeli
-const hadisSchema = new mongoose.Schema({
-  sentence: String
-});
-
-const Hadis = mongoose.model('Hadis', hadisSchema, 'hadisler');
-
-// Hadis modeli
-const duaSchema = new mongoose.Schema({
-  sentence: String
-});
-
-const Dua = mongoose.model('Dua', duaSchema, 'dualar');
-
-// Rastgele ayet getiren endpoint
-app.get('/api/random-ayet', async (req, res) => {
-  try {
-    // Ayetler koleksiyonundaki toplam belge sayısını say
-    const count = await Ayet.countDocuments();
-
-    // Eğer hiç ayet yoksa, varsayılan bir mesaj döndür
-    if (count === 0) {
-      return res.json({ sentence: "Andolsun ki, Resûlullah, sizin için, Allah'a ve Ahiret gününe kavuşmayı umanlar ve Allah'ı çok zikredenler için güzel bir örnektir. (Ahzâb sûresi, 33/21)" });
-    }
-
-    // Rastgele bir indeks oluştur
-    const random = Math.floor(Math.random() * count);
-
-    // Rastgele belgeye atla ve al
-    const randomAyet = await Ayet.findOne().skip(random);
-
-    res.json({ sentence: randomAyet.sentence });
-  } catch (error) {
-    console.error('Rastgele ayet alınırken hata oluştu:', error);
-    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
-  }
-});
-
-// Rastgele hadis endpoint'i
-app.get('/api/random-hadis', async (req, res) => {
-  try {
-    // Hadisler koleksiyonundaki toplam belge sayısını say
-    const count = await Hadis.countDocuments();
-
-    // Eğer hiç hadis yoksa, varsayılan bir mesaj döndür
-    if (count === 0) {
-      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
-    }
-
-    // Rastgele bir indeks oluştur
-    const random = Math.floor(Math.random() * count);
-
-    // Rastgele belgeye atla ve al
-    const randomHadis = await Hadis.findOne().skip(random);
-
-    res.json({ sentence: randomHadis.sentence });
-  } catch (error) {
-    console.error('Rastgele hadis alınırken hata oluştu:', error);
-    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
-  }
-});
-
-// Rastgele dua endpoint'i
-app.get('/api/random-dua', async (req, res) => {
-  try {
-    // Dualar koleksiyonundaki toplam belge sayısını say
-    const count = await Dua.countDocuments();
-
-    // Eğer hiç dua yoksa, varsayılan bir mesaj döndür
-    if (count === 0) {
-      return res.json({ sentence: "Allah’ım! Senden Seni sevmeyi Seni sevenleri sevmeyi ve Senin sevgine ulaştıran ameli yapmayı isterim. Allah’ım! Senin sevgini, bana canımdan, ailemden ve soğuk sudan daha sevgili kıl. (Tirmizî, Deavât,73)" });
-    }
-
-    // Rastgele bir indeks oluştur
-    const random = Math.floor(Math.random() * count);
-
-    // Rastgele belgeye atla ve al
-    const randomDua = await Dua.findOne().skip(random);
-
-    res.json({ sentence: randomDua.sentence });
-  } catch (error) {
-    console.error('Rastgele dua alınırken hata oluştu:', error);
-    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
-  }
-});
-
-// En uzun seriler endpoint'i
-app.get('/api/longest-streaks', async (req, res) => {
-  try {
-    const users = await User.find();
-    const stats = await ReadingStatus.find();
-
-    const results = users.map(user => {
-      // Kullanıcının okuma kayıtlarını tarihe göre sırala
-      const userStats = stats
-        .filter(s => s.userId === user._id.toString() && s.status === 'okudum')
-        .map(s => s.date)
-        .sort();
-
-      // En uzun ardışık seri hesaplama
-      let maxStreak = 0, currentStreak = 0;
-      let streakStart = null, streakEnd = null;
-      let maxStart = null, maxEnd = null;
-
-      for (let i = 0; i < userStats.length; i++) {
-        if (i === 0 || (new Date(userStats[i]) - new Date(userStats[i - 1]) === 86400000)) {
-          currentStreak++;
-          if (currentStreak === 1) streakStart = userStats[i];
-          streakEnd = userStats[i];
-        } else {
-          if (currentStreak > maxStreak) {
-            maxStreak = currentStreak;
-            maxStart = streakStart;
-            maxEnd = streakEnd;
-          }
-          currentStreak = 1;
-          streakStart = userStats[i];
-          streakEnd = userStats[i];
-        }
-      }
-      // Son seri kontrolü
-      if (currentStreak > maxStreak) {
-        maxStreak = currentStreak;
-        maxStart = streakStart;
-        maxEnd = streakEnd;
-      }
-
-      return {
-        userId: user._id,
-        name: user.name,
-        profileImage: user.profileImage,
-        streak: maxStreak,
-        startDate: maxStart,
-        endDate: maxEnd
-      };
-    });
-
-    // Gün sayısına göre azalan sırala
-    results.sort((a, b) => b.streak - a.streak);
-
-    res.json(results);
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});

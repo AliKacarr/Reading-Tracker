@@ -101,6 +101,7 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
         body: JSON.stringify({ userId, name: newName })
     });
 
+    renderUserList()
     loadTrackerTable();
     loadReadingStats();
     renderLongestSeries();
@@ -155,12 +156,9 @@ function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyo
                 body: formData
             });
 
-            // Remove the temporary file input
             document.body.removeChild(fileInput);
-
-            // Reload data to update all views
+            renderUserList()
             loadTrackerTable();
-            // Update the chart after changing a user's profile image
             loadReadingStats();
             renderLongestSeries();
         }
@@ -191,7 +189,7 @@ if (closePreviewButton) {
 }
 
 if (profileImageInput && fileNameDisplay) {
-    profileImageInput.addEventListener('change', function () {     //************************ metot ************************/
+    profileImageInput.addEventListener('change', function () {
         if (this.files.length > 0) {
             fileNameDisplay.textContent = this.files[0].name;
             fileInputLabel.textContent = "Değiştir";
@@ -258,14 +256,37 @@ function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fon
 
 function renderUserList() {
     const userList = document.getElementById('userList');
-    userList.innerHTML = '';
+    const prevScrollTop = userList.scrollTop; // scroll pozisyonunu koru
     fetch('/api/all-data')
         .then(res => res.json())
         .then(data => {
             const users = data.users;
-            users.forEach(user => {
-                const userProfileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
-                userList.innerHTML += `<li data-user-id="${user._id}"><div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="user-name" onclick="editUserName('${user._id}')">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;">✔</button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="13" height="15"></button></div></li>`;
+            // Sadece yeni elemanları ekle, eksikleri sil
+            const existingIds = Array.from(userList.children).map(li => li.getAttribute('data-user-id'));
+            const newIds = users.map(u => u._id);
+
+            // Silinen kullanıcıları kaldır
+            existingIds.forEach(id => {
+                if (!newIds.includes(id)) {
+                    const li = userList.querySelector(`li[data-user-id="${id}"]`);
+                    if (li) userList.removeChild(li);
+                }
             });
+
+            // Güncelle veya ekle
+            users.forEach(user => {
+                let li = userList.querySelector(`li[data-user-id="${user._id}"]`);
+                const userProfileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
+                const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="user-name" onclick="editUserName('${user._id}')">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;">✔</button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="13" height="15"></button></div>`;
+                if (li) {
+                    li.innerHTML = liHTML;
+                } else {
+                    li = document.createElement('li');
+                    li.setAttribute('data-user-id', user._id);
+                    li.innerHTML = liHTML;
+                    userList.appendChild(li);
+                }
+            });
+            userList.scrollTop = prevScrollTop; // scroll pozisyonunu geri yükle
         });
 }
