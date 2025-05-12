@@ -116,14 +116,14 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     font-weight: 500;
     border: 1px solid #c9c9c9;
     min-width: 0;
-    width: 200px;
+    width: 170px;
 }
 
 #trackerTable th:first-child {
     background-color: #f7f7f7;
     color: #333;
     font-size: 16px;
-    width: 200px;
+    width: 170px;
 }
 
 .date-text {

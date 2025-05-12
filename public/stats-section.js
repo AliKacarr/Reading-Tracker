@@ -130,13 +130,17 @@ async function loadReadingStats() {
                             color: '#000000',
                             font: {
                                 weight: 'bold',
-                                size: 15 // Yazı boyutunu artırdık
+                                size: 15
                             }
                         },
                         ticks: {
                             color: '#000000',
                             font: {
                                 size: 16
+                            },
+                            callback: function (value) {
+                                const label = this.getLabelForValue(value);
+                                return label.length > 12 ? label.slice(0, 12) + '...' : label;
                             }
                         },
                         grid: {

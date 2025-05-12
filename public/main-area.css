@@ -18,6 +18,7 @@ ul#userList {
     padding: 0;
     min-width: 100px;
     margin-top: 10px;
+    width: 95%;
 }
 
 ul#userList li {

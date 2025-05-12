@@ -31,6 +31,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
     fileInputLabel.textContent = 'Resim Seç';
     imagePreviewContainer.style.display = 'none';
 
+    renderUserList()
     loadTrackerTable();
     loadReadingStats();
     renderLongestSeries();
@@ -64,6 +65,7 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
             body: JSON.stringify({ id })
         });
 
+        renderUserList()
         loadTrackerTable();
         loadReadingStats();
         renderLongestSeries();
