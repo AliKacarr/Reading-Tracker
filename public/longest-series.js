@@ -61,7 +61,7 @@ function renderLongestSeries() {
                 // Çubuk
                 const bar = document.createElement('div');
                 bar.className = 'longest-series-bar';
-                bar.style.width = barWidth + 'px';
+                bar.style.width = minBarWidth + 'px'; // Başlangıçta minimum genişlikte başlat
 
                 // Aynı streak'e sahip olanlar aynı renkte olacak
                 const { startColor, endColor } = streakColorMap[user.streak];
@@ -80,8 +80,8 @@ function renderLongestSeries() {
 
                 bar.innerHTML = `
                   ${rankHTML}
-                  <span class="series-info">${user.name}</span>
-                  <span class="series-count"><b><span class="longest-fire-emoji">🔥</span>${user.streak}</b></span>
+                  <span class="series-info" style="opacity:0;">${user.name}</span>
+                  <span class="series-count" style="opacity:0;"><b><span class="longest-fire-emoji">🔥</span>${user.streak}</b></span>
                 `;
 
                 // Bitiş tarihi
@@ -97,6 +97,22 @@ function renderLongestSeries() {
                 row.appendChild(endDate);
 
                 chart.appendChild(row);
+
+                // --- ANİMASYON EKLE ---
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s cubic-bezier(.4,1.5,.6,1)';
+                    bar.style.width = barWidth + 'px';
+                }, 100 + idx * 200);
+
+                // İçerik animasyonu (çubuk genişledikten sonra)
+                setTimeout(() => {
+                    const info = bar.querySelector('.series-info');
+                    const count = bar.querySelector('.series-count');
+                    if (info) info.style.transition = 'opacity 0.5s'; 
+                    if (count) count.style.transition = 'opacity 0.5s';
+                    if (info) info.style.opacity = 1;
+                    if (count) count.style.opacity = 1;
+                }, 1100 + idx * 200);
             });
         });
 }

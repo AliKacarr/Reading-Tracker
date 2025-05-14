@@ -211,7 +211,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 }
 
 .current-week {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 600;
     color: #5b9bd5;
     padding: 5px 15px;

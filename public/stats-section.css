@@ -10,6 +10,7 @@
     background: linear-gradient(to bottom, rgba(255, 246, 246, 0.451), rgba(255, 246, 246, 0.45));
     border-radius: 8px;
     border: 1px solid #eaeaea;
+    position: relative;
 }
 
 @keyframes fadeIn {
@@ -32,4 +33,46 @@
     .chart-container {
         height: 350px;
     }
+}
+
+.stats-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: none;
+    z-index: 2;
+}
+
+.stats-loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 6px solid #e0e0e0;
+    border-top: 6px solid #2b67c4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.stats-loading-text {
+    color: #2b67c4;
+    font-size: 1.1em;
+    font-weight: bold;
+    letter-spacing: 0.5px;
 }

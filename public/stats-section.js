@@ -240,6 +240,14 @@ async function loadReadingStats() {
             },
             plugins: [ChartDataLabels] // Add the ChartDataLabels plugin
         });
+
+        // Grafik başarıyla oluşturulduktan sonra loading spinner'ı gizle
+        const statsLoading = document.getElementById('stats-loading');
+        if (statsLoading) statsLoading.style.display = 'none';
+
+        // stats-section'ı görünür yap
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) statsSection.style.display = 'block';
     } catch (error) {
         console.error('Error loading reading stats:', error);
     }
