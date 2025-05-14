@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Paylaşım verilerini hazırla
             const shareData = {
-                title: 'Çatı Katı Elazığ',
+                title: 'Çatı Katı Elazığ - Bir Söz',
                 text: lastQuoteText,
                 files: [file]
             };
