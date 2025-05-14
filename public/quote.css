@@ -114,8 +114,8 @@
 
 .refresh-quote#refreshQuoteImage {
     position: absolute;
-    top: 14px;
-    right: 14px;
+    top: 12px;
+    right: 12px;
     z-index: 3;
     background-color: rgba(107, 172, 233, 0.148);
 }
@@ -176,9 +176,8 @@
     border: none;
     cursor: pointer;
     color: #565656;
-    font-size: 17px;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
