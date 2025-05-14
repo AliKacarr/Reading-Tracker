@@ -177,6 +177,9 @@
         <div class="quote-vertical-group">
           <div class="quote-section">
             <button class="refresh-quote" id="refreshAyat" title="Yeni ayet getir">↻</button>
+            <button class="share-quote" data-target="ayatText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
             <div class="quote-container">
               <div class="quote-icon">
                 <img src="images/ayat-icon.png" alt="Ayet İkonu" loading="lazy" />
@@ -189,6 +192,9 @@
           </div>
           <div class="quote-section">
             <button class="refresh-quote" id="refreshHadith" title="Yeni hadis getir">↻</button>
+            <button class="share-quote" data-target="hadithText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
             <div class="quote-container">
               <div class="quote-icon">
                 <img src="images/hadith-icon.png" alt="Hadis İkonu" loading="lazy" />
@@ -201,6 +207,9 @@
           </div>
           <div class="quote-section">
             <button class="refresh-quote" id="refreshDua" title="Yeni dua getir">↻</button>
+            <button class="share-quote" data-target="duaText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
             <div class="quote-container">
               <div class="quote-icon">
                 <img src="images/dua-icon.png" alt="Dua İkonu" loading="lazy" />
@@ -219,6 +228,9 @@
           </div>
           <div class="quote-section">
             <button class="refresh-quote" id="refreshQuote" title="Yeni söz getir">↻</button>
+            <button class="share-quote" data-target="quoteText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
             <div class="quote-container">
               <div class="quote-icon">
                 <img src="images/lamba.png" alt="Fikir Lambası" loading="lazy" />
@@ -376,8 +388,33 @@
     <!-- Footer bitişi -->
   </div>
 
+  <div id="sharePanel" class="share-panel" style="display:none;">
+    <div class="share-panel-content">
+      <div class="share-panel-header">
+        <h4>Paylaş...</h4>
+        <button id="closeSharePanel" class="close-share-panel">&times;</button>
+      </div>
+      <div class="share-options">
+        <div id="shareWhatsappBtn" class="share-option-item share-option-whatsapp">
+          <div class="share-option-icon"><i class="fa-brands fa-whatsapp"></i></div>
+          <div class="share-option-text">WhatsApp'ta Paylaş</div>
+        </div>
+        <div id="shareTwitterBtn" class="share-option-item share-option-twitter">
+          <div class="share-option-icon"><i class="fa-brands fa-twitter"></i></div>
+          <div class="share-option-text">Twitter'da Paylaş</div>
+        </div>
+        <div id="downloadImageBtn" class="share-option-item share-option-download">
+          <div class="share-option-icon"><i class="fa-solid fa-download"></i></div>
+          <div class="share-option-text">Resmi İndir</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="share-quote.js"></script>
   <script src="admin-modal.js"></script>
   <script src="cookies.js"></script>
   <script src="preferences.js"></script>
