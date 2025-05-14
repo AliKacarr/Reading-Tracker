@@ -98,6 +98,12 @@ function renderLongestSeries() {
 
                 chart.appendChild(row);
 
+                // Yükleme animasyonunu gizle
+                const loadingElement = document.querySelector('.longest-series-loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
+
                 // --- ANİMASYON EKLE ---
                 setTimeout(() => {
                     bar.style.transition = 'width 1s cubic-bezier(.4,1.5,.6,1)';
@@ -108,7 +114,7 @@ function renderLongestSeries() {
                 setTimeout(() => {
                     const info = bar.querySelector('.series-info');
                     const count = bar.querySelector('.series-count');
-                    if (info) info.style.transition = 'opacity 0.5s'; 
+                    if (info) info.style.transition = 'opacity 0.5s';
                     if (count) count.style.transition = 'opacity 0.5s';
                     if (info) info.style.opacity = 1;
                     if (count) count.style.opacity = 1;

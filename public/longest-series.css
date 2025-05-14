@@ -13,6 +13,7 @@
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
     min-height: 200px;
+    position: relative; /* Bu satırı ekleyin */
 }
 
 .longest-series-bar-row {
@@ -161,4 +162,90 @@
         transform: scale(1) translateX(0) rotate(0deg);
         opacity: 0.95;
     }
+}
+
+.longest-series-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute; /* Bu satır, animasyonun yalnızca belirli bir alan içinde görünmesini sağlar */
+    top: 50%; /* Yükseklik ayarı */
+    left: 50%; /* Genişlik ayarı */
+    transform: translate(-50%, -50%); /* Ortalamak için */
+    z-index: 2;
+}
+
+.fire-icon {
+    font-size: 3rem;
+    animation: flame 1.5s infinite alternate;
+}
+
+@keyframes flame {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.loading-lines {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.loading-line {
+    width: 30px;
+    height: 4px;
+    background: linear-gradient(90deg, #ff7f50, #ff4500);
+    animation: line-bounce 1.5s infinite;
+}
+
+@keyframes line-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.loading-line:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-line:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes line-pulse {
+    0% {
+        transform: scaleX(1);
+    }
+
+    50% {
+        transform: scaleX(1.5);
+    }
+
+    100% {
+        transform: scaleX(1);
+    }
+}
+
+.loading-line:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-line:nth-child(3) {
+    animation-delay: 0.4s;
 }

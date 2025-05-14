@@ -124,7 +124,13 @@
       </h3>
       <div class="chart-container">
         <div id="stats-loading" class="stats-loading">
-          <div class="stats-loading-spinner"></div>
+          <div class="stats-loading-bars">
+            <div class="bar bar1"></div>
+            <div class="bar bar2"></div>
+            <div class="bar bar3"></div>
+            <div class="bar bar4"></div>
+            <div class="bar bar5"></div>
+          </div>
           <div class="stats-loading-text">İstatistikler yükleniyor...</div>
         </div>
         <canvas id="readingStatsChart"></canvas>
@@ -133,7 +139,16 @@
 
     <div class="longest-series-section">
       <h3><i class="fa-solid fa-bolt" style="font-size: 1.4em; padding-inline: 3px;"></i> En Uzun Okuma Serisi</h3>
-      <div id="longestSeriesChart"></div>
+      <div id="longestSeriesChart">
+        <div class="longest-series-loading">
+          <div class="fire-icon">🔥</div>
+          <div class="loading-lines">
+            <div class="loading-line"></div>
+            <div class="loading-line"></div>
+            <div class="loading-line"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Monthly Calendar View -->
