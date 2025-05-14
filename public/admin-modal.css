@@ -54,7 +54,7 @@
     margin: 10% auto;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    padding: 55px 65px 45px 65px;
+    padding: 40px 65px 30px 65px;
     width: 400px;
     max-width: 98%;
     animation: modalFadeIn 0.3s;
@@ -71,6 +71,23 @@
 .modal-content-admin input {
     font-size: 1.15rem;
     padding: 14px;
+    margin-bottom: 22px;
+    /* Kullanıcı adı ile şifre arasına mesafe eklendi */
+}
+
+.form-actions button {
+    display: flex;
+    margin: auto;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.35rem;
+    /* Buton büyütüldü */
+    padding: 18px 38px;
+    /* Buton büyütüldü */
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 @keyframes modalFadeIn {
@@ -87,7 +104,6 @@
 
 .form-actions {
     text-align: right;
-    margin-top: 25px;
 }
 
 .form-actions button {
@@ -166,7 +182,7 @@
 .close-button {
     color: #7f7e7e;
     float: right;
-    font-size: 30px;
+    font-size: 35px;
     font-weight: bold;
     cursor: pointer;
     transition: color 0.2s;

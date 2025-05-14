@@ -2,40 +2,29 @@
     position: fixed;
     bottom: 25px;
     left: 25px;
-    max-width: 390px;
+    max-width: 440px;
+    min-width: 300px;
     background-color: #ffffff;
-    box-shadow: 1px 4px 12px rgba(0, 0, 0, 0.318);
-    border-radius: 8px;
+    box-shadow: 1px 4px 16px rgba(0, 0, 0, 0.30);
+    border-radius: 14px;
     z-index: 80;
     display: none;
     animation: slideIn 0.5s forwards;
 }
 
-@keyframes slideIn {
-    from {
-        transform: translateY(100px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
 .cookie-content {
-    padding: 22px;
+    padding: 30px 28px 22px 28px;
 }
 
 .cookie-header {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 13px;
 }
 
 .cookie-icon {
-    font-size: 24px;
-    margin-right: 10px;
+    font-size: 1.8em;
+    margin-right: 13px;
 }
 
 .cookie-header h3 {
@@ -43,26 +32,28 @@
     padding: 0;
     border: none;
     color: #333;
+    font-size: 1.25em;
 }
 
 .cookie-content p {
-    margin: 0 0 15px 0;
-    font-size: 14px;
-    line-height: 1.5;
+    margin: 0 0 17px 0;
+    font-size: 1.05em;
+    line-height: 1.55;
     color: #555;
 }
 
 .cookie-buttons {
     display: flex;
-    gap: 10px;
+    gap: 14px;
     justify-content: flex-end;
+    margin-top: 14px;
 }
 
 .cookie-button {
-    padding: 8px 16px;
+    padding: 10px 22px;
     border: none;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 1.05em;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -84,6 +75,18 @@
 
 .cookie-button.decline:hover {
     background-color: #e0e0e0;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes pulsate {

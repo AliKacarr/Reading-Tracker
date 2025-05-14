@@ -10,7 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 15px;
   margin-bottom: 10px;
   padding: 10px 0;
 }
@@ -29,12 +29,12 @@
 }
 
 .month-nav-button {
-  background-color: #fcebfc;
-  border: 1px solid #ddd;
+  background-color: #9cf2ff;
+  border: 1px solid #d7d6e2;
   border-radius: 4px;
-  padding: 8px 14px;
+  padding: 10px 16px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   color: #555;
   display: flex;
   align-items: center;
@@ -58,7 +58,7 @@
 
 .monthly-calendar td {
   width: 14.28%;
-  height: 60px;
+  height: 79px;
   text-align: center;
   vertical-align: middle;
   border: 2px solid #ccc;
