@@ -1,8 +1,7 @@
+let lastCanvasDataUrl = null;
+let lastQuoteText = "";
+let lastQuoteSection = null;
 document.addEventListener('DOMContentLoaded', function () {
-    let lastCanvasDataUrl = null;
-    let lastQuoteText = "";
-    let lastQuoteSection = null;
-
     // Paylaş butonuna tıklandığında
     document.querySelectorAll('.share-quote').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -98,10 +97,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Paylaşım menüsünü aç
             navigator.share(shareData)
-                .then(() => console.log('Paylaşım başarılı'))
+
                 .catch((error) => {
                     console.error('Paylaşım hatası:', error);
-                    // Paylaşım başarısız olursa paneli göster
                     showSharePanel();
                 });
         });
@@ -111,6 +109,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function showSharePanel() {
         const panel = document.getElementById('sharePanel');
         panel.style.display = 'flex';
+
+        // WhatsApp ve Twitter butonlarını tekrar görünür yap
+        const whatsappBtn = document.getElementById('shareWhatsappBtn');
+        const twitterBtn = document.getElementById('shareTwitterBtn');
+        if (whatsappBtn) whatsappBtn.style.display = 'flex';
+        if (twitterBtn) twitterBtn.style.display = 'flex';
 
         // Panel dışına tıklanınca paneli kapat
         setTimeout(() => {
@@ -122,34 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function hideSharePanel() {
         const panel = document.getElementById('sharePanel');
         panel.style.display = 'none';
-        console.log('hide');
         document.removeEventListener('mousedown', handleClickOutsidePanel);
     }
-
-    // Panel dışına tıklama kontrolü
-    function handleClickOutsidePanel(event) {
-        const panelContent = document.querySelector('.share-panel-content');
-        const panelWrapper = document.getElementById('sharePanel');
-        if (panelWrapper.style.display !== 'none') {
-            if (panelContent && !panelContent.contains(event.target)) {
-                hideSharePanel();
-            }
-        }
-    }
-
-    // Kapat butonuna tıklandığında
-    document.getElementById('closeSharePanel').addEventListener('click', hideSharePanel);
-
-    // İndir butonuna tıklandığında
-    document.getElementById('downloadImageBtn').addEventListener('click', function () {
-        createImage().then((canvas) => {
-            const dataUrl = canvas.toDataURL('image/png');
-            downloadImage(dataUrl);
-        }).catch(error => {
-            console.error('Resim oluşturma hatası:', error);
-            alert('Resim oluşturulamadı. Lütfen tekrar deneyin.');
-        });
-    });
 
     // Resmi indir
     function downloadImage(dataUrl) {
@@ -167,6 +145,93 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Panel dışına tıklama kontrolü
+    function handleClickOutsidePanel(event) {
+        const panelContent = document.querySelector('.share-panel-content');
+        const panelWrapper = document.getElementById('sharePanel');
+        if (panelWrapper.style.display !== 'none') {
+            if (panelContent && !panelContent.contains(event.target)) {
+                hideSharePanel();
+            }
+        }
+    }
+
+    // Kapat butonuna tıklandığında
+    document.getElementById('closeSharePanel').addEventListener('click', hideSharePanel);
+
+    // İndir butonuna tıklandığında (sadece metin/canvas için)
+    document.getElementById('downloadImageBtn').addEventListener('click', function (e) {
+        // Eğer sadece görsel paylaşımı için panel açıldıysa bu fonksiyon çalışmasın
+        if (this.dataset.imageShare === "true") return;
+        createImage().then((canvas) => {
+            const dataUrl = canvas.toDataURL('image/png');
+            downloadImage(dataUrl);
+        }).catch(error => {
+            console.error('Resim oluşturma hatası:', error);
+            alert('Resim oluşturulamadı. Lütfen tekrar deneyin.');
+        });
+    });
+
+    // --- Sadece quote görseli paylaşımı için özel kod ---
+    const shareQuoteImageBtn = document.getElementById('shareQuoteImageBtn');
+    if (shareQuoteImageBtn) {
+        shareQuoteImageBtn.addEventListener('click', async function () {
+            const img = document.getElementById('quoteImage');
+            if (!img || !img.src || img.style.display === 'none') {
+                alert('Paylaşılacak bir görsel bulunamadı.');
+                return;
+            }
+
+            // Web Share API ile resmi paylaşmayı dene
+            if (navigator.canShare && navigator.canShare({ files: [new File([], '')] })) {
+                try {
+                    const response = await fetch(img.src);
+                    const blob = await response.blob();
+                    const file = new File([blob], 'bir-soz-resim.png', { type: blob.type });
+
+                    await navigator.share({
+                        files: [file],
+                        title: 'Çatı Katı Elazığ - Bir Söz Görseli'
+                    });
+                    return;
+                } catch (err) {
+                    // Paylaşım başarısızsa paneli göster
+                }
+            }
+
+            // Web Share API yoksa veya başarısızsa paneli göster
+            document.getElementById('sharePanel').style.display = 'flex';
+            document.getElementById('shareWhatsappBtn').style.display = 'none';
+            document.getElementById('shareTwitterBtn').style.display = 'none';
+            const downloadBtn = document.getElementById('downloadImageBtn');
+            downloadBtn.style.display = 'flex';
+
+            // Sadece bu durumda çalışacak şekilde işaretle
+            downloadBtn.dataset.imageShare = "true";
+
+            // Önceki click event'ini kaldırmak için butonu klonla ve değiştir
+            const newBtn = downloadBtn.cloneNode(true);
+            downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
+
+            newBtn.dataset.imageShare = "true";
+            newBtn.onclick = function () {
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = 'bir-soz-resim.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                hideSharePanel();
+                // Panel kapandıktan sonra flag'i sıfırla
+                newBtn.dataset.imageShare = "false";
+            };
+
+            setTimeout(() => {
+                document.addEventListener('mousedown', handleClickOutsidePanel);
+            }, 0);
+        });
+    }
+
     // WhatsApp paylaşımı
     document.getElementById('shareWhatsappBtn').addEventListener('click', function () {
         // WhatsApp'ta paylaşılacak metin
@@ -180,10 +245,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Twitter paylaşımı
     document.getElementById('shareTwitterBtn').addEventListener('click', function () {
         // Twitter'da paylaşılacak metin
-        const tweetText = encodeURIComponent(lastQuoteText.substring(0, 200) + " #ÇatıKatıElazığ");
+        const tweetText = encodeURIComponent((lastQuoteText || '').substring(0, 300) + " #ÇatıKatıElazığ");
 
         // Twitter paylaşım URL'i
         window.open('https://twitter.com/intent/tweet?text=' + tweetText, '_blank');
         hideSharePanel();
     });
+
 });
