@@ -13,7 +13,8 @@
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
     min-height: 200px;
-    position: relative; /* Bu satırı ekleyin */
+    position: relative;
+    /* Bu satırı ekleyin */
 }
 
 .longest-series-bar-row {
@@ -169,10 +170,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: absolute; /* Bu satır, animasyonun yalnızca belirli bir alan içinde görünmesini sağlar */
-    top: 50%; /* Yükseklik ayarı */
-    left: 50%; /* Genişlik ayarı */
-    transform: translate(-50%, -50%); /* Ortalamak için */
+    position: absolute;
+    /* Bu satır, animasyonun yalnızca belirli bir alan içinde görünmesini sağlar */
+    top: 50%;
+    /* Yükseklik ayarı */
+    left: 50%;
+    /* Genişlik ayarı */
+    transform: translate(-50%, -50%);
+    /* Ortalamak için */
     z-index: 2;
 }
 
@@ -208,13 +213,16 @@
     width: 30px;
     height: 4px;
     background: linear-gradient(90deg, #ff7f50, #ff4500);
-    animation: line-bounce 1.5s infinite;
+    animation: line-bounce 1s infinite;
 }
 
 @keyframes line-bounce {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-10px);
     }

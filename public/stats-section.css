@@ -64,7 +64,7 @@
     height: 18px;
     background: linear-gradient(180deg, #4CAF50 60%, #81C784 100%);
     border-radius: 4px 4px 8px 8px;
-    animation: bar-bounce 1s infinite;
+    animation: bar-bounce 1.5s infinite;
     opacity: 0.85;
 }
 
