@@ -94,6 +94,7 @@
     top: 23px;
     right: 22px;
     z-index: 2;
+    gap:3px;
 }
 
 .league-badge {
