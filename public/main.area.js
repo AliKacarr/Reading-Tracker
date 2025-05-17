@@ -31,8 +31,9 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
     fileInputLabel.textContent = 'Resim Seç';
     imagePreviewContainer.style.display = 'none';
 
-    renderUserList()
+    renderUserList();
     loadTrackerTable();
+    loadUserCards();
     loadReadingStats();
     renderLongestSeries();
     showSuccessMessage('Kullanıcı başarıyla eklendi!');
@@ -53,7 +54,7 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
 
     // Find the user name for the confirmation message
     const userElement = document.querySelector(`li[data-user-id="${id}"]`);
-    const userName = userElement ? userElement.querySelector('.user-name').textContent : 'this user';
+    const userName = userElement ? userElement.querySelector('.profil-image-user-name').textContent : 'this user';
 
     // Ask for confirmation before deleting
     const confirmed = confirm(`Silmek istediğine emin misin: ->  ${userName}  <- Bu işlem geri alınamaz.`);
@@ -65,8 +66,9 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
             body: JSON.stringify({ id })
         });
 
-        renderUserList()
+        renderUserList();
         loadTrackerTable();
+        loadUserCards();
         loadReadingStats();
         renderLongestSeries();
         showSuccessMessage('Kullanıcı başarıyla silindi!');
@@ -82,7 +84,7 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
     }
 
     const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
-    const nameSpan = userItem.querySelector('.user-name');
+    const nameSpan = userItem.querySelector('.profil-image-user-name');
     const nameInput = userItem.querySelector('.edit-name-input');
     const saveButton = userItem.querySelector('.save-name-button');
 
@@ -101,8 +103,9 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
         body: JSON.stringify({ userId, name: newName })
     });
 
-    renderUserList()
+    renderUserList();
     loadTrackerTable();
+    loadUserCards();
     loadReadingStats();
     renderLongestSeries();
     if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
@@ -116,7 +119,7 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     }
 
     const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
-    const nameSpan = userItem.querySelector('.user-name');
+    const nameSpan = userItem.querySelector('.profil-image-user-name');
     const nameInput = userItem.querySelector('.edit-name-input');
     const saveButton = userItem.querySelector('.save-name-button');
 
@@ -157,8 +160,9 @@ function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyo
             });
 
             document.body.removeChild(fileInput);
-            renderUserList()
+            renderUserList();
             loadTrackerTable();
+            loadUserCards();
             loadReadingStats();
             renderLongestSeries();
         }
@@ -277,7 +281,7 @@ function renderUserList() {
             users.forEach(user => {
                 let li = userList.querySelector(`li[data-user-id="${user._id}"]`);
                 const userProfileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
-                const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="user-name" onclick="editUserName('${user._id}')">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;">✔</button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="13" height="15"></button></div>`;
+                const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name" onclick="editUserName('${user._id}')">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;">✔</button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="13" height="15"></button></div>`;
                 if (li) {
                     li.innerHTML = liHTML;
                 } else {

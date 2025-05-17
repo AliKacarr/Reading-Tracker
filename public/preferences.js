@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function () { //Tablonun ilk g√ºn√
             localStorage.setItem('preferredFirstDay', this.value);
             weekOffset = 0;
             loadTrackerTable();
+            loadUserCards();
         });
     }
 });

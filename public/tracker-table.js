@@ -179,18 +179,22 @@ function areDatesConsecutive(date1, date2) {
 prevWeekBtn.addEventListener('click', () => {
     weekOffset--;
     loadTrackerTable();
+    loadUserCards();
 });
 nextWeekBtn.addEventListener('click', () => {
     weekOffset++;
     loadTrackerTable();
+    loadUserCards();
 });
 prevWeekTodayBtn.addEventListener('click', () => {
     weekOffset = 0;
     loadTrackerTable();
+    loadUserCards();
 });
 nextWeekTodayBtn.addEventListener('click', () => {
     weekOffset = 0;
     loadTrackerTable();
+    loadUserCards();
 });
 function calculateStreak(userStats) {
     const allDates = Object.keys(userStats).sort();
@@ -248,6 +252,7 @@ async function toggleStatus(userId, date) {
         body: JSON.stringify({ userId, date, status })
     });
     loadTrackerTable();
+    loadUserCards();
     loadReadingStats();
     renderLongestSeries();
 }

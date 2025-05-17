@@ -42,6 +42,9 @@ function renderLongestSeries() {
             });
             // --- RENK HESAPLAMASI SONU ---
 
+            // Animasyon için bar ve değerleri saklayacağız
+            const barsToAnimate = [];
+
             data.forEach((user, idx) => {
                 // Normalize bar width
                 const widthPercent = user.streak / maxStreak;
@@ -104,22 +107,69 @@ function renderLongestSeries() {
                     loadingElement.style.display = 'none';
                 }
 
-                // --- ANİMASYON EKLE ---
-                setTimeout(() => {
-                    bar.style.transition = 'width 1s cubic-bezier(.4,1.5,.6,1)';
-                    bar.style.width = barWidth + 'px';
-                }, 100 + idx * 200);
-
-                // İçerik animasyonu (çubuk genişledikten sonra)
-                setTimeout(() => {
-                    const info = bar.querySelector('.series-info');
-                    const count = bar.querySelector('.series-count');
-                    if (info) info.style.transition = 'opacity 0.5s';
-                    if (count) count.style.transition = 'opacity 0.5s';
-                    if (info) info.style.opacity = 1;
-                    if (count) count.style.opacity = 1;
-                }, 1100 + idx * 200);
+                // Animasyon için bar ve değerleri sakla
+                barsToAnimate.push({
+                    bar,
+                    barWidth,
+                    idx
+                });
             });
+
+            // --- Animasyon sırasını barWidth'e göre küçükten büyüğe sırala ---
+            // Eşit barWidth'lerde idx büyük olan önce animasyonlansın (alttan üste)
+            const sortedBarsToAnimate = barsToAnimate.slice().sort((a, b) => {
+                if (a.barWidth !== b.barWidth) {
+                    return a.barWidth - b.barWidth;
+                } else {
+                    return b.idx - a.idx; // idx büyük olan (alttaki) önce gelsin
+                }
+            });
+
+            // Intersection Observer ile animasyonu tetikle
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Animasyonu başlat (en kısa çubuktan en uzun çubuğa)
+                            sortedBarsToAnimate.forEach(({ bar, barWidth }, sortedIdx) => {
+                                setTimeout(() => {
+                                    bar.style.transition = 'width 1s cubic-bezier(.4,1.5,.6,1)';
+                                    bar.style.width = barWidth + 'px';
+                                }, 100 + sortedIdx * 200);
+
+                                setTimeout(() => {
+                                    const info = bar.querySelector('.series-info');
+                                    const count = bar.querySelector('.series-count');
+                                    if (info) info.style.transition = 'opacity 0.5s';
+                                    if (count) count.style.transition = 'opacity 0.5s';
+                                    if (info) info.style.opacity = 1;
+                                    if (count) count.style.opacity = 1;
+                                }, 1100 + sortedIdx * 200);
+                            });
+                            obs.disconnect(); // Bir kere tetiklensin
+                        }
+                    });
+                }, { threshold: 0.2 });
+
+                observer.observe(chart);
+            } else {
+                // Eski tarayıcılar için animasyonu hemen başlat
+                sortedBarsToAnimate.forEach(({ bar, barWidth }, sortedIdx) => {
+                    setTimeout(() => {
+                        bar.style.transition = 'width 1s cubic-bezier(.4,1.5,.6,1)';
+                        bar.style.width = barWidth + 'px';
+                    }, 100 + sortedIdx * 200);
+
+                    setTimeout(() => {
+                        const info = bar.querySelector('.series-info');
+                        const count = bar.querySelector('.series-count');
+                        if (info) info.style.transition = 'opacity 0.5s';
+                        if (count) count.style.transition = 'opacity 0.5s';
+                        if (info) info.style.opacity = 1;
+                        if (count) count.style.opacity = 1;
+                    }, 1100 + sortedIdx * 200);
+                });
+            }
         });
 }
 

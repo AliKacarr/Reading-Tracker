@@ -1,13 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () { //Site yüklendiğinde oluştur
   loadTrackerTable();
+  loadUserCards();
   loadReadingStats();
-  renderLongestSeries()
+  renderLongestSeries();
+  loadMonthlyCalendar();
   fetchRandomQuoteImage();
   fetchRandomAyet();
   fetchRandomQuote();
   fetchRandomHadis();
   fetchRandomDua();
-  renderUserList()
+  renderUserList();
   logPageVisit();
 });
 

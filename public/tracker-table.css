@@ -163,7 +163,8 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 .week-navigation {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-top: 40px;
+    margin-inline: 3px;
 }
 
 .nav-group {
@@ -175,7 +176,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 .week-nav-button {
     background-color: #9cf2ff;
     border: 1px solid #d7d6e2;
-    border-radius: 4px;
+    border-radius: 8px;
     padding: 10px 16px;
     cursor: pointer;
     font-size: 15px;

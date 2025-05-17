@@ -318,7 +318,7 @@ app.get('/api/config', (req, res) => {
 app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
   try {
     const { name } = req.body;
-    const profileImage = req.file ? req.file.filename : null;
+    const profileImage = req.file ? req.file.filename : 'default.png';
 
     const user = new User({ name, profileImage });
     await user.save();

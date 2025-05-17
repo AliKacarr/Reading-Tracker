@@ -1,0 +1,311 @@
+.user-cards-container {
+    flex-wrap: wrap;
+    column-gap: 50px;
+    row-gap: 40px;
+    justify-content: center;
+    margin: 32px 0 40px 0;
+}
+
+@media screen and (max-width: 1024px) {
+    .user-cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 30px;
+        row-gap: 40px;
+        justify-content: center;
+        margin: 32px 0 40px 0;
+    }
+}
+
+.user-card {
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    width: 430px;
+    padding: 0 0 25px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: relative;
+    overflow: hidden;
+}
+
+.user-card-header {
+    background: linear-gradient(90deg, #b2dfdb 60%, #e0f7fa 100%);
+    display: flex;
+    align-items: center;
+    padding: 22px 22px 18px 30px;
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+}
+
+.profile-img-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFD700 0%, #FFB300 40%, #FF8C00 100%);
+    background-image: url('../images/daire.png');
+    background-size: contain;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+}
+
+.user-card .profile-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #eee;
+    margin-right: 0;
+    box-shadow: none;
+}
+
+.user-card-header-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: 12px;
+}
+
+.user-card-user-name {
+    font-size: 25px;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 2px;
+}
+
+.user-card .user-league {
+    font-size: 1.1em;
+    color: #450808;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.league-badge-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 23px;
+    right: 22px;
+    z-index: 2;
+}
+
+.league-badge {
+    position: static;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.league-progress-text {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #de0000;
+}
+
+.user-card .league-badge img {
+    width: 65px;
+    height: 65px;
+}
+
+.user-card .weekly-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 13px 22px 0 24px;
+    gap: 12px;
+}
+
+.user-card .weekly-status-days {
+    display: flex;
+}
+
+.user-card .weekly-status-day-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 6px 8px 6px;
+    gap: 2px;
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+}
+
+.user-card .weekly-status-day-group:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.user-card .weekly-status-day-group .day-label {
+    width: 28px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.08em;
+    margin-bottom: 2px;
+}
+
+.user-card .weekly-status-day-group .day-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e4c0c0;
+    margin-top: 0;
+}
+
+.user-card .weekly-status-day-group .ok {
+    background: #4ea74e;
+    color: #fff;
+}
+
+.user-card .weekly-status-day-group .not {
+    background: #ff4545;
+    color: #fff;
+}
+
+.user-card .weekly-status-day-group .empty {
+    background: #eaeaea;
+    color: #bbb;
+}
+
+/* İnce çizgi */
+.user-card .divider {
+    width: calc(100% - 44px);
+    height: 1px;
+    background: #e0e0e0;
+    margin: 10px auto 0 auto;
+    border: none;
+}
+
+.user-card .streak-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    font-size: 1.25em;
+    font-weight: 600;
+}
+
+.user-card-fire-emoji {
+    font-size: 24px;
+    animation: flame 2s infinite;
+}
+
+.user-card-fire-label {
+    font-size: 24px;
+    font-weight: bold;
+    color: red;
+}
+
+@keyframes flame {
+
+    0%,
+    100% {
+        transform: scale(1) rotate(-2deg);
+    }
+
+    50% {
+        transform: scale(1.15) rotate(4deg);
+    }
+}
+
+.user-card .progress-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 22px 0 30px;
+}
+
+.user-card .progress-summary-row .progress-summary {
+    font-weight: 500;
+}
+
+.progress-summary-okudum-count {
+    font-size: 24px;
+    color: rgb(255 99 0);
+    font-weight: bold;
+}
+
+.progress-summary-total-count {
+    font-size: 1.3em;
+    color: rgb(240, 127, 22);
+}
+
+.user-card .progress-summary-row .progress-summary .summary-label {
+    font-size: 1.1em;
+    color: #222;
+    font-weight: 500;
+    margin-left: 3px;
+    font-family: 'Roboto', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.user-card .progress-bar-container .progress-percent {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: rgb(255 71 0);
+}
+
+.user-card .user-card-longest-streak {
+    font-size: 1.08em;
+    color: #222;
+    margin-top: 5px;
+    margin-left: 22px;
+    margin-right: 22px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.user-card .user-card-longest-streak .streak-days {
+    color: #243926;
+    font-weight: 700;
+    font-size: 1.08em;
+}
+
+.user-card .user-card-longest-streak .streak-icon-label {
+    color: #243926;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: 5px;
+}
+
+.user-card .progress-bar-container {
+    width: calc(100% - 44px);
+    margin: 2px 22px 0 27px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.user-card .progress-bar-bg {
+    width: 100%;
+    height: 16px;
+    background: #eaeaea;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.user-card .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FFBF00 0%, #FFA000 50%, #FF8C00 75%, #FF6600 100%);
+    border-radius: 8px;
+    transition: width 0.5s;
+}
+
+
+.user-card-longest-streak .streak-icon {
+    font-size: 1.15em;
+    color: #ffc107;
+}

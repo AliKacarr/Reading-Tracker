@@ -1,5 +1,5 @@
 // Monthly Calendar Functionality
-document.addEventListener('DOMContentLoaded', function () {
+function loadMonthlyCalendar() {
     // Elements
     const prevMonthBtn = document.getElementById('prevMonth');
     const nextMonthBtn = document.getElementById('nextMonth');
@@ -349,6 +349,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (window.loadTrackerTable) {
                         window.loadTrackerTable();
                     }
+                    if (window.loadUserCards) {
+                        window.loadUserCards();
+                    }
+                    if (window.loadReadingStats) {
+                        window.loadReadingStats();
+                    }
+                    if (window.renderLongestSeries) {
+                        window.renderLongestSeries();
+                    }
                 }
             })
             .catch(error => {
@@ -375,4 +384,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Try to populate users initially if the table is already loaded
     setTimeout(populateUserSelector, 500);
-});
+}

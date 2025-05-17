@@ -1,7 +1,7 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-image: url('../images/background.jpg');
-  background-size: fill;
+  background-size: contain;
   background-position: center;
   background-repeat: repeat;
   margin: 0;
@@ -42,4 +42,15 @@ h3 {
 #newUserForm,
 .settings-section h3 {
   width: 300px;
+}
+
+.user-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.user-card.card-fade-in {
+  opacity: 1;
+  transform: translateY(0);
 }
