@@ -5,7 +5,7 @@ function renderLongestSeries() {
             const chart = document.getElementById('longestSeriesChart');
             chart.innerHTML = '';
             const maxStreak = data.length > 0 ? data[0].streak : 1;
-            const minBarWidth = 120; // px
+            const minBarWidth = 150; // px
             const maxBarWidth = 550; // px
 
             // Doğru rank algoritması
@@ -144,7 +144,7 @@ function renderLongestSeries() {
                                     if (count) count.style.transition = 'opacity 0.5s';
                                     if (info) info.style.opacity = 1;
                                     if (count) count.style.opacity = 1;
-                                }, 1100 + sortedIdx * 200);
+                                }, 1000 + sortedIdx * 190);
                             });
                             obs.disconnect(); // Bir kere tetiklensin
                         }
