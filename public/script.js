@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () { //Site yüklendiğinde oluştur
   loadTrackerTable();
   loadUserCards();
-  loadReadingStats();
+  //loadReadingStats();
   renderLongestSeries();
   loadMonthlyCalendar();
   fetchRandomQuoteImage();

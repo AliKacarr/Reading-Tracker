@@ -44,6 +44,15 @@ async function loadReadingStats() {
             return;
         }
 
+        // Kullanıcı sayısına göre yükseklik ayarla (ör: her kullanıcı için 45px)
+        const chartContainer = ctx.parentElement;
+        if (chartContainer) {
+            const minHeight = 350;
+            const userHeight = 45;
+            const dynamicHeight = Math.max(minHeight, enhancedUserStats.length * userHeight);
+            chartContainer.style.height = dynamicHeight + 'px';
+        }
+
         // Prepare data for the chart
         const labels = enhancedUserStats.map(user => user.name);
         const okudumData = enhancedUserStats.map(user => user.okudum);
@@ -111,43 +120,22 @@ async function loadReadingStats() {
                 ]
             },
             options: {
+                indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 2200 // Animasyon süresi (ms cinsinden), örn: 2200ms = 2.2 saniye
+                },
                 layout: {
                     padding: {
-                        top: 10,    // üstten boşluk (px)
-                        bottom: 10,  // alttan boşluk (px)
-                        left: 10,   // soldan boşluk (px)
-                        right: 10   // sağdan boşluk (px)
+                        top: 10,
+                        bottom: 10,
+                        left: 10,
+                        right: 40
                     }
                 },
                 scales: {
                     x: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Kullanıcılar',
-                            color: '#000000',
-                            font: {
-                                weight: 'bold',
-                                size: 15
-                            }
-                        },
-                        ticks: {
-                            color: '#000000',
-                            font: {
-                                size: 16
-                            },
-                            callback: function (value) {
-                                const label = this.getLabelForValue(value);
-                                return label.length > 12 ? label.slice(0, 12) + '...' : label;
-                            }
-                        },
-                        grid: {
-                            display: false
-                        }
-                    },
-                    y: {
                         stacked: true,
                         beginAtZero: true,
                         title: {
@@ -156,17 +144,48 @@ async function loadReadingStats() {
                             color: '#000000',
                             font: {
                                 weight: 'bold',
-                                size: 15 // Yazı boyutunu artırdık
+                                size: 16
+                            },
+                            padding: {
+                                top: 18
                             }
                         },
                         ticks: {
                             color: '#000000',
                             font: {
-                                size: 13 // Kullanıcı isimlerinin yazı boyutu artırıldı
+                                size: 14
                             }
                         },
                         grid: {
                             color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Kullanıcılar',
+                            color: '#000000',
+                            font: {
+                                weight: 'bold',
+                                size: 15
+                            },
+                            padding: {
+                                bottom: 18
+                            }
+                        },
+                        ticks: {
+                            color: '#000000',
+                            font: {
+                                size: 17
+                            },
+                            callback: function (value) {
+                                const label = this.getLabelForValue(value);
+                                return label.length > 12 ? label.slice(0, 12) + '...' : label;
+                            }
+                        },
+                        grid: {
+                            display: false
                         }
                     }
                 },
@@ -196,7 +215,7 @@ async function loadReadingStats() {
                     },
                     datalabels: {
                         display: function (context) {
-                            // Only show for the first dataset (Okudum)
+                            // Sadece ilk dataset (Okudum) için göster
                             return context.datasetIndex === 0;
                         },
                         formatter: function (value, context) {
@@ -205,8 +224,6 @@ async function loadReadingStats() {
                             const isHighest = successRate === highestSuccessRate;
                             const isLowest = successRate === Math.min(...successRates);
 
-                            // Add crown emoji for users with the highest success rate
-                            // Add alert emoji for users with the lowest success rate
                             if (isHighest) {
                                 return `👑 %${successRate}`;
                             } else if (isLowest) {
@@ -215,18 +232,18 @@ async function loadReadingStats() {
                                 return `%${successRate}`;
                             }
                         },
-                        align: 'start',        // Align at the end of the bar
-                        anchor: 'end',
-                        offset: 0,             // Position above the bar
-                        rotation: 0,           // Ensure text is horizontal
+                        align: 'end',        // Çubuğun en sağına hizala
+                        anchor: 'end',       // Çubuğun ucuna yerleştir
+                        offset: 0,
+                        rotation: 0,
                         color: '#000000',
-                        backgroundColor: 'rgba(255, 244, 244, 0.9)', // More opaque background
+                        backgroundColor: 'rgba(255, 244, 244, 0.9)',
                         borderColor: 'rgba(0, 0, 0, 0.2)',
                         borderWidth: 1.2,
                         borderRadius: 4,
                         font: {
                             weight: 'bold',
-                            size: 15 // Set a fixed larger font size for all labels
+                            size: 15
                         },
                         padding: {
                             top: 4,
@@ -238,7 +255,7 @@ async function loadReadingStats() {
                     }
                 }
             },
-            plugins: [ChartDataLabels] // Add the ChartDataLabels plugin
+            plugins: [ChartDataLabels]
         });
 
         // Grafik başarıyla oluşturulduktan sonra loading spinner'ı gizle
@@ -252,3 +269,23 @@ async function loadReadingStats() {
         console.error('Error loading reading stats:', error);
     }
 }
+
+// Dosyanın en sonuna ekle:
+document.addEventListener('DOMContentLoaded', function() {
+    const chartContainer = document.querySelector('.chart-container');
+    if ('IntersectionObserver' in window && chartContainer) {
+        let chartLoadedCount = 0;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && chartLoadedCount < 2) {
+                    chartLoadedCount++;
+                    loadReadingStats();
+                }
+            });
+        }, { threshold: 0.2 });
+        observer.observe(chartContainer);
+    } else {
+        // Eski tarayıcılar için hemen yükle
+        loadReadingStats();
+    }
+});
