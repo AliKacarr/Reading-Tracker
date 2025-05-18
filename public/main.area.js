@@ -47,11 +47,6 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
         return;
     }
 
-    if (!isAuthenticated()) {
-        logUnauthorizedAccess('delete-user');
-        return;
-    }
-
     // Find the user name for the confirmation message
     const userElement = document.querySelector(`li[data-user-id="${id}"]`);
     const userName = userElement ? userElement.querySelector('.profil-image-user-name').textContent : 'this user';

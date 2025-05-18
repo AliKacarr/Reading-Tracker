@@ -49,8 +49,8 @@ async function loadUserCards() {
     "Akik": "linear-gradient(90deg, #84b094 60%, #a5d6a7 100%)",
     "İnci": "linear-gradient(90deg, #b2dfdb 60%, #c8eef3 100%)",
     "Safir": "linear-gradient(90deg, #49b7ff 60%, #bbdefb 100%)",
-    "Zümrüt": "linear-gradient(90deg, #36e873 60%, #c4edb8 100%)",
-    "Elmas": "linear-gradient(90deg, #58c089 60%, #a5d6a7 100%)",
+    "Zümrüt": "linear-gradient(90deg, #58c089 60%, #a5d6a7 100%)",
+    "Elmas": "linear-gradient(90deg, #36e873 60%, #c4edb8 100%)",
     "Yakut": "linear-gradient(90deg, #ffb199 60%, #ffe0b2 100%)",
     "Mercan": "linear-gradient(90deg, #ff6f63 60%, #ffafb7 100%)",
     "Pırlanta": "linear-gradient(90deg, #f3ebeb  60%, #ffffff 100%)"
@@ -72,7 +72,6 @@ async function loadUserCards() {
     for (let i = 0; i < 7; i++) {
       ordered.push(allDays[(firstDayOfWeek + i) % 7]);
     }
-    console.log(ordered);
     return ordered;
   }
 
@@ -246,6 +245,12 @@ async function loadUserCards() {
 
 // Kullanıcı kartlarında okuma durumunu değiştiren fonksiyon
 toggleUserCardsReadingStatus = function (userName, day, month, year) {
+
+  if (!isAuthenticated()) {
+    logUnauthorizedAccess('toggleUserCardsReadingStatus');
+    return;
+  }
+
   // Tarih formatını yyyy-mm-dd olarak hazırla
   function formatDateForTable(day, month, year) {
     return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;

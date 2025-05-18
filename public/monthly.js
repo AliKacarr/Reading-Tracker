@@ -312,6 +312,10 @@ function loadMonthlyCalendar() {
     }
 
     function toggleUserReadingStatus(userName, day, month, year) {
+        if (!isAuthenticated()) {
+            logUnauthorizedAccess('toggleMontlyReadingStatus');
+            return;
+        }
         const dateStr = formatDateForTable(day, month, year);
 
         fetch('/api/all-data')
