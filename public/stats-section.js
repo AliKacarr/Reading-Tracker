@@ -153,7 +153,7 @@ async function loadReadingStats() {
                         ticks: {
                             color: '#000000',
                             font: {
-                                size: 14
+                                size: 16
                             }
                         },
                         grid: {
@@ -271,7 +271,7 @@ async function loadReadingStats() {
 }
 
 // Dosyanın en sonuna ekle:
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const chartContainer = document.querySelector('.chart-container');
     if ('IntersectionObserver' in window && chartContainer) {
         let chartLoadedCount = 0;
