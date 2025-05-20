@@ -9,7 +9,6 @@ body {
 }
 
 .container {
-  background-image: url('../images/background4.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -17,7 +16,7 @@ body {
   margin: 20px auto;
   padding: 10px;
   padding-inline: 40px;
-  background-color: #ffffff;
+  background-color: #e7f6ff;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
@@ -42,15 +41,4 @@ h3 {
 #newUserForm,
 .settings-section h3 {
   width: 300px;
-}
-
-.user-card {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.5s, transform 0.5s;
-}
-
-.user-card.card-fade-in {
-  opacity: 1;
-  transform: translateY(0);
 }

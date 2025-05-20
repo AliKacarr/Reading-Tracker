@@ -17,7 +17,7 @@
     color: red;
     font-weight: 500;
     border: 1px solid #ccc;
-    background: #f8f8f8;
+    background: #f7f7f7;
 }
 
 /* Style the streak column header in the tracker table */
@@ -129,13 +129,13 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 }
 
 .date-text .date-day {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: #757575;
 }
 
 .date-text .date-month {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 400;
     color: #888;
 }

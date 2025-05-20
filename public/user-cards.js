@@ -190,7 +190,7 @@ async function loadUserCards() {
           <div class="user-league">${league.name}</div>
         </div>
         <div class="league-badge-group">
-          <div class="league-badge">
+          <div class="league-badge" title="${league.name} Ligi: ${league.min} - ${league.max - 1} gün arası okuma">
             <img src="images/${league.img}" alt="${league.name}">
           </div>
           <div class="league-progress-text">${leagueProgressText}</div>
@@ -241,6 +241,18 @@ async function loadUserCards() {
       });
     });
   });
+  // Lig açıklama barını dinamik ekle
+  if (document.querySelector('.league-info-bar')) return; // Zaten varsa tekrar ekleme
+
+  const leagueInfoBar = document.createElement('div');
+  leagueInfoBar.className = 'league-info-bar';
+  leagueInfoBar.innerHTML = leagues.map(l =>
+    `<span class="league-info-item">
+      <img src="images/${l.img}" alt="${l.name}" class="league-info-img">
+      <span class="league-info-name">${l.name}</span>
+    </span>`
+  ).join('') + '<div class="league-info-description"><img src="images/info.png" alt="info" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px;"> Toplam okuma gününüz arttıkça daha yüksek liglere yükselirsiniz</div>';
+  container.parentNode.insertBefore(leagueInfoBar, container);
 }
 
 // Kullanıcı kartlarında okuma durumunu değiştiren fonksiyon
