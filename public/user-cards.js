@@ -38,7 +38,7 @@ async function loadUserCards() {
     { min: 100, max: 150, name: 'Elmas', img: 'elmas.png' },
     { min: 150, max: 200, name: 'Yakut', img: 'yakut.png' },
     { min: 200, max: 365, name: 'Mercan', img: 'mercan.png' },
-    { min: 365, max: 9999, name: 'Pırlanta', img: 'pirlanta.png' }
+    { min: 365, max: 1001, name: 'Pırlanta', img: 'pirlanta.png' }
   ];
 
   // Lig arka planları

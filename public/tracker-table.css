@@ -172,7 +172,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 .week-navigation {
     display: flex;
     justify-content: space-between;
-    margin-top: 40px;
+    margin-top: 25px;
     margin-inline: 3px;
 }
 
