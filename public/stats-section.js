@@ -124,7 +124,7 @@ async function loadReadingStats() {
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: {
-                    duration: 2200 // Animasyon süresi (ms cinsinden), örn: 2200ms = 2.2 saniye
+                    duration: 2200
                 },
                 layout: {
                     padding: {
@@ -269,23 +269,3 @@ async function loadReadingStats() {
         console.error('Error loading reading stats:', error);
     }
 }
-
-// Dosyanın en sonuna ekle:
-document.addEventListener('DOMContentLoaded', function () {
-    const chartContainer = document.querySelector('.chart-container');
-    if ('IntersectionObserver' in window && chartContainer) {
-        let chartLoadedCount = 0;
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && chartLoadedCount < 2) {
-                    chartLoadedCount++;
-                    loadReadingStats();
-                }
-            });
-        }, { threshold: 0.2 });
-        observer.observe(chartContainer);
-    } else {
-        // Eski tarayıcılar için hemen yükle
-        loadReadingStats();
-    }
-});
