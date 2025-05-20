@@ -101,7 +101,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 }
 
 #trackerTable td {
-    border: 1px solid #ddd;
+    border: 1px solid #cfcfcf;
     padding: 10px;
     text-align: center;
     font-size: 14px;

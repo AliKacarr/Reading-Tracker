@@ -324,12 +324,12 @@
 }
 
 .league-info-bar {
-    width: 93%;
+    width: 97%;
     max-width: 1200px;
     background: #74e2ff;
     border-radius: 14px;
     margin: 0 auto 18px auto;
-    padding: 20px;
+    padding-top: 20px;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -348,7 +348,7 @@
 
 @media screen and (max-width: 1099px) {
     .league-info-bar {
-        gap: 15px 31px;
+        gap: 15px 29px;
     }
 }
 
