@@ -28,6 +28,7 @@
     align-items: stretch;
     position: relative;
     overflow: hidden;
+    transition: box-shadow 0.7s;
 }
 
 .user-card-header {
@@ -113,6 +114,10 @@
     font-size: 1.2em;
     font-weight: 600;
     color: #de0000;
+}
+
+.user-card.highlight-card {
+    box-shadow: 0 0 0 3px #00b3ff, 0 4px 16px rgba(0, 0, 0, 0.10);
 }
 
 .user-card .league-badge img {

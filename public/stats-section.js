@@ -48,7 +48,7 @@ async function loadReadingStats() {
         const chartContainer = ctx.parentElement;
         if (chartContainer) {
             const minHeight = 350;
-            const userHeight = 45;
+            const userHeight = 46;
             const dynamicHeight = Math.max(minHeight, enhancedUserStats.length * userHeight);
             chartContainer.style.height = dynamicHeight + 'px';
         }
@@ -101,7 +101,7 @@ async function loadReadingStats() {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Okudum',
+                        label: 'Okunan gün',
                         data: okudumData,
                         backgroundColor: okudumBackgroundColors,
                         borderColor: okudumBorderColors,
@@ -111,11 +111,12 @@ async function loadReadingStats() {
                         hoverBackgroundColor: 'rgba(63, 194, 63, 0.9)'
                     },
                     {
-                        label: 'Okumadım',
+                        label: 'Okunmayan gün',
                         data: okumadimData,
                         backgroundColor: 'rgba(255, 100, 60, 0.7)',
                         borderColor: 'rgba(255, 100, 60, 1)',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        hoverBackgroundColor: 'rgba(255, 100, 60, 0.9)'
                     }
                 ]
             },
@@ -131,7 +132,7 @@ async function loadReadingStats() {
                         top: 10,
                         bottom: 10,
                         left: 10,
-                        right: 40
+                        right: 60
                     }
                 },
                 scales: {
@@ -171,7 +172,7 @@ async function loadReadingStats() {
                                 size: 15
                             },
                             padding: {
-                                bottom: 18
+                                bottom: 15
                             }
                         },
                         ticks: {

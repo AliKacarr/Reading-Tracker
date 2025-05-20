@@ -17,6 +17,7 @@
     color: red;
     font-weight: 500;
     border: 1px solid #ccc;
+    background: #f8f8f8;
 }
 
 /* Style the streak column header in the tracker table */
@@ -117,6 +118,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     border: 1px solid #c9c9c9;
     min-width: 0;
     width: 170px;
+    background: #f7f7f7;
 }
 
 #trackerTable th:first-child {
@@ -126,9 +128,16 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     width: 170px;
 }
 
-.date-text {
+.date-text .date-day {
+    font-size: 13px;
+    font-weight: 600;
+    color: #757575;
+}
+
+.date-text .date-month {
+    font-size: 12px;
+    font-weight: 400;
     color: #888;
-    font-size: 11px;
 }
 
 .day-of-week {

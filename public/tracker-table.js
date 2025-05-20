@@ -54,7 +54,7 @@ function formatDateRange(dates) {
 function formatDateForHeader(date) {
     const day = date.getDate();
     const month = getMonthNameInTurkish(date.getMonth());
-    return `${day} ${month}`;
+    return `<span class="date-day">${day}</span> <span class="date-month">${month}</span>`;
 }
 function getMonthNameInTurkish(monthIndex) {
     const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
@@ -103,7 +103,7 @@ async function loadTrackerTable() {
     for (let user of users) {
         const userStats = statMap[user._id] || {};
         const userStreaks = streakMap[user._id] || {};
-        let row = `<tr><td class="user-item">`;
+        let row = `<tr><td class="user-item" data-user-id="${user._id}">`;
         const profileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
         row += `<img src="${profileImage}" alt="${user.name}" class="profile-image" loading="lazy" />`;
         row += `<span class="user-item-name">${user.name}</span></td>`;
@@ -136,6 +136,29 @@ async function loadTrackerTable() {
         tbodyHTML += row;
     }
     trackerTable.querySelector('tbody').innerHTML = tbodyHTML;
+    // Kullanıcıya tıklanınca ilgili kartı göster ve scroll et
+    trackerTable.querySelectorAll('.user-item').forEach(item => {
+        item.addEventListener('click', function () {
+            const userId = this.getAttribute('data-user-id');
+            // Kartlar görünür değilse önce göster
+            const cardsContainer = document.querySelector('.user-cards-container');
+            if (cardsContainer && cardsContainer.style.display === 'none') {
+                cardsContainer.style.display = 'flex';
+                // Kartlar yüklenmemişse yükle
+                if (typeof window.loadUserCards === 'function') {
+                    window.loadUserCards();
+                }
+            }
+            // Biraz gecikmeli scroll (kartlar yükleniyorsa)
+            const card = document.querySelector(`.user-card[data-user-id="${userId}"]`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Kartı vurgula (isteğe bağlı)
+                card.classList.add('highlight-card');
+                setTimeout(() => card.classList.remove('highlight-card'), 1200);
+            }
+        });
+    });
     const weekNav = document.querySelector('.week-navigation');
     if (weekNav) weekNav.style.display = 'flex';
     trackerTable.querySelector('tbody').classList.remove('tracker-table-visible');

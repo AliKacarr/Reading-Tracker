@@ -87,6 +87,44 @@ function renderLongestSeries() {
                   <span class="series-count" style="opacity:0;"><b><span class="longest-fire-emoji">🔥</span>${user.streak}</b></span>
                 `;
 
+                // --- YENİ: Bar'a tıklanınca ilgili kullanıcı kartını aç ve vurgula ---
+                bar.style.cursor = "pointer";
+                bar.addEventListener('click', function () {
+                    // user._id bilgisini longest-streaks API'si döndürüyorsa kullan, yoksa user.name ile eşle
+                    // Kartlar görünür değilse önce göster
+                    const cardsContainer = document.querySelector('.user-cards-container');
+                    if (cardsContainer && cardsContainer.style.display === 'none') {
+                        cardsContainer.style.display = 'flex';
+                        if (typeof window.loadUserCards === 'function') {
+                            window.loadUserCards();
+                        }
+                    }
+
+                    // user._id varsa onunla, yoksa user.name ile bul
+                    let selector = '';
+                    if (user.userId || user._id) {
+                        selector = `.user-card[data-user-id="${user.userId || user._id}"]`;
+                    } else {
+                        // Fallback: isimle bul (isimde özel karakter varsa çalışmayabilir)
+                        selector = `.user-card .user-card-user-name`;
+                    }
+                    let card = document.querySelector(selector);
+                    if (!card && selector === `.user-card .user-card-user-name`) {
+                        // İsimle bulma fallback'i
+                        document.querySelectorAll('.user-card .user-card-user-name').forEach(el => {
+                            if (el.textContent.trim() === user.name) {
+                                card = el.closest('.user-card');
+                            }
+                        });
+                    }
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.classList.add('highlight-card');
+                        setTimeout(() => card.classList.remove('highlight-card'), 1200);
+                    }
+                });
+                // --- YENİ KOD SONU ---
+
                 // Bitiş tarihi
                 const endDate = document.createElement('span');
                 endDate.className = 'series-date-outside';
