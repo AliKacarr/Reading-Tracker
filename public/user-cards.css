@@ -193,7 +193,6 @@
     color: #bbb;
 }
 
-/* İnce çizgi */
 .user-card .divider {
     width: calc(100% - 44px);
     height: 1px;
