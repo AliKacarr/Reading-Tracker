@@ -32,7 +32,8 @@ const upload = multer({ storage: storage });
 // Kullanıcı modeli
 const User = mongoose.model('User', {
   name: String,
-  profileImage: String
+  profileImage: String,
+  wpName: { type: String, default: 'default' }
 });
 
 // Okuma durumu modeli
@@ -317,12 +318,10 @@ app.get('/api/config', (req, res) => {
 //Kullanıcı ekleme
 app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, wpName } = req.body;
     const profileImage = req.file ? req.file.filename : 'default.png';
-
-    const user = new User({ name, profileImage });
+    const user = new User({ name, profileImage, wpName: wpName || 'default' });
     await user.save();
-
     res.json({ success: true });
   } catch (err) {
     console.error(err);

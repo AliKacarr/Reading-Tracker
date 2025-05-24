@@ -8,13 +8,16 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
     }
 
     const input = document.getElementById('newUserInput');
+    const wpNameInput = document.getElementById('wpNameInput');
     const imageInput = document.getElementById('profileImage');
     const name = input.value.trim();
+    const wpName = wpNameInput.value.trim() || 'default';
 
     if (!name) return;
 
     const formData = new FormData();
     formData.append('name', name);
+    formData.append('wpName', wpName);
 
     if (imageInput.files.length > 0) {
         formData.append('profileImage', imageInput.files[0]);

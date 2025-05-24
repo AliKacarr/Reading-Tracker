@@ -40,5 +40,5 @@ h3 {
 .user-list,
 #newUserForm,
 .settings-section h3 {
-  width: 300px;
+  min-width: 300px;
 }
