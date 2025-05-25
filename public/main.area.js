@@ -292,3 +292,21 @@ function renderUserList() {
             userList.scrollTop = prevScrollTop; // scroll pozisyonunu geri yükle
         });
 }
+
+// Anket İşlerini Çalıştır butonu için olay dinleyicisi ekle
+const runPollJobsButton = document.getElementById('runPollJobsButton');
+if (runPollJobsButton) {
+    runPollJobsButton.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/run-poll-jobs');
+            if (response.ok) {
+                showSuccessMessage('Anket işleri başarıyla çalıştırıldı!');
+            } else {
+                showSuccessMessage('Anket işleri çalıştırılamadı.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showSuccessMessage('Bir hata oluştu.');
+        }
+    });
+}
