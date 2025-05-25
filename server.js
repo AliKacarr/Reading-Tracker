@@ -665,66 +665,100 @@ function scheduleBackup() {
 // Start the backup scheduler
 const backupJob = scheduleBackup();
 
+// Schedule the /run-poll-jobs endpoint to run daily at 12:00 PM
+const pollJob = schedule.scheduleJob('0 10 * * *', () => {
+  // You can use a library like axios or node-fetch to make an HTTP request to your endpoint
+  const axios = require('axios');
+  axios.get('http://localhost:3000/run-poll-jobs')
+    .then(response => {
+      console.log('Poll jobs executed successfully:', response.data);
+    })
+    .catch(error => {
+      console.error('Error executing poll jobs:', error);
+    });
+});
 
-// WhatsApp anket verilerini çekmek için zamanlanmış görevler
 const { exec } = require('child_process');
 
-// Function to create scheduled job for poll data extraction
-function anketVeriJob(groupName, cronTime) {
-  return schedule.scheduleJob(cronTime, function () {
-    console.log(`${groupName} grubu için anket verisi çekiliyor...`);
-    const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-anket-veri.js');
-
-    exec(`node "${scriptPath}" "${groupName}" 1`, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`${groupName} grubu anket verisi çekilirken hata oluştu: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        console.error(`${groupName} grubu anket verisi stderr: ${stderr}`);
-        return;
-      }
-      console.log(`${groupName} grubu anket verisi başarıyla çekildi: ${stdout}`);
+app.get('/run-poll-jobs', async (req, res) => {
+  // The poll jobs logic from örnek_kod
+  function anketVeriCek(groupName) {
+    return new Promise((resolve, reject) => {
+      console.log(`${groupName} grubu için anket verisi çekiliyor...`);
+      const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-anket-veri.js');
+      exec(`node "${scriptPath}" "${groupName}" 1`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`${groupName} grubu anket verisi çekilirken hata oluştu: ${error.message}`);
+          reject(error);
+          return;
+        }
+        if (stderr) {
+          console.error(`${groupName} grubu anket verisi stderr: ${stderr}`);
+          reject(new Error(stderr));
+          return;
+        }
+        console.log(`${groupName} grubu anket verisi başarıyla çekildi: ${stdout}`);
+        resolve(stdout);
+      });
     });
-  });
-}
-
-// Anket gönderme için yeni fonksiyon
-function sendPollJob(groupName, cronTime) {
-  return schedule.scheduleJob(cronTime, function () {
-    console.log(`${groupName} grubu için anket gönderiliyor...`);
-    const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-send-poll.py');
-    const command = `python "${scriptPath}" "${groupName}"`;
-    console.log(`Çalıştırılan komut: ${command}`);
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`${groupName} grubu anket gönderiminde hata oluştu: ${error.message}`);
-        return;
-      }
-      if (stderr) {
-        console.error(`${groupName} grubu anket gönderimi stderr: ${stderr}`);
-        return;
-      }
-      console.log(`${groupName} grubu anket gönderimi başarılı: ${stdout}`);
+  }
+  function anketGonder(groupName) {
+    return new Promise((resolve, reject) => {
+      console.log(`${groupName} grubu için anket gönderiliyor...`);
+      const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-send-poll.py');
+      const command = `python "${scriptPath}" "${groupName}"`;
+      console.log(`Çalıştırılan komut: ${command}`);
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`${groupName} grubu anket gönderiminde hata oluştu: ${error.message}`);
+          reject(error);
+          return;
+        }
+        if (stderr) {
+          console.error(`${groupName} grubu anket gönderimi stderr: ${stderr}`);
+          reject(new Error(stderr));
+          return;
+        }
+        console.log(`${groupName} grubu anket gönderimi başarılı: ${stdout}`);
+        resolve(stdout);
+      });
     });
-  });
-}
-
-// Schedule jobs for different groups - Anket veri çekme
-const anketVerileriniAl1Job = anketVeriJob('Çatı Özel Ders(Çarşamba)', '12 20 * * *');
-const anketVerileriniAl2Job = anketVeriJob('Uhuvvet Eşliğinde Mütalaa', '20 20 * * *');
-
-// Schedule jobs for different groups - Anket gönderme
-const anketGonder1Job = sendPollJob('Yazılım', '0 8 * * *');
-const anketGonder2Job = sendPollJob('Çatı Özel Ders(Çarşamba)', '0 9 * * *');
-
-// Uygulama kapatılırken zamanlanmış görevleri iptal et
-process.on('SIGINT', async () => {
-  console.log('Uygulama kapatılıyor...');
-  backupJob.cancel();
-  anketVerileriniAl1Job.cancel();
-  anketVerileriniAl2Job.cancel();
-  anketGonder1Job.cancel();
-  anketGonder2Job.cancel();
-  process.exit(0);
+  }
+  async function runJobsSequentially() {
+    const gruplar = [
+      { isim: 'Çatı Özel Ders(Çarşamba)', anketVeriCek: true, anketGonder: false },
+      { isim: 'Uhuvvet Eşliğinde Mütalaa', anketVeriCek: true, anketGonder: false },
+      { isim: 'Yazılım', anketVeriCek: false, anketGonder: true }
+    ];
+    let results = [];
+    for (const grup of gruplar) {
+      try {
+        if (grup.anketVeriCek) {
+          try {
+            await anketVeriCek(grup.isim);
+            results.push(`${grup.isim} anket verisi çekildi.`);
+          } catch (error) {
+            results.push(`${grup.isim} anket verisi çekilemedi: ${error.message}`);
+            continue;
+          }
+        }
+        if (grup.anketGonder) {
+          try {
+            await anketGonder(grup.isim);
+            results.push(`${grup.isim} anket gönderildi.`);
+          } catch (error) {
+            results.push(`${grup.isim} anket gönderilemedi: ${error.message}`);
+            continue;
+          }
+        }
+      } catch (error) {
+        results.push(`${grup.isim} işlemler sırasında hata: ${error.message}`);
+        continue;
+      }
+    }
+    return results;
+  }
+  runJobsSequentially()
+    .then(results => res.json({ success: true, results }))
+    .catch(error => res.status(500).json({ success: false, error: error.message }));
 });

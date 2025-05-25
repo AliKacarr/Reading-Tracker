@@ -47,6 +47,13 @@ def main():
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_argument("--new-window")
     options.add_argument("--headless=new")
+    options.add_argument("--disable-application-cache")
+    options.add_argument("--disk-cache-size=0")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-extensions")
+    options.add_argument("--disable-notifications")
 
     try:
         driver = webdriver.Chrome(options=options)
