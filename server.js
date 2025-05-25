@@ -666,7 +666,7 @@ function scheduleBackup() {
 const backupJob = scheduleBackup();
 
 // Schedule the /run-poll-jobs endpoint to run daily at 12:00 PM
-const pollJob = schedule.scheduleJob('0 10 * * *', () => {
+const pollJob = schedule.scheduleJob('0 27 * * *', () => {
   // You can use a library like axios or node-fetch to make an HTTP request to your endpoint
   const axios = require('axios');
   axios.get('http://localhost:3000/run-poll-jobs')
