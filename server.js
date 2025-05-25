@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os'); // Added OS module
 require('dotenv').config();
 const schedule = require('node-schedule');
 const app = express();
@@ -663,3 +664,67 @@ function scheduleBackup() {
 
 // Start the backup scheduler
 const backupJob = scheduleBackup();
+
+
+// WhatsApp anket verilerini çekmek için zamanlanmış görevler
+const { exec } = require('child_process');
+
+// Function to create scheduled job for poll data extraction
+function anketVeriJob(groupName, cronTime) {
+  return schedule.scheduleJob(cronTime, function () {
+    console.log(`${groupName} grubu için anket verisi çekiliyor...`);
+    const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-anket-veri.js');
+
+    exec(`node "${scriptPath}" "${groupName}" 1`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`${groupName} grubu anket verisi çekilirken hata oluştu: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`${groupName} grubu anket verisi stderr: ${stderr}`);
+        return;
+      }
+      console.log(`${groupName} grubu anket verisi başarıyla çekildi: ${stdout}`);
+    });
+  });
+}
+
+// Anket gönderme için yeni fonksiyon
+function sendPollJob(groupName, cronTime) {
+  return schedule.scheduleJob(cronTime, function () {
+    console.log(`${groupName} grubu için anket gönderiliyor...`);
+    const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-send-poll.py');
+    const command = `python "${scriptPath}" "${groupName}"`;
+    console.log(`Çalıştırılan komut: ${command}`);
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`${groupName} grubu anket gönderiminde hata oluştu: ${error.message}`);
+        return;
+      }
+      if (stderr) {
+        console.error(`${groupName} grubu anket gönderimi stderr: ${stderr}`);
+        return;
+      }
+      console.log(`${groupName} grubu anket gönderimi başarılı: ${stdout}`);
+    });
+  });
+}
+
+// Schedule jobs for different groups - Anket veri çekme
+const anketVerileriniAl1Job = anketVeriJob('Çatı Özel Ders(Çarşamba)', '0 20 * * *');
+const anketVerileriniAl2Job = anketVeriJob('Uhuvvet Eşliğinde Mütalaa', '0 21 * * *');
+
+// Schedule jobs for different groups - Anket gönderme
+const anketGonder1Job = sendPollJob('Yazılım', '0 8 * * *');
+const anketGonder2Job = sendPollJob('Çatı Özel Ders(Çarşamba)', '0 9 * * *');
+
+// Uygulama kapatılırken zamanlanmış görevleri iptal et
+process.on('SIGINT', async () => {
+  console.log('Uygulama kapatılıyor...');
+  backupJob.cancel();
+  anketVerileriniAl1Job.cancel();
+  anketVerileriniAl2Job.cancel();
+  anketGonder1Job.cancel();
+  anketGonder2Job.cancel();
+  process.exit(0);
+});
