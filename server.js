@@ -711,7 +711,7 @@ function sendPollJob(groupName, cronTime) {
 }
 
 // Schedule jobs for different groups - Anket veri çekme
-const anketVerileriniAl1Job = anketVeriJob('Çatı Özel Ders(Çarşamba)', '0 20 * * *');
+const anketVerileriniAl1Job = anketVeriJob('Çatı Özel Ders(Çarşamba)', '52 20 * * *');
 const anketVerileriniAl2Job = anketVeriJob('Uhuvvet Eşliğinde Mütalaa', '0 21 * * *');
 
 // Schedule jobs for different groups - Anket gönderme
