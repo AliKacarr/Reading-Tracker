@@ -665,18 +665,6 @@ function scheduleBackup() {
 // Start the backup scheduler
 const backupJob = scheduleBackup();
 
-// Schedule the /run-poll-jobs endpoint to run daily at 12:00 PM
-const pollJob = schedule.scheduleJob('0 9 * * *', () => {
-  // You can use a library like axios or node-fetch to make an HTTP request to your endpoint
-  const axios = require('axios');
-  axios.get('http://localhost:3000/run-poll-jobs')
-    .then(response => {
-      console.log('Poll jobs executed successfully:', response.data);
-    })
-    .catch(error => {
-      console.error('Error executing poll jobs:', error);
-    });
-});
 
 const { exec } = require('child_process');
 

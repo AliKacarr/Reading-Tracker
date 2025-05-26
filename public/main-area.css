@@ -282,6 +282,7 @@ input[type="file"] {
 
 #wpNameInput {
     padding: 12px 12px;
+    width: 180px;
     font-size: 15px;
     border: 1px solid #ddd;
     border-radius: 6px;
