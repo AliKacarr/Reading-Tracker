@@ -714,7 +714,7 @@ app.get('/run-poll-jobs', async (req, res) => {
   }
   async function runJobsSequentially() {
     const gruplar = [
-      { isim: 'Çatı Özel Ders(Çarşamba)', anketVeriCek: true, anketGonder: false },
+      { isim: 'Çatı Özel Ders(Çarşamba)', anketVeriCek: true, anketGonder: true },
       { isim: 'Uhuvvet Eşliğinde Mütalaa', anketVeriCek: true, anketGonder: false }
     ];
     let results = [];
