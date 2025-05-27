@@ -45,6 +45,7 @@ def main():
     options.add_argument("--start-maximized")
     options.add_argument("--log-level=3")
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_argument("--new-window")
 
     try:
         driver = webdriver.Chrome(options=options)
