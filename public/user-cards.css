@@ -385,3 +385,63 @@
     align-items: center;
     justify-content: center;
 }
+
+.league-promotion-message {
+    width: 95%;
+    max-width: 1200px;
+    background: #fff7e6;
+    border-radius: 10px;
+    line-height: 1.7;
+    margin: 10px auto 18px auto;
+    padding: 20px 0px 20px 0px;
+    font-size: 1.13em;
+    color: #444;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.08);
+    text-align: center;
+    border: 1.5px solid #ffe0b2;
+    letter-spacing: 0.01em;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    position: relative;
+}
+
+@media screen and (max-width: 768px) {
+    .league-promotion-message {
+        font-size: 1em;
+        padding: 15px;
+    }
+}
+
+.league-promotion-message.message-fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.league-promotion-message .promoted-username {
+    font-style: italic;
+    color: #505050;
+}
+
+.league-promotion-message .promoted-league {
+    font-style: italic;
+    color: #313131;
+}
+
+.copy-notification {
+    position: fixed;
+    bottom: 2px;
+    right: 2px;
+    background-color: rgba(0, 128, 0, 0.8);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.league-promotion-message .copy-notification {
+    opacity: 1;
+}

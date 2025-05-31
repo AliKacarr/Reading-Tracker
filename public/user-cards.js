@@ -253,6 +253,81 @@ async function loadUserCards() {
     </span>`
   ).join('') + '<div class="league-info-description"><img src="images/info.png" alt="info" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px;" > Toplam okuma gününüz arttıkça daha yüksek liglere yükselirsiniz</div>';
   container.parentNode.insertBefore(leagueInfoBar, container);
+
+  // --- LİG ATLAMA BİLGİSİ ---
+  // Bugünün ve dünün tarihini al
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  const todayStr = formatDate(today);
+  const yesterdayStr = formatDate(yesterday);
+
+  // Lig atlayanları bul
+  const promotedUsers = [];
+  users.forEach(user => {
+    const userStats = stats.filter(s => s.userId === user._id);
+    const okudumStats = userStats.filter(s => s.status === 'okudum');
+    const okudumCount = okudumStats.length;
+    // Hangi lige yeni geçmiş?
+    const newLeague = leagues.find(l => okudumCount === l.min);
+    if (newLeague) {
+      // Dün "okudum" ise
+      const yesterdayStat = userStats.find(s => s.date === yesterdayStr && s.status === 'okudum');
+      if (yesterdayStat) {
+        promotedUsers.push({ name: user.name, league: newLeague.name });
+      }
+    }
+  });
+
+  // Eğer lig atlayan varsa mesajı oluştur
+  if (promotedUsers.length > 0) {
+    const promotedMsg = document.createElement('div');
+    promotedMsg.className = 'league-promotion-message';
+
+    // Lig atlayanları lige göre sırala (en yüksek ligden en düşüğe)
+    promotedUsers.sort((u1, u2) => {
+      const leagueOrder1 = leagues.findIndex(l => l.name === u1.league);
+      const leagueOrder2 = leagues.findIndex(l => l.name === u2.league);
+      return leagueOrder2 - leagueOrder1; // Ters sıralama: Yüksek lig önce
+    });
+
+    let msg = 'Gösterdikleri istikrarla bugün lig atlayan arkadaşlarımızı gönülden tebrik ediyoruz! 🎉🎉<br>';
+    msg += promotedUsers.map(u => `<b class="promoted-username">${u.name}</b> <span class="promoted-league">${u.league}</span> lige yükseldi.`).join(' ');
+    promotedMsg.innerHTML = msg;
+    leagueInfoBar.insertAdjacentElement('afterend', promotedMsg);
+
+    // Tıklama ile panoya kopyalama ve bildirim
+    promotedMsg.style.cursor = 'pointer'; // İşaretçiyi değiştirerek tıklanabilir olduğunu belirt
+    promotedMsg.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(promotedMsg.innerText); // Metni panoya kopyala
+
+        // Kopyalama bildirimi oluştur
+        const copyNotification = document.createElement('span');
+        copyNotification.className = 'copy-notification';
+        copyNotification.innerText = 'Kopyalandı!';
+        promotedMsg.appendChild(copyNotification);
+
+        // Bildirimi kısa süre sonra kaldır
+        setTimeout(() => {
+          copyNotification.remove();
+        }, 1500); // 1.5 saniye sonra kaldır
+
+      } catch (err) {
+        console.error('Panoya kopyalama başarısız oldu:', err);
+      }
+    });
+
+    setTimeout(() => {
+      promotedMsg.classList.add('message-fade-in');
+    }, 50); 
+  }
 }
 
 // Kullanıcı kartlarında okuma durumunu değiştiren fonksiyon
