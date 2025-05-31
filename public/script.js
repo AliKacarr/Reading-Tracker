@@ -11,6 +11,18 @@ document.addEventListener('DOMContentLoaded', function () { //Site yüklendiğin
   fetchRandomDua();
   renderUserList();
   logPageVisit();
+  
+  // Sunucuya düzenli istek at
+  setInterval(async () => {
+    try {
+      const response = await fetch('/api/all-data');
+      if (response.ok) {
+        console.log('Server çalışıyor - ' + new Date().toLocaleTimeString());
+      }
+    } catch (error) {
+      console.error('Server bağlantı hatası:', error);
+    }
+  }, 10 * 60 * 1000); // 10 dakika
 });
 
 function isAuthenticated() {
