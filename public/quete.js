@@ -17,6 +17,37 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Tüm alıntı metinlerine tıklama olayı ekle
+    document.querySelectorAll('.quote-text').forEach(element => {
+        element.addEventListener('click', async function() {
+            try {
+                // Mevcut yüksekliği kaydet
+                const currentHeight = this.offsetHeight;
+                this.style.height = currentHeight - 4 + 'px';
+                
+                // Metni panoya kopyala
+                await navigator.clipboard.writeText(this.textContent);
+                
+                // Kopyalandı bildirimi göster
+                const originalText = this.textContent;
+                this.textContent = '✓ Kopyalandı!';
+                this.style.color = '#4CAF50';
+                
+                // 1.5 saniye sonra orijinal metne geri dön
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.style.color = '#454545';
+                    // Yüksekliği tekrar auto yap
+                    this.style.height = 'auto';
+                }, 1500);
+            } catch (err) {
+                console.error('Kopyalama hatası:', err);
+                // Hata durumunda da yüksekliği auto yap
+                this.style.height = 'auto';
+            }
+        });
+    });
+
     // Intersection Observer'ı oluştur
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -135,7 +166,6 @@ async function fetchRandomQuoteImage() {
     if (!img) return;
 
     try {
-        img.classList.remove('visible');
         const response = await fetch('/api/quote-images');
         const data = await response.json();
         const images = data.images;
@@ -146,10 +176,7 @@ async function fetchRandomQuoteImage() {
         const randomIndex = Math.floor(Math.random() * images.length);
         img.src = `quotes/${images[randomIndex]}`;
         img.style.display = 'block';
-        // Animasyonu tetikle
-        setTimeout(() => {
-            img.classList.add('visible');
-        }, 50);
+        img.classList.add('visible');
     } catch (error) {
         img.style.display = 'none';
         console.error('Error loading quote image:', error);

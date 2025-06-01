@@ -11,7 +11,7 @@ async function loadUserCards() {
       }
     });
   }, {
-    threshold: 0.2, // Kartın %10'u görünür olduğunda tetikle
+    threshold: 0.2, // Kart görünür olduğunda tetikle
     rootMargin: '100px' // Kartlar ekranın 50px yakınına geldiğinde tetikle
   });
 

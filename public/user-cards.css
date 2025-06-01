@@ -394,7 +394,7 @@
     border-radius: 10px;
     line-height: 1.7;
     margin: 10px auto 18px auto;
-    padding: 20px;
+    padding: 60px 20px 20px 20px;
     font-size: 18px;
     color: #444;
     font-weight: 600;
@@ -408,10 +408,33 @@
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
+.league-promotion-message::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 28px;
+    background-image: url('images/kurdele.png');
+    background-size: contain;
+    background-repeat: repeat-x;
+    background-position: top center;
+    z-index: 1;
+    margin: 0 auto;
+}
+
 @media screen and (max-width: 1000px) {
     .league-promotion-message {
         width: 92%;
         font-size: 7px;
+        padding: 50px 20px 20px 20px;
+    }
+
+    .league-promotion-message::before {
+        height: 25px;
+        top: 15px;
+        width: 100%;
     }
 }
 
