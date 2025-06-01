@@ -187,7 +187,7 @@ function renderLongestSeries() {
                             obs.disconnect(); // Bir kere tetiklensin
                         }
                     });
-                }, { threshold: 0.2 });
+                }, { threshold: 0.1 });
 
                 observer.observe(chart);
             } else {

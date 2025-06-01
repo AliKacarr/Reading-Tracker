@@ -390,7 +390,7 @@
 .league-promotion-message {
     width: 90%;
     max-width: 1200px;
-    background: #fff7e6;
+    background: #e6f2ff;
     border-radius: 10px;
     line-height: 1.7;
     margin: 10px auto 18px auto;
@@ -400,7 +400,7 @@
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(255, 193, 7, 0.08);
     text-align: center;
-    border: 1.5px solid #ffe0b2;
+    border: 1px solid #abcdef;
     letter-spacing: 0.01em;
     position: relative;
     opacity: 0;
