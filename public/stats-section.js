@@ -132,7 +132,7 @@ async function loadReadingStats() {
                         top: 10,
                         bottom: 10,
                         left: 10,
-                        right: 60
+                        right: 80
                     }
                 },
                 scales: {

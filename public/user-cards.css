@@ -455,8 +455,8 @@
 
 .copy-notification {
     position: fixed;
-    bottom: 2px;
-    right: 2px;
+    bottom: 3px;
+    right: 3px;
     background-color: rgba(0, 128, 0, 0.8);
     color: white;
     padding: 3px 8px;
