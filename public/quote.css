@@ -42,6 +42,14 @@
     word-wrap: break-word;
     height: auto;
     min-height: 50px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.quote-text.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .quote-flex-container {
@@ -83,8 +91,15 @@
     min-height: 250px;
     box-sizing: border-box;
     margin-top: 0;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
+.quote-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
 
 .quote-section-image {
     display: flex;
@@ -101,6 +116,14 @@
     border-radius: 18px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
     overflow: hidden;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.quote-section-image.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 #quoteImage {
@@ -109,7 +132,19 @@
     object-fit: fill;
     border-radius: 18px;
     display: block;
-    transition: box-shadow 0.2s, transform 0.2s;
+    transition: box-shadow 0.2s, transform 0.2s, opacity 0.6s ease-out;
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+#quoteImage.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#quoteImage:hover {
+    box-shadow: 0 8px 24px rgba(91, 155, 213, 0.18);
+    transform: scale(1.03);
 }
 
 .refresh-quote#refreshQuoteImage {
@@ -118,11 +153,6 @@
     right: 12px;
     z-index: 3;
     background-color: rgba(107, 172, 233, 0.148);
-}
-
-#quoteImage:hover {
-    box-shadow: 0 8px 24px rgba(91, 155, 213, 0.18);
-    transform: scale(1.03);
 }
 
 .loading-quote {
@@ -317,3 +347,45 @@
 .share-options button:hover {
     background: #e0e0e0;
 }
+
+.refresh-quote i {
+    transition: transform 0.3s ease;
+}
+
+@keyframes shake {
+    0% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-30deg);
+    }
+    50% {
+        transform: rotate(0deg);
+    }
+    75% {
+        transform: rotate(30deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.refresh-quote i.attention {
+    animation: shake 0.8s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.quote-section:nth-child(1) { animation-delay: 0.1s; }
+.quote-section:nth-child(2) { animation-delay: 0.3s; }
+.quote-section:nth-child(3) { animation-delay: 0.5s; }
+.quote-section-image { animation-delay: 0.7s; }

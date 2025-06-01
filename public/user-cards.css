@@ -30,7 +30,8 @@
     overflow: hidden;
     transform: translateY(100px);
     opacity: 0;
-    transition: box-shadow 0.7s, opacity 0.5s, transform 0.5s;
+    transition: box-shadow 0.7s, opacity 0.5s ease-out, transform 0.6s ease-out;
+    will-change: transform, opacity;
 }
 
 .user-card.card-fade-in {
@@ -387,13 +388,13 @@
 }
 
 .league-promotion-message {
-    width: 95%;
+    width: 90%;
     max-width: 1200px;
     background: #fff7e6;
     border-radius: 10px;
     line-height: 1.7;
     margin: 10px auto 18px auto;
-    padding: 20px 0px 20px 0px;
+    padding: 20px;
     font-size: 18px;
     color: #444;
     font-weight: 600;
@@ -409,7 +410,7 @@
 
 @media screen and (max-width: 1000px) {
     .league-promotion-message {
-        width: 97%;
+        width: 92%;
         font-size: 7px;
     }
 }
@@ -444,4 +445,13 @@
 
 .league-promotion-message .copy-notification {
     opacity: 1;
+}
+
+@media screen and (max-width: 1000px) {
+    .copy-notification {
+        padding: 7px 14px;
+        font-size: 1.4em;
+        bottom: 3px;
+        right: 3px;
+    }
 }

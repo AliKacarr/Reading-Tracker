@@ -1,4 +1,52 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Tüm yenileme butonlarını seç
+    const refreshButtons = document.querySelectorAll('.refresh-quote');
+    
+    // Her buton için animasyonu başlat
+    refreshButtons.forEach(button => {
+        const icon = button.querySelector('i');
+        if (icon) {
+            // Her 30 saniyede bir animasyonu tetikle
+            setInterval(() => {
+                icon.classList.add('attention');
+                // Animasyon bittikten sonra sınıfı kaldır
+                setTimeout(() => {
+                    icon.classList.remove('attention');
+                }, 1500); // Animasyon süresi kadar bekle
+            }, 10000); // 10 saniye
+        }
+    });
+
+    // Intersection Observer'ı oluştur
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                // Bir kez göründükten sonra takibi bırak
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1, // Elementin %10'u görünür olduğunda tetikle
+        rootMargin: '50px' // Element ekranın 50px yakınına geldiğinde tetikle
+    });
+
+    // Tüm alıntı bölümlerini gözlemle
+    document.querySelectorAll('.quote-section, .quote-section-image').forEach(section => {
+        observer.observe(section);
+    });
+
+    // Mevcut içerikleri görünür yap
+    document.querySelectorAll('.quote-text').forEach(element => {
+        if (element.innerHTML.trim() !== '') {
+            element.classList.add('visible');
+        }
+    });
+    
+    const quoteImage = document.getElementById('quoteImage');
+    if (quoteImage && quoteImage.style.display !== 'none') {
+        quoteImage.classList.add('visible');
+    }
 
     const refreshBtn = document.getElementById('refreshQuote');
     if (refreshBtn) {
@@ -61,19 +109,23 @@ async function fetchRandomQuote() {
     try {
         const quoteTextElement = document.getElementById('quoteText');
         if (quoteTextElement) {
-            // Show loading state
-
+            quoteTextElement.classList.remove('visible');
             const response = await fetch('/api/random-quote');
             const data = await response.json();
 
             // Update with the new quote
             quoteTextElement.innerHTML = data.sentence;
+            // Animasyonu tetikle
+            setTimeout(() => {
+                quoteTextElement.classList.add('visible');
+            }, 50);
         }
     } catch (error) {
         console.error('Error fetching quote:', error);
         const quoteTextElement = document.getElementById('quoteText');
         if (quoteTextElement) {
             quoteTextElement.innerHTML = 'Günün sözü yüklenemedi.';
+            quoteTextElement.classList.add('visible');
         }
     }
 }
@@ -83,6 +135,7 @@ async function fetchRandomQuoteImage() {
     if (!img) return;
 
     try {
+        img.classList.remove('visible');
         const response = await fetch('/api/quote-images');
         const data = await response.json();
         const images = data.images;
@@ -93,6 +146,10 @@ async function fetchRandomQuoteImage() {
         const randomIndex = Math.floor(Math.random() * images.length);
         img.src = `quotes/${images[randomIndex]}`;
         img.style.display = 'block';
+        // Animasyonu tetikle
+        setTimeout(() => {
+            img.classList.add('visible');
+        }, 50);
     } catch (error) {
         img.style.display = 'none';
         console.error('Error loading quote image:', error);
@@ -101,22 +158,28 @@ async function fetchRandomQuoteImage() {
 
 async function fetchRandomAyet() {
     try {
-        const response = await fetch('/api/random-ayet');
-        if (!response.ok) {
-            throw new Error('Ayet getirme hatası');
-        }
-        const data = await response.json();
-
-        // Ayet metnini sayfada göster
         const ayatTextElement = document.getElementById('ayatText');
         if (ayatTextElement) {
+            ayatTextElement.classList.remove('visible');
+            const response = await fetch('/api/random-ayet');
+            if (!response.ok) {
+                throw new Error('Ayet getirme hatası');
+            }
+            const data = await response.json();
+
+            // Ayet metnini sayfada göster
             ayatTextElement.innerHTML = data.sentence || 'Ayet yüklenemedi';
+            // Animasyonu tetikle
+            setTimeout(() => {
+                ayatTextElement.classList.add('visible');
+            }, 50);
         }
     } catch (error) {
         console.error('Ayet getirme hatası:', error);
         const ayatTextElement = document.getElementById('ayatText');
         if (ayatTextElement) {
             ayatTextElement.innerHTML = 'Ayet yüklenemedi';
+            ayatTextElement.classList.add('visible');
         }
     }
 }
@@ -124,44 +187,56 @@ async function fetchRandomAyet() {
 // Rastgele hadis getirme fonksiyonu
 async function fetchRandomHadis() {
     try {
-        const response = await fetch('/api/random-hadis');
-        if (!response.ok) {
-            throw new Error('Hadis getirme hatası');
-        }
-        const data = await response.json();
-
-        // Hadis metnini sayfada göster
         const hadithTextElement = document.getElementById('hadithText');
         if (hadithTextElement) {
+            hadithTextElement.classList.remove('visible');
+            const response = await fetch('/api/random-hadis');
+            if (!response.ok) {
+                throw new Error('Hadis getirme hatası');
+            }
+            const data = await response.json();
+
+            // Hadis metnini sayfada göster
             hadithTextElement.innerHTML = data.sentence || 'Hadis yüklenemedi';
+            // Animasyonu tetikle
+            setTimeout(() => {
+                hadithTextElement.classList.add('visible');
+            }, 50);
         }
     } catch (error) {
         console.error('Hadis getirme hatası:', error);
         const hadithTextElement = document.getElementById('hadithText');
         if (hadithTextElement) {
             hadithTextElement.innerHTML = 'Hadis yüklenemedi';
+            hadithTextElement.classList.add('visible');
         }
     }
 }
 
 async function fetchRandomDua() {
     try {
-        const response = await fetch('/api/random-dua');
-        if (!response.ok) {
-            throw new Error('Dua getirme hatası');
-        }
-        const data = await response.json();
-
-        // Dua metnini sayfada göster
         const duaTextElement = document.getElementById('duaText');
         if (duaTextElement) {
+            duaTextElement.classList.remove('visible');
+            const response = await fetch('/api/random-dua');
+            if (!response.ok) {
+                throw new Error('Dua getirme hatası');
+            }
+            const data = await response.json();
+
+            // Dua metnini sayfada göster
             duaTextElement.innerHTML = data.sentence || 'Dua yüklenemedi';
+            // Animasyonu tetikle
+            setTimeout(() => {
+                duaTextElement.classList.add('visible');
+            }, 50);
         }
     } catch (error) {
         console.error('Dua getirme hatası:', error);
         const duaTextElement = document.getElementById('duaText');
         if (duaTextElement) {
             duaTextElement.innerHTML = 'Dua yüklenemedi';
+            duaTextElement.classList.add('visible');
         }
     }
 }

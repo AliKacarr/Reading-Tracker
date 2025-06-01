@@ -76,6 +76,7 @@ function renderVideos(videos) {
             const videoCard = document.createElement('div');
             videoCard.className = 'video-card';
             videoCard.style.opacity = '0';
+            videoCard.style.transform = 'translateY(30px)';
             videoCard.innerHTML = `
                 <img src="${thumbnail}" alt="${title}" class="thumbnail">
                 <span class="play-icon"><i class="fa-solid fa-play"></i></span>
@@ -94,14 +95,24 @@ function renderVideos(videos) {
 
         videosContainer.appendChild(fragment);
 
-        // Fade-in animasyonunu topluca başlat
-        const videoCards = videosContainer.querySelectorAll('.video-card');
-        videoCards.forEach((card, idx) => {
-            setTimeout(() => {
-                card.style.transition = 'opacity 0.5s, transform 0.5s';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, 10);
+        // Intersection Observer'ı oluştur
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target); // Bir kez göründükten sonra takibi bırak
+                }
+            });
+        }, {
+            threshold: 0.1, // Kartın %10'u görünür olduğunda tetikle
+            rootMargin: '50px' // Kartlar ekranın 50px yakınına geldiğinde tetikle
+        });
+
+        // Tüm video kartlarını gözlemle
+        document.querySelectorAll('.video-card').forEach(card => {
+            observer.observe(card);
         });
 
     }).catch(error => {
@@ -242,6 +253,14 @@ function closeModal() {
 const refreshBtn = document.getElementById('refreshBtn');
 const refreshIcon = refreshBtn.querySelector('i');
 let rotateDeg = 0;
+
+setInterval(() => {
+    refreshIcon.classList.add('pulse');
+    // Animasyon bittikten sonra sınıfı kaldır
+    setTimeout(() => {
+        refreshIcon.classList.remove('pulse');
+    }, 1000); // Animasyon süresi kadar bekle
+}, 20000);
 
 refreshBtn.addEventListener('click', function () {
     rotateDeg += 180;

@@ -2,6 +2,19 @@ async function loadUserCards() {
   const container = document.querySelector('.user-cards-container');
   if (!container) return;
 
+  // Intersection Observer'ı oluştur
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('card-fade-in');
+        observer.unobserve(entry.target); // Bir kez göründükten sonra takibi bırak
+      }
+    });
+  }, {
+    threshold: 0.2, // Kartın %10'u görünür olduğunda tetikle
+    rootMargin: '100px' // Kartlar ekranın 50px yakınına geldiğinde tetikle
+  });
+
   // API'den tüm kullanıcı ve okuma verilerini çek
   const [allDataRes, streaksRes] = await Promise.all([
     fetch('/api/all-data'),
@@ -169,16 +182,12 @@ async function loadUserCards() {
       card.className = 'user-card';
       card.setAttribute('data-user-id', user._id);
       container.appendChild(card);
-      // Efekti tetikle
-      setTimeout(() => {
-        card.classList.add('card-fade-in');
-      }, 10);
+      // Observer'ı başlat
+      observer.observe(card);
     } else {
       // Kart zaten varsa, güncellenince de efekti tekrar uygula
       card.classList.remove('card-fade-in');
-      setTimeout(() => {
-        card.classList.add('card-fade-in');
-      }, 10);
+      observer.observe(card);
     }
     card.innerHTML = `
       <div class="user-card-header" style="background: ${headerBg};">
@@ -326,7 +335,7 @@ async function loadUserCards() {
 
     setTimeout(() => {
       promotedMsg.classList.add('message-fade-in');
-    }, 50); 
+    }, 50);
   }
 }
 
