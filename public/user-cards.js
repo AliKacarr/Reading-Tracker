@@ -250,20 +250,28 @@ async function loadUserCards() {
       });
     });
   });
-  // Lig açıklama barını dinamik ekle
-  if (document.querySelector('.league-info-bar')) return; // Zaten varsa tekrar ekleme
 
-  const leagueInfoBar = document.createElement('div');
-  leagueInfoBar.className = 'league-info-bar';
-  leagueInfoBar.innerHTML = leagues.map(l =>
-    `<span class="league-info-item" title="${l.name} Ligi:  ${l.min} - ${l.max - 1} gün arası okuma">
-      <img src="images/${l.img}" alt="${l.name}" class="league-info-img">
-      <span class="league-info-name">${l.name}</span>
-    </span>`
-  ).join('') + '<div class="league-info-description"><img src="images/info.png" alt="info" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px;" > Toplam okuma gününüz arttıkça daha yüksek liglere yükselirsiniz</div>';
-  container.parentNode.insertBefore(leagueInfoBar, container);
+  // Lig açıklama barını dinamik ekle
+  let leagueInfoBar = document.querySelector('.league-info-bar');
+  if (!leagueInfoBar) {
+    leagueInfoBar = document.createElement('div');
+    leagueInfoBar.className = 'league-info-bar';
+    leagueInfoBar.innerHTML = leagues.map(l =>
+      `<span class="league-info-item" title="${l.name} Ligi:  ${l.min} - ${l.max - 1} gün arası okuma">
+        <img src="images/${l.img}" alt="${l.name}" class="league-info-img">
+        <span class="league-info-name">${l.name}</span>
+      </span>`
+    ).join('') + '<div class="league-info-description"><img src="images/info.png" alt="info" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px;" > Toplam okuma gününüz arttıkça daha yüksek liglere yükselirsiniz</div>';
+    container.parentNode.insertBefore(leagueInfoBar, container);
+  }
 
   // --- LİG ATLAMA BİLGİSİ ---
+  // Önce mevcut lig atlama mesajını kaldır
+  const existingPromotedMsg = document.querySelector('.league-promotion-message');
+  if (existingPromotedMsg) {
+    existingPromotedMsg.remove();
+  }
+
   // Bugünün ve dünün tarihini al
   const today = new Date();
   const yesterday = new Date();

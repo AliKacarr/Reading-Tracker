@@ -9,7 +9,51 @@ const schedule = require('node-schedule');
 const app = express();
 const port = 3000;
 
-mongoose.connect(process.env.MONGO_URI, { dbName: process.env.DB_NAME });
+// MongoDB bağlantı seçenekleri
+const mongooseOptions = {
+  dbName: process.env.DB_NAME,
+  serverSelectionTimeoutMS: 5000, // Sunucu seçim zaman aşımı
+  socketTimeoutMS: 45000, // Soket zaman aşımı
+  connectTimeoutMS: 10000, // Bağlantı zaman aşımı
+  maxPoolSize: 10, // Maksimum bağlantı havuzu boyutu
+  minPoolSize: 5, // Minimum bağlantı havuzu boyutu
+  retryWrites: true, // Yazma işlemlerini yeniden dene
+  retryReads: true, // Okuma işlemlerini yeniden dene
+};
+
+// MongoDB bağlantısı
+mongoose.connect(process.env.MONGO_URI, mongooseOptions)
+  .then(() => {
+    console.log('MongoDB bağlantısı başarılı');
+  })
+  .catch((err) => {
+    console.error('MongoDB bağlantı hatası:', err);
+  });
+
+// Bağlantı olaylarını dinle
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB bağlantısı kuruldu');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB bağlantı hatası:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB bağlantısı kesildi');
+});
+
+// Uygulama kapatıldığında bağlantıyı kapat
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    console.log('MongoDB bağlantısı kapatıldı');
+    process.exit(0);
+  } catch (err) {
+    console.error('MongoDB bağlantısı kapatılırken hata:', err);
+    process.exit(1);
+  }
+});
 
 app.use(express.static('public'));
 app.use('/images', express.static('uploads'));

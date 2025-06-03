@@ -1,4 +1,3 @@
-
 const trackerTable = document.getElementById('trackerTable');
 const userList = document.getElementById('userList');
 const newUserForm = document.getElementById('newUserForm');
@@ -164,7 +163,9 @@ async function loadTrackerTable() {
     trackerTable.querySelector('tbody').classList.remove('tracker-table-visible');
     setTimeout(() => {
         trackerTable.querySelector('tbody').classList.add('tracker-table-visible');
-    }, 10);
+        // Sayfanın en üstüne smooth scroll yap
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 20);
 }
 function findConsecutiveStreaks(userStats) {
     const dates = Object.keys(userStats).sort();
@@ -258,6 +259,17 @@ function calculateStreak(userStats) {
     }
     return streak;
 }
+// Debounce fonksiyonu
+let updateTimeout;
+function debouncedUpdate() {
+    clearTimeout(updateTimeout);
+    updateTimeout = setTimeout(() => {
+        loadTrackerTable();
+        loadUserCards();
+        loadReadingStats();
+        renderLongestSeries();
+    }, 500); // 500ms bekle
+}
 async function toggleStatus(userId, date) {
     if (!isAuthenticated()) {
         logUnauthorizedAccess('toggle-status');
@@ -269,15 +281,16 @@ async function toggleStatus(userId, date) {
     if (current === '✔️') status = 'okumadım';
     else if (current === '❌') status = '';
     else status = 'okudum';
+    
+    // Veri tabanı güncellemesini hemen yap
     await fetch('/api/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, date, status })
     });
-    loadTrackerTable();
-    loadUserCards();
-    loadReadingStats();
-    renderLongestSeries();
+    
+    // UI güncellemelerini debounce ile yap
+    debouncedUpdate();
 }
 function getDayOfWeekInTurkish(date) {
     const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
