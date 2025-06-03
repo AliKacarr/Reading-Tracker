@@ -1,16 +1,36 @@
-document.addEventListener('DOMContentLoaded', function () { //Site yüklendiğinde oluştur
-  loadTrackerTable();
-  loadUserCards();
-  loadReadingStats();
-  renderLongestSeries();
-  loadMonthlyCalendar();
-  fetchRandomQuoteImage();
-  fetchRandomAyet();
-  fetchRandomQuote();
-  fetchRandomHadis();
-  fetchRandomDua();
-  renderUserList();
-  logPageVisit();
+document.addEventListener('DOMContentLoaded', async function () {
+  try {
+    // İlk çalışacak kritik fonksiyonlar
+    console.log('Kritik fonksiyonlar başlatılıyor...');
+    await Promise.all([
+      loadTrackerTable(),
+      loadReadingStats(),
+      renderLongestSeries()
+    ]);
+    console.log('Kritik fonksiyonlar tamamlandı');
+
+    // Sırayla çalışacak diğer fonksiyonlar
+    const functions = [
+      { name: 'loadUserCards', fn: loadUserCards },
+      { name: 'loadMonthlyCalendar', fn: loadMonthlyCalendar },
+      { name: 'fetchRandomQuoteImage', fn: fetchRandomQuoteImage },
+      { name: 'fetchRandomAyet', fn: fetchRandomAyet },
+      { name: 'fetchRandomQuote', fn: fetchRandomQuote },
+      { name: 'fetchRandomHadis', fn: fetchRandomHadis },
+      { name: 'fetchRandomDua', fn: fetchRandomDua },
+      { name: 'renderUserList', fn: renderUserList },
+      { name: 'logPageVisit', fn: logPageVisit }
+    ];
+
+    for (const func of functions) {
+      console.log(`${func.name} başlatılıyor...`);
+      await func.fn();
+      console.log(`${func.name} tamamlandı`);
+    }
+
+  } catch (error) {
+    console.error('Sayfa yüklenirken hata oluştu:', error);
+  }
 });
 
 function isAuthenticated() {
@@ -64,6 +84,7 @@ async function logPageVisit() {    //sayfa ziyaretleri kontrolü
   } catch (error) {
     console.error('Error logging page visit:', error);
   }
+  console.log("logPageVisit");
 }
 
 async function verifyAdminUsername() {     //admin kullanıcı adı doğrulama - halen geçerlimiye bakıyor
