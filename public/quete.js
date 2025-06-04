@@ -134,6 +134,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1000);
         };
     }
+    const quote = document.querySelector('.quote');
+    quote.style.display= 'block';
 });
 
 async function fetchRandomQuote() {

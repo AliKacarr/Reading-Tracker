@@ -1,7 +1,7 @@
 .toggle-switch {
     position: relative;
-    width: 50px;
-    height: 25px;
+    width: 54px;
+    height: 23px;
 }
 
 .toggle-input {
@@ -14,17 +14,20 @@
     position: absolute;
     cursor: pointer;
     background-color: #ccc;
+    color: #00307b !important;
     border-radius: 25px;
+    font-weight: bold !important;
     width: 100%;
     height: 100%;
     transition: background-color 0.2s;
+    border: 2px solid #008cff;
 }
 
 .toggle-label::before {
     content: "";
     position: absolute;
-    left: 4px;
-    bottom: 4px;
+    left: 5px;
+    bottom: 3px;
     background-color: white;
     border-radius: 50%;
     width: 17px;
@@ -32,18 +35,51 @@
     transition: transform 0.2s;
 }
 
+.toggle-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+}
+
+.moon-icon,
+.bell-icon {
+    left: 7px;
+    opacity: 0;
+}
+
+.sun-icon,
+.bell-slash-icon {
+    right: 6px;
+    opacity: 1;
+}
+
 .toggle-input:checked+.toggle-label {
-    background-color: #1E90FF;
+    background-color: #1f5071;
+    color: #cddae0 !important;
 }
 
 .toggle-input:checked+.toggle-label::before {
-    transform: translateX(25px);
+    transform: translateX(27px);
+}
+
+.toggle-input:checked+.toggle-label .moon-icon,
+.toggle-input:checked+.toggle-label .bell-icon {
+    opacity: 1;
+}
+
+.toggle-input:checked+.toggle-label .sun-icon,
+.toggle-input:checked+.toggle-label .bell-slash-icon {
+    opacity: 0;
 }
 
 .settings-section {
     padding: 0px 20px;
     padding-bottom: 20px;
     padding-top: 20px;
+    position: relative;
 }
 
 #ayarlar {
@@ -54,6 +90,7 @@
     display: flex;
     align-items: center;
     margin-bottom: 15px;
+    position: relative;
 }
 
 .setting-item label {
@@ -80,4 +117,18 @@
     outline: none;
     border-color: #5b9bd5;
     box-shadow: 0 0 0 2px rgba(91, 155, 213, 0.2);
+}
+
+.feature-coming-soon {
+    position: absolute;
+    bottom: 0px;
+    left: 20px;
+    font-size: 18px;
+    color: #666;
+    font-style: italic;
+    transition: opacity 0.3s ease;
+}
+
+.toggle-input:checked ~ .feature-coming-soon {
+    opacity: 1;
 }

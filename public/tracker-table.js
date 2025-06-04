@@ -8,6 +8,8 @@ const nextWeekTodayBtn = document.getElementById('nextWeekToday');
 const currentWeekDisplay = document.getElementById('currentWeekDisplay');
 const firstDaySelect = document.getElementById('firstDaySelect');
 let weekOffset = 0;
+let isFirstLoad = true;
+
 function getWeekDates(offset = 0) {
     const today = new Date();
     today.setHours(today.getHours());
@@ -32,6 +34,7 @@ function getWeekDates(offset = 0) {
     }
     return dates;
 }
+
 function formatDateRange(dates) {
     if (!dates || dates.length < 7) return '';
     const startDate = new Date(dates[0]);
@@ -50,16 +53,19 @@ function formatDateRange(dates) {
         return `${startDay} ${startMonth} - ${endDay} ${endMonth}`;
     }
 }
+
 function formatDateForHeader(date) {
     const day = date.getDate();
     const month = getMonthNameInTurkish(date.getMonth());
     return `<span class="date-day">${day}</span> <span class="date-month">${month}</span>`;
 }
+
 function getMonthNameInTurkish(monthIndex) {
     const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
         'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
     return months[monthIndex];
 }
+
 async function loadTrackerTable() {
     const dates = getWeekDates(weekOffset);
     currentWeekDisplay.textContent = formatDateRange(dates);
@@ -163,10 +169,14 @@ async function loadTrackerTable() {
     trackerTable.querySelector('tbody').classList.remove('tracker-table-visible');
     setTimeout(() => {
         trackerTable.querySelector('tbody').classList.add('tracker-table-visible');
-        // Sayfanın en üstüne smooth scroll yap
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Sadece ilk yüklemede sayfanın en üstüne kaydır
+        if (isFirstLoad) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            isFirstLoad = false;
+        }
     }, 20);
 }
+
 function findConsecutiveStreaks(userStats) {
     const dates = Object.keys(userStats).sort();
     if (dates.length === 0) return {};
@@ -191,6 +201,7 @@ function findConsecutiveStreaks(userStats) {
     }
     return streakMap;
 }
+
 function areDatesConsecutive(date1, date2) {
     const d1 = new Date(date1);
     const d2 = new Date(date2);
@@ -200,26 +211,31 @@ function areDatesConsecutive(date1, date2) {
     const diffDays = diffTime / (1000 * 60 * 60 * 24);
     return diffDays === 1;
 }
+
 prevWeekBtn.addEventListener('click', () => {
     weekOffset--;
     loadTrackerTable();
     loadUserCards();
 });
+
 nextWeekBtn.addEventListener('click', () => {
     weekOffset++;
     loadTrackerTable();
     loadUserCards();
 });
+
 prevWeekTodayBtn.addEventListener('click', () => {
     weekOffset = 0;
     loadTrackerTable();
     loadUserCards();
 });
+
 nextWeekTodayBtn.addEventListener('click', () => {
     weekOffset = 0;
     loadTrackerTable();
     loadUserCards();
 });
+
 function calculateStreak(userStats) {
     const allDates = Object.keys(userStats).sort();
     if (allDates.length === 0) return 0;
@@ -259,6 +275,7 @@ function calculateStreak(userStats) {
     }
     return streak;
 }
+
 // Debounce fonksiyonu
 let updateTimeout;
 function debouncedUpdate() {
@@ -270,6 +287,7 @@ function debouncedUpdate() {
         renderLongestSeries();
     }, 500); // 500ms bekle
 }
+
 async function toggleStatus(userId, date) {
     if (!isAuthenticated()) {
         logUnauthorizedAccess('toggle-status');
@@ -292,6 +310,7 @@ async function toggleStatus(userId, date) {
     // UI güncellemelerini debounce ile yap
     debouncedUpdate();
 }
+
 function getDayOfWeekInTurkish(date) {
     const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
     return days[date.getDay()];

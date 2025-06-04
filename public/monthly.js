@@ -4,7 +4,7 @@ function loadMonthlyCalendar() {
     const prevMonthBtn = document.getElementById('prevMonth');
     const nextMonthBtn = document.getElementById('nextMonth');
     const monthYearHeader = document.getElementById('monthYearHeader');
-    const calendarBody = document.getElementById('calendarBody');
+    const calendarBody = document.getElementById('calendarBody'); 
 
     // Track current month and year
     let currentDate = new Date();
@@ -34,6 +34,8 @@ function loadMonthlyCalendar() {
     if (monthlyCalendarSection && monthlyCalendarContainer) {
         monthlyCalendarSection.insertBefore(userSelectorContainer, monthlyCalendarContainer);
     }
+    
+    monthlyCalendarSection.style.display= 'block';
 
     // Get user selector element
     const userSelector = document.getElementById('userSelector');

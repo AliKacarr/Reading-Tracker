@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     console.log('Kritik fonksiyonlar başlatılıyor...');
     await Promise.all([
       loadTrackerTable(),
+      loadUserCards(),
       loadReadingStats(),
       renderLongestSeries()
     ]);
@@ -11,7 +12,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Sırayla çalışacak diğer fonksiyonlar
     const functions = [
-      { name: 'loadUserCards', fn: loadUserCards },
       { name: 'loadMonthlyCalendar', fn: loadMonthlyCalendar },
       { name: 'fetchRandomQuoteImage', fn: fetchRandomQuoteImage },
       { name: 'fetchRandomAyet', fn: fetchRandomAyet },
