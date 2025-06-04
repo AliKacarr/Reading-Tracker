@@ -1,7 +1,7 @@
 .toggle-switch {
     position: relative;
     width: 54px;
-    height: 23px;
+    height: 22px;
 }
 
 .toggle-input {
@@ -13,26 +13,28 @@
 .toggle-label {
     position: absolute;
     cursor: pointer;
-    background-color: #ccc;
+    background-color: #e5e5e5;
     color: #00307b !important;
     border-radius: 25px;
     font-weight: bold !important;
     width: 100%;
     height: 100%;
     transition: background-color 0.2s;
-    border: 2px solid #008cff;
+    border: 2px solid #81baea;
 }
 
 .toggle-label::before {
     content: "";
     position: absolute;
-    left: 5px;
-    bottom: 3px;
+    left: 3px;
+    bottom: 2px;
     background-color: white;
     border-radius: 50%;
     width: 17px;
     height: 17px;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease;
+    border: 1px solid #aeaeae;
+    z-index: 2;
 }
 
 .toggle-icon {
@@ -40,39 +42,44 @@
     top: 50%;
     transform: translateY(-50%);
     font-size: 14px;
+    color: #00307b;
     transition: opacity 0.2s ease;
     z-index: 1;
 }
 
 .moon-icon,
-.bell-icon {
-    left: 7px;
-    opacity: 0;
-}
-
-.sun-icon,
 .bell-slash-icon {
     right: 6px;
     opacity: 1;
 }
 
+.sun-icon,
+.bell-icon {
+    left: 6px;
+    opacity: 0;
+}
+
 .toggle-input:checked+.toggle-label {
-    background-color: #1f5071;
-    color: #cddae0 !important;
+    background-color: #1E90FF;
 }
 
 .toggle-input:checked+.toggle-label::before {
-    transform: translateX(27px);
+    transform: translateX(25px);
 }
 
 .toggle-input:checked+.toggle-label .moon-icon,
-.toggle-input:checked+.toggle-label .bell-icon {
-    opacity: 1;
+.toggle-input:checked+.toggle-label .bell-slash-icon {
+    opacity: 0;
 }
 
 .toggle-input:checked+.toggle-label .sun-icon,
-.toggle-input:checked+.toggle-label .bell-slash-icon {
-    opacity: 0;
+.toggle-input:checked+.toggle-label .bell-icon {
+    opacity: 1;
+    color: white;
+}
+
+.toggle-input:checked+.toggle-label {
+    background-color: #1f73b7;
 }
 
 .settings-section {
@@ -101,7 +108,7 @@
 
 .day-select {
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid #55c8c8;
     border-radius: 4px;
     background-color: rgba(255, 249, 248, 0.64);
     font-size: 14px;

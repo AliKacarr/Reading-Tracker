@@ -29,6 +29,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
     });
 
     input.value = '';
+    wpNameInput = '';
     imageInput.value = '';
     fileNameDisplay.textContent = 'Resim seçilmedi';
     fileInputLabel.textContent = 'Resim Seç';
