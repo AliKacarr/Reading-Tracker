@@ -1,18 +1,16 @@
 document.addEventListener('DOMContentLoaded', async function () {
   try {
     // İlk çalışacak kritik fonksiyonlar
-    console.log('Kritik fonksiyonlar başlatılıyor...');
     await Promise.all([
       loadTrackerTable(),
       loadUserCards(),
       loadReadingStats(),
-      renderLongestSeries()
+      renderLongestSeries(),
+      loadMonthlyCalendar()
     ]);
-    console.log('Kritik fonksiyonlar tamamlandı');
 
     // Sırayla çalışacak diğer fonksiyonlar
     const functions = [
-      { name: 'loadMonthlyCalendar', fn: loadMonthlyCalendar },
       { name: 'fetchRandomQuoteImage', fn: fetchRandomQuoteImage },
       { name: 'fetchRandomAyet', fn: fetchRandomAyet },
       { name: 'fetchRandomQuote', fn: fetchRandomQuote },
@@ -21,12 +19,6 @@ document.addEventListener('DOMContentLoaded', async function () {
       { name: 'renderUserList', fn: renderUserList },
       { name: 'logPageVisit', fn: logPageVisit }
     ];
-
-    for (const func of functions) {
-      console.log(`${func.name} başlatılıyor...`);
-      await func.fn();
-      console.log(`${func.name} tamamlandı`);
-    }
 
   } catch (error) {
     console.error('Sayfa yüklenirken hata oluştu:', error);
