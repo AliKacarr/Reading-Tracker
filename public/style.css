@@ -42,3 +42,8 @@ h3 {
 .settings-section h3 {
   min-width: 300px;
 }
+
+/* Font Awesome ikonları için varsayılan stili geçersiz kıl */
+.fa, .fa-brands, .fa-classic, .fa-regular, .fa-sharp, .fa-solid, .fab, .far, .fas {
+    display: inline;
+}

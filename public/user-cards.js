@@ -314,16 +314,22 @@ async function loadUserCards() {
       return leagueOrder2 - leagueOrder1; // Ters sıralama: Yüksek lig önce
     });
 
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'promotion-message-content';
+
     let msg = 'Gösterdikleri istikrarla bugün lig atlayan arkadaşlarımızı gönülden tebrik ediyoruz! 🎉🎉<br>';
     msg += promotedUsers.map(u => `<b class="promoted-username">${u.name}</b> <span class="promoted-league">${u.league.toLowerCase()}</span> lige yükseldi.`).join(' ');
-    promotedMsg.innerHTML = msg;
+    
+    contentDiv.innerHTML = msg;
+    promotedMsg.appendChild(contentDiv);
+
     leagueInfoBar.insertAdjacentElement('afterend', promotedMsg);
 
     // Tıklama ile panoya kopyalama ve bildirim
     promotedMsg.style.cursor = 'pointer'; // İşaretçiyi değiştirerek tıklanabilir olduğunu belirt
     promotedMsg.addEventListener('click', async () => {
       try {
-        await navigator.clipboard.writeText(promotedMsg.innerText); // Metni panoya kopyala
+        await navigator.clipboard.writeText(contentDiv.innerText); // Metni panoya kopyala
 
         // Kopyalama bildirimi oluştur
         const copyNotification = document.createElement('span');
