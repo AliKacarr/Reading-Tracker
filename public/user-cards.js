@@ -315,7 +315,7 @@ async function loadUserCards() {
     });
 
     let msg = 'Gösterdikleri istikrarla bugün lig atlayan arkadaşlarımızı gönülden tebrik ediyoruz! 🎉🎉<br>';
-    msg += promotedUsers.map(u => `<b class="promoted-username">${u.name}</b> <span class="promoted-league">${u.league}</span> lige yükseldi.`).join(' ');
+    msg += promotedUsers.map(u => `<b class="promoted-username">${u.name}</b> <span class="promoted-league">${u.league.toLowerCase()}</span> lige yükseldi.`).join(' ');
     promotedMsg.innerHTML = msg;
     leagueInfoBar.insertAdjacentElement('afterend', promotedMsg);
 

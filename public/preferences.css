@@ -2,6 +2,7 @@
     position: relative;
     width: 54px;
     height: 22px;
+    bottom: 2px;
 }
 
 .toggle-input {
@@ -42,7 +43,7 @@
     top: 50%;
     transform: translateY(-50%);
     font-size: 14px;
-    color: #00307b;
+    color: #0e4daf;
     transition: opacity 0.2s ease;
     z-index: 1;
 }

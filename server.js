@@ -234,7 +234,7 @@ const hadisSchema = new mongoose.Schema({
 
 const Hadis = mongoose.model('Hadis', hadisSchema, 'hadisler');
 
-// Hadis modeli
+// Dua modeli
 const duaSchema = new mongoose.Schema({
   sentence: String
 });
