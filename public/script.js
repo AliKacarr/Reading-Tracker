@@ -20,6 +20,15 @@ document.addEventListener('DOMContentLoaded', async function () {
       { name: 'logPageVisit', fn: logPageVisit }
     ];
 
+    // Fonksiyonları sırayla çalıştır
+    for (const func of functions) {
+      try {
+        await func.fn();
+      } catch (error) {
+        console.error(`${func.name} çalıştırılırken hata:`, error);
+      }
+    }
+
   } catch (error) {
     console.error('Sayfa yüklenirken hata oluştu:', error);
   }
