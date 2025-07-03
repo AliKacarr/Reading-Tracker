@@ -260,6 +260,7 @@ async function loadUserCards() {
       `<span class="league-info-item" title="${l.name} Ligi:  ${l.min} - ${l.max - 1} gün arası okuma">
         <img src="images/${l.img}" alt="${l.name}" class="league-info-img">
         <span class="league-info-name">${l.name}</span>
+        <span class="league-info-range">${l.min}-${l.max - 1}</span>
       </span>`
     ).join('') + '<div class="league-info-description"><img src="images/info.png" alt="info" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px;" > Toplam okuma gününüz arttıkça daha yüksek liglere yükselirsiniz</div>';
     container.parentNode.insertBefore(leagueInfoBar, container);
