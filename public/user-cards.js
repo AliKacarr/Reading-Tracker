@@ -273,6 +273,12 @@ async function loadUserCards() {
     existingPromotedMsg.remove();
   }
 
+  // Önce mevcut art arda okumama mesajını kaldır
+  const existingMissedMsg = document.querySelector('.consecutive-missed-message');
+  if (existingMissedMsg) {
+    existingMissedMsg.remove();
+  }
+
   // Bugünün ve dünün tarihini al
   const today = new Date();
   const yesterday = new Date();
@@ -350,6 +356,72 @@ async function loadUserCards() {
 
     setTimeout(() => {
       promotedMsg.classList.add('message-fade-in');
+    }, 50);
+  }
+
+  // --- ART ARDA OKUMAYANLAR BİLGİSİ ---
+  // Her kullanıcı için ardışık okumama günlerini hesapla
+  const consecutiveMissed = [];
+  users.forEach(user => {
+    // Kullanıcının okuma kayıtlarını tarihe göre yeniye göre sırala
+    const userStats = stats
+      .filter(s => s.userId === user._id && (s.status === 'okudum' || s.status === 'okumadım'))
+      .sort((a, b) => b.date.localeCompare(a.date)); // yeni -> eski
+    let count = 0;
+    for (const stat of userStats) {
+      if (stat.status === 'okumadım') {
+        count++;
+      } else if (stat.status === 'okudum') {
+        break;
+      } else {
+        break;
+      }
+    }
+    if (count > 1) {
+      consecutiveMissed.push({ name: user.name, days: count });
+    }
+  });
+
+  if (consecutiveMissed.length > 0) {
+    const missedMsg = document.createElement('div');
+    missedMsg.className = 'consecutive-missed-message';
+    missedMsg.innerHTML =
+      '<span class="missed-title">Art arda okumayanlar:<br></span> ' +
+      consecutiveMissed.map(u => `<b class="missed-username">${u.name}</b> (<span class="missed-days">${u.days} gün</span>)`).join(', ') +
+      '<span class="missed-reminder"><br>Okumaları unutmayalım!</span>';
+    // Lig atlama mesajı varsa onun altına, yoksa lig barının altına ekle
+    const afterElem = document.querySelector('.league-promotion-message') || leagueInfoBar;
+    afterElem.insertAdjacentElement('afterend', missedMsg);
+
+    // Tıklama ile panoya kopyalama ve bildirim
+    missedMsg.style.cursor = 'pointer'; // İşaretçiyi değiştirerek tıklanabilir olduğunu belirt
+    missedMsg.addEventListener('click', async () => {
+      try {
+        // Panoya kopyalanacak metni oluştur
+        const copyText = 'Art arda okumayanlar:\n' +
+          consecutiveMissed.map(u => `${u.name} (${u.days} gün)`).join(',\n') +
+          '\nOkumaları unutmayalım!';
+        
+        await navigator.clipboard.writeText(copyText); // Metni panoya kopyala
+
+        // Kopyalama bildirimi oluştur
+        const copyNotification = document.createElement('span');
+        copyNotification.className = 'copy-notification';
+        copyNotification.innerText = 'Kopyalandı!';
+        missedMsg.appendChild(copyNotification);
+
+        // Bildirimi kısa süre sonra kaldır
+        setTimeout(() => {
+          copyNotification.remove();
+        }, 1500); // 1.5 saniye sonra kaldır
+
+      } catch (err) {
+        console.error('Panoya kopyalama başarısız oldu:', err);
+      }
+    });
+
+    setTimeout(() => {
+      missedMsg.classList.add('message-fade-in');
     }, 50);
   }
 }

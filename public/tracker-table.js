@@ -285,7 +285,7 @@ function debouncedUpdate() {
         loadUserCards();
         loadReadingStats();
         renderLongestSeries();
-    }, 500); // 500ms bekle
+    }, 100); // 100ms bekle
 }
 
 async function toggleStatus(userId, date) {

@@ -484,3 +484,57 @@
 .league-promotion-message .copy-notification {
     opacity: 1;
 }
+
+.consecutive-missed-message {
+    width: 90%;
+    max-width: 1200px;
+    background: #f0f7ff;
+    border-radius: 10px;
+    line-height: 1.7;
+    margin: 10px auto 18px auto;
+    padding: 20px 20px 20px 20px;
+    font-size: 17px;
+    color: #222;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.08);
+    text-align: center;
+    border: 1px solid #bcdaf8;
+    letter-spacing: 0.01em;
+    position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.consecutive-missed-message.message-fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.missed-title {
+    color: #222;
+    margin-right: 2px;
+}
+
+.missed-username {
+    color: #505050;
+    font-size: 18px;
+    font-style: italic;
+}
+
+.missed-days {
+    color: #444;
+    font-weight: bold;
+}
+
+.missed-reminder {
+    color: #333;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.consecutive-missed-message .copy-notification {
+    opacity: 1;
+}
