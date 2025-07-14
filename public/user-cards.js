@@ -360,6 +360,35 @@ async function loadUserCards() {
   }
 
   // --- ART ARDA OKUMAYANLAR BİLGİSİ ---
+  // Alternatif hatırlatma cümleleri
+  const reminderAlternatives = [
+    "Okumalarımıza düzenli devam edebilmek dileğiyle 🌿",
+    "Okuma alışkanlığımızı birlikte güçlendirelim inşaAllah 📖",
+    "Küçük adımlar, büyük alışkanlıklar oluşturur. Takipteyiz! 📘",
+    "Bu hatırlatma vesile olsun, kaldığımız yerden devam edelim 🔄",
+    "Düzenli okumalarla bereketli bir sürece birlikte yürüyelim 🌱",
+    "İstikrar güzeldir; eksiklerimizi birlikte tamamlayalım 🤝",
+    "Okuyanlara tebrikler, henüz okumayanlara nazik bir davet 😊",
+    "İstikrarın güzelliğini hep birlikte yaşayalım 🌟",
+    "Eksik kalanlar için nazik bir hatırlatma olsun bu liste ✉️",
+    "Bugün okumayanlar, yarının ilk okuyanı olabilir 🌅",
+    "Okumalarımıza birlikte devam edebilmek duasıyla 🤲",
+    "Birlikte ilerlemek, devam etmenin en güzel hali 👣",
+    "Okumalarımıza sadakatle devam edelim inşaAllah 🕊️",
+    "Her gün bir satır da olsa, devam edelim ✍️",
+    "İstikrarla yürüdüğümüz bu yolda hep birlikteyiz 🛤️",
+    "Bu küçük hatırlatma, güzel bir başlangıç olsun 🌸",
+    "Unutmak kolay, alışkanlık ise emek ister. Devam edelim 💪",
+    "Güzel alışkanlıklar birlikte inşa edilir 🧱",
+    "Okuma yolculuğumuza birlikte güç katalım 🚀",
+    "Birlikte tamamlanan okumalarda bereket vardır 🧡",
+    "Bugün az da olsa bir adım atalım 👟",
+    "Düzenli okumalarla kalplerimizi diri tutalım ❤️‍🔥",
+    "Hatırlatmak bizden, gayret sizden 🙏",
+    "Okumaları unutmayalım 🔔",
+    "İstikrarlı adımlar en kalıcı olanlardır ⏳"
+  ];
+
   // Her kullanıcı için ardışık okumama günlerini hesapla
   const consecutiveMissed = [];
   users.forEach(user => {
@@ -397,10 +426,12 @@ async function loadUserCards() {
     missedMsg.style.cursor = 'pointer'; // İşaretçiyi değiştirerek tıklanabilir olduğunu belirt
     missedMsg.addEventListener('click', async () => {
       try {
+        const randomReminder = reminderAlternatives[Math.floor(Math.random() * reminderAlternatives.length)];
+        
         // Panoya kopyalanacak metni oluştur
         const copyText = 'Art arda okumayanlar:\n' +
           consecutiveMissed.map(u => `${u.name} (${u.days} gün)`).join(',\n') +
-          '\nOkumaları unutmayalım!';
+          '\n'+randomReminder;
         
         await navigator.clipboard.writeText(copyText); // Metni panoya kopyala
 
