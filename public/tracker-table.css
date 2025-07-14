@@ -38,6 +38,7 @@
 /* Renk kodlamaları */
 .green {
     background-color: rgb(76, 217, 100);
+    color: indigo;
     /* More vibrant green with less yellow tint */
 }
 
@@ -53,6 +54,7 @@
 
 .red {
     background-color: rgb(255, 100, 60);
+    color: darkred;
     /* Darker red-orange */
 }
 
@@ -104,7 +106,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     border: 1px solid #cfcfcf;
     padding: 10px;
     text-align: center;
-    font-size: 14px;
+    font-size: 16px;
     transition: background-color 0.2s ease;
     user-select: none;
     -webkit-user-select: none;
@@ -115,10 +117,9 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 #trackerTable td:first-child {
     font-size: 17px;
     font-weight: 500;
-    border: 1px solid #c9c9c9;
+    border: 1px solid #f1f1f1;
     min-width: 0;
     width: 170px;
-    background: #f7f7f7;
 }
 
 #trackerTable th:first-child {

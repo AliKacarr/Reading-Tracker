@@ -97,6 +97,10 @@
   gap: 20px;
 }
 
+.footer-section.social-media .social-icons .fab{
+  display: inline-flex;
+}
+
 .footer-section.social-media a {
   color: #2b67c4;
   font-size: 26px;

@@ -126,3 +126,8 @@ async function verifyAdminUsername() {     //admin kullanıcı adı doğrulama -
     return false;
   }
 }
+
+// Eğer firstDayOfWeek değişkeni yoksa, varsayılanı belirle
+if (typeof window.firstDayOfWeek === 'undefined') {
+  window.firstDayOfWeek = 1; // Pazartesi varsayılan
+}

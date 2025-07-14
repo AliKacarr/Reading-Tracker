@@ -108,15 +108,31 @@ async function loadTrackerTable() {
     for (let user of users) {
         const userStats = statMap[user._id] || {};
         const userStreaks = streakMap[user._id] || {};
-        let row = `<tr><td class="user-item" data-user-id="${user._id}">`;
+        // Lig ve arka planı belirle
+        const okudumDays = Object.values(userStats).filter(s => s === 'okudum').length;
+        const leagues = [
+            { min: 0, max: 5, name: 'Bronz', bg: 'linear-gradient(90deg, #e2b07a 60%, #ffe0b2 100%)' },
+            { min: 5, max: 10, name: 'Gümüş', bg: 'linear-gradient(90deg, #d3d3d3 60%, #e0e0e0 100%)' },
+            { min: 10, max: 20, name: 'Altın', bg: 'linear-gradient(90deg, #ffd700 60%, #ffe789 100%)' },
+            { min: 20, max: 40, name: 'Akik', bg: 'linear-gradient(90deg, #84b094 60%, #a5d6a7 100%)' },
+            { min: 40, max: 60, name: 'İnci', bg: 'linear-gradient(90deg, #b2dfdb 60%, #c8eef3 100%)' },
+            { min: 60, max: 80, name: 'Safir', bg: 'linear-gradient(90deg, #49b7ff 60%, #bbdefb 100%)' },
+            { min: 80, max: 100, name: 'Zümrüt', bg: 'linear-gradient(90deg, #58c089 60%, #a5d6a7 100%)' },
+            { min: 100, max: 150, name: 'Elmas', bg: 'linear-gradient(90deg, #36e873 60%, #c4edb8 100%)' },
+            { min: 150, max: 200, name: 'Yakut', bg: 'linear-gradient(90deg, #ffb199 60%, #ffe0b2 100%)' },
+            { min: 200, max: 365, name: 'Mercan', bg: 'linear-gradient(90deg, #ff6f63 60%, #ffafb7 100%)' },
+            { min: 365, max: 1001, name: 'Pırlanta', bg: 'linear-gradient(90deg, #f3ebeb  60%, #ffffff 100%)' }
+        ];
+        const league = leagues.find(l => okudumDays >= l.min && okudumDays < l.max) || leagues[leagues.length - 1];
+        let row = `<tr><td class="user-item" data-user-id="${user._id}" style="background: ${league.bg};">`;
         const profileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
         row += `<img src="${profileImage}" alt="${user.name}" class="profile-image" loading="lazy" />`;
         row += `<span class="user-item-name">${user.name}</span></td>`;
         for (let date of dates) {
             const status = userStats[date] || '';
             let symbol = '➖';
-            if (status === 'okudum') symbol = '✔️';
-            else if (status === 'okumadım') symbol = '❌';
+            if (status === 'okudum') symbol = '✔';
+            else if (status === 'okumadım') symbol = '✖';
             let className = '';
             if (status === 'okudum') {
                 className = 'green';
@@ -296,8 +312,8 @@ async function toggleStatus(userId, date) {
     const cell = event.target;
     const current = cell.innerText;
     let status;
-    if (current === '✔️') status = 'okumadım';
-    else if (current === '❌') status = '';
+    if (current === '✔') status = 'okumadım';
+    else if (current === '✖') status = '';
     else status = 'okudum';
     
     // Veri tabanı güncellemesini hemen yap
