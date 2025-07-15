@@ -151,6 +151,12 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     margin-top: 3px;
 }
 
+@media (max-width: 1024px) {
+  .day-of-week {
+    font-size: 15px;
+  }
+}
+
 /* Style the first column header differently */
 #trackerTable tr th:first-child {
     background-color: #f2f2f2;
