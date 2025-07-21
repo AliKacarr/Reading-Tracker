@@ -411,6 +411,7 @@ async function loadUserCards() {
     }
   });
 
+  const afterElem = document.querySelector('.league-promotion-message') || leagueInfoBar;
   if (consecutiveMissed.length > 0) {
     const missedMsg = document.createElement('div');
     missedMsg.className = 'consecutive-missed-message';
@@ -418,8 +419,6 @@ async function loadUserCards() {
       '<span class="missed-title">Art arda okumayanlar:<br></span> ' +
       consecutiveMissed.map(u => `<b class="missed-username">${u.name}</b> (<span class="missed-days">${u.days} gün</span>)`).join(', ') +
       '<span class="missed-reminder"><br>Okumaları unutmayalım!</span>';
-    // Lig atlama mesajı varsa onun altına, yoksa lig barının altına ekle
-    const afterElem = document.querySelector('.league-promotion-message') || leagueInfoBar;
     afterElem.insertAdjacentElement('afterend', missedMsg);
 
     // Tıklama ile panoya kopyalama ve bildirim
@@ -451,6 +450,31 @@ async function loadUserCards() {
       }
     });
 
+    setTimeout(() => {
+      missedMsg.classList.add('message-fade-in');
+    }, 50);
+  } else {
+    // Herkes okuduysa aynı kutuda tebrik mesajı göster
+    const missedMsg = document.createElement('div');
+    missedMsg.className = 'consecutive-missed-message';
+    missedMsg.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
+    afterElem.insertAdjacentElement('afterend', missedMsg);
+    // Tıklama ile panoya kopyalama ve bildirim
+    missedMsg.style.cursor = 'pointer';
+    missedMsg.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(missedMsg.innerText);
+        const copyNotification = document.createElement('span');
+        copyNotification.className = 'copy-notification';
+        copyNotification.innerText = 'Kopyalandı!';
+        missedMsg.appendChild(copyNotification);
+        setTimeout(() => {
+          copyNotification.remove();
+        }, 1500);
+      } catch (err) {
+        console.error('Panoya kopyalama başarısız oldu:', err);
+      }
+    });
     setTimeout(() => {
       missedMsg.classList.add('message-fade-in');
     }, 50);

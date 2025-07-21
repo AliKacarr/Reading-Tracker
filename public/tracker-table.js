@@ -299,9 +299,9 @@ function debouncedUpdate() {
     updateTimeout = setTimeout(() => {
         loadTrackerTable();
         loadUserCards();
-        loadReadingStats();
-        renderLongestSeries();
-    }, 100); // 100ms bekle
+        //loadReadingStats();
+        //renderLongestSeries();
+    }, 200);
 }
 
 async function toggleStatus(userId, date) {
