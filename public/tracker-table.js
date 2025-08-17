@@ -292,18 +292,6 @@ function calculateStreak(userStats) {
     return streak;
 }
 
-// Debounce fonksiyonu
-let updateTimeout;
-function debouncedUpdate() {
-    clearTimeout(updateTimeout);
-    updateTimeout = setTimeout(() => {
-        loadTrackerTable();
-        loadUserCards();
-        //loadReadingStats();
-        //renderLongestSeries();
-    }, 200);
-}
-
 async function toggleStatus(userId, date) {
     if (!isAuthenticated()) {
         logUnauthorizedAccess('toggle-status');
@@ -323,8 +311,7 @@ async function toggleStatus(userId, date) {
         body: JSON.stringify({ userId, date, status })
     });
     
-    // UI güncellemelerini debounce ile yap
-    debouncedUpdate();
+    loadTrackerTable();
 }
 
 function getDayOfWeekInTurkish(date) {
