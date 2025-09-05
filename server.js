@@ -88,13 +88,127 @@ const ReadingStatus = mongoose.model('ReadingStatus', {
   status: String
 });
 
+// Kullanıcı grupları modeli
+const UserGroup = mongoose.model('UserGroup', {
+  groupName: String,
+  groupId: String
+});
+
+
+// Model cache'i
+const modelCache = {};
+
+// Yardımcı fonksiyonlar
+function getGroupCollections(groupId) {
+  const userModelName = `users_${groupId}`;
+  const readingStatusModelName = `readingstatuses_${groupId}`;
+  
+  // Eğer model zaten cache'de varsa, onu kullan
+  if (modelCache[userModelName] && modelCache[readingStatusModelName]) {
+    return {
+      users: modelCache[userModelName],
+      readingStatuses: modelCache[readingStatusModelName]
+    };
+  }
+  
+  // Eğer model zaten Mongoose'da varsa, onu kullan
+  try {
+    const existingUserModel = mongoose.model(userModelName);
+    const existingReadingStatusModel = mongoose.model(readingStatusModelName);
+    
+    modelCache[userModelName] = existingUserModel;
+    modelCache[readingStatusModelName] = existingReadingStatusModel;
+    
+    return {
+      users: modelCache[userModelName],
+      readingStatuses: modelCache[readingStatusModelName]
+    };
+  } catch (error) {
+    // Model yoksa oluştur
+  }
+  
+  // Model'leri oluştur ve cache'e ekle
+  const userSchema = new mongoose.Schema({
+    name: String,
+    profileImage: String,
+    wpName: { type: String, default: 'default' }
+  });
+  
+  const readingStatusSchema = new mongoose.Schema({
+    userId: String,
+    date: String,
+    status: String
+  });
+  
+  // Model'i oluştur
+  modelCache[userModelName] = mongoose.model(userModelName, userSchema);
+  modelCache[readingStatusModelName] = mongoose.model(readingStatusModelName, readingStatusSchema);
+  
+  return {
+    users: modelCache[userModelName],
+    readingStatuses: modelCache[readingStatusModelName]
+  };
+}
+
+// Grup doğrulama endpoint'i
+app.get('/api/group/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const group = await UserGroup.findOne({ groupId });
+    
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+    
+    res.json({ group });
+  } catch (error) {
+    console.error('Error fetching group:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Grup oluşturma endpoint'i
+app.post('/api/create-group', async (req, res) => {
+  try {
+    const { groupName, groupId } = req.body;
+    
+    // Grup ID'si zaten var mı kontrol et
+    const existingGroup = await UserGroup.findOne({ groupId });
+    if (existingGroup) {
+      return res.json({ success: true, group: existingGroup, message: 'Grup zaten mevcut' });
+    }
+    
+    // Yeni grup oluştur
+    const newGroup = new UserGroup({ groupName, groupId });
+    await newGroup.save();
+    
+    res.json({ success: true, group: newGroup, message: 'Grup oluşturuldu' });
+  } catch (error) {
+    console.error('Error creating group:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
 
 //**************************************************************************** tüm verileri çek
-app.get('/api/all-data', async (req, res) => {
+app.get('/api/all-data/:groupId', async (req, res) => {
   try {
-    const users = await User.find().sort({ name: 1 });
-    const stats = await ReadingStatus.find();
-    res.json({ users, stats });
+    const { groupId } = req.params;
+    
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+    
+    // Dinamik koleksiyonları al
+    const { users, readingStatuses } = getGroupCollections(groupId);
+    
+    const usersData = await users.find().sort({ name: 1 });
+    const statsData = await readingStatuses.find();
+    
+    res.json({ users: usersData, stats: statsData, group });
   } catch (error) {
     console.error('Error fetching all data:', error);
     res.status(500).json({ error: 'Server error' });
@@ -104,18 +218,28 @@ app.get('/api/all-data', async (req, res) => {
 
 //**************************************************************************** tracker-table
 // //okuma durumu güncelleme
-app.post('/api/update-status', async (req, res) => {
+app.post('/api/update-status/:groupId', async (req, res) => {
   try {
+    const { groupId } = req.params;
     const { userId, date, status } = req.body;
 
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { readingStatuses } = getGroupCollections(groupId);
+
     if (status) {
-      await ReadingStatus.findOneAndUpdate(
+      await readingStatuses.findOneAndUpdate(
         { userId, date },
         { userId, date, status },
         { upsert: true }
       );
     } else {
-      await ReadingStatus.findOneAndDelete({ userId, date });
+      await readingStatuses.findOneAndDelete({ userId, date });
     }
 
     res.json({ success: true });
@@ -128,13 +252,24 @@ app.post('/api/update-status', async (req, res) => {
 
 //**************************************************************************** stats-section
 //stats-section tablosu
-app.get('/api/reading-stats', async (req, res) => {
+app.get('/api/reading-stats/:groupId', async (req, res) => {
   try {
-    const users = await User.find().sort({ name: 1 });
-    const stats = await ReadingStatus.find();
+    const { groupId } = req.params;
 
-    const userStats = users.map(user => {
-      const userReadings = stats.filter(stat =>
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonları al
+    const { users, readingStatuses } = getGroupCollections(groupId);
+
+    const usersData = await users.find().sort({ name: 1 });
+    const statsData = await readingStatuses.find();
+
+    const userStats = usersData.map(user => {
+      const userReadings = statsData.filter(stat =>
         stat.userId === user._id.toString() && stat.status === 'okudum'
       );
 
@@ -156,14 +291,25 @@ app.get('/api/reading-stats', async (req, res) => {
 
 //**************************************************************************** longest-series
 //longest-series tablosu
-app.get('/api/longest-streaks', async (req, res) => {
+app.get('/api/longest-streaks/:groupId', async (req, res) => {
   try {
-    const users = await User.find();
-    const stats = await ReadingStatus.find();
+    const { groupId } = req.params;
 
-    const results = users.map(user => {
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonları al
+    const { users, readingStatuses } = getGroupCollections(groupId);
+
+    const usersData = await users.find();
+    const statsData = await readingStatuses.find();
+
+    const results = usersData.map(user => {
       // Kullanıcının okuma kayıtlarını tarihe göre sırala
-      const userStats = stats
+      const userStats = statsData
         .filter(s => s.userId === user._id.toString() && s.status === 'okudum')
         .map(s => s.date)
         .sort();
@@ -361,11 +507,22 @@ app.get('/api/config', (req, res) => {
 
 //**************************************************************************** main-area
 //Kullanıcı ekleme
-app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
+app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, res) => {
   try {
+    const { groupId } = req.params;
     const { name, wpName } = req.body;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { users } = getGroupCollections(groupId);
+
     const profileImage = req.file ? req.file.filename : 'default.png';
-    const user = new User({ name, profileImage, wpName: wpName || 'default' });
+    const user = new users({ name, profileImage, wpName: wpName || 'default' });
     await user.save();
     res.json({ success: true });
   } catch (err) {
@@ -375,12 +532,22 @@ app.post('/api/add-user', upload.single('profileImage'), async (req, res) => {
 });
 
 // Kullanıcıyı silme
-app.post('/api/delete-user', async (req, res) => {
+app.post('/api/delete-user/:groupId', async (req, res) => {
   try {
+    const { groupId } = req.params;
     const { id } = req.body;
 
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonları al
+    const { users, readingStatuses } = getGroupCollections(groupId);
+
     // Kullanıcıyı sil
-    const user = await User.findByIdAndDelete(id);
+    const user = await users.findByIdAndDelete(id);
 
     // Kullanıcının profil resmini sil
     if (user && user.profileImage) {
@@ -391,7 +558,7 @@ app.post('/api/delete-user', async (req, res) => {
     }
 
     // Kullanıcının okuma durumlarını sil
-    await ReadingStatus.deleteMany({ userId: id });
+    await readingStatuses.deleteMany({ userId: id });
 
     res.json({ success: true });
   } catch (err) {
@@ -401,11 +568,21 @@ app.post('/api/delete-user', async (req, res) => {
 });
 
 // Kullanıcı ismini güncelleme
-app.post('/api/update-user', async (req, res) => {
+app.post('/api/update-user/:groupId', async (req, res) => {
+  const { groupId } = req.params;
   const { userId, name } = req.body;
 
   try {
-    await User.findByIdAndUpdate(
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { users } = getGroupCollections(groupId);
+
+    await users.findByIdAndUpdate(
       userId,
       { name: name }
     );
@@ -417,14 +594,24 @@ app.post('/api/update-user', async (req, res) => {
 });
 
 // Kullanıcı resmini güncelleme
-app.post('/api/update-user-image', upload.single('profileImage'), async (req, res) => {
+app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async (req, res) => {
+  const { groupId } = req.params;
   const { userId } = req.body;
 
   try {
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { users } = getGroupCollections(groupId);
+
     // If a file was uploaded
     if (req.file) {
       // Find the user to get their old profile image
-      const user = await User.findById(userId);
+      const user = await users.findById(userId);
 
       // Delete the old profile image if it exists
       if (user && user.profileImage) {
@@ -435,7 +622,7 @@ app.post('/api/update-user-image', upload.single('profileImage'), async (req, re
       }
 
       // Update with the new image
-      await User.findByIdAndUpdate(
+      await users.findByIdAndUpdate(
         userId,
         { profileImage: req.file.filename }
       );
@@ -597,6 +784,16 @@ app.post('/api/verify-admin', async (req, res) => {
     console.error('Error verifying admin:', error);
     res.status(500).json({ error: 'Server error' });
   }
+});
+
+// Ana sayfa için varsayılan grup yönlendirmesi
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Grup sayfası için route
+app.get('/:groupId', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, () => {

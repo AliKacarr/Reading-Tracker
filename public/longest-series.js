@@ -1,5 +1,5 @@
 function renderLongestSeries() {
-    fetch('/api/longest-streaks')
+    fetch(`/api/longest-streaks/${currentGroupId}`)
         .then(res => res.json())
         .then(data => {
             const chart = document.getElementById('longestSeriesChart');

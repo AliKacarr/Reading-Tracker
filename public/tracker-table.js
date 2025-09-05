@@ -79,7 +79,7 @@ async function loadTrackerTable() {
         prevWeekTodayBtn.style.display = 'none';
         nextWeekTodayBtn.style.display = 'none';
     }
-    const res = await fetch(`/api/all-data`);
+    const res = await fetch(`/api/all-data/${currentGroupId}`);
     const { users, stats } = await res.json();
     const statMap = {};
     for (let s of stats) {
@@ -305,7 +305,7 @@ async function toggleStatus(userId, date) {
     else status = 'okudum';
     
     // Veri tabanı güncellemesini hemen yap
-    await fetch('/api/update-status', {
+    await fetch(`/api/update-status/${currentGroupId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, date, status })

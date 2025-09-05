@@ -17,8 +17,8 @@ async function loadUserCards() {
 
   // API'den tüm kullanıcı ve okuma verilerini çek
   const [allDataRes, streaksRes] = await Promise.all([
-    fetch('/api/all-data'),
-    fetch('/api/longest-streaks')
+    fetch(`/api/all-data/${currentGroupId}`),
+    fetch(`/api/longest-streaks/${currentGroupId}`)
   ]);
   const { users, stats } = await allDataRes.json();
   const streaks = await streaksRes.json();
@@ -495,7 +495,7 @@ toggleUserCardsReadingStatus = function (userName, day, month, year) {
   }
   const dateStr = formatDateForTable(day, month, year);
 
-  fetch('/api/all-data')
+  fetch(`/api/all-data/${currentGroupId}`)
     .then(response => response.json())
     .then(data => {
       const user = data.users.find(u => u.name === userName);
@@ -513,7 +513,7 @@ toggleUserCardsReadingStatus = function (userName, day, month, year) {
         newStatus = '';
       }
 
-      return fetch('/api/update-status', {
+      return fetch(`/api/update-status/${currentGroupId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

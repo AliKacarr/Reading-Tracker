@@ -23,7 +23,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         formData.append('profileImage', imageInput.files[0]);
     }
 
-    await fetch('/api/add-user', {
+    await fetch(`/api/add-user/${currentGroupId}`, {
         method: 'POST',
         body: formData
     });
@@ -59,7 +59,7 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
     const confirmed = confirm(`Silmek istediğine emin misin: ->  ${userName}  <- Bu işlem geri alınamaz.`);
 
     if (confirmed) {
-        await fetch('/api/delete-user', {
+        await fetch(`/api/delete-user/${currentGroupId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id })
@@ -96,7 +96,7 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
     saveButton.style.display = 'none';
 
     // Update the user name in the database
-    await fetch('/api/update-user', {
+    await fetch(`/api/update-user/${currentGroupId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, name: newName })
@@ -153,7 +153,7 @@ function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyo
             formData.append('profileImage', this.files[0]);
 
             // Upload the new image
-            await fetch('/api/update-user-image', {
+            await fetch(`/api/update-user-image/${currentGroupId}`, {
                 method: 'POST',
                 body: formData
             });
@@ -260,7 +260,7 @@ function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fon
 function renderUserList() {
     const userList = document.getElementById('userList');
     const prevScrollTop = userList.scrollTop; // scroll pozisyonunu koru
-    fetch('/api/all-data')
+    fetch(`/api/all-data/${currentGroupId}`)
         .then(res => res.json())
         .then(data => {
             const users = data.users;

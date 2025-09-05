@@ -49,7 +49,7 @@ function loadMonthlyCalendar() {
         userSelector.innerHTML = '';
 
         // Fetch users directly from the API
-        fetch('/api/all-data')
+        fetch(`/api/all-data/${currentGroupId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.users && Array.isArray(data.users)) {
@@ -169,7 +169,7 @@ function loadMonthlyCalendar() {
         // If a user is selected, fetch their reading data
         if (selectedUser) {
             // Fetch all data including user stats
-            fetch('/api/all-data')
+            fetch(`/api/all-data/${currentGroupId}`)
                 .then(response => response.json())
                 .then(data => {
                     // Find the user by name
@@ -320,7 +320,7 @@ function loadMonthlyCalendar() {
         }
         const dateStr = formatDateForTable(day, month, year);
 
-        fetch('/api/all-data')
+        fetch(`/api/all-data/${currentGroupId}`)
             .then(response => response.json())
             .then(data => {
                 const user = data.users.find(u => u.name === userName);
@@ -338,7 +338,7 @@ function loadMonthlyCalendar() {
                     newStatus = '';
                 }
 
-                return fetch('/api/update-status', {
+                return fetch(`/api/update-status/${currentGroupId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
