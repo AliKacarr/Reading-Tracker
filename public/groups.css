@@ -264,17 +264,38 @@ body {
 }
 
 .group-avatar {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
-    border-radius: 16px;
+    width: 50px;
+    height: 50px;
+    background: #3B82F6;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.4rem;
     font-weight: 600;
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    border-radius: 8px;
+    /* Köşeleri hafif yumuşatmak için */
+    overflow: hidden;
+    /* Resmin kutudan taşmasını engellemek için */
+}
+
+.group-avatar .group-avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Resmi kutuya sığdırmak ve oranını korumak için */
+    border-radius: 0;
+    /* Dairesel kenarları kaldırdık */
+}
+
+.group-avatar span {
+    /* Resim olmadığında gösterilen harf için stil */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .group-info {
@@ -753,4 +774,84 @@ body {
             font-size: 1.3rem;
         }
     }
+}
+
+.input-container input[type="file"] {
+    display: none;
+}
+
+.input-container .file-input-label {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f0f2f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-container .file-input-label:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+.input-container .file-input-label .file-input-text {
+    margin-left: 10px;
+    color: #6c757d;
+}
+
+.input-container .file-input-label .file-input-icon {
+    color: #6c757d;
+}
+
+.input-container select {
+    width: 100%;
+    padding: 12px 40px 12px 15px; /* Sağ tarafta ikon için daha fazla boşluk */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f0f2f5;
+    color: #333;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center; /* Ok ikonunun pozisyonu */
+    background-size: 12px;
+}
+
+.input-container .select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-container .select-wrapper .input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 1;
+}
+
+.input-container .select-wrapper select {
+    padding-left: 40px; /* Sol tarafta ikon için boşluk */
+}
+
+/* Hover efekti */
+.input-container select:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+/* Focus efekti */
+.input-container select:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }

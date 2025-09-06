@@ -50,6 +50,17 @@ class GroupsPage {
                 this.closeCreateModal();
             }
         });
+
+        const groupImageInput = document.getElementById('groupImageInput');
+        groupImageInput.addEventListener('change', (e) => {
+            const fileInput = e.target;
+            const fileInputText = document.querySelector('.file-input-text');
+            if (fileInput.files.length > 0) {
+                fileInputText.textContent = fileInput.files[0].name;
+            } else {
+                fileInputText.textContent = 'Bir resim seçin...';
+            }
+        });
     }
 
     async loadGroups(reset = false) {
@@ -145,7 +156,14 @@ class GroupsPage {
 
     createGroupCard(group) {
         const memberCount = this.memberCounts.get(group.groupId) || 0;
-        const groupInitial = group.groupName.charAt(0).toUpperCase();
+
+        let avatarHtml;
+        if (group.groupImage) {
+            avatarHtml = `<img src="/groupImages/${group.groupImage}" alt="${group.groupName}" class="group-avatar-image">`;
+        } else {
+            const groupInitial = group.groupName.charAt(0).toUpperCase();
+            avatarHtml = `<span>${groupInitial}</span>`;
+        }
 
         const card = document.createElement('div');
         card.className = 'group-card';
@@ -153,7 +171,9 @@ class GroupsPage {
 
         card.innerHTML = `
             <div class="group-header">
-                <div class="group-avatar">${groupInitial}</div>
+                <div class="group-avatar">
+                    ${avatarHtml}
+                </div>
                 <div class="group-info">
                     <h3 class="group-name">${this.escapeHtml(group.groupName)}</h3>
                     <p class="group-id">@${this.escapeHtml(group.groupId)}</p>
@@ -293,73 +313,119 @@ class GroupsPage {
         }, 300);
         document.body.style.overflow = 'auto';
         form.reset();
+        // Reset file input text
+        const fileInputText = document.querySelector('.file-input-text');
+        if (fileInputText) {
+            fileInputText.textContent = 'Bir resim seçin...';
+        }
     }
 
-    async handleCreateGroup(e) {
-        e.preventDefault();
+    async handleCreateGroup(event) {
+        event.preventDefault();
+        const groupName = document.getElementById('groupNameInput').value;
+        const groupDescription = document.getElementById('groupDescInput').value;
+        const adminName = document.getElementById('adminNameInput').value;
+        const adminPassword = document.getElementById('adminPasswordInput').value;
+        const groupImageInput = document.getElementById('groupImageInput');
+        const visibility = document.getElementById('groupVisibilityInput').value;
 
-        const groupName = document.getElementById('groupNameInput').value.trim();
-        const groupDesc = document.getElementById('groupDescInput').value.trim();
-        const adminName = document.getElementById('adminNameInput').value.trim();
-        const adminPassword = document.getElementById('adminPasswordInput').value.trim();
-
-        if (!groupName) {
-            this.showError('Lütfen grup adı girin');
+        if (!groupName || !adminName || !adminPassword) {
+            alert('Lütfen tüm zorunlu alanları doldurun.');
             return;
         }
 
-        if (!adminName || !adminPassword) {
-            this.showError('Lütfen yönetici adı ve şifresini girin');
-            return;
+        const formData = new FormData();
+        formData.append('groupName', groupName);
+        formData.append('description', groupDescription);
+        formData.append('adminName', adminName);
+        formData.append('adminPassword', adminPassword);
+        formData.append('visibility', visibility);
+        if (groupImageInput.files[0]) {
+            formData.append('groupImage', groupImageInput.files[0]);
         }
 
         try {
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-            submitBtn.disabled = true;
-
             const response = await fetch('/api/groups', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    groupName,
-                    description: groupDesc,
-                    adminName,
-                    adminPassword
-                })
+                body: formData
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create group');
+            const result = await response.json();
+
+            if (result.success) {
+                this.closeCreateModal();
+                window.location.href = `/${result.group.groupId}`;
+            } else {
+                alert(`Grup oluşturulamadı: ${result.error}`);
             }
-
-            const data = await response.json();
-
-            // Admin ve grup bilgilerini localStorage'a kaydet
-            localStorage.setItem('authenticated', 'true');
-            localStorage.setItem('adminUsername', adminName);
-            localStorage.setItem('groupName', data.group.groupName);
-            localStorage.setItem('groupId', data.group.groupId);
-
-            // Close modal
-            this.closeCreateModal();
-
-            // Redirect to new group
-            window.location.href = `http://localhost:3000/${data.group.groupId}`;
-
         } catch (error) {
-            console.error('Error creating group:', error);
-            this.showError(error.message);
-
-            // Reset button
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Create Group';
-            submitBtn.disabled = false;
+            console.error('Grup oluşturma hatası:', error);
+            alert('Grup oluşturulurken bir hata oluştu.');
         }
+
+        // Formu temizle
+        document.getElementById('createGroupForm').reset();
+        const fileInputText = document.getElementById('file-input-text');
+        if (fileInputText) {
+            fileInputText.textContent = 'Bir resim seçin...';
+        }
+        // Reset file input text
+    }
+
+    // Grup kartı oluşturma
+    createGroupCard(group) {
+        const memberCount = this.memberCounts.get(group.groupId) || 0;
+
+        let avatarHtml;
+        if (group.groupImage) {
+            avatarHtml = `<img src="/groupImages/${group.groupImage}" alt="${group.groupName}" class="group-avatar-image">`;
+        } else {
+            const groupInitial = group.groupName.charAt(0).toUpperCase();
+            avatarHtml = `<span>${groupInitial}</span>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'group-card';
+        card.setAttribute('data-group-id', group.groupId);
+
+        card.innerHTML = `
+            <div class="group-header">
+                <div class="group-avatar">
+                    ${avatarHtml}
+                </div>
+                <div class="group-info">
+                    <h3 class="group-name">${this.escapeHtml(group.groupName)}</h3>
+                    <p class="group-id">@${this.escapeHtml(group.groupId)}</p>
+                </div>
+            </div>
+            <div>
+               <span class="groupDescription">${this.escapeHtml((group.description || '').substring(0, 100))}</span>
+            </div>
+
+        <div class="group-stats">
+            <div class="stat-item">
+                <i class="fas fa-users"></i>
+                <span class="member-count"><span class="memberCount">${memberCount}</span> üye</span>
+
+
+            </div>
+        </div>
+    `;
+
+        card.addEventListener('click', () => {
+            window.location.href = `/${group.groupId}`;
+        });
+
+        // Add hover effect
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-5px)';
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+        });
+
+        return card;
     }
 
     showLoading(show) {

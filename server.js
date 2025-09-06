@@ -74,6 +74,24 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Resim yükleme konfigürasyonu - grup resimleri için
+const groupImageStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = 'public/groupImages';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    // Rastgele dosya adı oluştur
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'group-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const uploadGroupImage = multer({ storage: groupImageStorage });
+
 // Kullanıcı modeli
 const User = mongoose.model('User', {
   name: String,
@@ -93,9 +111,17 @@ const UserGroup = mongoose.model('UserGroup', {
   groupName: String,
   groupId: String,
   description: String,
+  groupImage: { type: String, default: null },
+  visibility: { type: String, default: 'public' },
   createdAt: { type: Date, default: Date.now }
 });
 
+// Admin model
+const Admin = mongoose.model('Admin', {
+  username: String,
+  password: String,
+  groupId: String
+});
 
 // Model cache'i
 const modelCache = {};
@@ -222,60 +248,6 @@ app.get('/api/groups/:groupId/member-count', async (req, res) => {
   } catch (error) {
     console.error('Error fetching member count:', error);
     res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Grup oluşturma endpoint'i
-app.post('/api/groups', async (req, res) => {
-  try {
-    const { groupName, description, adminName, adminPassword } = req.body;
-
-    if (!groupName) {
-      return res.status(400).json({ error: 'Grup adı gereklidir' });
-    }
-
-    if (!adminName || !adminPassword) {
-      return res.status(400).json({ error: 'Yönetici adı ve şifresi gereklidir' });
-    }
-
-    // Benzersiz bir grup ID'si oluştur
-    const groupId = generateGroupId(groupName);
-
-    // Grup ID'si zaten var mı kontrol et
-    let finalGroupId = groupId;
-    let counter = 1;
-    let existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
-
-    // Eğer ID zaten varsa, benzersiz bir ID oluşturana kadar sayı ekle
-    while (existingGroup) {
-      finalGroupId = `${groupId}${counter}`;
-      existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
-      counter++;
-    }
-
-    // Yeni grup oluştur
-    const newGroup = new UserGroup({
-      groupName,
-      groupId: finalGroupId,
-      description: description || groupName,
-      createdAt: new Date()
-    });
-
-    await newGroup.save();
-
-    // Admin bilgilerini grupId ile ilişkilendirerek kaydet
-    const admin = new Admin({
-      username: adminName,
-      password: adminPassword,
-      groupId: finalGroupId
-    });
-
-    await admin.save();
-
-    res.status(201).json({ success: true, group: newGroup });
-  } catch (error) {
-    console.error('Error creating group:', error);
-    res.status(500).json({ error: 'Grup oluşturulurken bir hata oluştu' });
   }
 });
 
@@ -758,12 +730,6 @@ app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async
 
 
 //********************************************************** Admin
-// Admin model
-const Admin = mongoose.model('Admin', {
-  username: String,
-  password: String,
-  groupId: String
-});
 
 // Admin doğrulama
 app.post('/api/admin-login', async (req, res) => {
@@ -988,6 +954,65 @@ app.get('/', (req, res) => {
 // Grup sayfası için route - alfanumerik, tire ve alt çizgi karakterlerine izin ver
 app.get('/:groupId([a-zA-Z0-9_-]+)', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Grup oluşturma endpoint'i - güncellenmiş
+app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) => {
+  try {
+    const { groupName, description, adminName, adminPassword, visibility } = req.body;
+    
+    // Eğer resim varsa dosya adını, yoksa null al
+    const groupImage = req.file ? req.file.filename : null;
+
+    if (!groupName) {
+      return res.status(400).json({ error: 'Grup adı gereklidir' });
+    }
+
+    if (!adminName || !adminPassword) {
+      return res.status(400).json({ error: 'Yönetici adı ve şifresi gereklidir' });
+    }
+
+    // Benzersiz bir grup ID'si oluştur
+    const groupId = generateGroupId(groupName);
+
+    // Grup ID'si zaten var mı kontrol et
+    let finalGroupId = groupId;
+    let counter = 1;
+    let existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
+
+    // Eğer ID zaten varsa, benzersiz bir ID oluşturana kadar sayı ekle
+    while (existingGroup) {
+      finalGroupId = `${groupId}${counter}`;
+      existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
+      counter++;
+    }
+
+    // Yeni grup oluştur
+    const newGroup = new UserGroup({
+      groupName,
+      groupId: finalGroupId,
+      description: description || '',
+      groupImage: groupImage, // null veya dosya adı
+      visibility: visibility || 'public',
+      createdAt: new Date()
+    });
+
+    await newGroup.save();
+
+    // Admin bilgilerini grupId ile ilişkilendirerek kaydet
+    const admin = new Admin({
+      username: adminName,
+      password: adminPassword,
+      groupId: finalGroupId
+    });
+
+    await admin.save();
+
+    res.status(201).json({ success: true, group: newGroup });
+  } catch (error) {
+    console.error('Error creating group:', error);
+    res.status(500).json({ error: 'Grup oluşturulurken bir hata oluştu' });
+  }
 });
 
 app.listen(port, () => {
