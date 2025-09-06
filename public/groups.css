@@ -43,8 +43,8 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 70px;
-    height: 70px;
+    width: 50px;
+    height: 50px;
     background: #3B82F6;
     border-bottom-right-radius: 100px;
     z-index: 1;
@@ -55,8 +55,8 @@ body {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 70px;
-    height: 70px;
+    width: 50px;
+    height: 50px;
     background: #3B82F6;
     border-top-left-radius: 100px;
     z-index: 1;
@@ -177,6 +177,7 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     transition: all 0.3s ease;
     white-space: nowrap;
@@ -344,7 +345,7 @@ body {
 }
 
 .memberCount {
-    color: #0057e3;
+    color: #2c72e4;
     font-size: 1rem;
 }
 
@@ -667,96 +668,89 @@ body {
     }
 
     @media (max-width: 768px) {
-        .groups-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-        }
 
         .group-card {
             padding: 22px;
         }
+
+
+        .group-desc {
+            width: 100%;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        .groupDescription {
+            max-width: 95%;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 15px;
+        }
+
+        .modal-header,
+        .modal-body {
+            padding: 22px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .modal-content {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
     }
 
-    .group-desc {
-        width: 100%;
-        margin-top: -10px;
-        margin-bottom: 10px;
-    }
+    @media (max-width: 480px) {
+        .header-content {
+            padding: 30px 20px;
+        }
 
-    .groupDescription {
-        max-width: 100%;
-    }
+        .header-icon {
+            width: 60px;
+            height: 60px;
+        }
 
-    .modal-content {
-        width: 95%;
-        margin: 15px;
-    }
+        .header-icon i {
+            font-size: 1.8rem;
+        }
 
-    .modal-header,
-    .modal-body {
-        padding: 22px;
-    }
+        .header-title {
+            font-size: 1.8rem;
+        }
 
-    .form-actions {
-        flex-direction: column;
-    }
+        .header-subtitle {
+            font-size: 1rem;
+        }
 
-    .btn-primary,
-    .btn-secondary {
-        width: 100%;
-        justify-content: center;
-    }
-}
+        .search-input {
+            padding: 14px 15px 14px 50px;
+        }
 
-@media (max-width: 480px) {
-    .header-content {
-        padding: 30px 20px;
-    }
+        .create-btn {
+            padding: 14px 20px;
+            font-size: 0.95rem;
+        }
 
-    .header-icon {
-        width: 60px;
-        height: 60px;
-    }
+        .modal-icon {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+        }
 
-    .header-icon i {
-        font-size: 1.8rem;
-    }
-
-    .header-title {
-        font-size: 1.8rem;
-    }
-
-    .header-subtitle {
-        font-size: 1rem;
-    }
-
-    .search-input {
-        padding: 14px 15px 14px 50px;
-    }
-
-    .create-btn {
-        padding: 14px 20px;
-        font-size: 0.95rem;
-    }
-
-    .group-avatar {
-        width: 50px;
-        height: 50px;
-        font-size: 1.2rem;
-    }
-
-    .group-name {
-        font-size: 1.2rem;
-    }
-
-    .modal-icon {
-        width: 35px;
-        height: 35px;
-        font-size: 1rem;
-    }
-
-    .modal-header h2 {
-        font-size: 1.3rem;
+        .modal-header h2 {
+            font-size: 1.3rem;
+        }
     }
 }
