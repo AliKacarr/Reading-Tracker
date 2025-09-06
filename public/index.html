@@ -58,10 +58,20 @@
   <!-- Add this style section to fix button widths -->
 
   <div class="container">
-    <h1 id="secretAdminLogin" style="display: flex; align-items: center; justify-content: center;">
-      <img src="images/open-book.png" alt="Favicon" style="height: 1.4em; margin-right: 15px;">
-      Risale-i Nur Okuma Takibi
-    </h1>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button onclick="window.location.href='groups.html'" class="showGroups" title="Grupları Görüntüle">
+        <i class="fa-solid fa-user-group" style="font-size: 20px; margin-right: 7px; color: #4e54c8;"></i>
+        Gruplar
+      </button>
+      <h1 id="secretAdminLogin">
+        <img src="images/open-book.png" alt="Favicon" style="height: 1.4em; margin-right: 15px;">
+        Risale-i Nur Okuma Takibi
+      </h1>
+      <button onclick="window.location.href='#'" class="profileButton" title="Profil">
+        <i class="fa-solid fa-user" style="font-size: 20px; margin-right: 7px; color: #4e54c8;"></i>
+        Profil
+      </button>
+    </div>
 
     <!-- Admin Login Modal -->
     <div id="adminLoginModal" class="admin-modal">
@@ -273,9 +283,8 @@
     </div>
 
     <div class="videos" style="display: none;">
-      <h3><i class="fa-regular fa-circle-play" style=" font-size: 1.3em; padding-left:2px; padding-right: 8px;"></i>Çatı
-        Katı Elazığ
-        - Videolar</h3>
+      <h3><i class="fa-regular fa-circle-play"
+          style=" font-size: 1.3em; padding-left:2px; padding-right: 8px;"></i>Videolar</h3>
       <div class="top-bar">
         <button id="randomBtn">
           <i class="fa-solid fa-shuffle"></i> Rastgele Videolar
@@ -316,7 +325,6 @@
           <h3>➕ Kullanıcı Ekle</h3>
           <div class="ad-user-form-group">
             <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
-            <input type="text" id="wpNameInput" placeholder="WhatsApp ismi (isteğe bağlı)" />
             <button type="submit" class="submit-button">Ekle</button>
           </div>
           <div class="image-upload">
@@ -335,9 +343,6 @@
             </div>
           </div>
         </form>
-        <div class="poll-job-trigger">
-          <button id="runPollJobsButton" class="run-poll-jobs-button">Run Poll Jobs</button>
-        </div>
       </div>
     </div>
     <!-- Add this after the user list section, before the closing container div -->

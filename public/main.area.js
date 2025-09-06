@@ -8,16 +8,13 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
     }
 
     const input = document.getElementById('newUserInput');
-    const wpNameInput = document.getElementById('wpNameInput');
     const imageInput = document.getElementById('profileImage');
     const name = input.value.trim();
-    const wpName = wpNameInput.value.trim() || 'default';
 
     if (!name) return;
 
     const formData = new FormData();
     formData.append('name', name);
-    formData.append('wpName', wpName);
 
     if (imageInput.files.length > 0) {
         formData.append('profileImage', imageInput.files[0]);
@@ -29,7 +26,6 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
     });
 
     input.value = '';
-    wpNameInput.value = '';
     imageInput.value = '';
     fileNameDisplay.textContent = 'Resim seçilmedi';
     fileInputLabel.textContent = 'Resim Seç';
@@ -292,22 +288,4 @@ function renderUserList() {
             });
             userList.scrollTop = prevScrollTop; // scroll pozisyonunu geri yükle
         });
-}
-
-// Anket İşlerini Çalıştır butonu için olay dinleyicisi ekle
-const runPollJobsButton = document.getElementById('runPollJobsButton');
-if (runPollJobsButton) {
-    runPollJobsButton.addEventListener('click', async () => {
-        try {
-            const response = await fetch('/run-poll-jobs');
-            if (response.ok) {
-                showSuccessMessage('Anket işleri başarıyla çalıştırıldı!');
-            } else {
-                showSuccessMessage('Anket işleri çalıştırılamadı.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showSuccessMessage('Bir hata oluştu.');
-        }
-    });
 }

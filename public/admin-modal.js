@@ -88,12 +88,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = document.getElementById('adminPassword').value;
 
         try {
+            const groupId = window.location.pathname.split('/')[1];
             const response = await fetch('/api/admin-login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password, groupId })
             });
 
             const data = await response.json();
@@ -101,6 +102,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.success) {
                 localStorage.setItem('authenticated', 'true');
                 localStorage.setItem('adminUsername', username);
+                localStorage.setItem('groupName', data.groupName);
+                localStorage.setItem('groupId', data.groupId);
                 adminLoginModal.style.display = 'none';
                 loginError.textContent = '';
 
@@ -188,6 +191,8 @@ function showAdminInfoPanel() {
         logoutBtn.onclick = function () {
             localStorage.removeItem('authenticated');
             localStorage.removeItem('adminUsername');
+            localStorage.removeItem('groupName');
+            localStorage.removeItem('groupId');
             adminInfoModal.style.display = 'none';
 
             const adminIndicator = document.querySelector('.admin-indicator');
@@ -195,12 +200,12 @@ function showAdminInfoPanel() {
             const loginLogsButton = document.getElementById('loginLogsButton');
             const mainArea = document.querySelector('.main-area');
 
-            if (adminIndicator) {
-                adminIndicator.style.display = 'none';
-                adminLogsButton.style.display = 'none';
-                loginLogsButton.style.display = 'none';
-                mainArea.style.display = 'none';
-            }
+
+            adminIndicator.style.display = 'none';
+            adminLogsButton.style.display = 'none';
+            loginLogsButton.style.display = 'none';
+            mainArea.style.display = 'none';
+
             // Reload data to update UI without admin privileges
             loadTrackerTable();
         };

@@ -1,5 +1,10 @@
-// Çatikatim kanalının ID'si
-const CHANNEL_ID = 'UCa4B618R90dxe7N9OK0LJyQ';
+// Farklı kanalların ID'leri
+const CHANNEL_IDS = [
+  'UCa4B618R90dxe7N9OK0LJyQ', // Çatı Katı Elazığ
+  'Cb2NNTeDSPr2sFHrI2AwHTQ', //Hisar Kapısı
+  'UCgC81lrIwMJJvAjyKm1ooow', //Maksat 114
+  'UCN5t14BCdTIQ-116TxJuBMg' //Sözler Köşkü
+];
 
 // DOM elementleri
 const videosContainer = document.getElementById('videos');
@@ -8,33 +13,105 @@ const videoFrame = document.getElementById('videoFrame');
 const closeBtn = document.querySelector('.close');
 
 
-// API anahtarını sunucudan al
-fetch('/api/config')
-    .then(response => response.json())
-    .then(config => {
-        API_KEY = config.youtubeApiKey;
-        // API anahtarı alındıktan sonra videoları yükle
-        showRandomVideos();
-    })
-    .catch(error => {
-        console.error('API anahtarı alınırken hata oluştu:', error);
-        videosContainer.innerHTML = `<div class="error">Yapılandırma yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
-    });
+// Video yükleme durumu
+let videoInitialized = false;
 
-// Kanalın rastgele videosunu getir
-async function fetchAllVideos(playlistId) {
-    let videos = [];
-    let nextPageToken = '';
-    do {
-        const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&key=${API_KEY}` + (nextPageToken ? `&pageToken=${nextPageToken}` : '');
+// Video bölümünü başlatma fonksiyonu
+function initializeVideos() {
+    if (videoInitialized) return;
+    videoInitialized = true;
+    
+    // Video bölümünü görünür yap
+    const videosSection = document.querySelector('.videos');
+    if (videosSection) {
+        videosSection.style.display = 'block';
+    }
+    
+    // Loading indicator göster
+    videosContainer.innerHTML = `
+        <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            z-index: 10;
+        ">
+            <div style="
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3498db;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin-bottom: 20px;
+            "></div>
+            <p style="color: #666; margin: 0; text-align: center; font-size: 16px;">Videolar yükleniyor...</p>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+    
+    // API anahtarını sunucudan al
+    fetch('/api/config')
+        .then(response => response.json())
+        .then(config => {
+            API_KEY = config.youtubeApiKey;
+            // API anahtarı alındıktan sonra videoları yükle
+            showRandomVideos();
+        })
+        .catch(error => {
+            console.error('API anahtarı alınırken hata oluştu:', error);
+            videosContainer.innerHTML = `<div class="error">Yapılandırma yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
+        });
+}
+
+// Tek bir kanalın son 50 videosunu getir (hızlı yükleme için)
+async function fetchLatestVideosFromChannel(channelId) {
+    try {
+        // Kanalın uploads playlist ID'sini al
+        const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`);
+        const channelData = await channelResponse.json();
+        if (!channelData.items || channelData.items.length === 0) return [];
+        
+        const uploadsPlaylistId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
+        
+        // Sadece son 50 videoyu al (tüm sayfaları çekmek yerine)
+        const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${uploadsPlaylistId}&key=${API_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
-        if (data.items) {
-            videos = videos.concat(data.items);
-        }
-        nextPageToken = data.nextPageToken;
-    } while (nextPageToken);
-    return videos;
+        
+        return data.items || [];
+    } catch (error) {
+        console.error(`Kanal ${channelId} videoları alınırken hata:`, error);
+        return [];
+    }
+}
+
+// Tüm kanallardan son videoları getir (hızlı yükleme)
+async function fetchLatestVideosFromAllChannels() {
+    let allVideos = [];
+    
+    // Tüm kanallardan son 50 videoyu paralel olarak çek
+    const channelPromises = CHANNEL_IDS.map(channelId => fetchLatestVideosFromChannel(channelId));
+    const channelResults = await Promise.all(channelPromises);
+    
+    // Tüm videoları birleştir
+    channelResults.forEach(videos => {
+        allVideos = allVideos.concat(videos);
+    });
+    
+    return allVideos;
 }
 
 // Video detaylarını toplu olarak getir (viewCount için)
@@ -122,7 +199,7 @@ function renderVideos(videos) {
 
 let isLoading = false;
 
-// En son eklenen videolar
+// En son eklenen videolar (tüm kanallardan)
 async function showLatestVideos() {
     if (isLoading) return;
     isLoading = true;
@@ -131,15 +208,14 @@ async function showLatestVideos() {
     document.getElementById('latestBtn').classList.add('active');
 
     try {
-        const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
-        const channelData = await channelResponse.json();
-        if (!channelData.items || channelData.items.length === 0) throw new Error('Kanal bulunamadı');
-        const uploadsPlaylistId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
-        const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=6&playlistId=${uploadsPlaylistId}&key=${API_KEY}`;
-        const videosResponse = await fetch(url);
-        const videosData = await videosResponse.json();
-        if (!videosData.items || videosData.items.length === 0) throw new Error('Video bulunamadı');
-        renderVideos(videosData.items);
+        const allVideos = await fetchLatestVideosFromAllChannels();
+        if (!allVideos || allVideos.length === 0) throw new Error('Video bulunamadı');
+        
+        // Tarihe göre sırala (en yeni önce)
+        allVideos.sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt));
+        
+        // İlk 6 videoyu al
+        renderVideos(allVideos.slice(0, 6));
     } catch (error) {
         videosContainer.innerHTML = `<div class="error">Videolar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>`;
     } finally {
@@ -147,7 +223,7 @@ async function showLatestVideos() {
     }
 }
 
-// En çok izlenen videolar
+// En çok izlenen videolar (tüm kanallardan)
 async function showMostViewedVideos() {
     if (isLoading) return;
     isLoading = true;
@@ -156,12 +232,9 @@ async function showMostViewedVideos() {
     document.getElementById('mostViewedBtn').classList.add('active');
 
     try {
-        const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
-        const channelData = await channelResponse.json();
-        if (!channelData.items || channelData.items.length === 0) throw new Error('Kanal bulunamadı');
-        const uploadsPlaylistId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
-        const allVideos = await fetchAllVideos(uploadsPlaylistId);
+        const allVideos = await fetchLatestVideosFromAllChannels();
         if (!allVideos || allVideos.length === 0) throw new Error('Video bulunamadı');
+        
         const videoIdList = allVideos.map(item => item.snippet.resourceId.videoId);
         let stats = [];
         for (let i = 0; i < videoIdList.length; i += 50) {
@@ -182,7 +255,7 @@ async function showMostViewedVideos() {
     }
 }
 
-// Rastgele videolar
+// Rastgele videolar (tüm kanallardan)
 async function showRandomVideos() {
     if (isLoading) return;
     isLoading = true;
@@ -191,11 +264,7 @@ async function showRandomVideos() {
     document.getElementById('randomBtn').classList.add('active');
 
     try {
-        const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${CHANNEL_ID}&key=${API_KEY}`);
-        const channelData = await channelResponse.json();
-        if (!channelData.items || channelData.items.length === 0) throw new Error('Kanal bulunamadı');
-        const uploadsPlaylistId = channelData.items[0].contentDetails.relatedPlaylists.uploads;
-        const allVideos = await fetchAllVideos(uploadsPlaylistId);
+        const allVideos = await fetchLatestVideosFromAllChannels();
         if (!allVideos || allVideos.length === 0) throw new Error('Video bulunamadı');
         const randomVideos = getRandomVideos(allVideos, 6);
         renderVideos(randomVideos);

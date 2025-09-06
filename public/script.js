@@ -2,7 +2,7 @@
 function getGroupIdFromUrl() {
   const path = window.location.pathname;
   const segments = path.split('/').filter(segment => segment !== '');
-  
+
   // Eğer URL'de grup ID'si varsa (örn: /hisarkapisi16)
   if (segments.length > 0) {
     let groupId = segments[0];
@@ -14,19 +14,102 @@ function getGroupIdFromUrl() {
     groupId = groupId.replace(/[^a-zA-Z0-9_]/g, '');
     return groupId;
   }
-  
-  // Varsayılan grup ID'si (eski sistem için geriye dönük uyumluluk)
-  return 'default';
+
+  // Ana sayfa için null döndür (gruplar sayfasına yönlendirilecek)
+  return null;
+}
+
+// Grup değişikliğinde çerezleri temizleme fonksiyonu
+function cleanupCrossGroupCookies() {
+  const storedGroupId = localStorage.getItem('groupId');
+
+  if (storedGroupId && storedGroupId !== currentGroupId) {
+    console.log('Grup değişikliği tespit edildi. Tüm admin çerezleri temizleniyor...');
+    localStorage.removeItem('authenticated');
+    localStorage.removeItem('adminUsername');
+    localStorage.removeItem('groupName');
+    localStorage.removeItem('groupId');
+    hideAdminElements();
+    return true;
+  }
+  return false;
 }
 
 // Global grup ID değişkeni
 let currentGroupId = getGroupIdFromUrl();
+let previousGroupId = localStorage.getItem('groupId');
+
+// Admin elementlerini gizleme fonksiyonu
+function hideAdminElements() {
+  const adminIndicator = document.querySelector('.admin-indicator');
+  const adminLogsButton = document.getElementById('adminLogsButton');
+  const loginLogsButton = document.getElementById('loginLogsButton');
+
+  if (adminIndicator) adminIndicator.style.display = 'none';
+  if (adminLogsButton) adminLogsButton.style.display = 'none';
+  if (loginLogsButton) loginLogsButton.style.display = 'none';
+}
+
+// Grup bazlı doğrulama fonksiyonu
+function validateAdminForCurrentGroup() {
+  const storedGroupId = localStorage.getItem('groupId');
+  const isAuth = localStorage.getItem('authenticated') === 'true';
+
+  // Eğer admin girişi varsa ama grup ID'si uyuşmuyorsa
+  if (isAuth && storedGroupId !== currentGroupId) {
+    localStorage.removeItem('authenticated');
+    localStorage.removeItem('adminUsername');
+    localStorage.removeItem('groupName');
+    localStorage.removeItem('groupId');
+    console.log('Grup uyuşmazlığı tespit edildi. Admin yetkileri kaldırılıyor.');
+    hideAdminElements();
+    return false;
+  }
+
+  return isAuth && storedGroupId === currentGroupId;
+}
+
+// Cross-tab communication için storage event listener
+function setupCrossTabSecurity() {
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'groupId' || e.key === 'authenticated') {
+      validateAdminForCurrentGroup();
+    }
+  });
+}
 
 document.addEventListener('DOMContentLoaded', async function () {
   try {
+    // Grup değişikliğini hemen kontrol et ve temizlik yap
+    const groupChanged = cleanupCrossGroupCookies();
+    if (groupChanged) {
+      console.log('Grup değişikliği tespit edildi, admin verileri temizlendi');
+    }
+
+    // Cross-tab security setup
+    setupCrossTabSecurity();
+
+    // Grup bazlı admin doğrulaması
+    const isValidAdmin = validateAdminForCurrentGroup();
+
+    if (!isValidAdmin) {
+      hideAdminElements();
+    }
+
+    // Periyodik doğrulama - her 2 saniyede bir admin durumunu kontrol et
+    setInterval(() => {
+      validateAdminForCurrentGroup();
+    }, 2000);
+
+    // Grup ID'si yoksa gruplar sayfasına yönlendir
+    if (currentGroupId === null) {
+      window.location.href = '/groups.html';
+      return;
+    }
+
     // Grup doğrulama
     await validateGroup();
-    
+
     // İlk çalışacak kritik fonksiyonlar
     await Promise.all([
       loadTrackerTable(),
@@ -43,6 +126,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       { name: 'fetchRandomQuote', fn: fetchRandomQuote },
       { name: 'fetchRandomHadis', fn: fetchRandomHadis },
       { name: 'fetchRandomDua', fn: fetchRandomDua },
+      { name: 'initializeVideos', fn: initializeVideos },
       { name: 'renderUserList', fn: renderUserList },
       { name: 'logPageVisit', fn: logPageVisit }
     ];
@@ -65,75 +149,29 @@ document.addEventListener('DOMContentLoaded', async function () {
 async function validateGroup() {
   try {
     const response = await fetch(`/api/group/${currentGroupId}`);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
-        // Grup yoksa otomatik oluştur
-        console.log('Grup bulunamadı, otomatik oluşturuluyor:', currentGroupId);
-        await createGroupAutomatically();
-        return true;
+        // Grup yoksa gruplar sayfasına yönlendir
+        console.log('Grup bulunamadı, gruplar sayfasına yönlendiriliyor:', currentGroupId);
+        window.location.href = '/groups.html';
+        return false;
       }
       throw new Error('Grup doğrulama hatası');
     }
-    
+
     const data = await response.json();
     console.log('Grup doğrulandı:', data.group);
     return true;
   } catch (error) {
     console.error('Grup doğrulama hatası:', error);
-    // Hata durumunda da otomatik oluşturmayı dene
-    await createGroupAutomatically();
-    return true;
+    // Hata durumunda gruplar sayfasına yönlendir
+    window.location.href = '/groups.html';
+    return false;
   }
 }
 
-// Grup otomatik oluşturma fonksiyonu
-async function createGroupAutomatically() {
-  try {
-    const response = await fetch('/api/create-group', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        groupName: currentGroupId.charAt(0).toUpperCase() + currentGroupId.slice(1),
-        groupId: currentGroupId
-      })
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Grup otomatik oluşturuldu:', data.group);
-    } else {
-      console.log('Grup zaten mevcut veya oluşturulamadı');
-    }
-  } catch (error) {
-    console.error('Grup oluşturma hatası:', error);
-  }
-}
 
-// Grup bulunamadığında gösterilecek hata mesajı
-function showGroupNotFoundError() {
-  document.body.innerHTML = `
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; font-family: Arial, sans-serif;">
-      <h1 style="color: #e74c3c; margin-bottom: 20px;">Grup Bulunamadı</h1>
-      <p style="color: #666; text-align: center; max-width: 400px;">
-        <strong>${currentGroupId}</strong> grubu bulunamadı. Grup otomatik olarak oluşturulmaya çalışılıyor...
-      </p>
-      <div style="margin-top: 20px;">
-        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-      </div>
-      <button onclick="window.location.reload()"
-              style="margin-top: 20px; padding: 10px 20px; background-color: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
-        Sayfayı Yenile
-      </button>
-      <style>
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      </style>
-    </div>
-  `;
-}
 
 function isAuthenticated() {
   return localStorage.getItem('authenticated') === 'true';
@@ -191,31 +229,38 @@ async function logPageVisit() {    //sayfa ziyaretleri kontrolü
 
 async function verifyAdminUsername() {     //admin kullanıcı adı doğrulama - halen geçerlimiye bakıyor
   const username = localStorage.getItem('adminUsername');
+  const storedGroupId = localStorage.getItem('groupId');
 
-  if (!username) return false;
+  if (!username || !storedGroupId || storedGroupId !== currentGroupId) {
+    if (storedGroupId !== currentGroupId) {
+      // Grup uyuşmazlığı varsa bilgileri temizle
+      localStorage.removeItem('authenticated');
+      localStorage.removeItem('adminUsername');
+      localStorage.removeItem('groupName');
+      localStorage.removeItem('groupId');
+      hideAdminElements();
+    }
+    return false;
+  }
 
   try {
     const response = await fetch('/api/verify-admin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username })
+      body: JSON.stringify({ username, groupId: currentGroupId })
     });
 
     const data = await response.json();
     if (!data.valid) {
-      // Admin username no longer exists in database, clear authentication
+      // Admin username no longer exists in database or group mismatch, clear authentication
       localStorage.removeItem('authenticated');
       localStorage.removeItem('adminUsername');
+      localStorage.removeItem('groupName');
+      localStorage.removeItem('groupId');
 
       // Hide admin elements
-      const adminIndicator = document.querySelector('.admin-indicator');
-      const adminLogsButton = document.getElementById('adminLogsButton');
-      const loginLogsButton = document.getElementById('loginLogsButton');
+      hideAdminElements();
       const mainArea = document.querySelector('.main-area');
-
-      if (adminIndicator) adminIndicator.style.display = 'none';
-      if (adminLogsButton) adminLogsButton.style.display = 'none';
-      if (loginLogsButton) loginLogsButton.style.display = 'none';
       if (mainArea) mainArea.style.display = 'none';
 
       return false;

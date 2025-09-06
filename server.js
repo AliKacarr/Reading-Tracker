@@ -91,7 +91,9 @@ const ReadingStatus = mongoose.model('ReadingStatus', {
 // Kullanıcı grupları modeli
 const UserGroup = mongoose.model('UserGroup', {
   groupName: String,
-  groupId: String
+  groupId: String,
+  description: String,
+  createdAt: { type: Date, default: Date.now }
 });
 
 
@@ -102,7 +104,7 @@ const modelCache = {};
 function getGroupCollections(groupId) {
   const userModelName = `users_${groupId}`;
   const readingStatusModelName = `readingstatuses_${groupId}`;
-  
+
   // Eğer model zaten cache'de varsa, onu kullan
   if (modelCache[userModelName] && modelCache[readingStatusModelName]) {
     return {
@@ -110,15 +112,15 @@ function getGroupCollections(groupId) {
       readingStatuses: modelCache[readingStatusModelName]
     };
   }
-  
+
   // Eğer model zaten Mongoose'da varsa, onu kullan
   try {
     const existingUserModel = mongoose.model(userModelName);
     const existingReadingStatusModel = mongoose.model(readingStatusModelName);
-    
+
     modelCache[userModelName] = existingUserModel;
     modelCache[readingStatusModelName] = existingReadingStatusModel;
-    
+
     return {
       users: modelCache[userModelName],
       readingStatuses: modelCache[readingStatusModelName]
@@ -126,24 +128,24 @@ function getGroupCollections(groupId) {
   } catch (error) {
     // Model yoksa oluştur
   }
-  
+
   // Model'leri oluştur ve cache'e ekle
   const userSchema = new mongoose.Schema({
     name: String,
     profileImage: String,
     wpName: { type: String, default: 'default' }
   });
-  
+
   const readingStatusSchema = new mongoose.Schema({
     userId: String,
     date: String,
     status: String
   });
-  
+
   // Model'i oluştur
   modelCache[userModelName] = mongoose.model(userModelName, userSchema);
   modelCache[readingStatusModelName] = mongoose.model(readingStatusModelName, readingStatusSchema);
-  
+
   return {
     users: modelCache[userModelName],
     readingStatuses: modelCache[readingStatusModelName]
@@ -155,11 +157,11 @@ app.get('/api/group/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
     const group = await UserGroup.findOne({ groupId });
-    
+
     if (!group) {
       return res.status(404).json({ error: 'Grup bulunamadı' });
     }
-    
+
     res.json({ group });
   } catch (error) {
     console.error('Error fetching group:', error);
@@ -167,27 +169,144 @@ app.get('/api/group/:groupId', async (req, res) => {
   }
 });
 
-// Grup oluşturma endpoint'i
-app.post('/api/create-group', async (req, res) => {
+// Grupları listeleme endpoint'i
+app.get('/api/groups', async (req, res) => {
   try {
-    const { groupName, groupId } = req.body;
-    
-    // Grup ID'si zaten var mı kontrol et
-    const existingGroup = await UserGroup.findOne({ groupId });
-    if (existingGroup) {
-      return res.json({ success: true, group: existingGroup, message: 'Grup zaten mevcut' });
-    }
-    
-    // Yeni grup oluştur
-    const newGroup = new UserGroup({ groupName, groupId });
-    await newGroup.save();
-    
-    res.json({ success: true, group: newGroup, message: 'Grup oluşturuldu' });
+    const { skip = 0, limit = 12, search = '' } = req.query;
+
+    // Arama sorgusu oluştur
+    const query = search
+      ? {
+        $or: [
+          { groupName: { $regex: search, $options: 'i' } },
+          { groupId: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      }
+      : {};
+
+    // Toplam grup sayısını al
+    const total = await UserGroup.countDocuments(query);
+
+    // Grupları getir
+    const groups = await UserGroup.find(query)
+      .sort({ createdAt: -1 })
+      .skip(Number(skip))
+      .limit(Number(limit));
+
+    res.json({ groups, total });
   } catch (error) {
-    console.error('Error creating group:', error);
+    console.error('Error fetching groups:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+// Grup üye sayısını getirme endpoint'i
+app.get('/api/groups/:groupId/member-count', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { users } = getGroupCollections(groupId);
+
+    // Kullanıcı sayısını al
+    const count = await users.countDocuments();
+
+    res.json({ count });
+  } catch (error) {
+    console.error('Error fetching member count:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Grup oluşturma endpoint'i
+app.post('/api/groups', async (req, res) => {
+  try {
+    const { groupName, description, adminName, adminPassword } = req.body;
+
+    if (!groupName) {
+      return res.status(400).json({ error: 'Grup adı gereklidir' });
+    }
+
+    if (!adminName || !adminPassword) {
+      return res.status(400).json({ error: 'Yönetici adı ve şifresi gereklidir' });
+    }
+
+    // Benzersiz bir grup ID'si oluştur
+    const groupId = generateGroupId(groupName);
+
+    // Grup ID'si zaten var mı kontrol et
+    let finalGroupId = groupId;
+    let counter = 1;
+    let existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
+
+    // Eğer ID zaten varsa, benzersiz bir ID oluşturana kadar sayı ekle
+    while (existingGroup) {
+      finalGroupId = `${groupId}${counter}`;
+      existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
+      counter++;
+    }
+
+    // Yeni grup oluştur
+    const newGroup = new UserGroup({
+      groupName,
+      groupId: finalGroupId,
+      description: description || groupName,
+      createdAt: new Date()
+    });
+
+    await newGroup.save();
+
+    // Admin bilgilerini grupId ile ilişkilendirerek kaydet
+    const admin = new Admin({
+      username: adminName,
+      password: adminPassword,
+      groupId: finalGroupId
+    });
+
+    await admin.save();
+
+    res.status(201).json({ success: true, group: newGroup });
+  } catch (error) {
+    console.error('Error creating group:', error);
+    res.status(500).json({ error: 'Grup oluşturulurken bir hata oluştu' });
+  }
+});
+
+// Grup ID'si oluşturma yardımcı fonksiyonu
+function generateGroupId(groupName) {
+  // Türkçe karakterleri değiştir
+  const turkishChars = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+
+  // Boşlukları kaldır, küçük harfe çevir ve Türkçe karakterleri değiştir
+  let id = groupName.toLowerCase();
+
+  // Türkçe karakterleri değiştir
+  for (const [turkishChar, latinChar] of Object.entries(turkishChars)) {
+    id = id.replace(new RegExp(turkishChar, 'g'), latinChar);
+  }
+
+  // Sadece alfanumerik karakterleri ve boşlukları tut
+  id = id.replace(/[^a-z0-9\s]/g, '');
+
+  // Boşlukları tire ile değiştir ve birden fazla tireyi tek tireye indir
+  id = id.replace(/\s+/g, '-').replace(/-+/g, '-');
+
+  // Başındaki ve sonundaki tireleri kaldır
+  id = id.replace(/^-+|-+$/g, '');
+
+  // Rastgele bir sayı ekle (opsiyonel)
+  const randomNum = Math.floor(Math.random() * 1000);
+  id = `${id}${randomNum}`;
+
+  return id;
+}
 
 
 
@@ -195,19 +314,19 @@ app.post('/api/create-group', async (req, res) => {
 app.get('/api/all-data/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
-    
+
     // Grup var mı kontrol et
     const group = await UserGroup.findOne({ groupId });
     if (!group) {
       return res.status(404).json({ error: 'Grup bulunamadı' });
     }
-    
+
     // Dinamik koleksiyonları al
     const { users, readingStatuses } = getGroupCollections(groupId);
-    
+
     const usersData = await users.find().sort({ name: 1 });
     const statsData = await readingStatuses.find();
-    
+
     res.json({ users: usersData, stats: statsData, group });
   } catch (error) {
     console.error('Error fetching all data:', error);
@@ -642,19 +761,29 @@ app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async
 // Admin model
 const Admin = mongoose.model('Admin', {
   username: String,
-  password: String
+  password: String,
+  groupId: String
 });
 
 // Admin doğrulama
 app.post('/api/admin-login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, groupId } = req.body;
 
-    // Find admin in the adminData collection
-    const admin = await Admin.findOne({ username, password });
+    // Find admin in the adminData collection with matching groupId
+    const admin = await Admin.findOne({ username, password, groupId });
 
     if (admin) {
-      res.json({ success: true });
+      // Grup bilgisini al
+      const group = await UserGroup.findOne({ groupId: admin.groupId });
+      if (!group) {
+        return res.json({ success: false, error: 'Grup bulunamadı' });
+      }
+      res.json({
+        success: true,
+        groupName: group.groupName,
+        groupId: group.groupId
+      });
     } else {
       res.json({ success: false });
     }
@@ -774,10 +903,10 @@ app.get('/api/login-logs', async (req, res) => {
 // admin doğrulama
 app.post('/api/verify-admin', async (req, res) => {
   try {
-    const { username } = req.body;
+    const { username, groupId } = req.body;
 
     // Use the existing mongoose connection instead of creating a new client
-    const admin = await Admin.findOne({ username });
+    const admin = await Admin.findOne({ username, groupId });
 
     res.json({ valid: !!admin });
   } catch (error) {
@@ -786,13 +915,78 @@ app.post('/api/verify-admin', async (req, res) => {
   }
 });
 
-// Ana sayfa için varsayılan grup yönlendirmesi
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Grupları listeleme API'si
+app.get('/api/groups', async (req, res) => {
+  try {
+    const { page = 1, limit = 12, search = '' } = req.query;
+    const skip = (page - 1) * limit;
+
+    // Arama filtresi
+    const searchFilter = search ? {
+      $or: [
+        { groupName: { $regex: search, $options: 'i' } },
+        { groupId: { $regex: search, $options: 'i' } }
+      ]
+    } : {};
+
+    // Grupları getir
+    const groups = await Group.find(searchFilter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Grup yoksa boş array döndür
+    if (!groups || groups.length === 0) {
+      return res.json({
+        groups: [],
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: 0,
+          totalGroups: 0,
+          hasNextPage: false,
+          hasPrevPage: false
+        }
+      });
+    }
+
+    // Her grup için kullanıcı sayısını hesapla
+    const groupsWithCounts = await Promise.all(
+      groups.map(async (group) => {
+        const userCount = await User.countDocuments({ groupId: group.groupId });
+        return {
+          ...group.toObject(),
+          userCount
+        };
+      })
+    );
+
+    // Toplam sayfa sayısını hesapla
+    const totalGroups = await Group.countDocuments(searchFilter);
+    const totalPages = Math.ceil(totalGroups / limit);
+
+    res.json({
+      groups: groupsWithCounts,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages,
+        totalGroups,
+        hasNextPage: parseInt(page) < totalPages,
+        hasPrevPage: parseInt(page) > 1
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching groups:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-// Grup sayfası için route
-app.get('/:groupId', (req, res) => {
+// Ana sayfa - gruplar sayfasını direkt aç
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
+});
+
+// Grup sayfası için route - alfanumerik, tire ve alt çizgi karakterlerine izin ver
+app.get('/:groupId([a-zA-Z0-9_-]+)', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -905,88 +1099,3 @@ function scheduleBackup() {
 
 // Start the backup scheduler
 const backupJob = scheduleBackup();
-
-
-const { exec } = require('child_process');
-
-app.get('/run-poll-jobs', async (req, res) => {
-  // The poll jobs logic from örnek_kod
-  function anketVeriCek(groupName) {
-    return new Promise((resolve, reject) => {
-      console.log(`${groupName} grubu için anket verisi çekiliyor...`);
-      const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-anket-veri.js');
-      exec(`node "${scriptPath}" "${groupName}" 1`, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`${groupName} grubu anket verisi çekilirken hata oluştu: ${error.message}`);
-          reject(error);
-          return;
-        }
-        if (stderr) {
-          console.error(`${groupName} grubu anket verisi stderr: ${stderr}`);
-          reject(new Error(stderr));
-          return;
-        }
-        console.log(`${groupName} grubu anket verisi başarıyla çekildi: ${stdout}`);
-        resolve(stdout);
-      });
-    });
-  }
-  function anketGonder(groupName) {
-    return new Promise((resolve, reject) => {
-      console.log(`${groupName} grubu için anket gönderiliyor...`);
-      const scriptPath = path.join(__dirname, 'poll-data-extraction', 'wp-send-poll.py');
-      const command = `python "${scriptPath}" "${groupName}"`;
-      console.log(`Çalıştırılan komut: ${command}`);
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`${groupName} grubu anket gönderiminde hata oluştu: ${error.message}`);
-          reject(error);
-          return;
-        }
-        if (stderr) {
-          console.error(`${groupName} grubu anket gönderimi stderr: ${stderr}`);
-          reject(new Error(stderr));
-          return;
-        }
-        console.log(`${groupName} grubu anket gönderimi başarılı: ${stdout}`);
-        resolve(stdout);
-      });
-    });
-  }
-  async function runJobsSequentially() {
-    const gruplar = [
-      { isim: 'Çatı Özel Ders(Çarşamba)', anketVeriCek: true, anketGonder: true },
-      { isim: 'Uhuvvet Eşliğinde Mütalaa', anketVeriCek: true, anketGonder: false }
-    ];
-    let results = [];
-    for (const grup of gruplar) {
-      try {
-        if (grup.anketVeriCek) {
-          try {
-            await anketVeriCek(grup.isim);
-            results.push(`${grup.isim} anket verisi çekildi.`);
-          } catch (error) {
-            results.push(`${grup.isim} anket verisi çekilemedi: ${error.message}`);
-            continue;
-          }
-        }
-        if (grup.anketGonder) {
-          try {
-            await anketGonder(grup.isim);
-            results.push(`${grup.isim} anket gönderildi.`);
-          } catch (error) {
-            results.push(`${grup.isim} anket gönderilemedi: ${error.message}`);
-            continue;
-          }
-        }
-      } catch (error) {
-        results.push(`${grup.isim} işlemler sırasında hata: ${error.message}`);
-        continue;
-      }
-    }
-    return results;
-  }
-  runJobsSequentially()
-    .then(results => res.json({ success: true, results }))
-    .catch(error => res.status(500).json({ success: false, error: error.message }));
-});
