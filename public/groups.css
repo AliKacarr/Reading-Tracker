@@ -275,9 +275,12 @@ body {
     font-size: 1.5rem;
     flex-shrink: 0;
     border-radius: 8px;
-    /* Köşeleri hafif yumuşatmak için */
     overflow: hidden;
-    /* Resmin kutudan taşmasını engellemek için */
+}
+
+/* Remove background when image is present */
+.group-avatar:has(.group-avatar-image) {
+    background: none;
 }
 
 .group-avatar .group-avatar-image {
@@ -451,6 +454,8 @@ body {
     transform: translateY(20px);
     transition: all 0.3s ease;
     border: 1px solid rgba(224, 231, 255, 0.8);
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 .modal.active .modal-content {
@@ -725,12 +730,6 @@ body {
             justify-content: center;
         }
 
-        .modal-content {
-            padding-top: 10px;
-            padding-bottom: 10px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
     }
 
     @media (max-width: 480px) {
@@ -809,7 +808,8 @@ body {
 
 .input-container select {
     width: 100%;
-    padding: 12px 40px 12px 15px; /* Sağ tarafta ikon için daha fazla boşluk */
+    padding: 12px 40px 12px 15px;
+    /* Sağ tarafta ikon için daha fazla boşluk */
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     background-color: #f0f2f5;
@@ -821,7 +821,8 @@ body {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 15px center; /* Ok ikonunun pozisyonu */
+    background-position: right 15px center;
+    /* Ok ikonunun pozisyonu */
     background-size: 12px;
 }
 
@@ -840,7 +841,8 @@ body {
 }
 
 .input-container .select-wrapper select {
-    padding-left: 40px; /* Sol tarafta ikon için boşluk */
+    padding-left: 40px;
+    /* Sol tarafta ikon için boşluk */
 }
 
 /* Hover efekti */
@@ -853,5 +855,5 @@ body {
 .input-container select:focus {
     outline: none;
     border-color: #80bdff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
 }

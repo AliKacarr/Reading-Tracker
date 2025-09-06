@@ -311,7 +311,19 @@ async function toggleStatus(userId, date) {
         body: JSON.stringify({ userId, date, status })
     });
     
+    // Yenileme butonunu göster
+    showRefreshButton();
+    
     loadTrackerTable();
+}
+
+function showRefreshButton() {
+    const refreshBtn = document.getElementById('refreshButton');
+    
+    if (refreshBtn) {
+        // Butonu göster
+        refreshBtn.style.display = 'flex';
+    }
 }
 
 function getDayOfWeekInTurkish(date) {

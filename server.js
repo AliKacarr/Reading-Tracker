@@ -95,8 +95,7 @@ const uploadGroupImage = multer({ storage: groupImageStorage });
 // Kullanıcı modeli
 const User = mongoose.model('User', {
   name: String,
-  profileImage: String,
-  wpName: { type: String, default: 'default' }
+  profileImage: String
 });
 
 // Okuma durumu modeli
@@ -158,8 +157,7 @@ function getGroupCollections(groupId) {
   // Model'leri oluştur ve cache'e ekle
   const userSchema = new mongoose.Schema({
     name: String,
-    profileImage: String,
-    wpName: { type: String, default: 'default' }
+    profileImage: String
   });
 
   const readingStatusSchema = new mongoose.Schema({
@@ -601,7 +599,7 @@ app.get('/api/config', (req, res) => {
 app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, res) => {
   try {
     const { groupId } = req.params;
-    const { name, wpName } = req.body;
+    const { name } = req.body;
 
     // Grup var mı kontrol et
     const group = await UserGroup.findOne({ groupId });
@@ -613,7 +611,7 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
     const { users } = getGroupCollections(groupId);
 
     const profileImage = req.file ? req.file.filename : 'default.png';
-    const user = new users({ name, profileImage, wpName: wpName || 'default' });
+    const user = new users({ name, profileImage });
     await user.save();
     res.json({ success: true });
   } catch (err) {
@@ -1007,6 +1005,14 @@ app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) 
     });
 
     await admin.save();
+
+    // Varsayılan kullanıcı ekle
+    const { users } = getGroupCollections(finalGroupId);
+    const defaultUser = new users({
+      name: "Siz",
+      profileImage: "default.png"
+    });
+    await defaultUser.save();
 
     res.status(201).json({ success: true, group: newGroup });
   } catch (error) {

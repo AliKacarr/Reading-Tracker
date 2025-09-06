@@ -353,6 +353,12 @@ class GroupsPage {
             const result = await response.json();
 
             if (result.success) {
+                // Admin girişi yapmış şekilde localStorage'a bilgileri kaydet
+                localStorage.setItem('authenticated', 'true');
+                localStorage.setItem('adminUsername', adminName);
+                localStorage.setItem('groupName', result.group.groupName);
+                localStorage.setItem('groupId', result.group.groupId);
+                
                 this.closeCreateModal();
                 window.location.href = `/${result.group.groupId}`;
             } else {

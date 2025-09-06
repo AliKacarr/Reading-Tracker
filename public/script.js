@@ -140,6 +140,14 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
     }
 
+    // Yenileme butonu event listener'ı
+    const refreshButton = document.getElementById('refreshButton');
+    if (refreshButton) {
+      refreshButton.addEventListener('click', () => {
+        window.location.reload();
+      });
+    }
+
   } catch (error) {
     console.error('Sayfa yüklenirken hata oluştu:', error);
   }
