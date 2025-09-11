@@ -17,15 +17,18 @@ body {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
 }
 
 .logs-table {
     width: 100%;
+    min-width: 760px; /* küçük ekranlarda yatay kaydırma için alt limit */
     border-collapse: collapse;
     margin-top: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     overflow: hidden;
+    table-layout: fixed; /* sütunların konteynıra göre uyumlanması */
 }
 
 .logs-table th,
@@ -33,6 +36,7 @@ body {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #eee;
+    word-break: break-word; /* uzun cihaz bilgilerini taşırma yapmadan böl */
 }
 
 .logs-table th {

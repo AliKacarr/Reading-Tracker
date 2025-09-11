@@ -9,6 +9,7 @@ const currentWeekDisplay = document.getElementById('currentWeekDisplay');
 const firstDaySelect = document.getElementById('firstDaySelect');
 let weekOffset = 0;
 let isFirstLoad = true;
+let postToggleUpdateTimer = null;
 
 function getWeekDates(offset = 0) {
     const today = new Date();
@@ -33,6 +34,12 @@ function getWeekDates(offset = 0) {
         dates.push(`${year}-${month}-${day}`);
     }
     return dates;
+}
+
+function showWeekLoading(show) {
+    const overlay = document.getElementById('weekLoadingOverlay');
+    if (!overlay) return;
+    overlay.style.display = show ? 'flex' : 'none';
 }
 
 function formatDateRange(dates) {
@@ -190,6 +197,7 @@ async function loadTrackerTable() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             isFirstLoad = false;
         }
+        showWeekLoading(false);
     }, 20);
 }
 
@@ -230,26 +238,26 @@ function areDatesConsecutive(date1, date2) {
 
 prevWeekBtn.addEventListener('click', () => {
     weekOffset--;
+    showWeekLoading(true);
     loadTrackerTable();
-    loadUserCards();
 });
 
 nextWeekBtn.addEventListener('click', () => {
     weekOffset++;
+    showWeekLoading(true);
     loadTrackerTable();
-    loadUserCards();
 });
 
 prevWeekTodayBtn.addEventListener('click', () => {
     weekOffset = 0;
+    showWeekLoading(true);
     loadTrackerTable();
-    loadUserCards();
 });
 
 nextWeekTodayBtn.addEventListener('click', () => {
     weekOffset = 0;
+    showWeekLoading(true);
     loadTrackerTable();
-    loadUserCards();
 });
 
 function calculateStreak(userStats) {
@@ -311,20 +319,74 @@ async function toggleStatus(userId, date) {
         body: JSON.stringify({ userId, date, status })
     });
     
-    // Yenileme butonunu göster
-    showRefreshButton();
-    
-    loadTrackerTable();
-}
+    // Hücre ikonunu ve arkaplanını anında güncelle
+    const newSymbol = status === 'okudum' ? '✔' : (status === 'okumadım' ? '✖' : '➖');
+    cell.innerText = newSymbol;
 
-function showRefreshButton() {
-    const refreshBtn = document.getElementById('refreshButton');
-    
-    if (refreshBtn) {
-        // Butonu göster
-        refreshBtn.style.display = 'flex';
+    // Sınıfı güncelle (okumadım serisi bilgisi tablo genelinden hesaplandığı için, burada sadece temel renkleri uygula)
+    cell.classList.remove('green', 'pink', 'lila', 'red');
+    if (status === 'okudum') {
+        cell.classList.add('green');
+    } else if (status === 'okumadım') {
+        cell.classList.add('pink');
+    }
+
+    // Sayfa genelini gecikmeli güncelleme ile senkronize et
+
+    // Kullanıcının serisini güncelle (satırın son hücresi)
+    try {
+        const res = await fetch(`/api/all-data/${currentGroupId}`);
+        const { stats } = await res.json();
+        const userStatsMap = {};
+        for (let s of stats) {
+            if (s.userId === userId) {
+                userStatsMap[s.date] = s.status;
+            }
+        }
+        // Seçilen hücrede yaptığımız değişikliği de yerel olarak uygula ki sunucu gecikmesinde doğru hesap çıksın
+        if (status) userStatsMap[date] = status; else delete userStatsMap[date];
+
+        const newStreak = calculateStreak(userStatsMap);
+        const rowEl = cell.closest('tr');
+        if (rowEl) {
+            const lastTd = rowEl.querySelector('td:last-child');
+            if (lastTd) {
+                lastTd.innerHTML = newStreak > 0 ? `<span class="weekly-fire-emoji">🔥</span> ${newStreak}` : '-';
+            }
+        }
+    } catch (e) {
+        console.error('Seri güncellenemedi:', e);
+    }
+
+    // 3 sn tıklama olmazsa kartlar, istatistikler ve aylık görünümü güncelle (debounce)
+    try {
+        if (postToggleUpdateTimer) {
+            clearTimeout(postToggleUpdateTimer);
+        }
+        postToggleUpdateTimer = setTimeout(() => {
+            try {
+                if (typeof window.loadUserCards === 'function') {
+                    window.loadUserCards();
+                }
+                if (typeof window.loadReadingStats === 'function') {
+                    window.loadReadingStats();
+                }
+                if (typeof window.renderLongestSeries === 'function') {
+                    window.renderLongestSeries();
+                }
+                if (typeof window.loadMonthlyCalendar === 'function') {
+                    window.loadMonthlyCalendar();
+                }
+            } catch (err) {
+                console.error('Gecikmeli güncelleme hatası:', err);
+            }
+        }, 3000);
+    } catch (err) {
+        console.error('Debounce ayarlanamadı:', err);
     }
 }
+
+// refresh butonu kaldırıldı
 
 function getDayOfWeekInTurkish(date) {
     const days = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];

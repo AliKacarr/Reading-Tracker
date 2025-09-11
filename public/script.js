@@ -42,12 +42,9 @@ let previousGroupId = localStorage.getItem('groupId');
 // Admin elementlerini gizleme fonksiyonu
 function hideAdminElements() {
   const adminIndicator = document.querySelector('.admin-indicator');
-  const adminLogsButton = document.getElementById('adminLogsButton');
-  const loginLogsButton = document.getElementById('loginLogsButton');
 
   if (adminIndicator) adminIndicator.style.display = 'none';
-  if (adminLogsButton) adminLogsButton.style.display = 'none';
-  if (loginLogsButton) loginLogsButton.style.display = 'none';
+  
 }
 
 // Grup bazlı doğrulama fonksiyonu

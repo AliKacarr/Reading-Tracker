@@ -271,10 +271,6 @@ function generateGroupId(groupName) {
   // Başındaki ve sonundaki tireleri kaldır
   id = id.replace(/^-+|-+$/g, '');
 
-  // Rastgele bir sayı ekle (opsiyonel)
-  const randomNum = Math.floor(Math.random() * 1000);
-  id = `${id}${randomNum}`;
-
   return id;
 }
 

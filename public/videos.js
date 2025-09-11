@@ -1,7 +1,7 @@
 // Farklı kanalların ID'leri
 const CHANNEL_IDS = [
   'UCa4B618R90dxe7N9OK0LJyQ', // Çatı Katı Elazığ
-  'Cb2NNTeDSPr2sFHrI2AwHTQ', //Hisar Kapısı
+  'UCb2NNTeDSPr2sFHrI2AwHTQ', //Hisar Kapısı
   'UCgC81lrIwMJJvAjyKm1ooow', //Maksat 114
   'UCN5t14BCdTIQ-116TxJuBMg' //Sözler Köşkü
 ];

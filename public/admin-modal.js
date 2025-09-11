@@ -24,17 +24,7 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
 
     adminIndicator.style.display = 'block';
 
-    // Show the admin logs button
-    const adminLogsButton = document.getElementById('adminLogsButton');
-    if (adminLogsButton) {
-        adminLogsButton.style.display = 'flex';
-    }
-
-    // Show the login logs button
-    const loginLogsButton = document.getElementById('loginLogsButton');
-    if (loginLogsButton) {
-        loginLogsButton.style.display = 'flex';
-    }
+    // Logs butonları kaldırıldı
 
     const mainArea = document.querySelector('.main-area');
     if (mainArea) {
@@ -196,14 +186,11 @@ function showAdminInfoPanel() {
             adminInfoModal.style.display = 'none';
 
             const adminIndicator = document.querySelector('.admin-indicator');
-            const adminLogsButton = document.getElementById('adminLogsButton');
-            const loginLogsButton = document.getElementById('loginLogsButton');
+            
             const mainArea = document.querySelector('.main-area');
 
 
             adminIndicator.style.display = 'none';
-            adminLogsButton.style.display = 'none';
-            loginLogsButton.style.display = 'none';
             mainArea.style.display = 'none';
 
             // Reload data to update UI without admin privileges
@@ -234,21 +221,16 @@ document.addEventListener('DOMContentLoaded', function () {
         verifyAdminUsername();
     }
     const adminIndicator = document.querySelector('.admin-indicator');
-    const adminLogsButton = document.getElementById('adminLogsButton');
-    const loginLogsButton = document.getElementById('loginLogsButton');
+    
     const mainArea = document.querySelector('.main-area');
 
 
     function checkAdminAuth() {
         if (isAuthenticated()) {
             if (adminIndicator) adminIndicator.style.display = 'flex';
-            if (adminLogsButton) adminLogsButton.style.display = 'flex';
-            if (loginLogsButton) loginLogsButton.style.display = 'flex';
             if (mainArea) mainArea.style.display = 'flex';
         } else {
             if (adminIndicator) adminIndicator.style.display = 'none';
-            if (adminLogsButton) adminLogsButton.style.display = 'none';
-            if (loginLogsButton) loginLogsButton.style.display = 'none';
             if (mainArea) mainArea.style.display = 'none';
         }
     }
@@ -256,15 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Check auth status when page loads
     checkAdminAuth();
 
-    adminLogsButton.addEventListener('click', function () {
-        window.location.href = '/admin-logs.html';
-    });
-
-    if (loginLogsButton) {
-        loginLogsButton.addEventListener('click', function () {
-            window.location.href = '/login-logs.html';
-        });
-    }
+    // Butonlar kaldırıldı
 
     // Listen for authentication changes
     window.addEventListener('storage', function (e) {
