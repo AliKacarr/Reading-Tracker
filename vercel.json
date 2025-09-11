@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://reading-tracker-jyqm.onrender.com/api/$1" },
+    { "source": "/images/(.*)", "destination": "https://reading-tracker-jyqm.onrender.com/images/$1" },
+    { "source": "/groupImages/(.*)", "destination": "https://reading-tracker-jyqm.onrender.com/groupImages/$1" },
+    { "source": "/([a-zA-Z0-9_-]+)", "destination": "/index.html" }
+  ]
+}
+
