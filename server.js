@@ -940,14 +940,14 @@ app.get('/api/groups', async (req, res) => {
   }
 });
 
-// Ana sayfa - gruplar sayfasını direkt aç
+// Ana sayfa - index.html'i direkt aç (eski groups.html)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Grup sayfası için route - alfanumerik, tire ve alt çizgi karakterlerine izin ver
 app.get('/:groupId([a-zA-Z0-9_-]+)', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
 });
 
 // Grup oluşturma endpoint'i - güncellenmiş

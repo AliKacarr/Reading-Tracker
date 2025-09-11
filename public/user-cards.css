@@ -441,18 +441,6 @@
     letter-spacing: 0.01em;
 }
 
-@media screen and (max-width: 1000px) {
-    .promotion-message-content {
-        font-size: 12px;
-    }
-
-    .league-promotion-message::before {
-        height: 25px;
-        top: 15px;
-        width: 100%;
-    }
-}
-
 .league-promotion-message.message-fade-in {
     opacity: 1;
     transform: translateY(0);
@@ -509,6 +497,36 @@
 .consecutive-missed-message.message-fade-in {
     opacity: 1;
     transform: translateY(0);
+}
+
+@media screen and (max-width: 1000px) {
+    .league-promotion-message {
+        font-size: 14px;
+        padding: 50px 15px 15px 15px;
+    }
+
+    .promotion-message-content {
+        font-size: 14px;
+    }
+
+    .league-promotion-message::before {
+        height: 25px;
+        top: 15px;
+        width: 100%;
+    }
+
+    .consecutive-missed-message {
+        font-size: 15px;
+        padding: 15px;
+    }
+
+    .missed-username {
+        font-size: 14px;
+    }
+
+    .missed-reminder {
+        font-size: 14px;
+    }
 }
 
 .missed-title {

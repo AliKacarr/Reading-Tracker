@@ -103,6 +103,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Show admin indicator
                 showAdminIndicator();
 
+                // Profil butonunu güncelle
+                if (typeof window.updateProfileButton === 'function') {
+                    window.updateProfileButton();
+                }
+
                 // Reload data to update UI with admin privileges
                 loadTrackerTable();
             } else {
@@ -192,6 +197,11 @@ function showAdminInfoPanel() {
 
             adminIndicator.style.display = 'none';
             mainArea.style.display = 'none';
+
+            // Profil butonunu güncelle
+            if (typeof window.updateProfileButton === 'function') {
+                window.updateProfileButton();
+            }
 
             // Reload data to update UI without admin privileges
             loadTrackerTable();

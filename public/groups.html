@@ -2,150 +2,480 @@
 <html lang="tr">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groups - Connect & Discover</title>
-    <link rel="stylesheet" href="groups.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+  <meta charset="UTF-8" />
+  <link rel="icon" href="images/favicon.png" type="image/x-icon" />
+  <title>Reading Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin-modal.css" />
+  <link rel="stylesheet" href="cookies.css" />
+  <link rel="stylesheet" href="tracker-table.css" />
+  <link rel="stylesheet" href="stats-section.css" />
+  <link rel="stylesheet" href="monthly.css" />
+  <link rel="stylesheet" href="videos.css" />
+  <link rel="stylesheet" href="main-area.css" />
+  <link rel="stylesheet" href="footer.css" />
+  <link rel="stylesheet" href="preferences.css" />
+  <link rel="stylesheet" href="quote.css" />
+  <link rel="stylesheet" href="longest-series.css" />
+  <link rel="stylesheet" href="user-cards.css" />
 </head>
 
 <body>
-    <div class="container">
-        <!-- Header Section -->
-        <header class="header">
-            <div class="header-content">
-                <div class="header-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h1 class="header-title">Grupları Keşfet</h1>
-                <p class="header-subtitle">Topluluğunuzu bulun ve benzer düşünen insanlarla birlikte kitap okuyun</p>
-            </div>
-        </header>
+  <!-- Cookie Consent Banner -->
+  <div id="cookieConsentBanner" class="cookie-consent-banner">
+    <div class="cookie-content">
+      <div class="cookie-header">
+        <div class="cookie-icon">🍪</div>
+        <h3>Çerez İzni</h3>
+      </div>
+      <p>Bu site, size en iyi deneyimi sunmak için çerezleri kullanmaktadır. Çerezler, tercihlerinizi hatırlamak ve site
+        kullanımınızı analiz etmek için kullanılır.</p>
+      <div class="cookie-buttons">
+        <button id="declineCookies" class="cookie-button decline">Reddet</button>
+        <button id="acceptCookies" class="cookie-button accept pulsate-button">Kabul Et</button>
+      </div>
+    </div>
+  </div>
 
-        <!-- Search and Create Section -->
-        <div class="actions-section">
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Grup Ara..." class="search-input">
-                    <button id="clearSearch" class="clear-btn" style="display: none;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <button id="createGroupBtn" class="create-btn">
-                <i class="fas fa-plus-circle"></i>
-                Yeni Grup Oluştur
+  
+
+  
+
+  <!-- Add this style section to fix button widths -->
+
+  <div class="container">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button onclick="window.location.href='/'" class="showGroups" title="Grupları Görüntüle">
+        <i class="fa-solid fa-user-group" style="font-size: 20px; margin-right: 7px; color: #4e54c8;"></i>
+        Gruplar
+      </button>
+      <h1 id="secretAdminLogin">
+        <img src="images/open-book.png" alt="Favicon" style="height: 1.4em; margin-right: 15px;">
+        Risale-i Nur Okuma Takibi
+      </h1>
+      <button id="profileButton" class="profileButton" title="Yönetici Girişi">
+        <i id="profileButtonIcon" class="fa-solid fa-sign-in-alt" style="font-size: 20px; margin-right: 7px; color: #007bff;"></i>
+        <span id="profileButtonText">Giriş Yap</span>
+      </button>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminLoginModal" class="admin-modal">
+      <div class="modal-content-admin">
+        <span class="close-button">&times;</span>
+        <h2>Yönetici Girişi</h2>
+        <form id="adminLoginForm">
+          <div class="admin-form-group">
+            <label for="adminUsername">Kullanıcı Adı</label>
+            <input type="text" id="adminUsername" required>
+          </div>
+          <div class="admin-form-group">
+            <label for="adminPassword">Şifre</label>
+            <input type="password" id="adminPassword" required>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Giriş Yap</button>
+          </div>
+          <div id="loginError" class="error-message"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-area">
+      <table id="trackerTable">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+
+      <div id="weekLoadingOverlay" class="week-loading-overlay" style="display: none;">
+        <div class="week-loading-content">
+          <div class="week-loading-spinner"></div>
+          <div class="week-loading-text">Yükleniyor...</div>
+        </div>
+      </div>
+
+      <!-- Week navigation controls -->
+      <div class="week-navigation" style="display: none;">
+        <div class="nav-group">
+          <button id="prevWeek" class="week-nav-button">
+            <span class="week-arrow-icon" style="transform: scaleX(-1);"></span> Önceki Hafta
+          </button>
+          <button id="prevWeekToday" class="week-nav-button today-button">
+            <span class="week-arrow-icon" style="transform: scaleX(-1);"></span> Bu Hafta
+          </button>
+        </div>
+        <div id="currentWeekDisplay" class="current-week">2 - 8 Nisan</div>
+        <div class="nav-group">
+          <button id="nextWeek" class="week-nav-button">
+            Sonraki Hafta <span class="week-arrow-icon"></span>
+          </button>
+          <button id="nextWeekToday" class="week-nav-button today-button">
+            Bu Hafta <span class="week-arrow-icon"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kullanıcı Kartları Bölümü -->
+    <div class="user-cards-container" style="display: none;">
+      <!-- Kullanıcı kartları JavaScript ile buraya eklenecek -->
+    </div>
+
+    <div class="stats-section">
+      <h3><i class="fa-solid fa-ranking-star" style="font-size: 1.4em; padding-inline: 3px;"></i> Okuma
+        İstatistikleri
+      </h3>
+      <div class="chart-container">
+        <div id="stats-loading" class="stats-loading">
+          <div class="stats-loading-bars">
+            <div class="bar bar1"></div>
+            <div class="bar bar2"></div>
+            <div class="bar bar3"></div>
+            <div class="bar bar4"></div>
+            <div class="bar bar5"></div>
+          </div>
+          <div class="stats-loading-text">İstatistikler yükleniyor...</div>
+        </div>
+        <canvas id="readingStatsChart"></canvas>
+      </div>
+    </div>
+
+    <div class="longest-series-section">
+      <h3><i class="fa-solid fa-bolt" style="font-size: 1.4em; padding-inline: 3px;"></i> En Uzun Okuma Serisi</h3>
+      <div id="longestSeriesChart">
+        <div class="longest-series-loading">
+          <div class="longest-fire-icon">🔥</div>
+          <div class="loading-lines">
+            <div class="loading-line"></div>
+            <div class="loading-line"></div>
+            <div class="loading-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Calendar View -->
+    <div class="monthly-calendar-section" style="display: none;">
+      <h3><i class="fa-regular fa-calendar-check" style="font-size: 1.4em; padding-inline: 3px;"></i> Aylık
+        İstatistikler</h3>
+      <div class="monthly-calendar-container">
+        <table id="monthlyCalendar" class="monthly-calendar">
+          <thead>
+            <tr class="month-header">
+              <th colspan="7" id="monthYearHeader">Nisan 2024</th>
+            </tr>
+            <tr class="weekday-header">
+              <th>Pzt</th>
+              <th>Sal</th>
+              <th>Çar</th>
+              <th>Per</th>
+              <th>Cum</th>
+              <th>Cmt</th>
+              <th>Pzr</th>
+            </tr>
+          </thead>
+          <tbody id="calendarBody">
+            <!-- Calendar days will be generated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Month navigation moved below the calendar -->
+      <div class="month-navigation">
+        <button id="prevMonth" class="month-nav-button">
+          <span class="month-arrow-icon" style="transform: scaleX(-1);"></span> Önceki Ay
+        </button>
+        <button id="nextMonth" class="month-nav-button">
+          Sonraki Ay <span class="month-arrow-icon"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Add the Quote of the Day section -->
+    <div class="quote" style="display: none;">
+      <h3><img src="images/ayyıldız.png" alt="Ay Yıldız" style="height: 2em; vertical-align: middle;"> Rahmet Penceresi
+      </h3>
+      <div class="quote-flex-container">
+        <div class="quote-vertical-group">
+          <div class="quote-section">
+            <button class="refresh-quote" id="refreshAyat" title="Yeni ayet getir"><i
+                class="fa-solid fa-arrow-rotate-right"></i></button>
+            <button class="share-quote" data-target="ayatText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
             </button>
+            <div class="quote-container">
+              <div class="quote-icon">
+                <img src="images/ayat-icon.png" alt="Ayet İkonu" loading="lazy" />
+                <div class="quote-title">BİR AYET</div>
+              </div>
+              <div id="ayatText" class="quote-text">
+                <div class="loading-quote">Yükleniyor...</div>
+              </div>
+            </div>
+          </div>
+          <div class="quote-section">
+            <button class="refresh-quote" id="refreshHadith" title="Yeni hadis getir"><i
+                class="fa-solid fa-arrow-rotate-right"></i></button>
+            <button class="share-quote" data-target="hadithText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
+            <div class="quote-container">
+              <div class="quote-icon">
+                <img src="images/hadith-icon.png" alt="Hadis İkonu" loading="lazy" />
+                <div class="quote-title">BİR HADİS</div>
+              </div>
+              <div id="hadithText" class="quote-text">
+                <div class="loading-quote">Yükleniyor...</div>
+              </div>
+            </div>
+          </div>
+          <div class="quote-section">
+            <button class="refresh-quote" id="refreshDua" title="Yeni dua getir"><i
+                class="fa-solid fa-arrow-rotate-right"></i></button>
+            <button class="share-quote" data-target="duaText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
+            <div class="quote-container">
+              <div class="quote-icon">
+                <img src="images/dua-icon.png" alt="Dua İkonu" loading="lazy" />
+                <div class="quote-title">BİR DUA</div>
+              </div>
+              <div id="duaText" class="quote-text">
+                <div class="loading-quote">Yükleniyor...</div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <!-- Groups Grid -->
-        <div class="groups-section">
-            <div id="groupsGrid" class="groups-grid">
-                <!-- Groups will be loaded here -->
+        <div class="quote-image-container" style="position:relative;">
+          <div class="quote-section-image">
+            <button class="refresh-quote" id="refreshQuoteImage" title="Yeni görsel getir"><i
+                class="fa-solid fa-arrow-rotate-right"></i></button>
+            <button class="share-quote" id="shareQuoteImageBtn" title="Resmi Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
+            <img id="quoteImage" src="" alt="Vecize görseli" style="display:none;" loading="lazy" />
+          </div>
+          <div class="quote-section">
+            <button class="refresh-quote" id="refreshQuote" title="Yeni söz getir"><i
+                class="fa-solid fa-arrow-rotate-right"></i></button>
+            <button class="share-quote" data-target="quoteText" title="Paylaş">
+              <img src="images/share.png" alt="Paylaş" style="width: 20px; height: 20px;" />
+            </button>
+            <div class="quote-container">
+              <div class="quote-icon">
+                <img src="images/lamba.png" alt="Fikir Lambası" loading="lazy" />
+                <div class="quote-title">BİR SÖZ</div>
+              </div>
+              <div id="quoteText" class="quote-text">
+                <div class="loading-quote">Yükleniyor...</div>
+              </div>
             </div>
-
-            <!-- Loading Spinner -->
-            <div id="loadingSpinner" class="loading-spinner">
-                <div class="spinner"></div>
-                <p>Gruplar Yükleniyor...</p>
-            </div>
-
-            <!-- No Results Message -->
-            <div id="noResults" class="no-results" style="display: none;">
-                <i class="fas fa-search"></i>
-                <h3>Grup Bulunamadı</h3>
-                <p>Arama kriterlerinizi değiştirerek tekrar deneyin</p>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Create Group Modal -->
-    <div id="createGroupModal" class="modal" style="display: none; opacity: 0; visibility: hidden;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title-container">
-                    <div class="modal-icon">
-                        <i class="fas fa-users-gear"></i>
-                    </div>
-                    <h2>Yeni Grup Oluştur</h2>
-                </div>
-                <button class="close-btn" id="closeModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="createGroupForm" class="modal-body">
-                <div class="form-group">
-                    <label for="groupImageInput">Grup Resmi</label>
-                    <div class="input-container">
-                        <label for="groupImageInput" class="file-input-label">
-                            <i class="fas fa-image file-input-icon"></i>
-                            <span class="file-input-text">Bir resim seçin...</span>
-                        </label>
-                        <input type="file" id="groupImageInput" accept="image/*">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="groupNameInput">Group Name</label>
-                    <div class="input-container">
-                        <i class="fas fa-layer-group input-icon"></i>
-                        <input type="text" id="groupNameInput" required placeholder="Grup adı giriniz">
+    <div class="videos" style="display: none;">
+      <h3><i class="fa-regular fa-circle-play"
+          style=" font-size: 1.3em; padding-left:2px; padding-right: 8px;"></i>Videolar</h3>
+      <div class="top-bar">
+        <button id="randomBtn">
+          <i class="fa-solid fa-shuffle"></i> Rastgele Videolar
+        </button>
+        <button id="latestBtn">
+          <i class="fa-solid fa-forward-fast"></i> En Son Eklenen Videolar
+        </button>
+        <button id="mostViewedBtn">
+          <i class="fa-solid fa-chart-line"></i> En Çok İzlenen Videolar
+        </button>
+        <button id="refreshBtn">
+          <i class="fa-solid fa-rotate"></i> Yenile
+        </button>
+      </div>
+      <div id="videos" class="videos-container" style="position: relative;">
+        <!-- Videos will be rendered here -->
+      </div>
 
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="groupDescInput">Grup Açıklaması</label>
-
-                    <div class="input-container">
-                        <i class="fas fa-align-left input-icon"></i>
-                        <textarea id="groupDescInput" placeholder="Grup açıklamasını giriniz"></textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="groupVisibilityInput">Görünürlük</label>
-                    <div class="input-container">
-                        <div class="select-wrapper">
-                            <i class="fas fa-eye input-icon"></i>
-                            <select id="groupVisibilityInput">
-                                <option value="Herkese" selected>Herkese Açık</option>
-                                <option value="Özel">Özel (Sadece üyeler görebilir)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="adminNameInput">Yönetici Adı</label>
-                    <div class="input-container">
-                        <i class="fas fa-user-shield input-icon"></i>
-                        <input type="text" id="adminNameInput" required placeholder="Yönetici kullanıcı adını giriniz">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="adminPasswordInput">Yönetici Şifresi</label>
-                    <div class="input-container">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="password" id="adminPasswordInput" required
-                            placeholder="Yönetici şifresini giriniz">
-
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" id="cancelCreate">
-                        <i class="fas fa-times-circle"></i>
-                        İptal
-                    </button>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-plus-circle"></i>
-                        Grup Oluştur
-                    </button>
-                </div>
-            </form>
+      <div id="videoModal" class="video-modal">
+        <div class="modal-content-video">
+          <span class="close">&times;</span>
+          <iframe id="videoFrame" frameborder="0" allowfullscreen loading="lazy"></iframe>
         </div>
+      </div>
     </div>
 
-    <script src="groups.js"></script>
+    <div class="main-area" style="display: none;">
+      <div class="user-list">
+        <h3>👤 Kullanıcılar</h3>
+        <ul id="userList"></ul>
+      </div>
+
+      <div class="new-user">
+
+
+        <!-- Add the Add User section -->
+        <form id="newUserForm" enctype="multipart/form-data">
+          <h3>➕ Kullanıcı Ekle</h3>
+          <div class="ad-user-form-group">
+            <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
+            <button type="submit" class="submit-button">Ekle</button>
+          </div>
+          <div class="image-upload">
+            <label for="profileImage">Profil Resmi:</label>
+            <div class="file-input-container">
+              <input type="file" id="profileImage" name="profileImage" accept="image/*" />
+              <label for="profileImage" class="custom-file-input" id="file-input-label">Resim
+                Seç</label>
+              <span id="file-name">Resim seçilmedi</span>
+            </div>
+            <!-- Resim ön izleme alanı -->
+            <div id="imagePreviewContainer" style="display: none; margin-top: 10px; position: relative;">
+              <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
+              <button type="button" id="closePreview" class="close-preview-button"><i
+                  class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Add this after the user list section, before the closing container div -->
+    <div class="settings-section">
+      <h3 id="ayarlar"><i class="fa-classic fa-solid fa-sliders fa-fw"
+          style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i>Tercihler</h3>
+      <div class="setting-item">
+        <label for="firstDaySelect">Tablonun İlk Günü:</label>
+        <select id="firstDaySelect" class="day-select">
+          <option value="1" selected>Pazartesi</option>
+          <option value="2">Salı</option>
+          <option value="3">Çarşamba</option>
+          <option value="4">Perşembe</option>
+          <option value="5">Cuma</option>
+          <option value="6">Cumartesi</option>
+          <option value="0">Pazar</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label for="darkModeToggle">Karanlık Mod:</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="darkModeToggle" class="toggle-input">
+          <label for="darkModeToggle" class="toggle-label">
+            <i class="fa-regular fa-moon toggle-icon moon-icon"></i>
+            <i class="fa-regular fa-sun toggle-icon sun-icon"></i>
+          </label>
+        </div>
+      </div>
+      <div class="setting-item">
+        <label for="notificationsToggle">Bildirimler:</label>
+        <div class="toggle-switch">
+          <input type="checkbox" id="notificationsToggle" class="toggle-input" style="margin-left: 25px;">
+          <label for="notificationsToggle" class="toggle-label">
+            <i class="fa-regular fa-bell-slash toggle-icon bell-slash-icon"></i>
+            <i class="fa-regular fa-bell toggle-icon bell-icon"></i>
+          </label>
+        </div>
+      </div>
+      <span class="feature-coming-soon">Bu özellik yakın zamanda eklenecek</span>
+    </div>
+    <!-- Footer başlangıcı -->
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-section kurumsal">
+          <h4 style="width: 100px;">Kurumsal</h4>
+          <ul>
+            <li><a href="mailto:ateizmfikri@gmail.com">Bize Ulaşın</a></li>
+            <li><a href="politikalar/hakkimizda.html">Hakkımızda</a></li>
+            <li><a href="politikalar/gizlilik-politikasi.html">Gizlilik Politikası</a></li>
+            <li><a href="politikalar/cerez-politikasi.html">Çerez Politikası</a></li>
+          </ul>
+        </div>
+        <div class="footer-section social-media">
+          <h4 style="width: 150px;">Sosyal Medya</h4>
+          <div class="social-icons">
+            <a href="https://www.instagram.com/catikatimelazig/" target="_blank" aria-label="Instagram"><i
+                class="fab fa-instagram"></i></a>
+            <a href="https://www.youtube.com/c/%C3%87atikatim" target="_blank" aria-label="YouTube"><i
+                class="fab fa-youtube"></i></a>
+            <a href="https://open.spotify.com/show/1QIENVd5g588MS1eF1ZcKi" target="_blank" aria-label="Spotify"><i
+                class="fab fa-spotify"></i></a>
+            <a href="https://wa.me/905539275523" target="_blank" aria-label="WhatsApp"><i
+                class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+        <div class="footer-section app-download">
+          <h4 style="width: 220px;">Mobil Uygulamamız</h4>
+          <div class="app-download-row"
+            style="display: flex; justify-content: center; align-items: flex-start; gap: 18px; margin-bottom: 0;">
+            <img src="images/app-logo.png" alt="Ateizm fikrine cevaplar logo"
+              style="width:61px; height:61px; border-radius:12px;" loading="lazy">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span style="font-weight: 600; font-size: 16px;">Ateizm Fikrine Cevaplar</span>
+              <a href="https://play.google.com/store/apps/details?id=com.ateizmfikrinecevaplar&hl=tr" target="_blank"
+                class="app-btn" style="margin-top: 8px;">
+                <i class="fab fa-google-play"></i> Google Play'den İndir
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>Çatı Katı Elazığ İlim ve Kültür Derneği &copy; Tüm hakları saklıdır.</span>
+      </div>
+    </footer>
+    <!-- Footer bitişi -->
+  </div>
+
+  <div id="sharePanel" class="share-panel" style="display:none;">
+    <div class="share-panel-content">
+      <div class="share-panel-header">
+        <h4>Paylaş...</h4>
+        <button id="closeSharePanel" class="close-share-panel">&times;</button>
+      </div>
+      <div class="share-options">
+        <div id="shareWhatsappBtn" class="share-option-item share-option-whatsapp">
+          <div class="share-option-icon"><i class="fa-brands fa-whatsapp"></i></div>
+          <div class="share-option-text">WhatsApp'ta Paylaş</div>
+        </div>
+        <div id="shareTwitterBtn" class="share-option-item share-option-twitter">
+          <div class="share-option-icon"><i class="fa-brands fa-twitter"></i></div>
+          <div class="share-option-text">Twitter'da Paylaş</div>
+        </div>
+        <div id="downloadImageBtn" class="share-option-item share-option-download">
+          <div class="share-option-icon"><i class="fa-solid fa-download"></i></div>
+          <div class="share-option-text">Resmi İndir</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+    (function () {
+      var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+      s1.async = true;
+      s1.src = 'https://embed.tawk.to/68278ccfe4781d19149b3d72/1ird7s2qf';
+      s1.charset = 'UTF-8';
+      s1.setAttribute('crossorigin', '*');
+      s0.parentNode.insertBefore(s1, s0);
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="share-quote.js"></script>
+  <script src="admin-modal.js"></script>
+  <script src="cookies.js"></script>
+  <script src="preferences.js"></script>
+  <script src="user-cards.js"></script>
+  <script src="tracker-table.js"></script>
+  <script src="script.js"></script>
+  <script src="stats-section.js"></script>
+  <script src="monthly.js"></script>
+  <script src="quete.js"></script>
+  <script src="videos.js"></script>
+  <script src="main.area.js"></script>
+  <script src="longest-series.js"></script>
 </body>
 
 </html>

@@ -857,3 +857,34 @@ body {
     border-color: #80bdff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
 }
+
+.profileButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profileButton:active {
+    transform: translateY(0);
+}
+
+/* Giriş Yap butonu hover efekti */
+.profileButton[title="Yönetici Girişi"]:hover {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+}
+
+.profileButton[title="Yönetici Girişi"]:hover i {
+    color: white !important;
+}
+
+/* Yönetici profili butonu hover efekti */
+.profileButton[title="Yönetici Profili"]:hover {
+    background-color: #4e54c8 !important;
+    color: white !important;
+    border-color: #4e54c8 !important;
+}
+
+.profileButton[title="Yönetici Profili"]:hover i {
+    color: white !important;
+}

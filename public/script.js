@@ -1,3 +1,7 @@
+// Global grup ID değişkeni
+let currentGroupId = getGroupIdFromUrl();
+let previousGroupId = localStorage.getItem('groupId');
+
 // URL'den grup ID'sini çıkarma fonksiyonu
 function getGroupIdFromUrl() {
   const path = window.location.pathname;
@@ -15,7 +19,7 @@ function getGroupIdFromUrl() {
     return groupId;
   }
 
-  // Ana sayfa için null döndür (gruplar sayfasına yönlendirilecek)
+  // Ana sayfa için null döndür (ana sayfaya yönlendirilecek)
   return null;
 }
 
@@ -34,10 +38,6 @@ function cleanupCrossGroupCookies() {
   }
   return false;
 }
-
-// Global grup ID değişkeni
-let currentGroupId = getGroupIdFromUrl();
-let previousGroupId = localStorage.getItem('groupId');
 
 // Admin elementlerini gizleme fonksiyonu
 function hideAdminElements() {
@@ -98,14 +98,17 @@ document.addEventListener('DOMContentLoaded', async function () {
       validateAdminForCurrentGroup();
     }, 2000);
 
-    // Grup ID'si yoksa gruplar sayfasına yönlendir
+    // Grup ID'si yoksa ana sayfaya yönlendir
     if (currentGroupId === null) {
-      window.location.href = '/groups.html';
+      window.location.href = '/';
       return;
     }
 
     // Grup doğrulama
     await validateGroup();
+
+    // Profil butonunu başlat
+    initializeProfileButton();
 
     // İlk çalışacak kritik fonksiyonlar
     await Promise.all([
@@ -157,9 +160,9 @@ async function validateGroup() {
 
     if (!response.ok) {
       if (response.status === 404) {
-        // Grup yoksa gruplar sayfasına yönlendir
-        console.log('Grup bulunamadı, gruplar sayfasına yönlendiriliyor:', currentGroupId);
-        window.location.href = '/groups.html';
+        // Grup yoksa ana sayfaya yönlendir
+        console.log('Grup bulunamadı, ana sayfaya yönlendiriliyor:', currentGroupId);
+        window.location.href = '/';
         return false;
       }
       throw new Error('Grup doğrulama hatası');
@@ -170,8 +173,8 @@ async function validateGroup() {
     return true;
   } catch (error) {
     console.error('Grup doğrulama hatası:', error);
-    // Hata durumunda gruplar sayfasına yönlendir
-    window.location.href = '/groups.html';
+    // Hata durumunda ana sayfaya yönlendir
+    window.location.href = '/';
     return false;
   }
 }
@@ -281,4 +284,78 @@ async function verifyAdminUsername() {     //admin kullanıcı adı doğrulama -
 // Eğer firstDayOfWeek değişkeni yoksa, varsayılanı belirle
 if (typeof window.firstDayOfWeek === 'undefined') {
   window.firstDayOfWeek = 1; // Pazartesi varsayılan
+}
+
+// Profil butonunu dinamik hale getirme fonksiyonu
+function initializeProfileButton() {
+  const profileButton = document.getElementById('profileButton');
+  const profileButtonText = document.getElementById('profileButtonText');
+  const profileButtonIcon = document.getElementById('profileButtonIcon');
+  const adminLoginModal = document.getElementById('adminLoginModal');
+  
+  if (!profileButton || !profileButtonText || !profileButtonIcon) return;
+  
+  // Admin giriş durumunu kontrol etme fonksiyonu
+  function checkAuthStatus() {
+    const isAuthenticated = localStorage.getItem('authenticated') === 'true';
+    
+    if (isAuthenticated) {
+      // Giriş yapılmışsa - Yönetici adı butonu
+      const adminUsername = localStorage.getItem('adminUsername') || 'Yönetici';
+      profileButtonText.textContent = adminUsername;
+      profileButton.title = 'Yönetici Profili';
+      
+      // Profil ikonu ve rengi - Mavimsi
+      profileButtonIcon.className = 'fa-solid fa-user-circle';
+      profileButtonIcon.style.fontSize = '20px';
+      profileButtonIcon.style.color = '#4e54c8'; // Mavimsi
+      profileButton.style.backgroundColor = '#e8f0ff';
+      profileButton.style.borderColor = '#4e54c8';
+      
+      profileButton.onclick = function() {
+        if (typeof showAdminInfoPanel === 'function') {
+          showAdminInfoPanel();
+        }
+      };
+    } else {
+      // Giriş yapılmamışsa - Giriş Yap butonu
+      profileButtonText.textContent = 'Giriş Yap';
+      profileButton.title = 'Yönetici Girişi';
+      
+      // Giriş ikonu ve rengi
+      profileButtonIcon.className = 'fa-solid fa-sign-in-alt';
+      profileButtonIcon.style.fontSize = '20px';
+      profileButtonIcon.style.color = '#007bff'; // Mavi
+      profileButton.style.backgroundColor = '#e3f2fd';
+      profileButton.style.borderColor = '#007bff';
+      
+      profileButton.onclick = function() {
+        if (adminLoginModal) {
+          adminLoginModal.style.display = 'flex';
+        }
+      };
+    }
+  }
+  
+  // İlk yüklemede kontrol et
+  checkAuthStatus();
+  
+  // LocalStorage değişikliklerini dinle
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'authenticated') {
+      checkAuthStatus();
+    }
+  });
+  
+  // Programatik localStorage değişikliklerini de dinle
+  const originalSetItem = localStorage.setItem;
+  localStorage.setItem = function(key, value) {
+    originalSetItem.call(this, key, value);
+    if (key === 'authenticated') {
+      setTimeout(checkAuthStatus, 100);
+    }
+  };
+  
+  // Global olarak erişilebilir hale getir
+  window.updateProfileButton = checkAuthStatus;
 }
