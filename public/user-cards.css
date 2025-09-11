@@ -443,7 +443,7 @@
 
 @media screen and (max-width: 1000px) {
     .promotion-message-content {
-        font-size: 16px;
+        font-size: 12px;
     }
 
     .league-promotion-message::before {

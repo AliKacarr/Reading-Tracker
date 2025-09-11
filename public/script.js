@@ -10,8 +10,8 @@ function getGroupIdFromUrl() {
     if (groupId.includes(':')) {
       groupId = groupId.split(':')[0];
     }
-    // Sadece alfanumerik karakterler ve alt çizgi kabul et
-    groupId = groupId.replace(/[^a-zA-Z0-9_]/g, '');
+    // Sadece alfanumerik karakterler, alt çizgi ve tire kabul et
+    groupId = groupId.replace(/[^a-zA-Z0-9_-]/g, '');
     return groupId;
   }
 
