@@ -4,7 +4,7 @@ function loadMonthlyCalendar() {
     const prevMonthBtn = document.getElementById('prevMonth');
     const nextMonthBtn = document.getElementById('nextMonth');
     const monthYearHeader = document.getElementById('monthYearHeader');
-    const calendarBody = document.getElementById('calendarBody'); 
+    const calendarBody = document.getElementById('calendarBody');
 
     // Track current month and year
     let currentDate = new Date();
@@ -20,29 +20,36 @@ function loadMonthlyCalendar() {
         'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
     ];
 
-    // Add user selector above the calendar
-    const userSelectorContainer = document.createElement('div');
-    userSelectorContainer.className = 'user-selector-container';
-    userSelectorContainer.innerHTML = `
-    <label for="userSelector">Kullanıcı Seçin:</label>
-    <select id="userSelector" class="user-selector"></select>
-  `;
-
-    // Insert user selector before the calendar container (not before month-navigation)
-    const monthlyCalendarSection = document.querySelector('.monthly-calendar-section');
-    const monthlyCalendarContainer = document.querySelector('.monthly-calendar-container');
-    if (monthlyCalendarSection && monthlyCalendarContainer) {
-        monthlyCalendarSection.insertBefore(userSelectorContainer, monthlyCalendarContainer);
+    // Add user selector above the calendar (only if it doesn't exist)
+    let userSelectorContainer = document.querySelector('.user-selector-container');
+    if (!userSelectorContainer) {
+        userSelectorContainer = document.createElement('div');
+        userSelectorContainer.className = 'user-selector-container';
+        userSelectorContainer.innerHTML = `
+        <label for="userSelector">Kullanıc    ı Seçin:</label>
+        <select id="userSelector" class="user-selector"></select>
+      `;
+        
+        // Insert user selector before the calendar container (not before month-navigation)
+        const monthlyCalendarSection = document.querySelector('.monthly-calendar-section');
+        const monthlyCalendarContainer = document.querySelector('.monthly-calendar-container');
+        if (monthlyCalendarSection && monthlyCalendarContainer) {
+            monthlyCalendarSection.insertBefore(userSelectorContainer, monthlyCalendarContainer);
+        }
     }
-    
-    monthlyCalendarSection.style.display= 'block';
+
+    // Show monthly calendar section
+    const monthlyCalendarSection = document.querySelector('.monthly-calendar-section');
+    if (monthlyCalendarSection) {
+        monthlyCalendarSection.style.display = 'block';
+    }
 
     // Get user selector element
     const userSelector = document.getElementById('userSelector');
 
     // Populate user selector with users from the main table
     function populateUserSelector() {
-        const userSelector = document.getElementById('userSelector');
+            const userSelector = document.getElementById('userSelector');
         if (!userSelector) return;
 
         // Clear existing options
