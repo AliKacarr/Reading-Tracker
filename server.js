@@ -193,6 +193,11 @@ app.get('/api/group/:groupId', async (req, res) => {
   }
 });
 
+// Health check endpoint for keeping Render alive
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, timestamp: Date.now() });
+});
+
 // Grupları listeleme endpoint'i
 app.get('/api/groups', async (req, res) => {
   try {
