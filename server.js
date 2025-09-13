@@ -1131,3 +1131,29 @@ function scheduleBackup() {
 
 // Start the backup scheduler
 const backupJob = scheduleBackup();
+
+// Render'ı uyanık tutmak için ping sistemi
+function schedulePing() {
+  // Her 2 dakikada bir ping gönder
+  const pingJob = schedule.scheduleJob('*/2 * * * *', async () => {
+    try {
+      const response = await fetch('https://reading-tracker-jyqm.onrender.com/api/health');
+      const data = await response.json();
+    } catch (error) {
+      console.error('Ping failed:', error.message);
+    }
+  });
+  
+  console.log("Ping scheduler started. Pings will be sent every 2 minutes.");
+  
+  // Handle graceful shutdown
+  process.on('SIGINT', async () => {
+    console.log('Ping service shutting down...');
+    pingJob.cancel();
+  });
+  
+  return pingJob;
+}
+
+// Start the ping scheduler
+const pingJob = schedulePing();
