@@ -256,7 +256,7 @@ function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fon
 function renderUserList() {
     const userList = document.getElementById('userList');
     const prevScrollTop = userList.scrollTop; // scroll pozisyonunu koru
-    fetch(`/api/all-data/${currentGroupId}`)
+    fetch(`/api/users/${currentGroupId}`)
         .then(res => res.json())
         .then(data => {
             const users = data.users;

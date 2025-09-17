@@ -56,7 +56,7 @@ function loadMonthlyCalendar() {
         userSelector.innerHTML = '';
 
         // Fetch users directly from the API
-        fetch(`/api/all-data/${currentGroupId}`)
+        fetch(`/api/users/${currentGroupId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.users && Array.isArray(data.users)) {
@@ -301,12 +301,12 @@ function loadMonthlyCalendar() {
 
                         // Add click event to toggle reading status
                         cell.addEventListener('click', function () {
-                            toggleUserReadingStatus(selectedUser, currentDate, currentMonth, currentYear);
+                            toggleUserReadingStatus(selectedUser, currentDate, currentMonth, currentYear, this);
                         });
                     } else {
                         // No status yet, add click event to set status
                         cell.addEventListener('click', function () {
-                            toggleUserReadingStatus(selectedUser, currentDate, currentMonth, currentYear);
+                            toggleUserReadingStatus(selectedUser, currentDate, currentMonth, currentYear, this);
                         });
                     }
 
@@ -320,30 +320,42 @@ function loadMonthlyCalendar() {
         }
     }
 
-    function toggleUserReadingStatus(userName, day, month, year) {
+    function toggleUserReadingStatus(userName, day, month, year, clickedCell) {
         if (!isAuthenticated()) {
             logUnauthorizedAccess('toggleMontlyReadingStatus');
             return;
         }
         const dateStr = formatDateForTable(day, month, year);
 
+        // Mevcut durumu hücreden tespit et
+        let currentStatus = '';
+        if (clickedCell.classList.contains('read')) {
+            currentStatus = 'okudum';
+        } else if (clickedCell.classList.contains('not-read')) {
+            currentStatus = 'okumadım';
+        } else {
+            currentStatus = '';
+        }
+
+        // Yeni durumu hesapla
+        let newStatus = '';
+        if (currentStatus === '') {
+            newStatus = 'okudum';
+        } else if (currentStatus === 'okudum') {
+            newStatus = 'okumadım';
+        } else if (currentStatus === 'okumadım') {
+            newStatus = '';
+        }
+
+        // Önce UI'ı anında güncelle
+        updateMonthlyCellStatus(clickedCell, newStatus);
+
+        // Sonra veritabanını güncelle
         fetch(`/api/all-data/${currentGroupId}`)
             .then(response => response.json())
             .then(data => {
                 const user = data.users.find(u => u.name === userName);
                 if (!user) throw new Error('User not found');
-
-                const stat = data.stats.find(s => s.userId === user._id && s.date === dateStr);
-                let currentStatus = stat ? stat.status : '';
-                let newStatus = '';
-
-                if (currentStatus === '') {
-                    newStatus = 'okudum';
-                } else if (currentStatus === 'okudum') {
-                    newStatus = 'okumadım';
-                } else if (currentStatus === 'okumadım') {
-                    newStatus = '';
-                }
 
                 return fetch(`/api/update-status/${currentGroupId}`, {
                     method: 'POST',
@@ -357,8 +369,7 @@ function loadMonthlyCalendar() {
             })
             .then(response => {
                 if (response && response.ok) {
-                    generateCalendar(currentMonth, currentYear, false);
-
+                    // Veritabanı güncellemesi başarılı olduktan sonra diğer bileşenleri güncelle
                     if (window.loadTrackerTable) {
                         window.loadTrackerTable();
                     }
@@ -371,11 +382,55 @@ function loadMonthlyCalendar() {
                     if (window.renderLongestSeries) {
                         window.renderLongestSeries();
                     }
+                } else {
+                    // Veritabanı güncellemesi başarısız olursa UI'ı eski haline döndür
+                    console.error('Veritabanı güncellemesi başarısız');
+                    generateCalendar(currentMonth, currentYear, false);
                 }
             })
             .catch(error => {
                 console.error('Error toggling reading status:', error);
+                // Hata durumunda UI'ı eski haline döndür
+                generateCalendar(currentMonth, currentYear, false);
             });
+    }
+
+    // Aylık takvim hücresini güncelleme yardımcı fonksiyonu
+    function updateMonthlyCellStatus(cell, newStatus) {
+        // Gün numarasını koru
+        const dayNumber = cell.textContent.match(/\d+/);
+        const day = dayNumber ? dayNumber[0] : cell.textContent.trim();
+
+        // Hücreyi tamamen temizle
+        cell.innerHTML = '';
+        cell.className = '';
+        cell.style.cssText = '';
+
+        // Sadece gün numarasını ekle
+        cell.textContent = day;
+
+        // Yeni duruma göre görünümü güncelle
+        if (newStatus === 'okudum') {
+            cell.classList.add('read');
+            const statusIndicator = document.createElement('div');
+            statusIndicator.className = 'monthly-reading-status';
+            statusIndicator.textContent = '✔️';
+            cell.style.backgroundColor = '#d4edda';
+            cell.style.color = '#155724';
+            cell.style.fontWeight = 'bold';
+            cell.appendChild(statusIndicator);
+        } else if (newStatus === 'okumadım') {
+            cell.classList.add('not-read');
+            const statusIndicator = document.createElement('div');
+            statusIndicator.className = 'monthly-reading-status';
+            statusIndicator.textContent = '❌';
+            cell.style.backgroundColor = '#f8d7da';
+            cell.style.color = '#721c24';
+            cell.appendChild(statusIndicator);
+        } else {
+            // Boş durum - sınıf ekleme, sadece gün numarası kalır
+            // Hücre zaten temizlenmiş ve sadece gün numarası var
+        }
     }
 
 

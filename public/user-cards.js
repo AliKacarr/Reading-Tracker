@@ -245,7 +245,7 @@ async function loadUserCards() {
         const userObj = users.find(u => u._id === userId);
         if (userObj) {
           const [year, month, day] = date.split('-');
-          toggleUserCardsReadingStatus(userObj.name, parseInt(day), parseInt(month), parseInt(year));
+          toggleUserCardsReadingStatus(userObj.name, parseInt(day), parseInt(month), parseInt(year), this);
         }
       });
     });
@@ -482,7 +482,7 @@ async function loadUserCards() {
 }
 
 // Kullanıcı kartlarında okuma durumunu değiştiren fonksiyon
-toggleUserCardsReadingStatus = function (userName, day, month, year) {
+toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElement) {
 
   if (!isAuthenticated()) {
     logUnauthorizedAccess('toggleUserCardsReadingStatus');
@@ -495,6 +495,7 @@ toggleUserCardsReadingStatus = function (userName, day, month, year) {
   }
   const dateStr = formatDateForTable(day, month, year);
 
+  // Önce mevcut durumu al ve yeni durumu hesapla
   fetch(`/api/all-data/${currentGroupId}`)
     .then(response => response.json())
     .then(data => {
@@ -513,6 +514,10 @@ toggleUserCardsReadingStatus = function (userName, day, month, year) {
         newStatus = '';
       }
 
+      // Önce UI'ı anında güncelle
+      updateDayCircleStatus(clickedElement, newStatus);
+
+      // Sonra veritabanını güncelle
       return fetch(`/api/update-status/${currentGroupId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -525,14 +530,38 @@ toggleUserCardsReadingStatus = function (userName, day, month, year) {
     })
     .then(response => {
       if (response && response.ok) {
-        // Kartları ve diğer bölümleri güncelle
-        if (window.loadUserCards) window.loadUserCards();
+        // Veritabanı güncellemesi başarılı olduktan sonra diğer bileşenleri güncelle
         if (window.loadTrackerTable) window.loadTrackerTable();
         if (window.loadReadingStats) window.loadReadingStats();
         if (window.renderLongestSeries) window.renderLongestSeries();
+      } else {
+        // Veritabanı güncellemesi başarısız olursa UI'ı eski haline döndür
+        console.error('Veritabanı güncellemesi başarısız');
+        if (window.loadUserCards) window.loadUserCards();
       }
     })
     .catch(error => {
       console.error('Okuma durumu değiştirilirken hata oluştu:', error);
+      // Hata durumunda UI'ı eski haline döndür
+      if (window.loadUserCards) window.loadUserCards();
     });
+}
+
+// Day-circle durumunu güncelleme yardımcı fonksiyonu
+function updateDayCircleStatus(clickedElement, newStatus) {
+  // Tıklanan element içindeki day-circle'ı bul
+  const dayCircle = clickedElement.querySelector('.day-circle');
+  if (!dayCircle) return;
+
+  // Mevcut sınıfları temizle
+  dayCircle.classList.remove('ok', 'not', 'empty');
+
+  // Yeni duruma göre sınıf ekle (CSS'deki sınıf isimlerini kullan)
+  if (newStatus === 'okudum') {
+    dayCircle.classList.add('ok');
+  } else if (newStatus === 'okumadım') {
+    dayCircle.classList.add('not');
+  } else {
+    dayCircle.classList.add('empty');
+  }
 }

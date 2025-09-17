@@ -305,6 +305,54 @@ app.get('/api/all-data/:groupId', async (req, res) => {
   }
 });
 
+//**************************************************************************** belirli kullanıcının istatistiklerini çek
+app.get('/api/user-stats/:groupId/:userId', async (req, res) => {
+  try {
+    const { groupId, userId } = req.params;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { readingStatuses } = getGroupCollections(groupId);
+
+    // Sadece belirli kullanıcının istatistiklerini getir
+    const userStats = await readingStatuses.find({ userId }).sort({ date: 1 });
+
+    res.json({ stats: userStats });
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+//**************************************************************************** sadece kullanıcıları çek
+app.get('/api/users/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { users } = getGroupCollections(groupId);
+
+    // Sadece kullanıcıları getir
+    const usersData = await users.find().sort({ name: 1 });
+
+    res.json({ users: usersData });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 //**************************************************************************** tracker-table
 // //okuma durumu güncelleme

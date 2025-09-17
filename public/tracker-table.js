@@ -312,13 +312,6 @@ async function toggleStatus(userId, date) {
     else if (current === '✖') status = '';
     else status = 'okudum';
     
-    // Veri tabanı güncellemesini hemen yap
-    await fetch(`/api/update-status/${currentGroupId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, date, status })
-    });
-    
     // Hücre ikonunu ve arkaplanını anında güncelle
     const newSymbol = status === 'okudum' ? '✔' : (status === 'okumadım' ? '✖' : '➖');
     cell.innerText = newSymbol;
@@ -331,17 +324,20 @@ async function toggleStatus(userId, date) {
         cell.classList.add('pink');
     }
 
-    // Sayfa genelini gecikmeli güncelleme ile senkronize et
+    // Veri tabanı güncellemesini hemen yap
+    await fetch(`/api/update-status/${currentGroupId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, date, status })
+    });
 
-    // Kullanıcının serisini güncelle (satırın son hücresi)
+    // Kullanıcının serisini güncelle (satırın son hücresi) - optimize edilmiş
     try {
-        const res = await fetch(`/api/all-data/${currentGroupId}`);
+        const res = await fetch(`/api/user-stats/${currentGroupId}/${userId}`);
         const { stats } = await res.json();
         const userStatsMap = {};
         for (let s of stats) {
-            if (s.userId === userId) {
-                userStatsMap[s.date] = s.status;
-            }
+            userStatsMap[s.date] = s.status;
         }
         // Seçilen hücrede yaptığımız değişikliği de yerel olarak uygula ki sunucu gecikmesinde doğru hesap çıksın
         if (status) userStatsMap[date] = status; else delete userStatsMap[date];
@@ -358,7 +354,7 @@ async function toggleStatus(userId, date) {
         console.error('Seri güncellenemedi:', e);
     }
 
-    // 3 sn tıklama olmazsa kartlar, istatistikler ve aylık görünümü güncelle (debounce)
+    // 2 sn tıklama olmazsa kartlar, istatistikler ve aylık görünümü güncelle (debounce)
     try {
         if (postToggleUpdateTimer) {
             clearTimeout(postToggleUpdateTimer);
@@ -380,7 +376,7 @@ async function toggleStatus(userId, date) {
             } catch (err) {
                 console.error('Gecikmeli güncelleme hatası:', err);
             }
-        }, 3000);
+        }, 1500);
     } catch (err) {
         console.error('Debounce ayarlanamadı:', err);
     }
