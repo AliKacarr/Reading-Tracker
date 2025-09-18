@@ -359,3 +359,35 @@ function initializeProfileButton() {
   // Global olarak erişilebilir hale getir
   window.updateProfileButton = checkAuthStatus;
 }
+
+// Title'ı grup adına göre güncelleme fonksiyonu
+async function updatePageTitle() {
+  const pageTitle = document.getElementById('page-title');
+  if (!pageTitle) return;
+
+  // URL'den grup ID'sini al
+  const groupId = getGroupIdFromUrl();
+  if (!groupId) return;
+
+  try {
+    // Sunucudan grup bilgisini çek
+    const response = await fetch(`/api/group/${groupId}`);
+    if (response.ok) {
+      const data = await response.json();
+      const groupName = data.group.groupName;
+      pageTitle.textContent = `Rotakip ${groupName}`;
+    }
+  } catch (error) {
+    console.error('Grup bilgisi alınamadı:', error);
+  }
+}
+
+// Sayfa yüklendiğinde title'ı güncelle
+document.addEventListener('DOMContentLoaded', function() {
+  updatePageTitle();
+});
+
+// Grup değişikliğinde title'ı güncelle (URL değişikliği için)
+window.addEventListener('popstate', function() {
+  updatePageTitle();
+});
