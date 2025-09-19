@@ -24,6 +24,7 @@
     gap: 20px;
     position: relative;
     min-height: 660px;
+    padding: 5px;
 }
 
 .video-card {

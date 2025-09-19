@@ -1,6 +1,7 @@
 #secretAdminLogin {
     cursor: pointer;
     max-width: 550px;
+    min-height: 55px;
     margin: auto;
     text-align: center;
     padding: 17px;
@@ -9,8 +10,23 @@
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
     justify-content: center;
+    flex-wrap: nowrap;
+}
+
+#secretAdminLogin h2 {
+    max-width: 400px;
+    word-wrap: break-word;
+    white-space: normal;
+    line-height: 1.2;
+    flex: 1;
+    min-width: 0;
+}
+
+#secretAdminLogin img {
+    flex-shrink: 0;
+    align-self: center;
 }
 
 .showGroups {
@@ -244,9 +260,9 @@
     right: 20px;
     background-color: #4a90e2;
     color: white;
-    padding: 8px 38px;
+    padding: 18px 50px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 500;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
     display: none;

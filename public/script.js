@@ -1,13 +1,15 @@
-// Global grup ID değişkeni
-let currentGroupId = getGroupIdFromUrl();
-let previousGroupId = localStorage.getItem('groupId');
-
 // URL'den grup ID'sini çıkarma fonksiyonu
-function getGroupIdFromUrl() {
+window.getGroupIdFromUrl = function getGroupIdFromUrl() {
   const path = window.location.pathname;
+  
+  // Yeni format: /groupid=catikati23
+  const groupIdMatch = path.match(/\/groupid=([a-zA-Z0-9_-]+)/);
+  if (groupIdMatch) {
+    return groupIdMatch[1];
+  }
+  
+  // Eski format desteği (geriye uyumluluk için)
   const segments = path.split('/').filter(segment => segment !== '');
-
-  // Eğer URL'de grup ID'si varsa (örn: /hisarkapisi16)
   if (segments.length > 0) {
     let groupId = segments[0];
     // Eğer grup ID'sinde :1 gibi port eki varsa temizle
@@ -21,7 +23,11 @@ function getGroupIdFromUrl() {
 
   // Ana sayfa için null döndür (ana sayfaya yönlendirilecek)
   return null;
-}
+};
+
+// Global grup ID değişkeni
+let currentGroupId = getGroupIdFromUrl();
+let previousGroupId = localStorage.getItem('groupId');
 
 // Grup değişikliğinde çerezleri temizleme fonksiyonu
 function cleanupCrossGroupCookies() {
@@ -363,7 +369,9 @@ function initializeProfileButton() {
 // Title'ı grup adına göre güncelleme fonksiyonu
 async function updatePageTitle() {
   const pageTitle = document.getElementById('page-title');
-  if (!pageTitle) return;
+  const secretAdminLogin = document.getElementById('secretAdminLogin');
+  
+  if (!pageTitle && !secretAdminLogin) return;
 
   // URL'den grup ID'sini al
   const groupId = getGroupIdFromUrl();
@@ -375,7 +383,22 @@ async function updatePageTitle() {
     if (response.ok) {
       const data = await response.json();
       const groupName = data.group.groupName;
-      pageTitle.textContent = `Rotakip ${groupName}`;
+      
+      // Title'ı güncelle
+      if (pageTitle) {
+        pageTitle.textContent = `Rotakip ${groupName}`;
+      }
+      
+      // Secret admin login yazısını güncelle
+      if (secretAdminLogin) {
+        const groupImage = data.group.groupImage;
+        const imgSrc = groupImage ? `/groupImages/${groupImage}` : '/images/open-book.png';
+        
+        secretAdminLogin.innerHTML = `
+          <img src="${imgSrc}" alt="Grup Resmi" style="height: 1.5em; border-radius: 8px;">
+          <h2 style="margin: 0; font-size: inherit; font-weight: inherit;">${groupName} Okuma Grubu</h2>
+        `;
+      }
     }
   } catch (error) {
     console.error('Grup bilgisi alınamadı:', error);

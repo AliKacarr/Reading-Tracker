@@ -4,7 +4,7 @@
     { "source": "/api/(.*)", "destination": "https://rotakip.onrender.com/api/$1" },
     { "source": "/images/(.*)", "destination": "https://rotakip.onrender.com/images/$1" },
     { "source": "/groupImages/(.*)", "destination": "https://rotakip.onrender.com/groupImages/$1" },
-    { "source": "/([a-zA-Z0-9_-]+)", "destination": "/groups.html" }
+    { "source": "/groupid=([a-zA-Z0-9_-]+)", "destination": "/groups.html" }
   ],
   "crons": [
     {

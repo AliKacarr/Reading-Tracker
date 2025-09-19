@@ -194,7 +194,7 @@ class GroupsPage {
     `;
 
         card.addEventListener('click', () => {
-            window.location.href = `/${group.groupId}`;
+            window.location.href = `/groupid=${group.groupId}`;
         });
 
         // Add hover effect
@@ -360,7 +360,7 @@ class GroupsPage {
                 localStorage.setItem('groupId', result.group.groupId);
                 
                 this.closeCreateModal();
-                window.location.href = `/${result.group.groupId}`;
+                window.location.href = `/groupid=${result.group.groupId}`;
             } else {
                 alert(`Grup oluşturulamadı: ${result.error}`);
             }
@@ -419,7 +419,7 @@ class GroupsPage {
     `;
 
         card.addEventListener('click', () => {
-            window.location.href = `/${group.groupId}`;
+            window.location.href = `/groupid=${group.groupId}`;
         });
 
         // Add hover effect

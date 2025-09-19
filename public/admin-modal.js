@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const password = document.getElementById('adminPassword').value;
 
         try {
-            const groupId = window.location.pathname.split('/')[1];
+            const groupId = getGroupIdFromUrl();
             const response = await fetch('/api/admin-login', {
                 method: 'POST',
                 headers: {

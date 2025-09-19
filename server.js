@@ -1070,6 +1070,22 @@ app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) 
   }
 });
 
+// Catch-all route for group URLs (localhost support)
+app.get('/groupid=:groupId', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
+});
+
+// Catch-all route for old format (backward compatibility)
+app.get('/:groupId', (req, res) => {
+  const groupId = req.params.groupId;
+  // Only serve groups.html if it's not an API route or static file
+  if (!groupId.startsWith('api') && !groupId.includes('.')) {
+    res.sendFile(path.join(__dirname, 'public', 'groups.html'));
+  } else {
+    res.status(404).send('Not found');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Uygulama http://localhost:${port} adresinde çalışıyor`);
 });
