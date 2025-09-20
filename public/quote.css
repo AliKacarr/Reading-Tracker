@@ -164,10 +164,6 @@
     background-color: rgba(107, 172, 233, 0.148);
 }
 
-.loading-quote {
-    color: #999;
-    font-size: 14px;
-}
 
 .refresh-quote {
     position: absolute;
