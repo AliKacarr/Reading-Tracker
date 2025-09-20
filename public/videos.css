@@ -27,6 +27,13 @@
     padding: 5px;
 }
 
+/* Mobil uyumluluk */
+@media (max-width: 1024px) {
+    .videos-container {
+        gap: 40px;
+    }
+}
+
 .video-card {
     opacity: 0;
     transform: translateY(20px);
