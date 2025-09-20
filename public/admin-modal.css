@@ -16,7 +16,9 @@
 }
 
 #secretAdminLogin h2 {
+    width: min-content;
     max-width: 480px;
+    min-width: 377px !important;
     word-wrap: break-word;
     white-space: normal;
     line-height: 1.3;
