@@ -454,11 +454,21 @@ async function loadUserCards() {
       missedMsg.classList.add('message-fade-in');
     }, 50);
   } else {
-    // Herkes okuduysa aynı kutuda tebrik mesajı göster
-    const missedMsg = document.createElement('div');
-    missedMsg.className = 'consecutive-missed-message';
-    missedMsg.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
-    afterElem.insertAdjacentElement('afterend', missedMsg);
+    // Dün herkesin okuduğunu kontrol et
+    let everyoneReadYesterday = true;
+    users.forEach(user => {
+      const yesterdayStat = stats.find(s => s.userId === user._id && s.date === yesterdayStr);
+      if (!yesterdayStat || yesterdayStat.status !== 'okudum') {
+        everyoneReadYesterday = false;
+      }
+    });
+
+    // Sadece gerçekten dün herkes okumuşsa tebrik mesajı göster
+    if (everyoneReadYesterday) {
+      const missedMsg = document.createElement('div');
+      missedMsg.className = 'consecutive-missed-message';
+      missedMsg.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
+      afterElem.insertAdjacentElement('afterend', missedMsg);
     // Tıklama ile panoya kopyalama ve bildirim
     missedMsg.style.cursor = 'pointer';
     missedMsg.addEventListener('click', async () => {
@@ -478,6 +488,7 @@ async function loadUserCards() {
     setTimeout(() => {
       missedMsg.classList.add('message-fade-in');
     }, 50);
+    }
   }
 }
 
