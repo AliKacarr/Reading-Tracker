@@ -506,7 +506,7 @@
     }
 
     .promotion-message-content {
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .league-promotion-message::before {
@@ -516,7 +516,7 @@
     }
 
     .consecutive-missed-message {
-        font-size: 15px;
+        font-size: 17px;
         padding: 15px;
     }
 
@@ -525,7 +525,7 @@
     }
 
     .missed-reminder {
-        font-size: 14px;
+        font-size: 17px !important;
     }
 }
 

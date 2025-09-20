@@ -395,7 +395,7 @@ async function updatePageTitle() {
         const imgSrc = groupImage ? `/groupImages/${groupImage}` : '/images/open-book.png';
         
         secretAdminLogin.innerHTML = `
-          <img src="${imgSrc}" alt="Grup Resmi" style="height: 1.5em; border-radius: 8px;">
+          <img src="${imgSrc}" alt="Grup Resmi" style="border-radius: 6px;">
           <h2 style="margin: 0; font-size: inherit; font-weight: inherit;">${groupName} Okuma Grubu</h2>
         `;
       }
