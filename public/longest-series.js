@@ -14,7 +14,7 @@ function renderLongestSeries() {
             let rankCount = 1;
 
             // Unique streak'leri sırala ve sırayla rank ata
-            data.forEach(user => {
+            (data || []).forEach(user => {
                 if (!(user.streak in streakToRank)) {
                     if (rankCount > 3) return; // Sadece ilk 3 rank için
                     streakToRank[user.streak] = rankCount;

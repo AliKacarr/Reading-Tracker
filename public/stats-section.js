@@ -12,12 +12,12 @@ async function loadReadingStats() {
         const userDatesMap = {};
 
         // Initialize the map for each user
-        for (const user of allData.users) {
+        for (const user of (allData.users || [])) {
             userDatesMap[user._id] = {};
         }
 
         // Fill in the map with actual statuses
-        for (const stat of allData.stats) {
+        for (const stat of (allData.stats || [])) {
             if (!userDatesMap[stat.userId]) {
                 userDatesMap[stat.userId] = {};
             }

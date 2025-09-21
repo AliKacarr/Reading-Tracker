@@ -180,7 +180,7 @@ function loadMonthlyCalendar() {
                 .then(response => response.json())
                 .then(data => {
                     // Find the user by name
-                    const user = data.users.find(u => u.name === selectedUser);
+                    const user = (data.users || []).find(u => u.name === selectedUser);
                     if (!user) return;
 
                     // Filter stats for this user and month

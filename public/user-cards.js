@@ -15,13 +15,22 @@ async function loadUserCards() {
     rootMargin: '100px' // Kartlar ekranın 50px yakınına geldiğinde tetikle
   });
 
-  // API'den tüm kullanıcı ve okuma verilerini çek
-  const [allDataRes, streaksRes] = await Promise.all([
-    fetch(`/api/all-data/${currentGroupId}`),
-    fetch(`/api/longest-streaks/${currentGroupId}`)
-  ]);
-  const { users, stats } = await allDataRes.json();
-  const streaks = await streaksRes.json();
+  try {
+    // API'den tüm kullanıcı ve okuma verilerini çek
+    const [allDataRes, streaksRes] = await Promise.all([
+      fetch(`/api/all-data/${currentGroupId}`),
+      fetch(`/api/longest-streaks/${currentGroupId}`)
+    ]);
+
+    if (!allDataRes.ok || !streaksRes.ok) {
+      console.error('API çağrısı başarısız:', allDataRes.status, streaksRes.status);
+      return;
+    }
+
+    const allData = await allDataRes.json();
+    const { users = [], stats = [] } = allData;
+    const streaksData = await streaksRes.json();
+    const { streaks = [] } = streaksData;
 
   // Mevcut kartları bir Map olarak tut
   const existingCards = new Map();
@@ -30,7 +39,7 @@ async function loadUserCards() {
   });
 
   // Güncel kullanıcı ID'lerini tut
-  const currentUserIds = users.map(u => u._id);
+  const currentUserIds = (users || []).map(u => u._id);
 
   // Artık olmayan kullanıcıların kartlarını kaldır
   existingCards.forEach((card, userId) => {
@@ -160,7 +169,7 @@ async function loadUserCards() {
     const percent = totalDays > 0 ? Math.round((okudumDays / totalDays) * 100) : 0;
 
     // En uzun seri
-    const userStreak = streaks.find(s => s.userId === user._id);
+    const userStreak = (streaks || []).find(s => s.userId === user._id);
     let longestStreakText = '';
     if (userStreak && userStreak.streak > 0) {
       const start = userStreak.startDate ? new Date(userStreak.startDate).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }) : '';
@@ -315,7 +324,11 @@ async function loadUserCards() {
     contentDiv.className = 'promotion-message-content';
 
     let msg = 'Gösterdikleri istikrarla bugün lig atlayan arkadaşlarımızı gönülden tebrik ediyoruz! 🎉🎉<br>';
-    msg += promotedUsers.map(u => `<b class="promoted-username">${u.name}</b> <span class="promoted-league">${u.league.toLowerCase()}</span> lige yükseldi.`).join(' ');
+    msg += promotedUsers.map((u, index) => {
+      const isLast = index === promotedUsers.length - 1;
+      const punctuation = isLast ? '.' : ',';
+      return `<b class="promoted-username">${u.name}</b> <span class="promoted-league">${u.league.toLowerCase()}</span> lige yükseldi${punctuation}`;
+    }).join('<br>');
     
     contentDiv.innerHTML = msg;
     promotedMsg.appendChild(contentDiv);
@@ -326,7 +339,14 @@ async function loadUserCards() {
     promotedMsg.style.cursor = 'pointer'; // İşaretçiyi değiştirerek tıklanabilir olduğunu belirt
     promotedMsg.addEventListener('click', async () => {
       try {
-        await navigator.clipboard.writeText(contentDiv.innerText); // Metni panoya kopyala
+        // HTML'deki <br> etiketlerini gerçek yeni satırlara çevir
+        const textToCopy = contentDiv.innerHTML
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<[^>]*>/g, '') // HTML etiketlerini kaldır
+          .replace(/\n\s*\n/g, '\n') // Çoklu boş satırları tek satıra çevir
+          .trim();
+        
+        await navigator.clipboard.writeText(textToCopy); // Metni panoya kopyala
 
         // Kopyalama bildirimi oluştur
         const copyNotification = document.createElement('span');
@@ -479,6 +499,9 @@ async function loadUserCards() {
       missedMsg.classList.add('message-fade-in');
     }, 50);
     }
+  }
+  } catch (error) {
+    console.error('Kullanıcı kartları yüklenirken hata oluştu:', error);
   }
 }
 

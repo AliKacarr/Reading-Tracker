@@ -11,6 +11,21 @@ let weekOffset = 0;
 let isFirstLoad = true;
 let postToggleUpdateTimer = null;
 
+// Lig tanımları - global erişilebilir
+const LEAGUES = [
+    { min: 0, max: 5, name: 'Bronz', bg: 'linear-gradient(90deg, #e2b07a 60%, #ffe0b2 100%)' },
+    { min: 5, max: 10, name: 'Gümüş', bg: 'linear-gradient(90deg, #d3d3d3 60%, #e0e0e0 100%)' },
+    { min: 10, max: 20, name: 'Altın', bg: 'linear-gradient(90deg, #ffd700 60%, #ffe789 100%)' },
+    { min: 20, max: 40, name: 'Akik', bg: 'linear-gradient(90deg, #84b094 60%, #a5d6a7 100%)' },
+    { min: 40, max: 60, name: 'İnci', bg: 'linear-gradient(90deg, #b2dfdb 60%, #c8eef3 100%)' },
+    { min: 60, max: 80, name: 'Safir', bg: 'linear-gradient(90deg, #49b7ff 60%, #bbdefb 100%)' },
+    { min: 80, max: 100, name: 'Zümrüt', bg: 'linear-gradient(90deg, #58c089 60%, #a5d6a7 100%)' },
+    { min: 100, max: 150, name: 'Elmas', bg: 'linear-gradient(90deg, #36e873 60%, #c4edb8 100%)' },
+    { min: 150, max: 200, name: 'Yakut', bg: 'linear-gradient(90deg, #ffb199 60%, #ffe0b2 100%)' },
+    { min: 200, max: 365, name: 'Mercan', bg: 'linear-gradient(90deg, #ff6f63 60%, #ffafb7 100%)' },
+    { min: 365, max: 1001, name: 'Pırlanta', bg: 'linear-gradient(90deg, #f3ebeb  60%, #ffffff 100%)' }
+];
+
 function getWeekDates(offset = 0) {
     const today = new Date();
     today.setHours(today.getHours());
@@ -87,9 +102,13 @@ async function loadTrackerTable() {
         nextWeekTodayBtn.style.display = 'none';
     }
     const res = await fetch(`/api/all-data/${currentGroupId}`);
-    const { users, stats } = await res.json();
+    const data = await res.json();
+    const { users, stats } = data;
+    
+    // stats'in iterable olduğundan emin ol
+    const statsArray = Array.isArray(stats) ? stats : [];
     const statMap = {};
-    for (let s of stats) {
+    for (let s of statsArray) {
         if (!statMap[s.userId]) statMap[s.userId] = {};
         statMap[s.userId][s.date] = s.status;
     }
@@ -117,20 +136,7 @@ async function loadTrackerTable() {
         const userStreaks = streakMap[user._id] || {};
         // Lig ve arka planı belirle
         const okudumDays = Object.values(userStats).filter(s => s === 'okudum').length;
-        const leagues = [
-            { min: 0, max: 5, name: 'Bronz', bg: 'linear-gradient(90deg, #e2b07a 60%, #ffe0b2 100%)' },
-            { min: 5, max: 10, name: 'Gümüş', bg: 'linear-gradient(90deg, #d3d3d3 60%, #e0e0e0 100%)' },
-            { min: 10, max: 20, name: 'Altın', bg: 'linear-gradient(90deg, #ffd700 60%, #ffe789 100%)' },
-            { min: 20, max: 40, name: 'Akik', bg: 'linear-gradient(90deg, #84b094 60%, #a5d6a7 100%)' },
-            { min: 40, max: 60, name: 'İnci', bg: 'linear-gradient(90deg, #b2dfdb 60%, #c8eef3 100%)' },
-            { min: 60, max: 80, name: 'Safir', bg: 'linear-gradient(90deg, #49b7ff 60%, #bbdefb 100%)' },
-            { min: 80, max: 100, name: 'Zümrüt', bg: 'linear-gradient(90deg, #58c089 60%, #a5d6a7 100%)' },
-            { min: 100, max: 150, name: 'Elmas', bg: 'linear-gradient(90deg, #36e873 60%, #c4edb8 100%)' },
-            { min: 150, max: 200, name: 'Yakut', bg: 'linear-gradient(90deg, #ffb199 60%, #ffe0b2 100%)' },
-            { min: 200, max: 365, name: 'Mercan', bg: 'linear-gradient(90deg, #ff6f63 60%, #ffafb7 100%)' },
-            { min: 365, max: 1001, name: 'Pırlanta', bg: 'linear-gradient(90deg, #f3ebeb  60%, #ffffff 100%)' }
-        ];
-        const league = leagues.find(l => okudumDays >= l.min && okudumDays < l.max) || leagues[leagues.length - 1];
+        const league = LEAGUES.find(l => okudumDays >= l.min && okudumDays < l.max) || LEAGUES[LEAGUES.length - 1];
         let row = `<tr><td class="user-item" data-user-id="${user._id}" style="background: ${league.bg};">`;
         const profileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
         row += `<img src="${profileImage}" alt="${user.name}" class="profile-image" loading="lazy" />`;
@@ -354,13 +360,16 @@ async function toggleStatus(userId, date) {
         console.error('Seri güncellenemedi:', e);
     }
 
-    // 2 sn tıklama olmazsa kartlar, istatistikler ve aylık görünümü güncelle (debounce)
+    // 1 sn tıklama olmazsa kartlar, istatistikler ve aylık görünümü güncelle (debounce)
     try {
         if (postToggleUpdateTimer) {
             clearTimeout(postToggleUpdateTimer);
         }
-        postToggleUpdateTimer = setTimeout(() => {
+        postToggleUpdateTimer = setTimeout(async () => {
             try {
+                // Sadece tıklanan kullanıcının background rengini güncelle
+                await updateUserBackgroundColor(userId);
+                
                 if (typeof window.loadUserCards === 'function') {
                     window.loadUserCards();
                 }
@@ -376,9 +385,32 @@ async function toggleStatus(userId, date) {
             } catch (err) {
                 console.error('Gecikmeli güncelleme hatası:', err);
             }
-        }, 1500);
+        }, 1200);
     } catch (err) {
         console.error('Debounce ayarlanamadı:', err);
+    }
+}
+
+// Kullanıcının background rengini güncelle
+async function updateUserBackgroundColor(userId) {
+    try {
+        // Kullanıcının güncel istatistiklerini al
+        const response = await fetch(`/api/user-stats/${currentGroupId}/${userId}`);
+        if (!response.ok) return;
+        const { stats } = await response.json();
+        
+        // Okuma günlerini hesapla
+        const okudumDays = stats.filter(s => s.status === 'okudum').length;
+        // Lig hesapla
+        const league = LEAGUES.find(l => okudumDays >= l.min && okudumDays < l.max) || LEAGUES[LEAGUES.length - 1];
+        
+        // Kullanıcının user-item elementini bul ve background rengini güncelle
+        const userItem = document.querySelector(`[data-user-id="${userId}"]`);
+        if (userItem) {
+            userItem.style.background = league.bg;
+        }
+    } catch (error) {
+        console.error('Kullanıcı background rengi güncellenemedi:', error);
     }
 }
 
