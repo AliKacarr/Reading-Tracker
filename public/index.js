@@ -51,6 +51,18 @@ class GroupsPage {
             }
         });
 
+        // Password toggle functionality
+        const passwordToggle = document.getElementById('passwordToggle');
+        if (passwordToggle) {
+            passwordToggle.addEventListener('click', this.togglePasswordVisibility.bind(this));
+        }
+
+        // Visibility icon change functionality
+        const visibilitySelect = document.getElementById('groupVisibilityInput');
+        if (visibilitySelect) {
+            visibilitySelect.addEventListener('change', this.updateVisibilityIcon.bind(this));
+        }
+
         const groupImageInput = document.getElementById('groupImageInput');
         groupImageInput.addEventListener('change', (e) => {
             const fileInput = e.target;
@@ -296,6 +308,9 @@ class GroupsPage {
         modal.style.visibility = 'visible';
         document.body.style.overflow = 'hidden';
 
+        // Update visibility icon based on current selection
+        this.updateVisibilityIcon();
+
         // Focus on group name input
         setTimeout(() => {
             document.getElementById('groupNameInput').focus();
@@ -317,6 +332,30 @@ class GroupsPage {
         const fileInputText = document.querySelector('.file-input-text');
         if (fileInputText) {
             fileInputText.textContent = 'Bir resim seçin...';
+        }
+    }
+
+    togglePasswordVisibility() {
+        const passwordInput = document.getElementById('adminPasswordInput');
+        const toggleIcon = document.querySelector('#passwordToggle i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.className = 'fas fa-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.className = 'fas fa-eye';
+        }
+    }
+
+    updateVisibilityIcon() {
+        const visibilitySelect = document.getElementById('groupVisibilityInput');
+        const visibilityIcon = document.querySelector('#groupVisibilityInput').parentElement.querySelector('.input-icon');
+        
+        if (visibilitySelect.value === 'Herkese') {
+            visibilityIcon.className = 'fas fa-eye input-icon';
+        } else if (visibilitySelect.value === 'Özel') {
+            visibilityIcon.className = 'fas fa-eye-slash input-icon';
         }
     }
 

@@ -158,13 +158,13 @@ function getGroupCollections(groupId) {
   const userSchema = new mongoose.Schema({
     name: String,
     profileImage: String
-  });
+  }, { collection: userModelName }); // Koleksiyon ismini açıkça belirt
 
   const readingStatusSchema = new mongoose.Schema({
     userId: String,
     date: String,
     status: String
-  });
+  }, { collection: readingStatusModelName }); // Koleksiyon ismini açıkça belirt
 
   // Model'i oluştur
   modelCache[userModelName] = mongoose.model(userModelName, userSchema);

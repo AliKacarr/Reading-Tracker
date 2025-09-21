@@ -4,6 +4,7 @@
     min-width: 600px;
     overflow-x: auto;
     padding: 15px;
+    margin-bottom: 20px;
     position: relative;
 }
 /* Week loading overlay */
@@ -180,13 +181,12 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 .date-text .date-day {
     font-size: 12px;
     font-weight: 600;
-    color: #757575;
+    color: #505050;
 }
 
 .date-text .date-month {
     font-size: 11px;
-    font-weight: 400;
-    color: #888;
+    color: #5d5d5d;
 }
 
 .day-of-week {
@@ -284,6 +284,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     padding: 5px 15px;
     border-radius: 4px;
     background-color: #f0f7ff;
+    border: 1px solid #f7ebff;
     height: 25px;
     line-height: 20px;
     display: flex;

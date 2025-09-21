@@ -841,8 +841,49 @@ body {
 }
 
 .input-container .select-wrapper select {
-    padding-left: 40px;
+    padding-left: 50px;
     /* Sol tarafta ikon için boşluk */
+}
+
+/* Şifre göster/gizle ikonu */
+.password-toggle {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.password-toggle:hover {
+    background: rgba(108, 117, 125, 0.1);
+    color: #495057;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.password-toggle:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle i {
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+}
+
+/* Şifre alanı için özel padding */
+.form-group input[type="password"] {
+    padding-right: 60px; /* Göz ikonu için sağ tarafta boşluk */
 }
 
 /* Hover efekti */
