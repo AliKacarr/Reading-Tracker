@@ -47,9 +47,8 @@ async function loadReadingStats() {
         // Kullanıcı sayısına göre yükseklik ayarla (ör: her kullanıcı için 45px)
         const chartContainer = ctx.parentElement;
         if (chartContainer) {
-            const minHeight = 350;
-            const userHeight = 46;
-            const dynamicHeight = Math.max(minHeight, enhancedUserStats.length * userHeight);
+            const userHeight = 44;
+            const dynamicHeight = Math.max(enhancedUserStats.length * userHeight+120);
             chartContainer.style.height = dynamicHeight + 'px';
         }
 

@@ -7,7 +7,9 @@ async function loadUserCards() {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('card-fade-in');
-        observer.unobserve(entry.target); // Bir kez göründükten sonra takibi bırak
+      } else {
+        // Element görünür alandan çıktığında animasyonu sıfırla
+        entry.target.classList.remove('card-fade-in');
       }
     });
   }, {

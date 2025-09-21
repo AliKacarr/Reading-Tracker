@@ -1,4 +1,5 @@
 const trackerTable = document.getElementById('trackerTable');
+const tableArea = document.querySelector('.table-area');
 const userList = document.getElementById('userList');
 const newUserForm = document.getElementById('newUserForm');
 const prevWeekBtn = document.getElementById('prevWeek');
@@ -10,6 +11,9 @@ const firstDaySelect = document.getElementById('firstDaySelect');
 let weekOffset = 0;
 let isFirstLoad = true;
 let postToggleUpdateTimer = null;
+
+// Kullanıcı okuma sayılarını önbelleğe almak için
+let userReadingCounts = new Map(); // userId -> okuma sayısı
 
 // Lig tanımları - global erişilebilir
 const LEAGUES = [
@@ -112,6 +116,14 @@ async function loadTrackerTable() {
         if (!statMap[s.userId]) statMap[s.userId] = {};
         statMap[s.userId][s.date] = s.status;
     }
+    
+    // Kullanıcı okuma sayılarını hesapla ve önbelleğe al
+    userReadingCounts.clear();
+    for (let user of users) {
+        const userStats = statMap[user._id] || {};
+        const okudumDays = Object.values(userStats).filter(s => s === 'okudum').length;
+        userReadingCounts.set(user._id, okudumDays);
+    }
     const streakMap = {};
     for (let user of users) {
         streakMap[user._id] = findConsecutiveStreaks(statMap[user._id] || {});
@@ -134,8 +146,8 @@ async function loadTrackerTable() {
     for (let user of users) {
         const userStats = statMap[user._id] || {};
         const userStreaks = streakMap[user._id] || {};
-        // Lig ve arka planı belirle
-        const okudumDays = Object.values(userStats).filter(s => s === 'okudum').length;
+        // Lig ve arka planı belirle (önbellekten al)
+        const okudumDays = userReadingCounts.get(user._id) || 0;
         const league = LEAGUES.find(l => okudumDays >= l.min && okudumDays < l.max) || LEAGUES[LEAGUES.length - 1];
         let row = `<tr><td class="user-item" data-user-id="${user._id}" style="background: ${league.bg};">`;
         const profileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
@@ -205,6 +217,7 @@ async function loadTrackerTable() {
         }
         showWeekLoading(false);
     }, 20);
+    tableArea.style.display = 'block';
 }
 
 function findConsecutiveStreaks(userStats) {
@@ -330,6 +343,29 @@ async function toggleStatus(userId, date) {
         cell.classList.add('pink');
     }
 
+    // Önbellekteki okuma sayısını güncelle
+    const currentCount = userReadingCounts.get(userId) || 0;
+    let newCount = currentCount;
+    
+    if (current === '✔' && status === 'okumadım') {
+        // Okudum -> Okumadım: -1
+        newCount = Math.max(0, currentCount - 1);
+    } else if (current === '✖' && status === 'okudum') {
+        // Okumadım -> Okudum: +1
+        newCount = currentCount + 1;
+    } else if (current === '➖' && status === 'okudum') {
+        // Boş -> Okudum: +1
+        newCount = currentCount + 1;
+    } else if (current === '✖' && status === '') {
+        // Okumadım -> Boş: değişiklik yok
+        newCount = currentCount;
+    } else if (current === '✔' && status === '') {
+        // Okudum -> Boş: -1
+        newCount = Math.max(0, currentCount - 1);
+    }
+    
+    userReadingCounts.set(userId, newCount);
+
     // Veri tabanı güncellemesini hemen yap
     await fetch(`/api/update-status/${currentGroupId}`, {
         method: 'POST',
@@ -367,8 +403,8 @@ async function toggleStatus(userId, date) {
         }
         postToggleUpdateTimer = setTimeout(async () => {
             try {
-                // Sadece tıklanan kullanıcının background rengini güncelle
-                await updateUserBackgroundColor(userId);
+                // Tüm kullanıcıların background rengini güncelle
+                updateAllUserBackgroundColors();
                 
                 if (typeof window.loadUserCards === 'function') {
                     window.loadUserCards();
@@ -391,7 +427,25 @@ async function toggleStatus(userId, date) {
     }
 }
 
-// Kullanıcının background rengini güncelle
+// Tüm kullanıcıların background rengini güncelle (önbellekten)
+function updateAllUserBackgroundColors() {
+    try {
+        userReadingCounts.forEach((okudumDays, userId) => {
+            // Lig hesapla
+            const league = LEAGUES.find(l => okudumDays >= l.min && okudumDays < l.max) || LEAGUES[LEAGUES.length - 1];
+            
+            // Kullanıcının user-item elementini bul ve background rengini güncelle
+            const userItem = document.querySelector(`[data-user-id="${userId}"]`);
+            if (userItem) {
+                userItem.style.background = league.bg;
+            }
+        });
+    } catch (error) {
+        console.error('Kullanıcı background renkleri güncellenemedi:', error);
+    }
+}
+
+// Kullanıcının background rengini güncelle (eski fonksiyon - geriye uyumluluk için)
 async function updateUserBackgroundColor(userId) {
     try {
         // Kullanıcının güncel istatistiklerini al

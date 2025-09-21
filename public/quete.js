@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Tüm yenileme butonlarını seç
+
+    const quote = document.querySelector('.quote');
     const refreshButtons = document.querySelectorAll('.refresh-quote');
     
     // Her buton için animasyonu başlat
@@ -53,8 +55,9 @@ document.addEventListener('DOMContentLoaded', function () {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                // Bir kez göründükten sonra takibi bırak
-                observer.unobserve(entry.target);
+            } else {
+                // Element görünür alandan çıktığında visible sınıfını kaldır
+                entry.target.classList.remove('visible');
             }
         });
     }, {
@@ -134,8 +137,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 1000);
         };
     }
-    const quote = document.querySelector('.quote');
-    quote.style.display= 'block';
 });
 
 async function fetchRandomQuote() {

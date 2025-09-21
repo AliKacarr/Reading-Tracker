@@ -179,7 +179,10 @@ function renderVideos(videos) {
                     entry.target.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                    observer.unobserve(entry.target); // Bir kez göründükten sonra takibi bırak
+                } else {
+                    // Element görünür alandan çıktığında animasyonu sıfırla
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(30px)';
                 }
             });
         }, {
