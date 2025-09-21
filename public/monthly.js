@@ -26,7 +26,7 @@ function loadMonthlyCalendar() {
         userSelectorContainer = document.createElement('div');
         userSelectorContainer.className = 'user-selector-container';
         userSelectorContainer.innerHTML = `
-        <label for="userSelector">Kullanıc    ı Seçin:</label>
+        <label for="userSelector">Kullanıcı Seçin:</label>
         <select id="userSelector" class="user-selector"></select>
       `;
         

@@ -244,6 +244,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     padding: 10px 16px;
     cursor: pointer;
     font-size: 15px;
+    font-weight: bold;
     color: #555;
     display: flex;
     align-items: center;
@@ -258,6 +259,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 
 .today-button {
     background-color: #5b9bd5;
+    font-weight: bold;
     color: white;
     border: none;
 }
@@ -277,7 +279,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 
 .current-week {
     font-size: 17px;
-    font-weight: 600;
+    font-weight: bold;
     color: #5b9bd5;
     padding: 5px 15px;
     border-radius: 4px;
@@ -340,14 +342,14 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 th.today-column::before {
     content: "Bugün";
     position: absolute;
-    top: -22px;
+    top: -27px;
     left: 50%;
     transform: translateX(-50%);
     background-color: #5b9bd5;
     color: white;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: normal;
     z-index: 3;
     /* Ensure it appears above other elements */
@@ -362,7 +364,7 @@ th.today-column {
 /* Make sure the day of week is more prominent for today */
 .today-column .day-of-week {
     color: #1e88e5;
-    font-weight: 700;
+    font-weight: bold;
 }
 
 /* Ensure colored cells still show their colors when they're also today's column */
