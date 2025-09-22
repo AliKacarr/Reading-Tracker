@@ -8,11 +8,10 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
     if (!adminIndicator) {
         adminIndicator = document.createElement('div');
         adminIndicator.className = 'admin-indicator';
-        adminIndicator.textContent = 'Admin Modu';
+        adminIndicator.textContent = 'Yönetici Modu';
 
         // Add click event to open admin info panel
         adminIndicator.addEventListener('click', function () {
-            console.log('Admin Modu clicked'); // Debugging log
             showAdminInfoPanel();
         });
 
@@ -161,7 +160,7 @@ function showAdminInfoPanel() {
         };
 
         const title = document.createElement('h2');
-        title.textContent = 'Admin Bilgileri';
+        title.textContent = 'Yönetici Bilgileri';
 
         const infoPanel = document.createElement('div');
         infoPanel.className = 'admin-info-panel';
@@ -175,7 +174,7 @@ function showAdminInfoPanel() {
 
         const usernameValue = document.createElement('div');
         usernameValue.className = 'admin-info-value';
-        usernameValue.textContent = localStorage.getItem('adminUsername') || 'Admin';
+        usernameValue.textContent = localStorage.getItem('adminUsername') || 'Yönetici';
 
         usernameItem.appendChild(usernameLabel);
         usernameItem.appendChild(usernameValue);
