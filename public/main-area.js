@@ -27,17 +27,26 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
             formData.append('profileImage', imageInput.files[0]);
         }
 
-        await fetch(`/api/add-user/${currentGroupId}`, {
+        // Kullanıcıyı ekle (yeni sistem: önce yerel, sonra Dropbox)
+        const response = await fetch(`/api/add-user/${currentGroupId}`, {
             method: 'POST',
             body: formData
         });
 
+        if (!response.ok) {
+            throw new Error('Kullanıcı ekleme başarısız');
+        }
+
+        const result = await response.json();
+
+        // Form alanlarını temizle
         input.value = '';
         imageInput.value = '';
         fileNameDisplay.textContent = 'Resim seçilmedi';
         fileInputLabel.textContent = 'Resim Seç';
         imagePreviewContainer.style.display = 'none';
 
+        // UI'ı güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
         renderUserList();
         loadTrackerTable();
         loadUserCards();
@@ -45,6 +54,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         renderLongestSeries();
         showSuccessMessage('Kullanıcı başarıyla eklendi!');
         if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
+
     } catch (error) {
         console.error('Kullanıcı ekleme hatası:', error);
         showErrorMessage('Kullanıcı eklenirken hata oluştu!');
@@ -118,26 +128,81 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
     const saveButton = userItem.querySelector('.save-name-button');
 
     const newName = nameInput.value.trim();
-    if (!newName) return; // Don't save empty names
+    if (!newName) {
+        showErrorMessage('Kullanıcı adı boş olamaz!');
+        return; // Don't save empty names
+    }
 
-    // Hide input and save button, show name span
-    nameSpan.style.display = 'inline-block';
-    nameInput.style.display = 'none';
-    saveButton.style.display = 'none';
+    saveButton.disabled = true;
 
-    // Update the user name in the database
-    await fetch(`/api/update-user/${currentGroupId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, name: newName })
-    });
+    try {
+        // Update the user name in the database
+        const response = await fetch(`/api/update-user/${currentGroupId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, name: newName })
+        });
 
-    renderUserList();
-    loadTrackerTable();
-    loadUserCards();
-    loadReadingStats();
-    renderLongestSeries();
-    if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
+        if (!response.ok) {
+            throw new Error('Kullanıcı adı güncellenemedi');
+        }
+
+        // Hide input, save button and cancel button, show name span, edit button and settings button
+        nameSpan.style.display = 'inline-block';
+        nameInput.style.display = 'none';
+        saveButton.style.display = 'none';
+        
+        const cancelButton = userItem.querySelector('.cancel-edit-button');
+        if (cancelButton) {
+            cancelButton.style.display = 'none';
+        }
+        
+        // Show edit button and settings button
+        const editButton = userItem.querySelector('.edit-name-button');
+        if (editButton) {
+            editButton.style.display = 'inline-block';
+        }
+        
+        const settingsButton = userItem.querySelector('.settings-button');
+        if (settingsButton) {
+            settingsButton.style.display = 'inline-block';
+        }
+
+        // Update the name span with new name
+        nameSpan.textContent = newName;
+
+        // Update other components that might show the user name
+        loadTrackerTable();
+        loadUserCards();
+        loadReadingStats();
+        renderLongestSeries();
+        if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
+
+        showSuccessMessage('Kullanıcı adı başarıyla güncellendi!');
+
+    } catch (error) {
+        console.error('Kullanıcı adı güncelleme hatası:', error);
+        showErrorMessage('Kullanıcı adı güncellenirken hata oluştu!');
+        
+        // Reset button state
+        saveButton.disabled = false;
+        
+        // Hide cancel button and show edit button and settings button again on error
+        const cancelButton = userItem.querySelector('.cancel-edit-button');
+        if (cancelButton) {
+            cancelButton.style.display = 'none';
+        }
+        
+        const editButton = userItem.querySelector('.edit-name-button');
+        if (editButton) {
+            editButton.style.display = 'inline-block';
+        }
+        
+        const settingsButton = userItem.querySelector('.settings-button');
+        if (settingsButton) {
+            settingsButton.style.display = 'inline-block';
+        }
+    }
 }
 
 function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
@@ -150,12 +215,22 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
     const nameSpan = userItem.querySelector('.profil-image-user-name');
     const nameInput = userItem.querySelector('.edit-name-input');
+    const editButton = userItem.querySelector('.edit-name-button');
     const saveButton = userItem.querySelector('.save-name-button');
+    const cancelButton = userItem.querySelector('.cancel-edit-button');
+    const settingsButton = userItem.querySelector('.settings-button');
 
-    // Hide name span, show input and save button
+    // Hide name span, edit button and settings button, show input, save button and cancel button
     nameSpan.style.display = 'none';
+    editButton.style.display = 'none';
+    settingsButton.style.display = 'none';
     nameInput.style.display = 'inline-block';
     saveButton.style.display = 'inline-block';
+    cancelButton.style.display = 'inline-block';
+    
+    // Focus on input and select text
+    nameInput.focus();
+    nameInput.select();
 }
 
 function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyonu
@@ -178,22 +253,58 @@ function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyo
     // Handle file selection
     fileInput.addEventListener('change', async function () {
         if (this.files.length > 0) {
+            const file = this.files[0];
+            
+            // Önce UI'da resmi güncelle
+            const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+            if (userItem) {
+                const userImage = userItem.querySelector('.user-profile-image');
+                if (userImage) {
+                    // Yeni resmi önizleme olarak göster
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        userImage.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Resim güncelleme (yeni sistem: önce yerel, sonra Dropbox)
             const formData = new FormData();
             formData.append('userId', userId);
-            formData.append('profileImage', this.files[0]);
+            formData.append('profileImage', file);
 
-            // Upload the new image
-            await fetch(`/api/update-user-image/${currentGroupId}`, {
-                method: 'POST',
-                body: formData
-            });
+            try {
+                const response = await fetch(`/api/update-user-image/${currentGroupId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Resim güncelleme başarısız');
+                }
+
+                const result = await response.json();
+                
+                // Diğer bileşenleri güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
+                loadTrackerTable();
+                loadUserCards();
+                loadReadingStats();
+                renderLongestSeries();
+
+            } catch (error) {
+                console.error('Resim güncelleme hatası:', error);
+                // Hata durumunda resmi eski haline geri döndür
+                if (userItem) {
+                    const userImage = userItem.querySelector('.user-profile-image');
+                    if (userImage) {
+                        userImage.src = userImage.src; // Sayfayı yenile
+                    }
+                }
+                showErrorMessage('Resim güncellenirken hata oluştu!');
+            }
 
             document.body.removeChild(fileInput);
-            renderUserList();
-            loadTrackerTable();
-            loadUserCards();
-            loadReadingStats();
-            renderLongestSeries();
         }
     });
 }
@@ -276,15 +387,67 @@ function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fon
     const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
     const deleteButton = userItem.querySelector('.delete-button');
     const settingsButton = userItem.querySelector('.settings-button');
+    const cancelButton = userItem.querySelector('.cancel-settings-button');
+    const editButton = userItem.querySelector('.edit-name-button');
 
     if (deleteButton.style.display === 'none') {
         deleteButton.style.display = 'inline-block';
         settingsButton.style.display = 'none';
+        editButton.style.display = 'none';
+        cancelButton.style.display = 'inline-block';
     } else {
         settingsButton.style.display = 'inline-block';
+        editButton.style.display = 'inline-block';
         deleteButton.style.display = 'none';
+        cancelButton.style.display = 'none';
     }
-    editUserName(userId);
+}
+
+function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fonksiyonu
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+        logUnauthorizedAccess('cancel-edit-user-name');
+        return;
+    }
+
+    const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+    const nameSpan = userItem.querySelector('.profil-image-user-name');
+    const nameInput = userItem.querySelector('.edit-name-input');
+    const editButton = userItem.querySelector('.edit-name-button');
+    const saveButton = userItem.querySelector('.save-name-button');
+    const cancelButton = userItem.querySelector('.cancel-edit-button');
+    const settingsButton = userItem.querySelector('.settings-button');
+
+    // Reset to original state: hide input, save and cancel buttons, show name span, edit button and settings button
+    nameSpan.style.display = 'inline-block';
+    nameInput.style.display = 'none';
+    saveButton.style.display = 'none';
+    cancelButton.style.display = 'none';
+    editButton.style.display = 'inline-block';
+    settingsButton.style.display = 'inline-block';
+
+    // Reset input value to original name
+    nameInput.value = nameSpan.textContent;
+}
+
+function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+        logUnauthorizedAccess('cancel-settings');
+        return;
+    }
+
+    const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+    const deleteButton = userItem.querySelector('.delete-button');
+    const settingsButton = userItem.querySelector('.settings-button');
+    const cancelButton = userItem.querySelector('.cancel-settings-button');
+    const editButton = userItem.querySelector('.edit-name-button');
+
+    // Reset to original state: hide delete and cancel buttons, show settings button and edit button
+    deleteButton.style.display = 'none';
+    cancelButton.style.display = 'none';
+    settingsButton.style.display = 'inline-block';
+    editButton.style.display = 'inline-block';
 }
 
 function renderUserList() {
@@ -294,11 +457,11 @@ function renderUserList() {
         .then(res => res.json())
         .then(data => {
             const users = data.users;
-            // Sadece yeni elemanları ekle, eksikleri sil
+            // Mevcut kullanıcı ID'lerini al
             const existingIds = Array.from(userList.children).map(li => li.getAttribute('data-user-id'));
             const newIds = users.map(u => u._id);
 
-            // Silinen kullanıcıları kaldır
+            // Silinen kullanıcıları kaldır (veritabanında olmayan ama UI'da olan)
             existingIds.forEach(id => {
                 if (!newIds.includes(id)) {
                     const li = userList.querySelector(`li[data-user-id="${id}"]`);
@@ -306,19 +469,22 @@ function renderUserList() {
                 }
             });
 
-            // Güncelle veya ekle
+            // Sadece yeni kullanıcıları ekle, mevcut olanları güncelleme
             users.forEach(user => {
                 let li = userList.querySelector(`li[data-user-id="${user._id}"]`);
-                const userProfileImage = user.profileImage || '/images/default.png';
-                const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name" onclick="editUserName('${user._id}')">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;">✔</button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="13" height="15"></button></div>`;
-                if (li) {
-                    li.innerHTML = liHTML;
-                } else {
+                
+                if (!li) {
+                    console.log(user._id);
+                    // Sadece yeni kullanıcı için HTML oluştur
+                    const userProfileImage = user.profileImage || '/images/default.png';
+                    const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
+                    
                     li = document.createElement('li');
                     li.setAttribute('data-user-id', user._id);
                     li.innerHTML = liHTML;
                     userList.appendChild(li);
                 }
+                // Mevcut kullanıcılar için hiçbir şey yapma - gereksiz resim yüklemelerini önle
             });
             userList.scrollTop = prevScrollTop; // scroll pozisyonunu geri yükle
         });

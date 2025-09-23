@@ -10,10 +10,95 @@ const { Dropbox } = require('dropbox');
 const app = express();
 const port = 3000;
 
-// Dropbox konfigürasyonu
-const dbx = new Dropbox({
-  accessToken: process.env.DROPBOX_ACCESS_TOKEN
-});
+// Dropbox konfigürasyonu - OAuth2 ile
+let dbx;
+let currentAccessToken = null;
+let tokenExpiry = null;
+
+// Dropbox token yenileme fonksiyonu
+async function refreshDropboxToken() {
+  try {
+    const response = await fetch('https://api.dropboxapi.com/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${Buffer.from(`${process.env.DROPBOX_APP_KEY}:${process.env.DROPBOX_APP_SECRET}`).toString('base64')}`
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: process.env.DROPBOX_REFRESH_TOKEN
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Token yenileme hatası: ${response.status}`);
+    }
+
+    const data = await response.json();
+    currentAccessToken = data.access_token;
+    tokenExpiry = Date.now() + (data.expires_in * 1000);
+    
+    // Dropbox instance'ını güncelle
+    dbx = new Dropbox({
+      accessToken: currentAccessToken
+    });
+
+    console.log('✅ Dropbox token başarıyla yenilendi');
+    return true;
+  } catch (error) {
+    console.error('❌ Dropbox token yenileme hatası:', error);
+    return false;
+  }
+}
+
+// Dropbox instance'ını başlat
+async function initializeDropbox() {
+  if (process.env.DROPBOX_REFRESH_TOKEN) {
+    await refreshDropboxToken();
+  } else {
+    console.log('⚠️ DROPBOX_REFRESH_TOKEN bulunamadı, Dropbox devre dışı');
+  }
+}
+
+// Dropbox token durumu kontrolü
+async function checkDropboxToken() {
+  try {
+    // Token süresi kontrolü
+    if (!currentAccessToken || (tokenExpiry && Date.now() >= tokenExpiry)) {
+      console.log('🔄 Dropbox token süresi dolmuş, yenileniyor...');
+      const refreshed = await refreshDropboxToken();
+      if (!refreshed) {
+        return { valid: false, error: 'Token yenileme başarısız' };
+      }
+    }
+
+    if (!dbx) {
+      return { valid: false, error: 'Dropbox başlatılmamış' };
+    }
+
+    await dbx.usersGetCurrentAccount();
+    return { valid: true, error: null };
+  } catch (error) {
+    if (error.status === 401) {
+      // Token yenileme dene
+      console.log('🔄 401 hatası, token yenileniyor...');
+      const refreshed = await refreshDropboxToken();
+      if (refreshed) {
+        try {
+          await dbx.usersGetCurrentAccount();
+          return { valid: true, error: null };
+        } catch (retryError) {
+          return { valid: false, error: 'Token yenileme sonrası hata' };
+        }
+      }
+      return { valid: false, error: 'Token süresi dolmuş ve yenilenemedi' };
+    } else if (error.status === 403) {
+      return { valid: false, error: 'Yetki hatası' };
+    } else {
+      return { valid: false, error: 'Bağlantı hatası' };
+    }
+  }
+}
 
 // Türkçe karakterleri normalize et
 function normalizeFileName(fileName) {
@@ -323,6 +408,39 @@ app.get('/api/group/:groupId', async (req, res) => {
 // Health check endpoint for keeping Render alive
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, timestamp: Date.now() });
+});
+
+// Dropbox durumu kontrol endpoint'i
+app.get('/api/dropbox-status', async (req, res) => {
+  const tokenStatus = await checkDropboxToken();
+  
+  if (tokenStatus.valid) {
+    res.json({ 
+      status: 'connected', 
+      message: 'Dropbox bağlantısı aktif',
+      timestamp: Date.now() 
+    });
+  } else {
+    let status = 'error';
+    let message = 'Dropbox bağlantı hatası';
+    
+    if (tokenStatus.error === 'Token süresi dolmuş') {
+      status = 'expired';
+      message = 'Dropbox access token süresi dolmuş - .env dosyasında DROPBOX_ACCESS_TOKEN güncelleyin';
+    } else if (tokenStatus.error === 'Yetki hatası') {
+      status = 'forbidden';
+      message = 'Dropbox yetki hatası - Token yetkilerini kontrol edin';
+    } else {
+      status = 'connection_error';
+      message = 'Dropbox bağlantı hatası - İnternet bağlantısını kontrol edin';
+    }
+    
+    res.json({ 
+      status: status, 
+      message: message,
+      timestamp: Date.now() 
+    });
+  }
 });
 
 // Grupları listeleme endpoint'i
@@ -771,7 +889,7 @@ app.get('/api/config', (req, res) => {
 
 
 //**************************************************************************** main-area
-//Kullanıcı ekleme
+//Kullanıcı ekleme - Yeni sistem (önce yerel, sonra Dropbox)
 app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -787,30 +905,80 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
     const { users } = getGroupCollections(groupId);
 
     let profileImageUrl = '/images/default.png'; // Varsayılan resim URL'i
+    let fileName = null;
     
-    // Resim varsa önce yükle, sonra kullanıcıyı kaydet
+    // Resim varsa önce yerel olarak kaydet
     if (req.file) {
       try {
-        // Dosyayı Dropbox'a yükle
-        const fileName = `${Date.now()}-${req.file.originalname}`;
-        const fileBuffer = fs.readFileSync(req.file.path);
-        profileImageUrl = await uploadToDropbox(fileBuffer, fileName, 'userImages');
+        // 1. Adım: Yerel uploads klasörüne kaydet
+        const normalizedFileName = normalizeFileName(req.file.originalname);
+        fileName = `${Date.now()}-${normalizedFileName}`;
+        const localPath = path.join(__dirname, 'uploads', fileName);
         
-        // Yerel dosyayı sil
+        // Dosyayı uploads klasörüne kopyala
+        fs.copyFileSync(req.file.path, localPath);
+        
+        // Geçici dosyayı sil
         fs.unlinkSync(req.file.path);
+        
+        profileImageUrl = `/images/${fileName}`;
       } catch (error) {
-        console.error('Dropbox upload hatası:', error);
+        console.error('Yerel kaydetme hatası:', error);
         // Hata durumunda varsayılan resmi kullan
         profileImageUrl = '/images/default.png';
       }
     }
 
-    // Kullanıcıyı kaydet (resim URL'i ile birlikte)
+    // 2. Adım: Kullanıcıyı kaydet (yerel resim URL'i ile birlikte)
     const user = new users({ name, profileImage: profileImageUrl });
     await user.save();
     
-    // Kullanıcıya yanıt ver
-    res.json({ success: true, user: user });
+    // 3. Adım: Kullanıcıya hemen yanıt ver
+    res.json({ success: true, user: user, fileName: fileName });
+
+    // 4. Adım: Dropbox'a yükle (arka planda)
+    if (fileName && user) {
+      try {
+        const localPath = path.join(__dirname, 'uploads', fileName);
+        const fileBuffer = fs.readFileSync(localPath);
+        const dropboxFileName = `${Date.now()}-${fileName}`;
+        const newImageUrl = await uploadToDropbox(fileBuffer, dropboxFileName, 'userImages');
+
+        // 5. Adım: Veritabanını Dropbox URL'i ile güncelle
+        await users.findByIdAndUpdate(
+          user._id,
+          { profileImage: newImageUrl }
+        );
+
+        // 6. Adım: Yerel dosyayı sil (sadece Dropbox başarılıysa)
+        if (fs.existsSync(localPath)) {
+          fs.unlinkSync(localPath);
+          console.log('✅ Yerel dosya silindi (Dropbox yüklemesi başarılı)');
+        }
+      } catch (dropboxError) {
+        console.error('Dropbox yükleme hatası:', dropboxError);
+        
+        // Dropbox hatası türüne göre log mesajı
+        if (dropboxError.status === 401) {
+          console.error('❌ Dropbox access token süresi dolmuş! Yerel resim kullanılıyor.');
+        } else if (dropboxError.status === 403) {
+          console.error('❌ Dropbox yetki hatası! Yerel resim kullanılıyor.');
+        } else {
+          console.error('❌ Dropbox bağlantı hatası! Yerel resim kullanılıyor.');
+        }
+        
+        // Dropbox hatası kullanıcıyı etkilemez, yerel resim zaten çalışıyor
+        // Yerel dosyayı silme - çünkü Dropbox'a yüklenemedi
+        try {
+          if (fs.existsSync(localPath)) {
+            fs.unlinkSync(localPath);
+            console.log('✅ Yerel dosya temizlendi (Dropbox hatası nedeniyle)');
+          }
+        } catch (cleanupError) {
+          console.error('Yerel dosya temizleme hatası:', cleanupError);
+        }
+      }
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Sunucu hatası' });
@@ -862,6 +1030,11 @@ app.post('/api/update-user/:groupId', async (req, res) => {
   const { userId, name } = req.body;
 
   try {
+    // Parametreleri kontrol et
+    if (!userId || !name) {
+      return res.status(400).json({ error: 'userId ve name parametreleri gerekli' });
+    }
+
     // Grup var mı kontrol et
     const group = await UserGroup.findOne({ groupId });
     if (!group) {
@@ -871,18 +1044,25 @@ app.post('/api/update-user/:groupId', async (req, res) => {
     // Dinamik koleksiyonu al
     const { users } = getGroupCollections(groupId);
 
-    await users.findByIdAndUpdate(
+    // Kullanıcıyı güncelle
+    const updatedUser = await users.findByIdAndUpdate(
       userId,
-      { name: name }
+      { name: name.trim() },
+      { new: true }
     );
-    res.json({ success: true });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    }
+
+    res.json({ success: true, user: updatedUser });
   } catch (error) {
     console.error('Error updating user:', error);
-    res.status(500).json({ error: 'Failed to update user' });
+    res.status(500).json({ error: 'Kullanıcı güncellenirken hata oluştu' });
   }
 });
 
-// Kullanıcı resmini güncelleme
+// Kullanıcı resmini güncelleme - Yeni sistem (önce yerel, sonra Dropbox)
 app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async (req, res) => {
   const { groupId } = req.params;
   const { userId } = req.body;
@@ -903,28 +1083,73 @@ app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async
       const user = await users.findById(userId);
       const oldImageUrl = user ? user.profileImage : null;
 
-      // Upload new image to Dropbox
-      const fileName = `${Date.now()}-${req.file.originalname}`;
-      const fileBuffer = fs.readFileSync(req.file.path);
-      const newImageUrl = await uploadToDropbox(fileBuffer, fileName, 'userImages');
+      // 1. Adım: Yerel uploads klasörüne kaydet
+      const normalizedFileName = normalizeFileName(req.file.originalname);
+      const fileName = `${Date.now()}-${normalizedFileName}`;
+      const localPath = path.join(__dirname, 'uploads', fileName);
       
-      // Delete local file
+      // Dosyayı uploads klasörüne kopyala
+      fs.copyFileSync(req.file.path, localPath);
+      
+      // Geçici dosyayı sil
       fs.unlinkSync(req.file.path);
 
-      // Update with the new image URL
+      // 2. Adım: Veritabanını yerel yol ile güncelle
+      const localImageUrl = `/images/${fileName}`;
       await users.findByIdAndUpdate(
         userId,
-        { profileImage: newImageUrl }
+        { profileImage: localImageUrl }
       );
 
-      // Kullanıcıya hemen yanıt ver
-      res.json({ success: true, imageUrl: newImageUrl });
+      // 3. Adım: Kullanıcıya hemen yanıt ver (yerel resim ile)
+      res.json({ success: true, imageUrl: localImageUrl, fileName: fileName });
 
-      // Eski resmi arka planda sil
-      if (oldImageUrl && oldImageUrl.includes('dropbox.com')) {
-        deleteFromDropboxByUrl(oldImageUrl).catch(err => 
-          console.error('Eski resim silme hatası:', err)
+      // 4. Adım: Dropbox'a yükle (arka planda)
+      try {
+        const fileBuffer = fs.readFileSync(localPath);
+        const dropboxFileName = `${Date.now()}-${fileName}`;
+        const newImageUrl = await uploadToDropbox(fileBuffer, dropboxFileName, 'userImages');
+
+        // 5. Adım: Veritabanını Dropbox URL'i ile güncelle
+        await users.findByIdAndUpdate(
+          userId,
+          { profileImage: newImageUrl }
         );
+
+        // 6. Adım: Yerel dosyayı sil (sadece Dropbox başarılıysa)
+        if (fs.existsSync(localPath)) {
+          fs.unlinkSync(localPath);
+          console.log('✅ Yerel dosya silindi (Dropbox yüklemesi başarılı)');
+        }
+
+        // 7. Adım: Eski resmi arka planda sil (Dropbox'tan)
+        if (oldImageUrl && oldImageUrl.includes('dropbox.com')) {
+          deleteFromDropboxByUrl(oldImageUrl).catch(err => 
+            console.error('Eski resim silme hatası:', err)
+          );
+        }
+      } catch (dropboxError) {
+        console.error('Dropbox yükleme hatası:', dropboxError);
+        
+        // Dropbox hatası türüne göre log mesajı
+        if (dropboxError.status === 401) {
+          console.error('❌ Dropbox access token süresi dolmuş! Yerel resim kullanılıyor.');
+        } else if (dropboxError.status === 403) {
+          console.error('❌ Dropbox yetki hatası! Yerel resim kullanılıyor.');
+        } else {
+          console.error('❌ Dropbox bağlantı hatası! Yerel resim kullanılıyor.');
+        }
+        
+        // Dropbox hatası kullanıcıyı etkilemez, yerel resim zaten çalışıyor
+        // Yerel dosyayı silme - çünkü Dropbox'a yüklenemedi
+        try {
+          if (fs.existsSync(localPath)) {
+            fs.unlinkSync(localPath);
+            console.log('✅ Yerel dosya temizlendi (Dropbox hatası nedeniyle)');
+          }
+        } catch (cleanupError) {
+          console.error('Yerel dosya temizleme hatası:', cleanupError);
+        }
       }
     } else {
       res.status(400).json({ error: 'No image file provided' });
@@ -1260,8 +1485,19 @@ app.get('/:groupId', (req, res) => {
   }
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Uygulama http://localhost:${port} adresinde çalışıyor`);
+  
+  // Dropbox'ı başlat
+  await initializeDropbox();
+  
+  // Token yenileme scheduler'ı (her 3 saatte bir)
+  setInterval(async () => {
+    if (tokenExpiry && Date.now() >= tokenExpiry - 1800000) { // 30 dakika önceden yenile
+      console.log('🔄 Dropbox token otomatik yenileniyor...');
+      await refreshDropboxToken();
+    }
+  }, 1800000); // 30 dakikada bir kontrol et
 });
 
 

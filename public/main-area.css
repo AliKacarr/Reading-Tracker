@@ -1,7 +1,7 @@
 .main-area {
     display: flex;
     gap: 50px;
-    padding: 5px 15px;
+    padding: 5px 0px;
     align-items: flex-start;
     flex-wrap: wrap;
     margin-top: 20px;
@@ -11,6 +11,80 @@
     .main-area {
         flex-direction: column;
     }
+    
+    #newUserForm {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    #newUserForm h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    
+    .input-container {
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .input-icon {
+        margin: 0;
+        order: -1;
+    }
+    
+    #newUserInput {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+    }
+    
+    .submit-button {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 8px;
+    }
+    
+    .file-input-container {
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    label.custom-file-input {
+        width: 100%;
+        margin-right: 0;
+        text-align: center;
+    }
+    
+    #file-name {
+        text-align: center;
+        font-size: 13px;
+    }
+    
+    #imagePreviewContainer {
+        padding: 10px;
+        margin-top: 10px;
+    }
+    
+    .profile-preview-image {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+.user-list {
+    padding: 24px;
+}
+
+.user-list h3 {
+    color: #34495e;
+    margin: 0 0 24px 0;
+    font-size: 22px;
+    font-weight: 600;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #3498db;
+    width: 98%;
 }
 
 ul#userList {
@@ -27,11 +101,36 @@ ul#userList li {
     justify-content: space-between;
     align-items: center;
     font-size: 15px;
-    background: #f9f9f9;
+    background: #ffffff;
     padding: 8px 12px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    gap: 8px;
+    border-radius: 8px;
+    border: 1px solid #c0c0c0;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+ul#userList li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+ul#userList li:hover {
+    transform: translateY(-1px);
+    border-color: #d0d0d0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+ul#userList li:hover::before {
+    opacity: 1;
 }
 
 ul#userList li span {
@@ -44,6 +143,7 @@ ul#userList li span {
     align-items: center;
     flex-grow: 1;
     min-width: 0;
+    max-width: 260px;
 }
 
 .user-profile-image {
@@ -76,48 +176,117 @@ ul#userList li span {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
-    margin-right: 5px;
+    margin-right: 8px;
     min-width: 0;
-    max-width: 105px;
 }
 
 .user-actions {
     display: flex;
     align-items: center;
-    gap: 5px;
 }
 
 .settings-button {
-    background: #f0f0f0;
+    margin-left: 10px;
+    background: #e3dede;
     border: none;
     color: #555;
-    padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .settings-button:hover {
     background-color: #e0e0e0;
 }
 
+.edit-name-button {
+    background: #5b9bd5;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-name-button:hover {
+    background-color: #4a8bc6;
+}
+
 .save-name-button {
     background: #6adf6e;
     border: none;
     color: white;
-    padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
     flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .save-name-button:hover {
     background-color: #45a049;
 }
 
+.cancel-edit-button {
+    margin-left: 8px;
+    background: #ff6b6b;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cancel-edit-button:hover {
+    background-color: #ff5252;
+}
+
+.cancel-settings-button {
+    margin-left: 10px;
+    background: #a2a162;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cancel-settings-button:hover {
+    background-color: #949354;
+}
+
 .delete-button {
-    background-color: #e889ab;
+    background-color: #ff0961;
     border: none;
     color: white;
     padding: 6px 8px;
@@ -128,38 +297,101 @@ ul#userList li span {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-}
-
-.delete-button img {
-    display: block;
-    width: 20px;
-    height: 20px;
+    width: 32px;
+    height: 32px;
 }
 
 .delete-button:hover {
     background-color: #d9363e;
 }
 
-.new-user {
-    flex: 1;
+/* Kullanıcı Ekleme Formu - Site Temasına Uygun */
+#newUserForm {
+    padding: 24px;
+    margin-bottom: 20px;
+    width: 300px;
+}
+
+#newUserForm h3 {
+    color: #34495e;
+    margin: 0 0 24px 0;
+    font-size: 22px;
+    font-weight: 600;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #27ae60;
+    width: 98%;
+}
+
+.ad-user-form-group label {
+    display: block;
+    color: #34495e;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #b0b0b0;
+    border-radius: 6px;
+    padding: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    max-width: 90%;
+}
+
+.input-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.input-container:hover {
+    border-color: #bbb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.input-container:focus-within {
+    border-color: #5b9bd5;
+    box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.2);
+}
+
+.input-container > * {
+    position: relative;
+    z-index: 1;
+}
+
+.input-icon {
+    color: #5b9bd5;
+    margin: 0 12px;
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.input-container:hover .input-icon {
+    color: #4a8bc6;
 }
 
 #newUserInput {
-    padding: 12px 12px;
+    flex: 1;
+    padding: 12px 8px;
     font-size: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: none;
+    background: transparent;
     color: #333;
-    background-color: #fff;
-    width: 180px;
-}
-
-#newUserInput:focus {
     outline: none;
-    border-color: #5b9bd5;
-    box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.2);
+    width: 100%;
 }
 
 #newUserInput::placeholder {
@@ -167,30 +399,73 @@ ul#userList li span {
     font-style: italic;
 }
 
-#newUserInput:hover {
-    border-color: #bbb;
-}
-
 .submit-button {
     background-color: #4CAF50;
     color: white;
-    padding: 12px 18px;
+    padding: 10px 18px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 15px;
-    margin-left: 10px;
+    font-weight: 600;
+    margin-left: 8px;
+    margin-right: 3px;
+    transition: all 0.3s ease;
 }
 
 .submit-button:hover {
     background-color: #45a049;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.image-upload {
+    margin-bottom: 25px;
+}
+
+.image-upload > label {
+    display: block;
+    color: #34495e;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
 }
 
 .file-input-container {
     display: flex;
     align-items: center;
-    margin-top: 5px;
-    flex-wrap: wrap;
+    background: #ffffff;
+    border: 1px solid #b0b0b0;
+    border-radius: 6px;
+    padding: 8px 0px 8px 8px;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    max-width: 90%;
+}
+
+.file-input-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.file-input-container:hover {
+    border-color: #bbb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.file-input-container > * {
+    position: relative;
+    z-index: 1;
 }
 
 input[type="file"] {
@@ -202,24 +477,25 @@ input[type="file"] {
     z-index: -1;
 }
 
-.image-upload {
-    margin-top: 15px;
-}
-
-.custom-file-input {
+label.custom-file-input {
     background-color: #5b9bd5;
-    color: white;
-    padding: 10px 15px;
+    color: white !important;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    display: inline-block;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-right: 10px;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
+    border: none;
 }
 
-.custom-file-input:hover {
+label.custom-file-input:hover {
     background-color: #4a8bc6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 #file-name {
@@ -227,38 +503,43 @@ input[type="file"] {
     font-size: 14px;
     display: inline-block;
     vertical-align: middle;
+    flex: 1;
+}
+
+#imagePreviewContainer {
+    position: relative;
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid #b0b0b0;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .profile-preview-image {
     width: 130px;
     height: 130px;
     border-radius: 8px;
-    object-fit: fill;
-    border: 1px solid #ddd;
+    object-fit: cover;
+    border: 1px solid #b0b0b0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     display: block;
-    transition: transform 0.2s;
-}
-
-#imagePreviewContainer {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    margin-top: 15px;
-    width: 135px;
+    transition: all 0.3s ease;
 }
 
 .profile-preview-image:hover {
-    box-shadow: 0 8px 24px rgba(91, 155, 213, 0.18);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transform: scale(1.03);
 }
 
 .close-preview-button {
     position: absolute;
     top: 2px;
-    left: 109px;
+    left: 139px;
     background-color: rgba(255, 255, 255, 0.7);
     border: none;
     border-radius: 50%;

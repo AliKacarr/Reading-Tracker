@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" href="images/favicon.png" type="image/x-icon" />
-  <title id="page-title">RotTaKip</title>
+  <title id="page-title">RoTaKip</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="admin-modal.css" />
@@ -379,10 +379,6 @@
         <!-- Add the Add User section -->
         <form id="newUserForm" enctype="multipart/form-data">
           <h3>➕ Kullanıcı Ekle</h3>
-          <div class="ad-user-form-group">
-            <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
-            <button type="submit" class="submit-button">Ekle</button>
-          </div>
           <div class="image-upload">
             <label for="profileImage">Profil Resmi:</label>
             <div class="file-input-container">
@@ -391,12 +387,20 @@
                 Seç</label>
               <span id="file-name">Resim seçilmedi</span>
             </div>
-            <!-- Resim ön izleme alanı -->
-            <div id="imagePreviewContainer" style="display: none; margin-top: 10px; position: relative;">
-              <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
-              <button type="button" id="closePreview" class="close-preview-button"><i
-                  class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="ad-user-form-group">
+            <label for="newUserInput">Kullanıcı İsmi:</label>
+            <div class="input-container">
+              <i class="fas fa-user input-icon"></i>
+              <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
+              <button type="submit" class="submit-button">Ekle</button>
             </div>
+          </div>
+          <!-- Resim ön izleme alanı - en altta -->
+          <div id="imagePreviewContainer" style="display: none; margin-top: 20px; position: relative;">
+            <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
+            <button type="button" id="closePreview" class="close-preview-button"><i
+                class="fa-solid fa-xmark"></i></button>
           </div>
         </form>
       </div>
