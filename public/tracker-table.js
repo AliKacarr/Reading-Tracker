@@ -150,7 +150,7 @@ async function loadTrackerTable() {
         const okudumDays = userReadingCounts.get(user._id) || 0;
         const league = LEAGUES.find(l => okudumDays >= l.min && okudumDays < l.max) || LEAGUES[LEAGUES.length - 1];
         let row = `<tr><td class="user-item" data-user-id="${user._id}" style="background: ${league.bg};">`;
-        const profileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
+        const profileImage = user.profileImage || '/images/default.png';
         row += `<img src="${profileImage}" alt="${user.name}" class="profile-image" loading="lazy" />`;
         row += `<span class="user-item-name">${user.name}</span></td>`;
         for (let date of dates) {

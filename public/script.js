@@ -386,13 +386,13 @@ async function updatePageTitle() {
       
       // Title'ı güncelle
       if (pageTitle) {
-        pageTitle.textContent = `Rotakip ${groupName}`;
+        pageTitle.textContent = `RoTaKip ${groupName}`;
       }
       
       // Secret admin login yazısını güncelle
       if (secretAdminLogin) {
         const groupImage = data.group.groupImage;
-        const imgSrc = groupImage ? `/groupImages/${groupImage}` : '/images/open-book.png';
+        const imgSrc = groupImage || '/images/open-book.png';
         
         secretAdminLogin.innerHTML = `
           <img src="${imgSrc}" alt="Grup Resmi" style="border-radius: 6px;">

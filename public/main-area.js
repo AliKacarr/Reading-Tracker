@@ -9,35 +9,50 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
 
     const input = document.getElementById('newUserInput');
     const imageInput = document.getElementById('profileImage');
+    const submitBtn = document.querySelector('#newUserForm button[type="submit"]');
     const name = input.value.trim();
 
     if (!name) return;
 
-    const formData = new FormData();
-    formData.append('name', name);
+    // Loading göstergesi
+    const originalBtnText = submitBtn.textContent;
+    submitBtn.textContent = 'Ekleniyor...';
+    submitBtn.disabled = true;
 
-    if (imageInput.files.length > 0) {
-        formData.append('profileImage', imageInput.files[0]);
+    try {
+        const formData = new FormData();
+        formData.append('name', name);
+
+        if (imageInput.files.length > 0) {
+            formData.append('profileImage', imageInput.files[0]);
+        }
+
+        await fetch(`/api/add-user/${currentGroupId}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        input.value = '';
+        imageInput.value = '';
+        fileNameDisplay.textContent = 'Resim seçilmedi';
+        fileInputLabel.textContent = 'Resim Seç';
+        imagePreviewContainer.style.display = 'none';
+
+        renderUserList();
+        loadTrackerTable();
+        loadUserCards();
+        loadReadingStats();
+        renderLongestSeries();
+        showSuccessMessage('Kullanıcı başarıyla eklendi!');
+        if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
+    } catch (error) {
+        console.error('Kullanıcı ekleme hatası:', error);
+        showErrorMessage('Kullanıcı eklenirken hata oluştu!');
+    } finally {
+        // Loading göstergesini kaldır
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
     }
-
-    await fetch(`/api/add-user/${currentGroupId}`, {
-        method: 'POST',
-        body: formData
-    });
-
-    input.value = '';
-    imageInput.value = '';
-    fileNameDisplay.textContent = 'Resim seçilmedi';
-    fileInputLabel.textContent = 'Resim Seç';
-    imagePreviewContainer.style.display = 'none';
-
-    renderUserList();
-    loadTrackerTable();
-    loadUserCards();
-    loadReadingStats();
-    renderLongestSeries();
-    showSuccessMessage('Kullanıcı başarıyla eklendi!');
-    if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
 });
 
 async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
@@ -55,19 +70,38 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
     const confirmed = confirm(`Silmek istediğine emin misin: ->  ${userName}  <- Bu işlem geri alınamaz.`);
 
     if (confirmed) {
-        await fetch(`/api/delete-user/${currentGroupId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        });
+        // Loading göstergesi
+        const deleteBtn = document.querySelector(`li[data-user-id="${id}"] .delete-user-btn`);
+        if (deleteBtn) {
+            const originalText = deleteBtn.textContent;
+            deleteBtn.textContent = 'Siliniyor...';
+            deleteBtn.disabled = true;
+        }
 
-        renderUserList();
-        loadTrackerTable();
-        loadUserCards();
-        loadReadingStats();
-        renderLongestSeries();
-        showSuccessMessage('Kullanıcı başarıyla silindi!');
-        if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
+        try {
+            await fetch(`/api/delete-user/${currentGroupId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            renderUserList();
+            loadTrackerTable();
+            loadUserCards();
+            loadReadingStats();
+            renderLongestSeries();
+            showSuccessMessage('Kullanıcı başarıyla silindi!');
+            if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
+        } catch (error) {
+            console.error('Kullanıcı silme hatası:', error);
+            showErrorMessage('Kullanıcı silinirken hata oluştu!');
+        } finally {
+            // Loading göstergesini kaldır
+            if (deleteBtn) {
+                deleteBtn.textContent = originalText;
+                deleteBtn.disabled = false;
+            }
+        }
     }
 }
 
@@ -275,7 +309,7 @@ function renderUserList() {
             // Güncelle veya ekle
             users.forEach(user => {
                 let li = userList.querySelector(`li[data-user-id="${user._id}"]`);
-                const userProfileImage = user.profileImage ? `/images/${user.profileImage}` : '/images/default.png';
+                const userProfileImage = user.profileImage || '/images/default.png';
                 const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name" onclick="editUserName('${user._id}')">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;">✔</button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')">⚙️</button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><img src="/images/user-delete.png" alt="Kullanıcıyı Sil" title="Kullanıcıyı Sil" width="13" height="15"></button></div>`;
                 if (li) {
                     li.innerHTML = liHTML;

@@ -171,7 +171,7 @@ class GroupsPage {
 
         let avatarHtml;
         if (group.groupImage) {
-            avatarHtml = `<img src="/groupImages/${group.groupImage}" alt="${group.groupName}" class="group-avatar-image">`;
+            avatarHtml = `<img src="${group.groupImage}" alt="${group.groupName}" class="group-avatar-image">`;
         } else {
             const groupInitial = group.groupName.charAt(0).toUpperCase();
             avatarHtml = `<span>${groupInitial}</span>`;
@@ -423,7 +423,7 @@ class GroupsPage {
 
         let avatarHtml;
         if (group.groupImage) {
-            avatarHtml = `<img src="/groupImages/${group.groupImage}" alt="${group.groupName}" class="group-avatar-image">`;
+            avatarHtml = `<img src="${group.groupImage}" alt="${group.groupName}" class="group-avatar-image">`;
         } else {
             const groupInitial = group.groupName.charAt(0).toUpperCase();
             avatarHtml = `<span>${groupInitial}</span>`;
