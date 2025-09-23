@@ -133,7 +133,15 @@ document.addEventListener('DOMContentLoaded', async function () {
       { name: 'fetchRandomHadis', fn: fetchRandomHadis },
       { name: 'fetchRandomDua', fn: fetchRandomDua },
       { name: 'initializeVideos', fn: initializeVideos },
-      { name: 'renderUserList', fn: renderUserList },
+      { name: 'renderUserList', fn: () => {
+        // Admin yetkisi kontrolü
+        if (isAuthenticated()) {
+          return renderUserList();
+        } else {
+          console.log('Admin yetkisi yok, renderUserList atlanıyor');
+          return Promise.resolve();
+        }
+      }},
       { name: 'logPageVisit', fn: logPageVisit }
     ];
 
@@ -275,7 +283,8 @@ async function verifyAdminUsername() {     //admin kullanıcı adı doğrulama -
       // Hide admin elements
       hideAdminElements();
       const mainArea = document.querySelector('.main-area');
-      if (mainArea) mainArea.style.display = 'none';
+      if (mainArea) console.log(mainArea.style.display+" silindi");
+      mainArea.style.display = 'none';
 
       return false;
     }

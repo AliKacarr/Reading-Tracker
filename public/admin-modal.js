@@ -29,6 +29,11 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
     if (mainArea) {
         mainArea.style.display = 'flex';
     }
+
+    // Admin girişi yapıldığında user list'i yükle
+    if (typeof renderUserList === 'function') {
+        renderUserList();
+    }
 }
 
 
@@ -238,6 +243,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isAuthenticated()) {
             if (adminIndicator) adminIndicator.style.display = 'flex';
             if (mainArea) mainArea.style.display = 'flex';
+            
+            // Admin girişi yapıldığında user list'i yükle
+            if (typeof renderUserList === 'function') {
+                renderUserList();
+            }
         } else {
             if (adminIndicator) adminIndicator.style.display = 'none';
             if (mainArea) mainArea.style.display = 'none';

@@ -47,7 +47,9 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         imagePreviewContainer.style.display = 'none';
 
         // UI'ı güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
-        renderUserList();
+        if (isAuthenticated()) {
+            renderUserList();
+        }
         loadTrackerTable();
         loadUserCards();
         loadReadingStats();
@@ -95,7 +97,9 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
                 body: JSON.stringify({ id })
             });
 
-            renderUserList();
+            if (isAuthenticated()) {
+                renderUserList();
+            }
             loadTrackerTable();
             loadUserCards();
             loadReadingStats();
@@ -451,6 +455,12 @@ function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
 }
 
 function renderUserList() {
+    // Admin yetkisi kontrolü
+    if (!isAuthenticated()) {
+        console.log('Admin yetkisi yok, renderUserList çalıştırılmıyor');
+        return;
+    }
+
     const userList = document.getElementById('userList');
     const prevScrollTop = userList.scrollTop; // scroll pozisyonunu koru
     fetch(`/api/users/${currentGroupId}`)
