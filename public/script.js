@@ -3,9 +3,11 @@ window.getGroupIdFromUrl = function getGroupIdFromUrl() {
   const path = window.location.pathname;
   
   // Yeni format: /groupid=catikati23
-  const groupIdMatch = path.match(/\/groupid=([a-zA-Z0-9_-]+)/);
+  const groupIdMatch = path.match(/\/groupid=([^\/]+)/);
   if (groupIdMatch) {
-    return groupIdMatch[1];
+    // URL decode işlemi yap
+    const decodedGroupId = decodeURIComponent(groupIdMatch[1]);
+    return decodedGroupId;
   }
   
   // Eski format desteği (geriye uyumluluk için)
@@ -16,8 +18,10 @@ window.getGroupIdFromUrl = function getGroupIdFromUrl() {
     if (groupId.includes(':')) {
       groupId = groupId.split(':')[0];
     }
-    // Sadece alfanumerik karakterler, alt çizgi ve tire kabul et
-    groupId = groupId.replace(/[^a-zA-Z0-9_-]/g, '');
+    // URL decode işlemi yap
+    groupId = decodeURIComponent(groupId);
+    // Sadece alfanumerik karakterler, alt çizgi, tire ve Türkçe karakterler kabul et
+    groupId = groupId.replace(/[^a-zA-Z0-9_-çğıöşüÇĞIİÖŞÜ]/g, '');
     return groupId;
   }
 

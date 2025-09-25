@@ -10,15 +10,13 @@
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 25px;
     justify-content: center;
     flex-wrap: nowrap;
 }
 
 #secretAdminLogin h2 {
-    width: min-content;
-    max-width: 480px;
-    min-width: 377px !important;
+    max-width: 405px;
     word-wrap: break-word;
     white-space: normal;
     line-height: 1.3;

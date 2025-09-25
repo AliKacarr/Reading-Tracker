@@ -420,6 +420,7 @@ class GroupsPage {
     // Grup kartı oluşturma
     createGroupCard(group) {
         const memberCount = this.memberCounts.get(group.groupId) || 0;
+        const isPrivate = group.visibility === 'Özel';
 
         let avatarHtml;
         if (group.groupImage) {
@@ -429,8 +430,11 @@ class GroupsPage {
             avatarHtml = `<span>${groupInitial}</span>`;
         }
 
+        // Özel grup için kilit ikonu
+        const lockIcon = isPrivate ? '<img src="/images/lock.png" alt="Kilit" class="private-group-lock">' : '';
+
         const card = document.createElement('div');
-        card.className = 'group-card';
+        card.className = isPrivate ? 'group-card private-group' : 'group-card';
         card.setAttribute('data-group-id', group.groupId);
 
         card.innerHTML = `
@@ -442,6 +446,7 @@ class GroupsPage {
                     <h3 class="group-name">${this.escapeHtml(group.groupName)}</h3>
                     <p class="group-id">@${this.escapeHtml(group.groupId)}</p>
                 </div>
+                ${lockIcon}
             </div>
             <div>
                <span class="groupDescription">${this.escapeHtml((group.description || '').substring(0, 100))}</span>
@@ -457,18 +462,24 @@ class GroupsPage {
         </div>
     `;
 
-        card.addEventListener('click', () => {
-            window.location.href = `/groupid=${group.groupId}`;
-        });
+        // Sadece özel olmayan gruplar için tıklama işlevi
+        if (!isPrivate) {
+            card.addEventListener('click', () => {
+                window.location.href = `/groupid=${group.groupId}`;
+            });
 
-        // Add hover effect
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-5px)';
-        });
+            // Add hover effect only for non-private groups
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+            });
 
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0)';
-        });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        } else {
+            // Özel gruplar için cursor pointer'ı kaldır
+            card.style.cursor = 'default';
+        }
 
         return card;
     }

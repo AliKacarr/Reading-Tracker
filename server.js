@@ -1,3 +1,7 @@
+// ============================================================================
+// 1. KONFIGÜRASYON VE BAĞLANTILAR
+// ============================================================================
+
 const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -9,6 +13,87 @@ const schedule = require('node-schedule');
 const { Dropbox } = require('dropbox');
 const app = express();
 const port = 3000;
+
+// Middleware'ler
+app.use(express.static('public'));
+app.use('/images', express.static('uploads'));
+app.use(express.json());
+
+// Ana sayfa route'u
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/groupid=:groupId', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
+});
+
+// Geriye uyumluluk route'u
+app.get('/:groupId', (req, res) => {
+  const groupId = req.params.groupId;
+  // Only serve groups.html if it's not an API route or static file
+  if (!groupId.startsWith('api') && !groupId.includes('.')) {
+    res.sendFile(path.join(__dirname, 'public', 'groups.html'));
+  } else {
+    res.status(404).send('Not found');
+  }
+});
+
+// Grup sayfası route'u
+app.get('/:groupId([a-zA-Z0-9_-çğıöşüÇĞIİÖŞÜ]+)', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
+});
+
+// MongoDB bağlantı seçenekleri
+const mongooseOptions = {
+  dbName: process.env.DB_NAME,
+  serverSelectionTimeoutMS: 5000, // Sunucu seçim zaman aşımı
+  socketTimeoutMS: 45000, // Soket zaman aşımı
+  connectTimeoutMS: 10000, // Bağlantı zaman aşımı
+  maxPoolSize: 10, // Maksimum bağlantı havuzu boyutu
+  minPoolSize: 5, // Minimum bağlantı havuzu boyutu
+  retryWrites: true, // Yazma işlemlerini yeniden dene
+  retryReads: true, // Okuma işlemlerini yeniden dene
+};
+
+// MongoDB bağlantısı
+mongoose.connect(process.env.MONGO_URI, mongooseOptions)
+  .then(() => {
+    console.log('MongoDB bağlantısı başarılı');
+  })
+  .catch((err) => {
+    console.error('MongoDB bağlantı hatası:', err);
+  });
+
+// Bağlantı olaylarını dinle
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB bağlantısı kuruldu');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB bağlantı hatası:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB bağlantısı kesildi');
+});
+
+// Uygulama kapatıldığında bağlantıyı kapat
+process.on('SIGINT', async () => {
+  try {
+    await mongoose.connection.close();
+    console.log('MongoDB bağlantısı kapatıldı');
+    process.exit(0);
+  } catch (err) {
+    console.error('MongoDB bağlantısı kapatılırken hata:', err);
+    process.exit(1);
+  }
+});
+
+
+// ============================================================================
+// 2. YARDIMCI FONKSİYONLAR
+// ============================================================================
 
 // Dropbox konfigürasyonu - OAuth2 ile
 let dbx;
@@ -119,6 +204,38 @@ function normalizeFileName(fileName) {
     .replace(/[^a-zA-Z0-9\-\.]/g, '-'); // Özel karakterleri tire ile değiştir
 }
 
+// Grup ID'si oluşturma yardımcı fonksiyonu
+function generateGroupId(groupName) {
+  // Türkçe karakterleri değiştir
+  const turkishChars = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+
+  // Boşlukları kaldır, küçük harfe çevir ve Türkçe karakterleri değiştir
+  let id = groupName.toLowerCase();
+
+  // Türkçe karakterleri değiştir
+  for (const [turkishChar, latinChar] of Object.entries(turkishChars)) {
+    id = id.replace(new RegExp(turkishChar, 'g'), latinChar);
+  }
+
+  // Sadece alfanumerik karakterleri ve boşlukları tut
+  id = id.replace(/[^a-z0-9\s]/g, '');
+
+  // Boşlukları tire ile değiştir ve birden fazla tireyi tek tireye indir
+  id = id.replace(/\s+/g, '-').replace(/-+/g, '-');
+
+  // Başındaki ve sonundaki tireleri kaldır
+  id = id.replace(/^-+|-+$/g, '');
+
+  return id;
+}
+
+// Video API Konfigürasyon endpoint'i
+app.get('/api/config', (req, res) => {
+  res.json({
+    youtubeApiKey: process.env.YOUTUBE_API_KEY || 'YOUR_DEFAULT_API_KEY'
+  });
+});
+
 // Dropbox upload fonksiyonları
 async function uploadToDropbox(fileBuffer, fileName, folder) {
   try {
@@ -221,57 +338,7 @@ async function deleteGroupImageFromDropboxByUrl(fileUrl) {
   }
 }
 
-// MongoDB bağlantı seçenekleri
-const mongooseOptions = {
-  dbName: process.env.DB_NAME,
-  serverSelectionTimeoutMS: 5000, // Sunucu seçim zaman aşımı
-  socketTimeoutMS: 45000, // Soket zaman aşımı
-  connectTimeoutMS: 10000, // Bağlantı zaman aşımı
-  maxPoolSize: 10, // Maksimum bağlantı havuzu boyutu
-  minPoolSize: 5, // Minimum bağlantı havuzu boyutu
-  retryWrites: true, // Yazma işlemlerini yeniden dene
-  retryReads: true, // Okuma işlemlerini yeniden dene
-};
-
-// MongoDB bağlantısı
-mongoose.connect(process.env.MONGO_URI, mongooseOptions)
-  .then(() => {
-    console.log('MongoDB bağlantısı başarılı');
-  })
-  .catch((err) => {
-    console.error('MongoDB bağlantı hatası:', err);
-  });
-
-// Bağlantı olaylarını dinle
-mongoose.connection.on('connected', () => {
-  console.log('MongoDB bağlantısı kuruldu');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('MongoDB bağlantı hatası:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB bağlantısı kesildi');
-});
-
-// Uygulama kapatıldığında bağlantıyı kapat
-process.on('SIGINT', async () => {
-  try {
-    await mongoose.connection.close();
-    console.log('MongoDB bağlantısı kapatıldı');
-    process.exit(0);
-  } catch (err) {
-    console.error('MongoDB bağlantısı kapatılırken hata:', err);
-    process.exit(1);
-  }
-});
-
-app.use(express.static('public'));
-app.use('/images', express.static('uploads'));
-app.use(express.json());
-
-//resim yükleme
+// Multer konfigürasyonları
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = 'uploads';
@@ -286,7 +353,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Resim yükleme konfigürasyonu - grup resimleri için
+// Grup resmi yükleme konfigürasyonu
 const groupImageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = 'public/groupImages';
@@ -334,83 +401,22 @@ const Admin = mongoose.model('Admin', {
   groupId: String
 });
 
-// Model cache'i
-const modelCache = {};
-
-// Yardımcı fonksiyonlar
-function getGroupCollections(groupId) {
-  const userModelName = `users_${groupId}`;
-  const readingStatusModelName = `readingstatuses_${groupId}`;
-
-  // Eğer model zaten cache'de varsa, onu kullan
-  if (modelCache[userModelName] && modelCache[readingStatusModelName]) {
-    return {
-      users: modelCache[userModelName],
-      readingStatuses: modelCache[readingStatusModelName]
-    };
-  }
-
-  // Eğer model zaten Mongoose'da varsa, onu kullan
+// MongoDB index'lerini oluşturma fonksiyonu
+async function createIndexesForGroup(groupId) {
   try {
-    const existingUserModel = mongoose.model(userModelName);
-    const existingReadingStatusModel = mongoose.model(readingStatusModelName);
-
-    modelCache[userModelName] = existingUserModel;
-    modelCache[readingStatusModelName] = existingReadingStatusModel;
-
-    return {
-      users: modelCache[userModelName],
-      readingStatuses: modelCache[readingStatusModelName]
-    };
+    const db = mongoose.connection.db;
+    
+    // Yeni grup için index'leri oluştur
+    await db.collection(`readingstatuses_${groupId}`).createIndex({ userId: 1, date: 1 });
+    await db.collection(`users_${groupId}`).createIndex({ name: 1 });
+    
+    console.log(`Yeni grup için index'ler oluşturuldu: ${groupId}`);
   } catch (error) {
-    // Model yoksa oluştur
+    console.error(`Index oluşturma hatası (${groupId}):`, error);
   }
-
-  // Model'leri oluştur ve cache'e ekle
-  const userSchema = new mongoose.Schema({
-    name: String,
-    profileImage: String
-  }, { collection: userModelName }); // Koleksiyon ismini açıkça belirt
-
-  const readingStatusSchema = new mongoose.Schema({
-    userId: String,
-    date: String,
-    status: String
-  }, { collection: readingStatusModelName }); // Koleksiyon ismini açıkça belirt
-
-  // Model'i oluştur
-  modelCache[userModelName] = mongoose.model(userModelName, userSchema);
-  modelCache[readingStatusModelName] = mongoose.model(readingStatusModelName, readingStatusSchema);
-
-  return {
-    users: modelCache[userModelName],
-    readingStatuses: modelCache[readingStatusModelName]
-  };
 }
 
-// Grup doğrulama endpoint'i
-app.get('/api/group/:groupId', async (req, res) => {
-  try {
-    const { groupId } = req.params;
-    const group = await UserGroup.findOne({ groupId });
-
-    if (!group) {
-      return res.status(404).json({ error: 'Grup bulunamadı' });
-    }
-
-    res.json({ group });
-  } catch (error) {
-    console.error('Error fetching group:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-// Health check endpoint for keeping Render alive
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, timestamp: Date.now() });
-});
-
-// Dropbox durumu kontrol endpoint'i
+// Dropbox durumu endpoint'i
 app.get('/api/dropbox-status', async (req, res) => {
   const tokenStatus = await checkDropboxToken();
   
@@ -443,35 +449,149 @@ app.get('/api/dropbox-status', async (req, res) => {
   }
 });
 
-// Grupları listeleme endpoint'i
+// 3. API ENDPOINT'LERİ
+// ============================================================================
+
+// 3.1. GRUP YÖNETİMİ
+// ============================================================================
+
+// Grup doğrulama endpoint'i
+app.get('/api/group/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const group = await UserGroup.findOne({ groupId });
+
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    res.json({ group });
+  } catch (error) {
+    console.error('Error fetching group:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Grupları listeleme API'si
 app.get('/api/groups', async (req, res) => {
   try {
     const { skip = 0, limit = 12, search = '' } = req.query;
 
-    // Arama sorgusu oluştur
-    const query = search
-      ? {
-        $or: [
-          { groupName: { $regex: search, $options: 'i' } },
-          { groupId: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } }
-        ]
-      }
-      : {};
+    // Arama filtresi
+    const searchFilter = search ? {
+      $or: [
+        { groupName: { $regex: search, $options: 'i' } },
+        { groupId: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ]
+    } : {};
 
-    // Toplam grup sayısını al
-    const total = await UserGroup.countDocuments(query);
+    // Arama yapılıyorsa tüm grupları göster, yoksa sadece "Herkese" olanları göster
+    const visibilityFilter = search ? {} : { visibility: 'Herkese' };
+
+    // Tüm filtreleri birleştir
+    const finalFilter = {
+      ...searchFilter,
+      ...visibilityFilter
+    };
 
     // Grupları getir
-    const groups = await UserGroup.find(query)
+    const groups = await UserGroup.find(finalFilter)
       .sort({ createdAt: -1 })
       .skip(Number(skip))
       .limit(Number(limit));
+
+    // Toplam grup sayısını al
+    const total = await UserGroup.countDocuments(finalFilter);
 
     res.json({ groups, total });
   } catch (error) {
     console.error('Error fetching groups:', error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Grup oluşturma endpoint'i
+app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) => {
+  try {
+    const { groupName, description, adminName, adminPassword, visibility } = req.body;
+    
+    let groupImageUrl = null;
+    
+    // Eğer resim varsa Dropbox'a yükle
+    if (req.file) {
+      try {
+        const fileName = `${Date.now()}-${req.file.originalname}`;
+        const fileBuffer = fs.readFileSync(req.file.path);
+        groupImageUrl = await uploadToDropbox(fileBuffer, fileName, 'groupImages');
+        
+        // Yerel dosyayı sil
+        fs.unlinkSync(req.file.path);
+      } catch (error) {
+        console.error('Dropbox grup resmi upload hatası:', error);
+        // Hata durumunda grup resmi olmadan devam et
+      }
+    }
+
+    if (!groupName) {
+      return res.status(400).json({ error: 'Grup adı gereklidir' });
+    }
+
+    if (!adminName || !adminPassword) {
+      return res.status(400).json({ error: 'Yönetici adı ve şifresi gereklidir' });
+    }
+
+    // Benzersiz bir grup ID'si oluştur
+    const groupId = generateGroupId(groupName);
+
+    // Grup ID'si zaten var mı kontrol et
+    let finalGroupId = groupId;
+    let counter = 1;
+    let existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
+
+    // Eğer ID zaten varsa, benzersiz bir ID oluşturana kadar sayı ekle
+    while (existingGroup) {
+      finalGroupId = `${groupId}${counter}`;
+      existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
+      counter++;
+    }
+
+    // Yeni grup oluştur
+    const newGroup = new UserGroup({
+      groupName,
+      groupId: finalGroupId,
+      description: description || '',
+      groupImage: groupImageUrl, // null veya Dropbox URL'i
+      visibility: visibility || 'public',
+      createdAt: new Date()
+    });
+
+    await newGroup.save();
+
+    // Admin bilgilerini grupId ile ilişkilendirerek kaydet
+    const admin = new Admin({
+      username: adminName,
+      password: adminPassword,
+      groupId: finalGroupId
+    });
+
+    await admin.save();
+
+    // Varsayılan kullanıcı ekle
+    const { users } = getGroupCollections(finalGroupId);
+    const defaultUser = new users({
+      name: "Siz",
+      profileImage: "/images/default.png" // Varsayılan resim URL'i
+    });
+    await defaultUser.save();
+
+    // Yeni grup için index'leri oluştur
+    await createIndexesForGroup(finalGroupId);
+
+    res.status(201).json({ success: true, group: newGroup });
+  } catch (error) {
+    console.error('Error creating group:', error);
+    res.status(500).json({ error: 'Grup oluşturulurken bir hata oluştu' });
   }
 });
 
@@ -499,82 +619,50 @@ app.get('/api/groups/:groupId/member-count', async (req, res) => {
   }
 });
 
-// Grup ID'si oluşturma yardımcı fonksiyonu
-function generateGroupId(groupName) {
-  // Türkçe karakterleri değiştir
-  const turkishChars = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u', 'Ç': 'C', 'Ğ': 'G', 'İ': 'I', 'Ö': 'O', 'Ş': 'S', 'Ü': 'U' };
+function getGroupCollections(groupId) {
+  const userModelName = `users_${groupId}`;
+  const readingStatusModelName = `readingstatuses_${groupId}`;
 
-  // Boşlukları kaldır, küçük harfe çevir ve Türkçe karakterleri değiştir
-  let id = groupName.toLowerCase();
+  // Eğer model zaten Mongoose'da varsa, onu kullan
+  try {
+    const existingUserModel = mongoose.model(userModelName);
+    const existingReadingStatusModel = mongoose.model(readingStatusModelName);
 
-  // Türkçe karakterleri değiştir
-  for (const [turkishChar, latinChar] of Object.entries(turkishChars)) {
-    id = id.replace(new RegExp(turkishChar, 'g'), latinChar);
+    return {
+      users: existingUserModel,
+      readingStatuses: existingReadingStatusModel
+    };
+  } catch (error) {
+    // Model yoksa oluştur
   }
 
-  // Sadece alfanumerik karakterleri ve boşlukları tut
-  id = id.replace(/[^a-z0-9\s]/g, '');
+  // Model'leri oluştur ve index'leri ayarla
+  const userSchema = new mongoose.Schema({
+    name: String,
+    profileImage: String
+  }, { collection: userModelName }); // Koleksiyon ismini açıkça belirt
 
-  // Boşlukları tire ile değiştir ve birden fazla tireyi tek tireye indir
-  id = id.replace(/\s+/g, '-').replace(/-+/g, '-');
+  const readingStatusSchema = new mongoose.Schema({
+    userId: String,
+    date: String,
+    status: String
+  }, { collection: readingStatusModelName }); // Koleksiyon ismini açıkça belirt
 
-  // Başındaki ve sonundaki tireleri kaldır
-  id = id.replace(/^-+|-+$/g, '');
+  // Model'i oluştur
+  const userModel = mongoose.model(userModelName, userSchema);
+  const readingStatusModel = mongoose.model(readingStatusModelName, readingStatusSchema);
 
-  return id;
+  return {
+    users: userModel,
+    readingStatuses: readingStatusModel
+  };
 }
 
 
+// 3.2. KULLANICI YÖNETİMİ
+// ============================================================================
 
-//**************************************************************************** tüm verileri çek
-app.get('/api/all-data/:groupId', async (req, res) => {
-  try {
-    const { groupId } = req.params;
-
-    // Grup var mı kontrol et
-    const group = await UserGroup.findOne({ groupId });
-    if (!group) {
-      return res.status(404).json({ error: 'Grup bulunamadı' });
-    }
-
-    // Dinamik koleksiyonları al
-    const { users, readingStatuses } = getGroupCollections(groupId);
-
-    const usersData = await users.find().sort({ name: 1 });
-    const statsData = await readingStatuses.find();
-
-    res.json({ users: usersData, stats: statsData, group });
-  } catch (error) {
-    console.error('Error fetching all data:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-//**************************************************************************** belirli kullanıcının istatistiklerini çek
-app.get('/api/user-stats/:groupId/:userId', async (req, res) => {
-  try {
-    const { groupId, userId } = req.params;
-
-    // Grup var mı kontrol et
-    const group = await UserGroup.findOne({ groupId });
-    if (!group) {
-      return res.status(404).json({ error: 'Grup bulunamadı' });
-    }
-
-    // Dinamik koleksiyonu al
-    const { readingStatuses } = getGroupCollections(groupId);
-
-    // Sadece belirli kullanıcının istatistiklerini getir
-    const userStats = await readingStatuses.find({ userId }).sort({ date: 1 });
-
-    res.json({ stats: userStats });
-  } catch (error) {
-    console.error('Error fetching user stats:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-//**************************************************************************** sadece kullanıcıları çek
+// Kullanıcı listesi endpoint'i
 app.get('/api/users/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -598,298 +686,7 @@ app.get('/api/users/:groupId', async (req, res) => {
   }
 });
 
-
-//**************************************************************************** tracker-table
-// //okuma durumu güncelleme
-app.post('/api/update-status/:groupId', async (req, res) => {
-  try {
-    const { groupId } = req.params;
-    const { userId, date, status } = req.body;
-
-    // Grup var mı kontrol et
-    const group = await UserGroup.findOne({ groupId });
-    if (!group) {
-      return res.status(404).json({ error: 'Grup bulunamadı' });
-    }
-
-    // Dinamik koleksiyonu al
-    const { readingStatuses } = getGroupCollections(groupId);
-
-    if (status) {
-      await readingStatuses.findOneAndUpdate(
-        { userId, date },
-        { userId, date, status },
-        { upsert: true }
-      );
-    } else {
-      await readingStatuses.findOneAndDelete({ userId, date });
-    }
-
-    res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Sunucu hatası' });
-  }
-});
-
-
-//**************************************************************************** stats-section
-//stats-section tablosu
-app.get('/api/reading-stats/:groupId', async (req, res) => {
-  try {
-    const { groupId } = req.params;
-
-    // Grup var mı kontrol et
-    const group = await UserGroup.findOne({ groupId });
-    if (!group) {
-      return res.status(404).json({ error: 'Grup bulunamadı' });
-    }
-
-    // Dinamik koleksiyonları al
-    const { users, readingStatuses } = getGroupCollections(groupId);
-
-    const usersData = await users.find().sort({ name: 1 });
-    const statsData = await readingStatuses.find();
-
-    const userStats = usersData.map(user => {
-      const userReadings = statsData.filter(stat =>
-        stat.userId === user._id.toString() && stat.status === 'okudum'
-      );
-
-      return {
-        userId: user._id,
-        name: user.name,
-        profileImage: user.profileImage,
-        okudum: userReadings.length
-      };
-    });
-
-    res.json(userStats);
-  } catch (error) {
-    console.error('Error fetching reading stats:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
-//**************************************************************************** longest-series
-//longest-series tablosu
-app.get('/api/longest-streaks/:groupId', async (req, res) => {
-  try {
-    const { groupId } = req.params;
-
-    // Grup var mı kontrol et
-    const group = await UserGroup.findOne({ groupId });
-    if (!group) {
-      return res.status(404).json({ error: 'Grup bulunamadı' });
-    }
-
-    // Dinamik koleksiyonları al
-    const { users, readingStatuses } = getGroupCollections(groupId);
-
-    const usersData = await users.find();
-    const statsData = await readingStatuses.find();
-
-    const results = usersData.map(user => {
-      // Kullanıcının okuma kayıtlarını tarihe göre sırala
-      const userStats = statsData
-        .filter(s => s.userId === user._id.toString() && s.status === 'okudum')
-        .map(s => s.date)
-        .sort();
-
-      let maxStreak = 0, currentStreak = 0;
-      let streakStart = null, streakEnd = null;
-      let maxStart = null, maxEnd = null;
-
-      for (let i = 0; i < userStats.length; i++) {
-        if (i === 0 || (new Date(userStats[i]) - new Date(userStats[i - 1]) === 86400000)) {
-          currentStreak++;
-          if (currentStreak === 1) streakStart = userStats[i];
-          streakEnd = userStats[i];
-        } else {
-          if (currentStreak > maxStreak) {
-            maxStreak = currentStreak;
-            maxStart = streakStart;
-            maxEnd = streakEnd;
-          }
-          currentStreak = 1;
-          streakStart = userStats[i];
-          streakEnd = userStats[i];
-        }
-      }
-
-      if (currentStreak > maxStreak) {
-        maxStreak = currentStreak;
-        maxStart = streakStart;
-        maxEnd = streakEnd;
-      }
-
-      return {
-        userId: user._id,
-        name: user.name,
-        profileImage: user.profileImage,
-        streak: maxStreak,
-        startDate: maxStart,
-        endDate: maxEnd
-      };
-    });
-
-    results.sort((a, b) => b.streak - a.streak);
-
-    res.json(results);
-  } catch (error) {
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
-//**************************************************************************** quote
-// Günün sözü modeli
-const Sentence = mongoose.model('Sentence', {
-  sentence: String
-});
-
-// Rastgele ayet modeli
-const ayetSchema = new mongoose.Schema({
-  sentence: String
-});
-
-const Ayet = mongoose.model('Ayet', ayetSchema, 'ayetler');
-
-// Hadis modeli
-const hadisSchema = new mongoose.Schema({
-  sentence: String
-});
-
-const Hadis = mongoose.model('Hadis', hadisSchema, 'hadisler');
-
-// Dua modeli
-const duaSchema = new mongoose.Schema({
-  sentence: String
-});
-
-const Dua = mongoose.model('Dua', duaSchema, 'dualar');
-
-app.get('/api/quote-images', (req, res) => {
-  const quotesDir = path.join(__dirname, 'public', 'quotes');
-  fs.readdir(quotesDir, (err, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Unable to list images' });
-    }
-    // Filter for image files only (jpg, png, jpeg, gif, webp)
-    const imageFiles = files.filter(file =>
-      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
-    );
-    res.json({ images: imageFiles });
-  });
-});
-
-app.get('/api/random-quote', async (req, res) => {
-  try {
-    // Count total documents in the sentences collection
-    const count = await Sentence.countDocuments();
-
-    // If there are no sentences, return a default message
-    if (count === 0) {
-      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
-    }
-
-    // Generate a random index
-    const random = Math.floor(Math.random() * count);
-
-    // Skip to the random document and get it
-    const randomSentence = await Sentence.findOne().skip(random);
-
-    res.json({ sentence: randomSentence.sentence });
-  } catch (error) {
-    console.error('Error fetching random quote:', error);
-    res.status(500).json({ error: 'Server error', message: error.message });
-  }
-});
-
-// Rastgele ayet getiren endpoint
-app.get('/api/random-ayet', async (req, res) => {
-  try {
-    // Ayetler koleksiyonundaki toplam belge sayısını say
-    const count = await Ayet.countDocuments();
-
-    // Eğer hiç ayet yoksa, varsayılan bir mesaj döndür
-    if (count === 0) {
-      return res.json({ sentence: "Andolsun ki, Resûlullah, sizin için, Allah'a ve Ahiret gününe kavuşmayı umanlar ve Allah'ı çok zikredenler için güzel bir örnektir. (Ahzâb sûresi, 33/21)" });
-    }
-
-    // Rastgele bir indeks oluştur
-    const random = Math.floor(Math.random() * count);
-
-    // Rastgele belgeye atla ve al
-    const randomAyet = await Ayet.findOne().skip(random);
-
-    res.json({ sentence: randomAyet.sentence });
-  } catch (error) {
-    console.error('Rastgele ayet alınırken hata oluştu:', error);
-    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
-  }
-});
-
-// Rastgele hadis endpoint'i
-app.get('/api/random-hadis', async (req, res) => {
-  try {
-    // Hadisler koleksiyonundaki toplam belge sayısını say
-    const count = await Hadis.countDocuments();
-
-    // Eğer hiç hadis yoksa, varsayılan bir mesaj döndür
-    if (count === 0) {
-      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
-    }
-
-    // Rastgele bir indeks oluştur
-    const random = Math.floor(Math.random() * count);
-
-    // Rastgele belgeye atla ve al
-    const randomHadis = await Hadis.findOne().skip(random);
-
-    res.json({ sentence: randomHadis.sentence });
-  } catch (error) {
-    console.error('Rastgele hadis alınırken hata oluştu:', error);
-    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
-  }
-});
-
-// Rastgele dua endpoint'i
-app.get('/api/random-dua', async (req, res) => {
-  try {
-    // Dualar koleksiyonundaki toplam belge sayısını say
-    const count = await Dua.countDocuments();
-
-    // Eğer hiç dua yoksa, varsayılan bir mesaj döndür
-    if (count === 0) {
-      return res.json({ sentence: "Allah’ım! Senden Seni sevmeyi Seni sevenleri sevmeyi ve Senin sevgine ulaştıran ameli yapmayı isterim. Allah’ım! Senin sevgini, bana canımdan, ailemden ve soğuk sudan daha sevgili kıl. (Tirmizî, Deavât,73)" });
-    }
-
-    // Rastgele bir indeks oluştur
-    const random = Math.floor(Math.random() * count);
-
-    // Rastgele belgeye atla ve al
-    const randomDua = await Dua.findOne().skip(random);
-
-    res.json({ sentence: randomDua.sentence });
-  } catch (error) {
-    console.error('Rastgele dua alınırken hata oluştu:', error);
-    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
-  }
-});
-
-//**************************************************************************** videos
-//Youtube API anahtarını döndür
-app.get('/api/config', (req, res) => {
-  res.json({
-    youtubeApiKey: process.env.YOUTUBE_API_KEY || 'YOUR_DEFAULT_API_KEY'
-  });
-});
-
-
-//**************************************************************************** main-area
-//Kullanıcı ekleme - Yeni sistem (önce yerel, sonra Dropbox)
+// Kullanıcı ekleme endpoint'i
 app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -985,7 +782,7 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
   }
 });
 
-// Kullanıcıyı silme
+// Kullanıcı silme endpoint'i
 app.post('/api/delete-user/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -1024,7 +821,7 @@ app.post('/api/delete-user/:groupId', async (req, res) => {
   }
 });
 
-// Kullanıcı ismini güncelleme
+// Kullanıcı ismi güncelleme endpoint'i
 app.post('/api/update-user/:groupId', async (req, res) => {
   const { groupId } = req.params;
   const { userId, name } = req.body;
@@ -1062,7 +859,7 @@ app.post('/api/update-user/:groupId', async (req, res) => {
   }
 });
 
-// Kullanıcı resmini güncelleme - Yeni sistem (önce yerel, sonra Dropbox)
+// Kullanıcı resmi güncelleme endpoint'i
 app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async (req, res) => {
   const { groupId } = req.params;
   const { userId } = req.body;
@@ -1161,9 +958,200 @@ app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async
 });
 
 
-//********************************************************** Admin
+// 3.3. OKUMA İSTATİSTİKLERİ
+// ============================================================================
 
-// Admin doğrulama
+// Tüm verileri çekme endpoint'i
+app.get('/api/all-data/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonları al
+    const { users, readingStatuses } = getGroupCollections(groupId);
+
+    const usersData = await users.find().sort({ name: 1 });
+    const statsData = await readingStatuses.find();
+
+    res.json({ users: usersData, stats: statsData, group });
+  } catch (error) {
+    console.error('Error fetching all data:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Kullanıcı istatistikleri endpoint'i
+app.get('/api/user-stats/:groupId/:userId', async (req, res) => {
+  try {
+    const { groupId, userId } = req.params;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { readingStatuses } = getGroupCollections(groupId);
+
+    // Sadece belirli kullanıcının istatistiklerini getir
+    const userStats = await readingStatuses.find({ userId }).sort({ date: 1 });
+
+    res.json({ stats: userStats });
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Okuma istatistikleri endpoint'i
+app.get('/api/reading-stats/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonları al
+    const { users, readingStatuses } = getGroupCollections(groupId);
+
+    const usersData = await users.find().sort({ name: 1 });
+    const statsData = await readingStatuses.find();
+
+    const userStats = usersData.map(user => {
+      const userReadings = statsData.filter(stat =>
+        stat.userId === user._id.toString() && stat.status === 'okudum'
+      );
+
+      return {
+        userId: user._id,
+        name: user.name,
+        profileImage: user.profileImage,
+        okudum: userReadings.length
+      };
+    });
+
+    res.json(userStats);
+  } catch (error) {
+    console.error('Error fetching reading stats:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// En uzun seriler endpoint'i
+app.get('/api/longest-streaks/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonları al
+    const { users, readingStatuses } = getGroupCollections(groupId);
+
+    const usersData = await users.find();
+    const statsData = await readingStatuses.find();
+
+    const results = usersData.map(user => {
+      // Kullanıcının okuma kayıtlarını tarihe göre sırala
+      const userStats = statsData
+        .filter(s => s.userId === user._id.toString() && s.status === 'okudum')
+        .map(s => s.date)
+        .sort();
+
+      let maxStreak = 0, currentStreak = 0;
+      let streakStart = null, streakEnd = null;
+      let maxStart = null, maxEnd = null;
+
+      for (let i = 0; i < userStats.length; i++) {
+        if (i === 0 || (new Date(userStats[i]) - new Date(userStats[i - 1]) === 86400000)) {
+          currentStreak++;
+          if (currentStreak === 1) streakStart = userStats[i];
+          streakEnd = userStats[i];
+        } else {
+          if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+            maxStart = streakStart;
+            maxEnd = streakEnd;
+          }
+          currentStreak = 1;
+          streakStart = userStats[i];
+          streakEnd = userStats[i];
+        }
+      }
+
+      if (currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+        maxStart = streakStart;
+        maxEnd = streakEnd;
+      }
+
+      return {
+        userId: user._id,
+        name: user.name,
+        profileImage: user.profileImage,
+        streak: maxStreak,
+        startDate: maxStart,
+        endDate: maxEnd
+      };
+    });
+
+    results.sort((a, b) => b.streak - a.streak);
+
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Okuma durumu güncelleme endpoint'i
+app.post('/api/update-status/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { userId, date, status } = req.body;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { readingStatuses } = getGroupCollections(groupId);
+
+    if (status) {
+      await readingStatuses.findOneAndUpdate(
+        { userId, date },
+        { userId, date, status },
+        { upsert: true }
+      );
+    } else {
+      await readingStatuses.findOneAndDelete({ userId, date });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Sunucu hatası' });
+  }
+});
+
+
+// 3.4. ADMIN VE GÜVENLİK
+// ============================================================================
+
+// Admin girişi endpoint'i
 app.post('/api/admin-login', async (req, res) => {
   try {
     const { username, password, groupId } = req.body;
@@ -1191,6 +1179,21 @@ app.post('/api/admin-login', async (req, res) => {
   }
 });
 
+// Admin doğrulama endpoint'i
+app.post('/api/verify-admin', async (req, res) => {
+  try {
+    const { username, groupId } = req.body;
+
+    // Use the existing mongoose connection instead of creating a new client
+    const admin = await Admin.findOne({ username, groupId });
+
+    res.json({ valid: !!admin });
+  } catch (error) {
+    console.error('Error verifying admin:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Add an initial admin if none exists (you can remove this after first run)
 const AccessLog = mongoose.model('AccessLog', {
   action: String,
@@ -1199,7 +1202,7 @@ const AccessLog = mongoose.model('AccessLog', {
   ipAddress: String
 });
 
-//Yetkisiz erişimleri kaydetme
+// Yetkisiz erişim logu endpoint'i
 app.post('/api/log-unauthorized', async (req, res) => {
   try {
     const { action, deviceInfo } = req.body;
@@ -1223,7 +1226,7 @@ app.post('/api/log-unauthorized', async (req, res) => {
   }
 });
 
-//Erişim kayıtlarını yükleme
+// Erişim logları endpoint'i
 app.get('/api/access-logs', async (req, res) => {
   try {
     // Admin kontrolü yapmadan doğrudan logları getir
@@ -1245,7 +1248,7 @@ const loginLogSchema = new mongoose.Schema({
 
 const LoginLog = mongoose.model('LoginLog', loginLogSchema);
 
-//Giriş kayıtlarını getirme
+// Ziyaret logu endpoint'i
 app.post('/api/log-visit', async (req, res) => {
   try {
     const { deviceInfo } = req.body;
@@ -1264,7 +1267,7 @@ app.post('/api/log-visit', async (req, res) => {
   }
 });
 
-//giriş kayıtları
+// Giriş logları endpoint'i
 app.get('/api/login-logs', async (req, res) => {
   try {
     const logs = await LoginLog.find().sort({ date: -1 });
@@ -1298,210 +1301,151 @@ app.get('/api/login-logs', async (req, res) => {
   }
 });
 
-// admin doğrulama
-app.post('/api/verify-admin', async (req, res) => {
-  try {
-    const { username, groupId } = req.body;
 
-    // Use the existing mongoose connection instead of creating a new client
-    const admin = await Admin.findOne({ username, groupId });
+// E. İÇERİK
+// ============================================================================
 
-    res.json({ valid: !!admin });
-  } catch (error) {
-    console.error('Error verifying admin:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
+// Günün sözü modeli
+const Sentence = mongoose.model('Sentence', {
+  sentence: String
 });
 
-// Grupları listeleme API'si
-app.get('/api/groups', async (req, res) => {
-  try {
-    const { page = 1, limit = 12, search = '' } = req.query;
-    const skip = (page - 1) * limit;
+// Rastgele ayet modeli
+const ayetSchema = new mongoose.Schema({
+  sentence: String
+});
 
-    // Arama filtresi
-    const searchFilter = search ? {
-      $or: [
-        { groupName: { $regex: search, $options: 'i' } },
-        { groupId: { $regex: search, $options: 'i' } }
-      ]
-    } : {};
+const Ayet = mongoose.model('Ayet', ayetSchema, 'ayetler');
 
-    // Grupları getir
-    const groups = await Group.find(searchFilter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+// Hadis modeli
+const hadisSchema = new mongoose.Schema({
+  sentence: String
+});
 
-    // Grup yoksa boş array döndür
-    if (!groups || groups.length === 0) {
-      return res.json({
-        groups: [],
-        pagination: {
-          currentPage: parseInt(page),
-          totalPages: 0,
-          totalGroups: 0,
-          hasNextPage: false,
-          hasPrevPage: false
-        }
-      });
+const Hadis = mongoose.model('Hadis', hadisSchema, 'hadisler');
+
+// Dua modeli
+const duaSchema = new mongoose.Schema({
+  sentence: String
+});
+
+const Dua = mongoose.model('Dua', duaSchema, 'dualar');
+
+
+// Söz resimleri endpoint'i
+app.get('/api/quote-images', (req, res) => {
+  const quotesDir = path.join(__dirname, 'public', 'quotes');
+  fs.readdir(quotesDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Unable to list images' });
     }
-
-    // Her grup için kullanıcı sayısını hesapla
-    const groupsWithCounts = await Promise.all(
-      groups.map(async (group) => {
-        const userCount = await User.countDocuments({ groupId: group.groupId });
-        return {
-          ...group.toObject(),
-          userCount
-        };
-      })
+    // Filter for image files only (jpg, png, jpeg, gif, webp)
+    const imageFiles = files.filter(file =>
+      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
     );
-
-    // Toplam sayfa sayısını hesapla
-    const totalGroups = await Group.countDocuments(searchFilter);
-    const totalPages = Math.ceil(totalGroups / limit);
-
-    res.json({
-      groups: groupsWithCounts,
-      pagination: {
-        currentPage: parseInt(page),
-        totalPages,
-        totalGroups,
-        hasNextPage: parseInt(page) < totalPages,
-        hasPrevPage: parseInt(page) > 1
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching groups:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
+    res.json({ images: imageFiles });
+  });
 });
 
-// Ana sayfa - index.html'i direkt aç (eski groups.html)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Grup sayfası için route - alfanumerik, tire ve alt çizgi karakterlerine izin ver
-app.get('/:groupId([a-zA-Z0-9_-]+)', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
-});
-
-// Grup oluşturma endpoint'i - güncellenmiş
-app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) => {
+// Rastgele söz endpoint'i
+app.get('/api/random-quote', async (req, res) => {
   try {
-    const { groupName, description, adminName, adminPassword, visibility } = req.body;
-    
-    let groupImageUrl = null;
-    
-    // Eğer resim varsa Dropbox'a yükle
-    if (req.file) {
-      try {
-        const fileName = `${Date.now()}-${req.file.originalname}`;
-        const fileBuffer = fs.readFileSync(req.file.path);
-        groupImageUrl = await uploadToDropbox(fileBuffer, fileName, 'groupImages');
-        
-        // Yerel dosyayı sil
-        fs.unlinkSync(req.file.path);
-      } catch (error) {
-        console.error('Dropbox grup resmi upload hatası:', error);
-        // Hata durumunda grup resmi olmadan devam et
-      }
+    // Count total documents in the sentences collection
+    const count = await Sentence.countDocuments();
+
+    // If there are no sentences, return a default message
+    if (count === 0) {
+      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
     }
 
-    if (!groupName) {
-      return res.status(400).json({ error: 'Grup adı gereklidir' });
-    }
+    // Generate a random index
+    const random = Math.floor(Math.random() * count);
 
-    if (!adminName || !adminPassword) {
-      return res.status(400).json({ error: 'Yönetici adı ve şifresi gereklidir' });
-    }
+    // Skip to the random document and get it
+    const randomSentence = await Sentence.findOne().skip(random);
 
-    // Benzersiz bir grup ID'si oluştur
-    const groupId = generateGroupId(groupName);
-
-    // Grup ID'si zaten var mı kontrol et
-    let finalGroupId = groupId;
-    let counter = 1;
-    let existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
-
-    // Eğer ID zaten varsa, benzersiz bir ID oluşturana kadar sayı ekle
-    while (existingGroup) {
-      finalGroupId = `${groupId}${counter}`;
-      existingGroup = await UserGroup.findOne({ groupId: finalGroupId });
-      counter++;
-    }
-
-    // Yeni grup oluştur
-    const newGroup = new UserGroup({
-      groupName,
-      groupId: finalGroupId,
-      description: description || '',
-      groupImage: groupImageUrl, // null veya Dropbox URL'i
-      visibility: visibility || 'public',
-      createdAt: new Date()
-    });
-
-    await newGroup.save();
-
-    // Admin bilgilerini grupId ile ilişkilendirerek kaydet
-    const admin = new Admin({
-      username: adminName,
-      password: adminPassword,
-      groupId: finalGroupId
-    });
-
-    await admin.save();
-
-    // Varsayılan kullanıcı ekle
-    const { users } = getGroupCollections(finalGroupId);
-    const defaultUser = new users({
-      name: "Siz",
-      profileImage: "/images/default.png" // Varsayılan resim URL'i
-    });
-    await defaultUser.save();
-
-    res.status(201).json({ success: true, group: newGroup });
+    res.json({ sentence: randomSentence.sentence });
   } catch (error) {
-    console.error('Error creating group:', error);
-    res.status(500).json({ error: 'Grup oluşturulurken bir hata oluştu' });
+    console.error('Error fetching random quote:', error);
+    res.status(500).json({ error: 'Server error', message: error.message });
   }
 });
 
-// Catch-all route for group URLs (localhost support)
-app.get('/groupid=:groupId', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'groups.html'));
-});
+// Rastgele ayet endpoint'i
+app.get('/api/random-ayet', async (req, res) => {
+  try {
+    // Ayetler koleksiyonundaki toplam belge sayısını say
+    const count = await Ayet.countDocuments();
 
-// Catch-all route for old format (backward compatibility)
-app.get('/:groupId', (req, res) => {
-  const groupId = req.params.groupId;
-  // Only serve groups.html if it's not an API route or static file
-  if (!groupId.startsWith('api') && !groupId.includes('.')) {
-    res.sendFile(path.join(__dirname, 'public', 'groups.html'));
-  } else {
-    res.status(404).send('Not found');
-  }
-});
-
-app.listen(port, async () => {
-  console.log(`Uygulama http://localhost:${port} adresinde çalışıyor`);
-  
-  // Dropbox'ı başlat
-  await initializeDropbox();
-  
-  // Token yenileme scheduler'ı (her 3 saatte bir)
-  setInterval(async () => {
-    if (tokenExpiry && Date.now() >= tokenExpiry - 1800000) { // 30 dakika önceden yenile
-      console.log('🔄 Dropbox token otomatik yenileniyor...');
-      await refreshDropboxToken();
+    // Eğer hiç ayet yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "Andolsun ki, Resûlullah, sizin için, Allah'a ve Ahiret gününe kavuşmayı umanlar ve Allah'ı çok zikredenler için güzel bir örnektir. (Ahzâb sûresi, 33/21)" });
     }
-  }, 1800000); // 30 dakikada bir kontrol et
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomAyet = await Ayet.findOne().skip(random);
+
+    res.json({ sentence: randomAyet.sentence });
+  } catch (error) {
+    console.error('Rastgele ayet alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+// Rastgele hadis endpoint'i
+app.get('/api/random-hadis', async (req, res) => {
+  try {
+    // Hadisler koleksiyonundaki toplam belge sayısını say
+    const count = await Hadis.countDocuments();
+
+    // Eğer hiç hadis yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "İlmin tâlibi (talebesi), Rahman'ın tâlibidir. İlmin talipçisi, İslâm'ın rüknüdür. Onun ser-ü mükâfatı, Peygamberlerle beraber verilir. (Hadis-i Şerif)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomHadis = await Hadis.findOne().skip(random);
+
+    res.json({ sentence: randomHadis.sentence });
+  } catch (error) {
+    console.error('Rastgele hadis alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+// Rastgele dua endpoint'i
+app.get('/api/random-dua', async (req, res) => {
+  try {
+    // Dualar koleksiyonundaki toplam belge sayısını say
+    const count = await Dua.countDocuments();
+
+    // Eğer hiç dua yoksa, varsayılan bir mesaj döndür
+    if (count === 0) {
+      return res.json({ sentence: "Allah’ım! Senden Seni sevmeyi Seni sevenleri sevmeyi ve Senin sevgine ulaştıran ameli yapmayı isterim. Allah’ım! Senin sevgini, bana canımdan, ailemden ve soğuk sudan daha sevgili kıl. (Tirmizî, Deavât,73)" });
+    }
+
+    // Rastgele bir indeks oluştur
+    const random = Math.floor(Math.random() * count);
+
+    // Rastgele belgeye atla ve al
+    const randomDua = await Dua.findOne().skip(random);
+
+    res.json({ sentence: randomDua.sentence });
+  } catch (error) {
+    console.error('Rastgele dua alınırken hata oluştu:', error);
+    res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
 });
 
 
-// Backup service *******************************************************************
+// F. YEDEKLEME HİZMETİ
+// ============================================================================
 
 const { MongoClient } = require('mongodb');
 
@@ -1534,23 +1478,23 @@ async function performBackup() {
     const day = String(now.getDate()).padStart(2, '0');
     const timestamp = `${year}-${month}-${day}`;
 
-    // Backup users collection
-    const users = await sourceDb.collection('users').find({}).toArray();
-    const usersCollectionName = `u_backup_${timestamp}`;
-    await backupDb.collection(usersCollectionName).insertMany(users);
+    // Backup usergroups collection
+    const usergroups = await sourceDb.collection('usergroups').find({}).toArray();
+    const usergroupsCollectionName = `usergroups_backup_${timestamp}`;
+    await backupDb.collection(usergroupsCollectionName).insertMany(usergroups);
 
-    // Backup reading statuses collection
-    const statuses = await sourceDb.collection('readingstatuses').find({}).toArray();
-    const statusesCollectionName = `rs_backup_${timestamp}`;
-    await backupDb.collection(statusesCollectionName).insertMany(statuses);
+    // Backup admins collection
+    const admins = await sourceDb.collection('admins').find({}).toArray();
+    const adminsCollectionName = `admins_backup_${timestamp}`;
+    await backupDb.collection(adminsCollectionName).insertMany(admins);
 
     console.log(`Backup completed at ${now.toLocaleString()}`);
-    console.log(`Users backed up to collection: ${usersCollectionName}`);
-    console.log(`Reading statuses backed up to collection: ${statusesCollectionName}`);
+    console.log(`Usergroups backed up to collection: ${usergroupsCollectionName}`);
+    console.log(`Admins backed up to collection: ${adminsCollectionName}`);
 
     // Clean up old backups
-    await cleanupOldBackups(backupDb, 'u_backup_', 10);
-    await cleanupOldBackups(backupDb, 'rs_backup_', 10);
+    await cleanupOldBackups(backupDb, 'usergroups_backup_', 10);
+    await cleanupOldBackups(backupDb, 'admins_backup_', 10);
 
 
   } catch (err) {
@@ -1570,18 +1514,32 @@ async function cleanupOldBackups(db, prefix, keepCount) {
     // Filter collections that match our prefix
     const backupCollections = collections
       .filter(col => col.name.startsWith(prefix))
-      .map(col => col.name)
-      .sort()
-      .reverse();
+      .map(col => col.name);
+
+    // Sort by date (newest first) - extract date from collection name
+    backupCollections.sort((a, b) => {
+      const dateA = a.replace(prefix, '');
+      const dateB = b.replace(prefix, '');
+      return dateB.localeCompare(dateA); // Descending order (newest first)
+    });
+
+    console.log(`Found ${backupCollections.length} backup collections for prefix ${prefix}:`, backupCollections);
 
     // If we have more than keepCount, delete the oldest ones
     if (backupCollections.length > keepCount) {
       const collectionsToDelete = backupCollections.slice(keepCount);
+      console.log(`Deleting ${collectionsToDelete.length} old backup collections:`, collectionsToDelete);
 
       for (const collectionName of collectionsToDelete) {
-        await db.collection(collectionName).drop();
-        console.log(`Deleted old backup collection: ${collectionName}`);
+        try {
+          await db.collection(collectionName).drop();
+          console.log(`✅ Deleted old backup collection: ${collectionName}`);
+        } catch (dropError) {
+          console.error(`❌ Failed to delete collection ${collectionName}:`, dropError.message);
+        }
       }
+    } else {
+      console.log(`No cleanup needed for ${prefix} - only ${backupCollections.length} collections found (keeping ${keepCount})`);
     }
   } catch (err) {
     console.error(`Error cleaning up old backups with prefix ${prefix}:`, err);
@@ -1603,8 +1561,10 @@ function scheduleBackup() {
   return backupJob;
 }
 
-// Start the backup scheduler
-const backupJob = scheduleBackup();
+// Sağlık kontrolü endpoint'i
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, timestamp: Date.now() });
+});
 
 // Render'ı uyanık tutmak için ping sistemi
 function schedulePing() {
@@ -1629,5 +1589,42 @@ function schedulePing() {
   return pingJob;
 }
 
-// Start the ping scheduler
+// Dropbox token yenileme sistemi
+function scheduleTokenRefresh() {
+  // Her 30 dakikada bir token durumunu kontrol et
+  const tokenJob = schedule.scheduleJob('*/30 * * * *', async () => {
+    try {
+      if (tokenExpiry && Date.now() >= tokenExpiry - 1800000) { // 30 dakika önceden yenile
+        console.log('🔄 Dropbox token otomatik yenileniyor...');
+        await refreshDropboxToken();
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error.message);
+    }
+  });
+  
+  console.log("Token refresh scheduler started. Token will be checked every 30 minutes.");
+  
+  // Handle graceful shutdown
+  process.on('SIGINT', async () => {
+    console.log('Token refresh service shutting down...');
+    tokenJob.cancel();
+  });
+  
+  return tokenJob;
+}
+
+// Start the schedulers
+const backupJob = scheduleBackup();
 const pingJob = schedulePing();
+const tokenJob = scheduleTokenRefresh();
+
+// Dropbox'ı başlat
+initializeDropbox();
+
+// G. SERVER BAŞLATMA
+// ============================================================================
+
+app.listen(port, () => {
+  console.log(`Uygulama http://localhost:${port} adresinde çalışıyor`);
+});

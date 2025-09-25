@@ -257,8 +257,8 @@ body {
 
 .group-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: flex-start;
     position: relative;
     z-index: 1;
 }
@@ -276,6 +276,7 @@ body {
     flex-shrink: 0;
     border-radius: 8px;
     overflow: hidden;
+    margin-top: 4px;
 }
 
 /* Remove background when image is present */
@@ -306,6 +307,29 @@ body {
     margin-left: 15px;
     position: relative;
     z-index: 1;
+}
+
+/* Özel grup stilleri */
+.private-group-lock {
+    height: 23px;
+    width: 23px;
+    position: absolute;
+    top: 8px;
+    right: 0px;
+    opacity: 0.8;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    transition: all 0.2s ease;
+}
+
+.private-group {
+    opacity: 0.8;
+    cursor: default !important;
+}
+
+.private-group:hover {
+    transform: none !important;
+    box-shadow: 0 1px 1px 0px rgba(99, 102, 241, 0.1) !important;
+    border-color: rgb(183 196 242 / 58%) !important;
 }
 
 .group-name {

@@ -3,6 +3,7 @@ function renderLongestSeries() {
         .then(res => res.json())
         .then(data => {
             const chart = document.getElementById('longestSeriesChart');
+            chart.style.minHeight = '150px';
             chart.innerHTML = '';
             const maxStreak = data.length > 0 ? data[0].streak : 1;
             const minBarWidth = 150; // px

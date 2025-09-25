@@ -45,6 +45,9 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         fileNameDisplay.textContent = 'Resim seçilmedi';
         fileInputLabel.textContent = 'Resim Seç';
         imagePreviewContainer.style.display = 'none';
+        
+        // Input-profile-image'i varsayılan resme döndür
+        inputProfileImage.src = '/images/default.png';
 
         // UI'ı güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
         if (isAuthenticated()) {
@@ -320,6 +323,7 @@ const fileInputLabel = document.getElementById('file-input-label');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 const closePreviewButton = document.getElementById('closePreview');
+const inputProfileImage = document.getElementById('inputProfileImage');
 
 
 function resetImagePreview() {    // Resim önizleme kapatma fonksiyonu
@@ -327,6 +331,9 @@ function resetImagePreview() {    // Resim önizleme kapatma fonksiyonu
     fileNameDisplay.textContent = 'Resim seçilmedi';
     fileInputLabel.textContent = 'Resim Seç';
     profileImageInput.value = ''; // Input değerini de temizle
+    
+    // Input-profile-image'i varsayılan resme döndür
+    inputProfileImage.src = '/images/default.png';
 }
 
 if (closePreviewButton) {
@@ -347,8 +354,12 @@ if (profileImageInput && fileNameDisplay) {
             const reader = new FileReader();
 
             reader.onload = function (e) {
+                // Ana önizleme alanını güncelle
                 imagePreview.src = e.target.result;
                 imagePreviewContainer.style.display = 'flex';
+                
+                // Input-profile-image'i güncelle
+                inputProfileImage.src = e.target.result;
             }
 
             reader.readAsDataURL(file);
