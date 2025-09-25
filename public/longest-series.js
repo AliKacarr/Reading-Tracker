@@ -75,9 +75,9 @@ function renderLongestSeries() {
                 let rankHTML = '';
                 if (rankList[idx] && rankList[idx] <= 3) {
                     const rankImages = {
-                        1: 'birincilik.png',
-                        2: 'ikincilik.png',
-                        3: 'üçüncülük.png'
+                        1: 'birincilik.webp',
+                        2: 'ikincilik.webp',
+                        3: 'üçüncülük.webp'
                     };
                     rankHTML = `<span class="series-rank-inside"><img src="/images/${rankImages[rankList[idx]]}" alt="${rankList[idx]}. sıra" class="rank-image"></span>`;
                 }

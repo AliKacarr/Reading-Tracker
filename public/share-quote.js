@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Geçici kapsayıcıyı kaldır
                 document.body.removeChild(tempContainer);
 
-                lastCanvasDataUrl = canvas.toDataURL('image/png');
+                lastCanvasDataUrl = canvas.toDataURL('image/webp');
                 resolve(canvas);
             }).catch(function (error) {
                 if (tempContainer.parentNode) document.body.removeChild(tempContainer);
@@ -83,10 +83,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function shareImage(canvas) {
         canvas.toBlob(function (blob) {
             // Dosya adı oluştur
-            const fileName = 'bir-soz.png';
+            const fileName = 'bir-soz.webp';
 
             // Blob'dan dosya oluştur
-            const file = new File([blob], fileName, { type: 'image/png' });
+            const file = new File([blob], fileName, { type: 'image/webp' });
 
             // Paylaşım verilerini hazırla
             const shareData = {
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const a = document.createElement('a');
             a.href = dataUrl;
-            a.download = 'bir-soz.png';
+            a.download = 'bir-soz.webp';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Eğer sadece görsel paylaşımı için panel açıldıysa bu fonksiyon çalışmasın
         if (this.dataset.imageShare === "true") return;
         createImage().then((canvas) => {
-            const dataUrl = canvas.toDataURL('image/png');
+            const dataUrl = canvas.toDataURL('image/webp');
             downloadImage(dataUrl);
         }).catch(error => {
             console.error('Resim oluşturma hatası:', error);
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 try {
                     const response = await fetch(img.src);
                     const blob = await response.blob();
-                    const file = new File([blob], 'bir-soz-resim.png', { type: blob.type });
+                    const file = new File([blob], 'bir-soz-resim.webp', { type: blob.type });
 
                     await navigator.share({
                         files: [file],
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
             newBtn.onclick = function () {
                 const a = document.createElement('a');
                 a.href = img.src;
-                a.download = 'bir-soz-resim.png';
+                a.download = 'bir-soz-resim.webp';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);

@@ -47,7 +47,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         imagePreviewContainer.style.display = 'none';
         
         // Input-profile-image'i varsayılan resme döndür
-        inputProfileImage.src = '/images/default.png';
+        inputProfileImage.src = '/images/default.webp';
 
         // UI'ı güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
         if (isAuthenticated()) {
@@ -333,7 +333,7 @@ function resetImagePreview() {    // Resim önizleme kapatma fonksiyonu
     profileImageInput.value = ''; // Input değerini de temizle
     
     // Input-profile-image'i varsayılan resme döndür
-    inputProfileImage.src = '/images/default.png';
+    inputProfileImage.src = '/images/default.webp';
 }
 
 if (closePreviewButton) {
@@ -497,8 +497,8 @@ function renderUserList() {
                 if (!li) {
                     console.log(user._id);
                     // Sadece yeni kullanıcı için HTML oluştur
-                    const userProfileImage = user.profileImage || '/images/default.png';
-                    const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
+                    const userProfileImage = user.profileImage || '/images/default.webp';
+                    const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-user-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
                     
                     li = document.createElement('li');
                     li.setAttribute('data-user-id', user._id);
@@ -510,3 +510,400 @@ function renderUserList() {
             userList.scrollTop = prevScrollTop; // scroll pozisyonunu geri yükle
         });
 }
+
+// Grup bilgilerini yükle
+async function loadGroupSettings() {
+    if (!isAuthenticated()) {
+        console.log('Admin yetkisi yok, grup ayarları yüklenmiyor');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/group/${currentGroupId}`);
+        if (response.ok) {
+            const data = await response.json();
+            const group = data.group;
+            
+            // Form alanlarını doldur
+            document.getElementById('groupName').value = group.groupName || '';
+            document.getElementById('groupDescription').value = group.description || '';
+            document.getElementById('groupVisibility').value = group.visibility || 'public';
+            
+            // Grup resmini ayarla
+            const groupImage = document.getElementById('currentGroupImage');
+            const removeBtn = document.querySelector('.group-image-remove-btn');
+            
+            if (group.groupImage) {
+                groupImage.src = group.groupImage;
+                removeBtn.style.display = 'flex';
+            } else {
+                groupImage.src = '/images/open-book.webp';
+                removeBtn.style.display = 'none';
+            }
+            
+            // Görünürlük ikonunu güncelle
+            updateVisibilityIcon(group.visibility || 'public');
+        }
+    } catch (error) {
+        console.error('Grup ayarları yüklenirken hata:', error);
+    }
+}
+
+// Görünürlük ikonunu güncelle
+function updateVisibilityIcon(visibility) {
+    const icon = document.getElementById('visibilityIcon');
+    const info = document.getElementById('visibilityInfo');
+    const infoSpan = info ? info.querySelector('span') : null;
+    
+    if (!icon) return;
+    
+    // Mevcut sınıfları temizle
+    icon.classList.remove('public', 'private');
+    if (info) info.classList.remove('public', 'private');
+    
+    // Yeni sınıfı ekle
+    icon.classList.add(visibility);
+    if (info) info.classList.add(visibility);
+    
+    // İkonu değiştir
+    if (visibility === 'public') {
+        icon.className = 'fa-solid fa-eye visibility-icon public';
+        if (infoSpan) infoSpan.textContent = 'Herkes bu grubu görüntüleyebilir';
+    } else {
+        icon.className = 'fa-solid fa-eye-slash visibility-icon private';
+        if (infoSpan) infoSpan.textContent = 'Sadece üyeler grubu görüntüleyebilir';
+    }
+}
+
+// Grup ayarlarını kaydet
+async function saveGroupSettings() {
+    if (!isAuthenticated()) {
+        showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
+        return;
+    }
+
+    const groupName = document.getElementById('groupName').value.trim();
+    const groupDescription = document.getElementById('groupDescription').value.trim();
+    const groupVisibility = document.getElementById('groupVisibility').value;
+
+    if (!groupName) {
+        showErrorMessage('Grup adı boş olamaz!');
+        return;
+    }
+
+    const saveBtn = document.querySelector('.save-group-btn');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Kaydediliyor...';
+    saveBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/api/update-group/${currentGroupId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                groupName,
+                description: groupDescription,
+                visibility: groupVisibility
+            })
+        });
+
+        if (response.ok) {
+            showSuccessMessage('Grup ayarları başarıyla kaydedildi!');
+            // Sayfa başlığını güncelle
+            if (typeof updatePageTitle === 'function') {
+                updatePageTitle();
+            }
+        } else {
+            throw new Error('Grup ayarları kaydedilemedi');
+        }
+    } catch (error) {
+        console.error('Grup ayarları kaydetme hatası:', error);
+        showErrorMessage('Grup ayarları kaydedilirken hata oluştu!');
+    } finally {
+        saveBtn.textContent = originalText;
+        saveBtn.disabled = false;
+    }
+}
+
+// Grup resmini değiştir
+async function changeGroupImage() {
+    if (!isAuthenticated()) {
+        showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
+        return;
+    }
+
+    const fileInput = document.getElementById('groupImage');
+    const file = fileInput.files[0];
+    
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('groupImage', file);
+
+    const changeBtn = document.querySelector('.change-image-btn');
+    const originalText = changeBtn.innerHTML;
+    changeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    changeBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/api/update-group-image/${currentGroupId}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('currentGroupImage').src = data.imageUrl;
+            document.querySelector('.group-image-remove-btn').style.display = 'flex';
+            
+            // secretAdminLogin'deki grup resmini de güncelle
+            const secretAdminImage = document.querySelector('.secretAdminLogin img');
+            const secretAdminLoginImage = document.querySelector('.secretAdminLoginImage');
+            if (secretAdminImage) {
+                secretAdminImage.src = data.imageUrl;
+            }
+            if (secretAdminLoginImage) {
+                secretAdminLoginImage.src = data.imageUrl;
+            }
+            
+            showSuccessMessage('Grup resmi başarıyla güncellendi!');
+        } else {
+            throw new Error('Grup resmi güncellenemedi');
+        }
+    } catch (error) {
+        console.error('Grup resmi güncelleme hatası:', error);
+        showErrorMessage('Grup resmi güncellenirken hata oluştu!');
+    } finally {
+        changeBtn.innerHTML = originalText;
+        changeBtn.disabled = false;
+        fileInput.value = ''; // Input'u temizle
+    }
+}
+
+// Grup resmini kaldır
+async function removeGroupImage() {
+    if (!isAuthenticated()) {
+        showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
+        return;
+    }
+
+    const confirmed = confirm('Grup resmini kaldırmak istediğinize emin misiniz?');
+    if (!confirmed) return;
+
+    const removeBtn = document.querySelector('.group-image-remove-btn');
+    const originalText = removeBtn.innerHTML;
+    removeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    removeBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/api/remove-group-image/${currentGroupId}`, {
+            method: 'POST'
+        });
+
+        if (response.ok) {
+            document.getElementById('currentGroupImage').src = '/images/open-book.webp';
+            document.querySelector('.group-image-remove-btn').style.display = 'none';
+            
+            // secretAdminLogin'deki grup resmini de güncelle
+            const secretAdminImage = document.querySelector('.secretAdminLogin img');
+            const secretAdminLoginImage = document.querySelector('.secretAdminLoginImage');
+            if (secretAdminImage) {
+                secretAdminImage.src = '/images/open-book.webp';
+            }
+            if (secretAdminLoginImage) {
+                secretAdminLoginImage.src = '/images/open-book.webp';
+            }
+            
+            showSuccessMessage('Grup resmi başarıyla kaldırıldı!');
+        } else {
+            throw new Error('Grup resmi kaldırılamadı');
+        }
+    } catch (error) {
+        console.error('Grup resmi kaldırma hatası:', error);
+        showErrorMessage('Grup resmi kaldırılırken hata oluştu!');
+    } finally {
+        removeBtn.innerHTML = originalText;
+        removeBtn.disabled = false;
+    }
+}
+
+// Grup silme butonunu göster/gizle
+function toggleDeleteGroupButton() {
+    const deleteBtn = document.querySelector('.delete-group-btn');
+    const toggleBtn = document.querySelector('.danger-toggle-btn');
+    const dangerText = toggleBtn.querySelector('.danger-text');
+    
+    if (deleteBtn.style.display === 'none' || deleteBtn.style.display === '') {
+        deleteBtn.style.display = 'flex';
+        toggleBtn.classList.add('active');
+        dangerText.textContent = 'İptal Et';
+        toggleBtn.style.backgroundColor = '#27ae60'; // yeşil yap
+    } else {
+        deleteBtn.style.display = 'none';
+        toggleBtn.classList.remove('active');
+        dangerText.textContent = 'Grubu Sil';
+        toggleBtn.style.backgroundColor = '#95a5a6'; // Gri yap
+    }
+}
+
+// Grubu paylaş
+async function shareGroup() {
+    try {
+        // Grup adını al
+        const groupName = document.getElementById('groupName').value || 'Grup';
+        
+        // URL formatını oluştur
+        const groupUrl = `${window.location.origin}/groupid=${currentGroupId}`;
+        
+        // Paylaşım metnini oluştur
+        const shareText = `RoTaKip ${groupName}\n${groupUrl}`;
+        
+        // Her durumda panoya kopyala
+        await navigator.clipboard.writeText(shareText);
+        
+        // Web Share API'yi de dene (eğer varsa)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `RoTaKip ${groupName}`,
+                    text: shareText, // Tam metni paylaş
+                });
+                showSuccessMessage('Grup davet linki paylaşıldı ve panoya kopyalandı!');
+            } catch (shareError) {
+                // Web Share API iptal edilirse sadece panoya kopyalama mesajı göster
+                showSuccessMessage('Grup davet linki panoya kopyalandı!');
+            }
+        } else {
+            // Web Share API yoksa sadece panoya kopyalama mesajı göster
+            showSuccessMessage('Grup davet linki panoya kopyalandı!');
+        }
+        
+    } catch (error) {
+        console.error('Paylaşım hatası:', error);
+        showErrorMessage('Link kopyalanamadı. Lütfen manuel olarak kopyalayın.');
+    }
+}
+
+// Grubu sil
+async function deleteGroup() {
+    // Admin kontrolü
+    const isAuth = isAuthenticated();
+    if (!isAuth) {
+        showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
+        return;
+    }
+
+    if (!currentGroupId) {
+        showErrorMessage('Grup ID bulunamadı!');
+        return;
+    }
+
+    const groupName = document.getElementById('groupName').value || 'Bu grup';
+    const confirmed = confirm(`"${groupName}" grubunu silmek istediğinize emin misiniz?\n\nBu işlem geri alınamaz ve tüm grup verileri (kullanıcılar, okuma kayıtları, vb.) kalıcı olarak silinecektir.`);
+    
+    if (!confirmed) {
+        return;
+    }
+
+    const deleteBtn = document.querySelector('.delete-group-btn');
+    if (!deleteBtn) {
+        showErrorMessage('Sil butonu bulunamadı!');
+        return;
+    }
+
+    const originalText = deleteBtn.innerHTML;
+    deleteBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Siliniyor...';
+    deleteBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/api/delete-group/${currentGroupId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            showSuccessMessage('Grup başarıyla silindi!');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
+        } else {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch (parseError) {
+                errorData = { message: `HTTP ${response.status}: ${response.statusText}` };
+            }
+            throw new Error(errorData.message || 'Grup silinemedi');
+        }
+    } catch (error) {
+        console.error('Grup silme hatası:', error);
+        showErrorMessage('Grup silinirken hata oluştu: ' + error.message);
+    } finally {
+        deleteBtn.innerHTML = originalText;
+        deleteBtn.disabled = false;
+    }
+}
+
+// Event listener'ları ekle
+document.addEventListener('DOMContentLoaded', function() {
+    // Grup ayarları butonları
+    const saveGroupBtn = document.querySelector('.save-group-btn');
+    const changeImageBtn = document.querySelector('.change-image-btn');
+    const removeImageBtn = document.querySelector('.group-image-remove-btn');
+    const toggleDeleteBtn = document.querySelector('.danger-toggle-btn');
+    const deleteGroupBtn = document.querySelector('.delete-group-btn');
+    const groupImageInput = document.getElementById('groupImage');
+
+    if (saveGroupBtn) {
+        saveGroupBtn.addEventListener('click', saveGroupSettings);
+    }
+
+    if (changeImageBtn) {
+        changeImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            groupImageInput.click();
+        });
+    }
+
+    if (groupImageInput) {
+        groupImageInput.addEventListener('change', changeGroupImage);
+    }
+
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', removeGroupImage);
+    }
+
+    if (toggleDeleteBtn) {
+        toggleDeleteBtn.addEventListener('click', toggleDeleteGroupButton);
+    }
+
+    const shareGroupBtn = document.querySelector('.share-group-btn');
+    if (shareGroupBtn) {
+        shareGroupBtn.addEventListener('click', shareGroup);
+    }
+
+    if (deleteGroupBtn) {
+        deleteGroupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            deleteGroup();
+        });
+    }
+
+    // Görünürlük değiştiğinde ikonu güncelle
+    const groupVisibilitySelect = document.getElementById('groupVisibility');
+    if (groupVisibilitySelect) {
+        groupVisibilitySelect.addEventListener('change', function() {
+            updateVisibilityIcon(this.value);
+        });
+    }
+
+    // Admin girişi yapıldığında grup ayarlarını yükle
+    if (isAuthenticated()) {
+        loadGroupSettings();
+    }
+});

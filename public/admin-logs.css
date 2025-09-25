@@ -1,12 +1,12 @@
 body {
-    background-image: url('../images/arkaplan2.jpg');
+    background-image: url('../images/background4.webp');
     background-size: fill;
     background-position: center;
     background-repeat: repeat;
 }
 
 .logs-container {
-    background-image: url('../images/background4.jpg');
+    background-image: url('../images/background2.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

@@ -309,7 +309,7 @@ body {
     z-index: 1;
 }
 
-/* Özel grup stilleri */
+/* Gizli grup stilleri */
 .private-group-lock {
     height: 23px;
     width: 20px;

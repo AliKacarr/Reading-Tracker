@@ -140,7 +140,7 @@ async function loadTrackerTable() {
         const todayClass = isToday ? 'today-column' : '';
         theadHTML += `<th class="${todayClass}"><span class="date-text">${formattedDate}</span><br><span class="day-of-week">${dayOfWeek}</span></th>`;
     }
-    theadHTML += `<th><img src="/images/red-arrow.png" alt="Streak" width="20" height="20"> Seri</th></tr>`;
+    theadHTML += `<th><img src="/images/red-arrow.webp" alt="Streak" width="20" height="20"> Seri</th></tr>`;
     trackerTable.querySelector('thead').innerHTML = theadHTML;
     let tbodyHTML = '';
     for (let user of users) {
@@ -150,7 +150,7 @@ async function loadTrackerTable() {
         const okudumDays = userReadingCounts.get(user._id) || 0;
         const league = LEAGUES.find(l => okudumDays >= l.min && okudumDays < l.max) || LEAGUES[LEAGUES.length - 1];
         let row = `<tr><td class="user-item" data-user-id="${user._id}" style="background: ${league.bg};">`;
-        const profileImage = user.profileImage || '/images/default.png';
+        const profileImage = user.profileImage || '/images/default.webp';
         row += `<img src="${profileImage}" alt="${user.name}" class="profile-image" loading="lazy" />`;
         row += `<span class="user-item-name">${user.name}</span></td>`;
         for (let date of dates) {

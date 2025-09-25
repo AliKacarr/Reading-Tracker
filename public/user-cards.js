@@ -52,17 +52,17 @@ async function loadUserCards() {
 
   // Lig görselleri ve isimleri
   const leagues = [
-    { min: 0, max: 5, name: 'Bronz', img: 'bronz.png' },
-    { min: 5, max: 10, name: 'Gümüş', img: 'gumus.png' },
-    { min: 10, max: 20, name: 'Altın', img: 'altin.png' },
-    { min: 20, max: 40, name: 'Akik', img: 'akik.png' },
-    { min: 40, max: 60, name: 'İnci', img: 'inci.png' },
-    { min: 60, max: 80, name: 'Safir', img: 'safir.png' },
-    { min: 80, max: 100, name: 'Zümrüt', img: 'zumrut.png' },
-    { min: 100, max: 150, name: 'Elmas', img: 'elmas.png' },
-    { min: 150, max: 200, name: 'Yakut', img: 'yakut.png' },
-    { min: 200, max: 365, name: 'Mercan', img: 'mercan.png' },
-    { min: 365, max: 1001, name: 'Pırlanta', img: 'pirlanta.png' }
+    { min: 0, max: 5, name: 'Bronz', img: 'bronz.webp' },
+    { min: 5, max: 10, name: 'Gümüş', img: 'gumus.webp' },
+    { min: 10, max: 20, name: 'Altın', img: 'altin.webp' },
+    { min: 20, max: 40, name: 'Akik', img: 'akik.webp' },
+    { min: 40, max: 60, name: 'İnci', img: 'inci.webp' },
+    { min: 60, max: 80, name: 'Safir', img: 'safir.webp' },
+    { min: 80, max: 100, name: 'Zümrüt', img: 'zumrut.webp' },
+    { min: 100, max: 150, name: 'Elmas', img: 'elmas.webp' },
+    { min: 150, max: 200, name: 'Yakut', img: 'yakut.webp' },
+    { min: 200, max: 365, name: 'Mercan', img: 'mercan.webp' },
+    { min: 365, max: 1001, name: 'Pırlanta', img: 'pirlanta.webp' }
   ];
 
   // Lig arka planları
@@ -203,7 +203,7 @@ async function loadUserCards() {
     card.innerHTML = `
       <div class="user-card-header" style="background: ${headerBg};">
         <div class="profile-img-wrapper">
-          <img class="profile-img" src="${user.profileImage || '/images/default.png'}" alt="${user.name}">
+          <img class="profile-img" src="${user.profileImage || '/images/default.webp'}" alt="${user.name}">
         </div>
         <div class="user-card-header-content">
           <div class="user-card-user-name">${user.name}</div>

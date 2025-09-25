@@ -1,10 +1,21 @@
 .main-area {
     display: flex;
-    gap: 50px;
+    gap: 100px;
     padding: 5px 0px;
     align-items: flex-start;
     flex-wrap: wrap;
     margin-top: 20px;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    flex: 0;
+    min-width: 300px;
+}
+
+.right-column {
+    flex: 0;
 }
 
 @media (max-width: 768px) {
@@ -79,7 +90,7 @@
 
 .user-list h3 {
     color: #34495e;
-    margin: 0 0 24px 0;
+    margin: 0 0 20px 0;
     font-size: 22px;
     font-weight: 600;
     padding-bottom: 12px;
@@ -308,7 +319,6 @@ ul#userList li span {
 /* Kullanıcı Ekleme Formu - Site Temasına Uygun */
 #newUserForm {
     padding: 24px;
-    margin-bottom: 20px;
     width: 300px;
 }
 
@@ -425,14 +435,14 @@ ul#userList li span {
 }
 
 .image-upload {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 }
 
 .image-upload > label {
     display: block;
     color: #34495e;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 16px;
     margin-bottom: 8px;
 }
 
@@ -443,7 +453,6 @@ ul#userList li span {
     border: 1px solid #b0b0b0;
     border-radius: 6px;
     padding: 8px 0px 8px 8px;
-    margin-top: 10px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -566,4 +575,368 @@ label.custom-file-input:hover {
 .close-preview-button:hover {
     background-color: rgba(255, 0, 0, 0.7);
     color: white;
+}
+
+/* Grup Ayarları Stilleri */
+.group-settings {
+    padding: 24px;
+}
+
+.group-settings h3 {
+    color: #34495e;
+    margin: 0 0 24px 0;
+    font-size: 22px;
+    font-weight: 600;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e74c3c;
+    width: 98%;
+}
+
+.group-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.group-image-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.group-image-section label {
+    color: #34495e;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.group-image-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.group-image-preview {
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    object-fit: cover;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.group-image-preview:hover {
+    opacity: 0.8;
+}
+
+.group-image-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.change-image-btn {
+    background-color: #5b9bd5;
+    color: white !important;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    border: none;
+    text-decoration: none;
+    height: 32px;
+    width: 32px;
+}
+
+.change-image-btn:hover {
+    background-color: #4a8bc6;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.group-image-remove-btn {
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    border: none;
+    transition: all 0.3s;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-image-remove-btn:hover {
+    background-color: #c0392b;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.group-details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    color: #34495e;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.group-input, .group-textarea, .group-select {
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.group-input:focus, .group-textarea:focus, .group-select:focus {
+    outline: none;
+    border-color: #5b9bd5;
+    box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.2);
+}
+
+.group-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.group-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.save-group-btn {
+    background-color: #27ae60;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.save-group-btn:hover {
+    background-color: #229954;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.delete-group-btn {
+    background-color: #e74c3c;
+    color: white;
+    height: 38px;
+    width: 130px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: none; /* Varsayılan olarak gizli */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.delete-group-btn:hover {
+    background-color: #c0392b;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.group-danger-zone {
+    margin-top: 30px;
+    padding: 20px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+}
+
+.group-danger-zone h4 {
+    color: #dc2626;
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.danger-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.danger-toggle-btn {
+    background-color: rgb(149, 165, 166);
+    color: white;
+    height: 38px;
+    width: 130px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.danger-toggle-btn:hover {
+    background-color: #7f8c8d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.danger-toggle-btn.active {
+    background-color: #e74c3c;
+}
+
+.danger-toggle-btn.active:hover {
+    background-color: #c0392b;
+}
+
+.share-group-btn {
+    background-color: #5b9bd5;
+    color: white;
+    height: 38px;
+    width: 130px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.share-group-btn:hover {
+    background-color: #4a8bc6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.visibility-container {
+    position: relative;
+    width: 100%;
+}
+
+.visibility-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    transition: color 0.3s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.visibility-icon.public {
+    color: #666666;
+}
+
+.visibility-icon.private {
+    color: #999999;
+}
+
+.group-select {
+    padding-left: 40px !important;
+    width: 100%;
+}
+
+.visibility-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.visibility-info i {
+    color: #17a2b8;
+    font-size: 14px;
+}
+
+.visibility-info.public {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.visibility-info.public i {
+    color: #28a745;
+}
+
+.visibility-info.private {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.visibility-info.private i {
+    color: #dc3545;
+}
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+    .left-column, .right-column {
+        min-width: 100%;
+    }
+    
+    .group-image-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .change-image-btn, .remove-image-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .group-actions {
+        flex-direction: column;
+    }
+    
+    .save-group-btn, .delete-group-btn {
+        max-width: 100%;
+    }
 }

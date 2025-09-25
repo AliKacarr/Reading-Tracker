@@ -95,8 +95,8 @@
     padding: 9px 17px;
     display: flex;
     align-items: center;
+    gap: 5px;
     justify-content: center;
-    gap: 8px;
     cursor: pointer;
     font-size: 19px;
     font-weight: 600;
@@ -104,6 +104,22 @@
     box-shadow: 0 2px 8px rgba(78, 84, 200, 0.08);
     margin-top: 5px;
     margin-right: 20px;
+    max-width: 200px;
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    flex-shrink: 0;
+}
+
+.profileButtonText {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+    display: inline-block !important;
+    line-height: 1 !important;
+    height: auto !important;
+    flex-shrink: 1 !important;
 }
 
 .admin-modal {

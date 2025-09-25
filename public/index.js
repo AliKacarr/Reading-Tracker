@@ -352,9 +352,9 @@ class GroupsPage {
         const visibilitySelect = document.getElementById('groupVisibilityInput');
         const visibilityIcon = document.querySelector('#groupVisibilityInput').parentElement.querySelector('.input-icon');
         
-        if (visibilitySelect.value === 'Herkese') {
+        if (visibilitySelect.value === 'public') {
             visibilityIcon.className = 'fas fa-eye input-icon';
-        } else if (visibilitySelect.value === 'Özel') {
+        } else if (visibilitySelect.value === 'private') {
             visibilityIcon.className = 'fas fa-eye-slash input-icon';
         }
     }
@@ -420,7 +420,7 @@ class GroupsPage {
     // Grup kartı oluşturma
     createGroupCard(group) {
         const memberCount = this.memberCounts.get(group.groupId) || 0;
-        const isPrivate = group.visibility === 'Özel';
+        const isPrivate = group.visibility === 'private';
 
         let avatarHtml;
         if (group.groupImage) {
@@ -430,8 +430,8 @@ class GroupsPage {
             avatarHtml = `<span>${groupInitial}</span>`;
         }
 
-        // Özel grup için kilit ikonu
-        const lockIcon = isPrivate ? '<img src="/images/lock.png" alt="Kilit" title="Özel Grup" class="private-group-lock">' : '';
+        // Gizli grup için kilit ikonu
+        const lockIcon = isPrivate ? '<img src="/images/lock.webp" alt="Kilit" title="Gizli Grup" class="private-group-lock">' : '';
 
         const card = document.createElement('div');
         card.className = isPrivate ? 'group-card private-group' : 'group-card';
@@ -462,7 +462,7 @@ class GroupsPage {
         </div>
     `;
 
-        // Sadece özel olmayan gruplar için tıklama işlevi
+        // Sadece gizli olmayan gruplar için tıklama işlevi
         if (!isPrivate) {
             card.addEventListener('click', () => {
                 window.location.href = `/groupid=${group.groupId}`;
@@ -477,7 +477,7 @@ class GroupsPage {
                 card.style.transform = 'translateY(0)';
             });
         } else {
-            // Özel gruplar için cursor pointer'ı kaldır
+            // Gizli gruplar için cursor pointer'ı kaldır
             card.style.cursor = 'default';
         }
 

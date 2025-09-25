@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="images/rotakip.png" type="image/x-icon" />
+    <link rel="icon" href="images/rotakip.webp" type="image/x-icon" />
     <title>RoTaKip Gruplar</title>
     <link rel="stylesheet" href="index.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -79,7 +79,6 @@
             </div>
             <form id="createGroupForm" class="modal-body">
                 <div class="form-group">
-                    <label for="groupImageInput">Grup Resmi</label>
                     <div class="input-container">
                         <label for="groupImageInput" class="file-input-label">
                             <i class="fas fa-image file-input-icon"></i>
@@ -110,8 +109,8 @@
                         <div class="select-wrapper">
                             <i class="fas fa-eye input-icon"></i>
                             <select id="groupVisibilityInput">
-                                <option value="Herkese" selected>Herkese Açık</option>
-                                <option value="Özel">Özel (Sadece üyeler görebilir)</option>
+                                <option value="public" selected>Herkese Açık</option>
+                                <option value="private">Gizli Grup</option>
                             </select>
                         </div>
                     </div>
