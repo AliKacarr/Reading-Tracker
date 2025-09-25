@@ -431,7 +431,7 @@ class GroupsPage {
         }
 
         // Özel grup için kilit ikonu
-        const lockIcon = isPrivate ? '<img src="/images/lock.png" alt="Kilit" class="private-group-lock">' : '';
+        const lockIcon = isPrivate ? '<img src="/images/lock.png" alt="Kilit" title="Özel Grup" class="private-group-lock">' : '';
 
         const card = document.createElement('div');
         card.className = isPrivate ? 'group-card private-group' : 'group-card';
