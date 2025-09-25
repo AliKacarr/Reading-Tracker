@@ -772,13 +772,13 @@ label.custom-file-input:hover {
     justify-content: center;
 }
 
-.modal-content {
+.ready-images-modal-content {
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     max-width: 90vw;
     max-height: 90vh;
-    width: 500px;
+    width: 600px;
     overflow: hidden;
     animation: modalSlideIn 0.3s ease-out;
 }
@@ -794,7 +794,7 @@ label.custom-file-input:hover {
     }
 }
 
-.modal-header {
+.ready-images-modal-content .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -803,7 +803,7 @@ label.custom-file-input:hover {
     background-color: #f8f9fa;
 }
 
-.modal-header h3 {
+.ready-images-modal-content .modal-header h3 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
@@ -813,11 +813,11 @@ label.custom-file-input:hover {
     gap: 8px;
 }
 
-.modal-header h3 i {
+.ready-images-modal-content .modal-header h3 i {
     color: #6c757d;
 }
 
-.modal-close-btn {
+.ready-images-modal-content .modal-close-btn {
     background: none;
     border: none;
     font-size: 20px;
@@ -828,25 +828,25 @@ label.custom-file-input:hover {
     transition: all 0.3s ease;
 }
 
-.modal-close-btn:hover {
+.ready-images-modal-content .modal-close-btn:hover {
     background-color: #e9ecef;
     color: #495057;
 }
 
-.modal-body {
+.ready-images-modal-content .modal-body {
     padding: 20px;
     max-height: 60vh;
     overflow-y: auto;
 }
 
-.avatar-grid {
+.ready-images-modal-content .avatar-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 15px;
     padding: 5px;
 }
 
-.avatar-item {
+.ready-images-modal-content .avatar-item {
     position: relative;
     width: 80px;
     height: 80px;
@@ -858,31 +858,32 @@ label.custom-file-input:hover {
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     justify-self: center;
+    padding: 5px
 }
 
-.avatar-item:hover {
+.ready-images-modal-content .avatar-item:hover {
     border-color: #5b9bd5;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.avatar-item.selected {
+.ready-images-modal-content .avatar-item.selected {
     border-color: #28a745;
     box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
 }
 
-.avatar-item img {
+.ready-images-modal-content .avatar-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: fill;
     transition: transform 0.3s ease;
 }
 
-.avatar-item:hover img {
+.ready-images-modal-content .avatar-item:hover img {
     transform: scale(1.05);
 }
 
-.avatar-item .check-icon {
+.ready-images-modal-content .avatar-item .check-icon {
     position: absolute;
     top: 4px;
     right: 4px;
@@ -899,7 +900,7 @@ label.custom-file-input:hover {
     transition: opacity 0.3s ease;
 }
 
-.avatar-item.selected .check-icon {
+.ready-images-modal-content .avatar-item.selected .check-icon {
     opacity: 1;
 }
 

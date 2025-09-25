@@ -287,7 +287,7 @@ body {
 .group-avatar .group-avatar-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: fill;
     /* Resmi kutuya sığdırmak ve oranını korumak için */
     border-radius: 0;
     /* Dairesel kenarları kaldırdık */
@@ -1100,7 +1100,7 @@ body {
 .avatar-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: fill;
     transition: transform 0.3s ease;
 }
 
