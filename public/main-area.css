@@ -417,7 +417,7 @@ ul#userList li span {
 }
 
 .submit-button {
-    background-color: #4CAF50;
+    background-color: #27ae60;
     color: white;
     padding: 12px 18px;
     border: none;
@@ -430,7 +430,7 @@ ul#userList li span {
 }
 
 .submit-button:hover {
-    background-color: #45a049;
+    background-color: #229954;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
@@ -493,7 +493,7 @@ input[type="file"] {
 }
 
 label.custom-file-input {
-    background-color: #5b9bd5;
+    background-color: #3498db;
     color: white !important;
     padding: 8px 12px;
     border-radius: 4px;
@@ -509,7 +509,7 @@ label.custom-file-input {
 }
 
 label.custom-file-input:hover {
-    background-color: #4a8bc6;
+    background-color: #2980b9;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
@@ -601,7 +601,6 @@ label.custom-file-input:hover {
 .group-image-section {
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 
 .group-image-section label {
@@ -612,15 +611,16 @@ label.custom-file-input:hover {
 
 .group-image-container {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 15px;
+    margin-top: 15px;
 }
 
 .group-image-preview {
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
     border-radius: 8px;
-    object-fit: cover;
+    object-fit: fill;
     transition: all 0.3s ease;
     cursor: pointer;
     flex-shrink: 0;
@@ -632,51 +632,275 @@ label.custom-file-input:hover {
 
 .group-image-actions {
     display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    height: 80px;
+    justify-content: space-between;
+}
+
+.top-buttons {
+    display: flex;
+    gap: 8px;
     align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
 }
 
 .change-image-btn {
-    background-color: #5b9bd5;
+    background-color: #3498db;
     color: white !important;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 11px;
-    font-weight: 600;
-    display: inline-flex;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
     align-items: center;
     justify-content: center;
+    gap: 10px;
     transition: all 0.3s;
     border: none;
     text-decoration: none;
-    height: 32px;
-    width: 32px;
+    height: 36px;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    flex: 1;
 }
 
 .change-image-btn:hover {
-    background-color: #4a8bc6;
+    background-color: #2980b9;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .group-image-remove-btn {
     background-color: #e74c3c;
     color: white;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
     border: none;
     transition: all 0.3s;
-    width: 32px;
-    height: 32px;
+    height: 36px;
+    width: 36px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 .group-image-remove-btn:hover {
     background-color: #c0392b;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Hazır Görseller Butonu */
+.ready-images-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    height: 36px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.ready-images-btn:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.ready-images-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.ready-images-btn i {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.ready-images-btn:hover i {
+    transform: scale(1.1);
+}
+
+/* Hazır Görseller butonuna özel animasyon */
+.ready-images-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.ready-images-btn:hover::before {
+    left: 100%;
+}
+
+/* Hazır Görseller Modal */
+.ready-images-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.ready-images-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 90vw;
+    max-height: 90vh;
+    width: 500px;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-header h3 i {
+    color: #6c757d;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.modal-close-btn:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 15px;
+    padding: 5px;
+}
+
+.avatar-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    justify-self: center;
+}
+
+.avatar-item:hover {
+    border-color: #5b9bd5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.avatar-item.selected {
+    border-color: #28a745;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+}
+
+.avatar-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.avatar-item:hover img {
+    transform: scale(1.05);
+}
+
+.avatar-item .check-icon {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.avatar-item.selected .check-icon {
+    opacity: 1;
 }
 
 .group-details-section {
@@ -827,7 +1051,7 @@ label.custom-file-input:hover {
 }
 
 .share-group-btn {
-    background-color: #5b9bd5;
+    background-color: #3498db;
     color: white;
     height: 38px;
     width: 130px;
@@ -844,7 +1068,7 @@ label.custom-file-input:hover {
 }
 
 .share-group-btn:hover {
-    background-color: #4a8bc6;
+    background-color: #2980b9;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 

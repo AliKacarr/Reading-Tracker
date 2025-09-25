@@ -7,6 +7,7 @@ class GroupsPage {
         this.isLoading = false;
         this.searchQuery = '';
         this.memberCounts = new Map();
+        this.selectedAvatarPath = null;
 
         this.init();
     }
@@ -44,10 +45,21 @@ class GroupsPage {
             }
         });
 
+        // Hazır görseller modal'ı için dışına tıklama
+        const readyImagesModal = document.getElementById('readyImagesModal');
+        if (readyImagesModal) {
+            readyImagesModal.addEventListener('click', (e) => {
+                if (e.target === readyImagesModal) {
+                    this.closeReadyImagesModal();
+                }
+            });
+        }
+
         // ESC key to close modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeCreateModal();
+                this.closeReadyImagesModal();
             }
         });
 
@@ -328,10 +340,15 @@ class GroupsPage {
         }, 300);
         document.body.style.overflow = 'auto';
         form.reset();
-        // Reset file input text
+        
+        // Hazır avatar seçimini temizle
+        this.selectedAvatarPath = null;
+        
+        // Dosya seçim metnini sıfırla
         const fileInputText = document.querySelector('.file-input-text');
         if (fileInputText) {
             fileInputText.textContent = 'Bir resim seçin...';
+            fileInputText.style.color = '#6c757d';
         }
     }
 
@@ -379,7 +396,11 @@ class GroupsPage {
         formData.append('adminName', adminName);
         formData.append('adminPassword', adminPassword);
         formData.append('visibility', visibility);
-        if (groupImageInput.files[0]) {
+        
+        // Hazır avatar seçildiyse onu kullan, yoksa dosya yüklemesi yap
+        if (this.selectedAvatarPath) {
+            formData.append('selectedAvatarPath', this.selectedAvatarPath);
+        } else if (groupImageInput.files[0]) {
             formData.append('groupImage', groupImageInput.files[0]);
         }
 
@@ -539,9 +560,111 @@ class GroupsPage {
         div.textContent = text;
         return div.innerHTML;
     }
+
+    // Hazır görseller modal'ını aç/kapat
+    toggleReadyImagesModal() {
+        const modal = document.getElementById('readyImagesModal');
+        if (modal.classList.contains('show')) {
+            this.closeReadyImagesModal();
+        } else {
+            this.openReadyImagesModal();
+        }
+    }
+
+    openReadyImagesModal() {
+        const modal = document.getElementById('readyImagesModal');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        this.loadAvatarOptions();
+    }
+
+    closeReadyImagesModal() {
+        const modal = document.getElementById('readyImagesModal');
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Hazır avatar seçeneklerini yükle
+    async loadAvatarOptions() {
+        try {
+            const response = await fetch('/api/group-avatars');
+            if (response.ok) {
+                const avatars = await response.json();
+                const avatarGrid = document.getElementById('avatarGrid');
+                
+                avatarGrid.innerHTML = '';
+                
+                if (avatars.length === 0) {
+                    avatarGrid.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #6c757d;">
+                            <i class="fa-solid fa-images" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                            <p>Henüz hazır görsel bulunmuyor.</p>
+                            <small>groupAvatars klasörüne resim dosyaları ekleyin.</small>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                avatars.forEach(avatar => {
+                    const avatarItem = document.createElement('div');
+                    avatarItem.className = 'avatar-item';
+                    avatarItem.dataset.avatarPath = avatar.path;
+                    
+                    avatarItem.innerHTML = `
+                        <img src="${avatar.path}" alt="Avatar" loading="lazy">
+                        <div class="check-icon">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    `;
+                    
+                    avatarItem.addEventListener('click', () => this.selectAvatar(avatar.path, avatarItem));
+                    avatarGrid.appendChild(avatarItem);
+                });
+            } else {
+                console.error('Avatar seçenekleri yüklenemedi');
+            }
+        } catch (error) {
+            console.error('Avatar yükleme hatası:', error);
+        }
+    }
+
+    // Avatar seç
+    selectAvatar(avatarPath, avatarElement) {
+        // Önceki seçimi kaldır
+        document.querySelectorAll('.avatar-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // Yeni seçimi işaretle
+        avatarElement.classList.add('selected');
+        
+        // Modal'ı kapat
+        this.closeReadyImagesModal();
+        
+        // Seçilen avatar'ı sakla (grup oluşturulurken kullanılacak)
+        this.selectedAvatarPath = avatarPath;
+        
+        // Dosya input'unu temizle
+        const fileInput = document.getElementById('groupImageInput');
+        fileInput.value = '';
+        
+        // Dosya seçim metnini güncelle
+        const fileInputText = document.querySelector('.file-input-text');
+        fileInputText.textContent = 'Hazır görsel seçildi';
+        fileInputText.style.color = '#28a745';
+    }
+}
+
+// Global fonksiyonlar (HTML onclick için)
+let groupsPageInstance = null;
+
+function toggleReadyImagesModal() {
+    if (groupsPageInstance) {
+        groupsPageInstance.toggleReadyImagesModal();
+    }
 }
 
 // Initialize the groups page when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new GroupsPage();
+    groupsPageInstance = new GroupsPage();
 });

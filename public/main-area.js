@@ -495,7 +495,6 @@ function renderUserList() {
                 let li = userList.querySelector(`li[data-user-id="${user._id}"]`);
                 
                 if (!li) {
-                    console.log(user._id);
                     // Sadece yeni kullanıcı için HTML oluştur
                     const userProfileImage = user.profileImage || '/images/default.webp';
                     const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-user-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
@@ -572,6 +571,116 @@ function updateVisibilityIcon(visibility) {
     } else {
         icon.className = 'fa-solid fa-eye-slash visibility-icon private';
         if (infoSpan) infoSpan.textContent = 'Sadece üyeler grubu görüntüleyebilir';
+    }
+}
+
+// Hazır görseller modal'ını aç/kapat
+function toggleReadyImagesModal() {
+    const modal = document.getElementById('readyImagesModal');
+    if (modal.classList.contains('show')) {
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto'; // Scroll'u geri aç
+    } else {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Scroll'u kapat
+        loadAvatarOptions(); // Modal açıldığında avatarları yükle
+    }
+}
+
+// Hazır avatar seçeneklerini yükle
+async function loadAvatarOptions() {
+    try {
+        const response = await fetch('/api/group-avatars');
+        if (response.ok) {
+            const avatars = await response.json();
+            const avatarGrid = document.getElementById('avatarGrid');
+            
+            avatarGrid.innerHTML = '';
+            
+            if (avatars.length === 0) {
+                avatarGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #6c757d;">
+                        <i class="fa-solid fa-images" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                        <p>Henüz hazır görsel bulunmuyor.</p>
+                        <small>groupAvatars klasörüne resim dosyaları ekleyin.</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            avatars.forEach(avatar => {
+                const avatarItem = document.createElement('div');
+                avatarItem.className = 'avatar-item';
+                avatarItem.dataset.avatarPath = avatar.path;
+                
+                avatarItem.innerHTML = `
+                    <img src="${avatar.path}" alt="Avatar" loading="lazy">
+                    <div class="check-icon">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                `;
+                
+                avatarItem.addEventListener('click', () => selectAvatar(avatar.path, avatarItem));
+                avatarGrid.appendChild(avatarItem);
+            });
+        } else {
+            console.error('Avatar seçenekleri yüklenemedi');
+        }
+    } catch (error) {
+        console.error('Avatar yükleme hatası:', error);
+    }
+}
+
+// Avatar seç
+function selectAvatar(avatarPath, avatarElement) {
+    // Önceki seçimi kaldır
+    document.querySelectorAll('.avatar-item').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Yeni seçimi işaretle
+    avatarElement.classList.add('selected');
+    
+    // Grup resmini güncelle
+    const currentGroupImage = document.getElementById('currentGroupImage');
+    currentGroupImage.src = avatarPath;
+    
+    // Sil butonunu göster (hazır avatar seçildi, artık bir resim var)
+    const removeBtn = document.querySelector('.group-image-remove-btn');
+    removeBtn.style.display = 'flex';
+    
+    // Modal'ı kapat
+    toggleReadyImagesModal();
+    
+    // Grup resmini güncelle (sunucuya gönder)
+    updateGroupImageFromAvatar(avatarPath);
+}
+
+// Hazır avatar ile grup resmini güncelle
+async function updateGroupImageFromAvatar(avatarPath) {
+    try {
+        const response = await fetch(`/api/update-group-image-from-avatar/${currentGroupId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ avatarPath: avatarPath })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Grup resmi hazır avatar ile güncellendi');
+            
+            // secretAdminLogin resmini de güncelle
+            const secretAdminLoginImages = document.querySelectorAll('.secretAdminLoginImage');
+            secretAdminLoginImages.forEach(img => {
+                img.src = result.imageUrl;
+            });
+        } else {
+            console.error('Grup resmi güncellenemedi');
+        }
+    } catch (error) {
+        console.error('Avatar güncelleme hatası:', error);
     }
 }
 
@@ -906,4 +1015,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isAuthenticated()) {
         loadGroupSettings();
     }
+    
+    // Modal dışına tıklandığında kapat
+    const readyImagesModal = document.getElementById('readyImagesModal');
+    if (readyImagesModal) {
+        readyImagesModal.addEventListener('click', function(e) {
+            if (e.target === readyImagesModal) {
+                toggleReadyImagesModal();
+            }
+        });
+    }
+    
+    // ESC tuşu ile modal'ı kapat
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('readyImagesModal');
+            if (modal && modal.classList.contains('show')) {
+                toggleReadyImagesModal();
+            }
+        }
+    });
 });

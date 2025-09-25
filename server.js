@@ -18,6 +18,7 @@ const port = 3000;
 // Middleware'ler
 app.use(express.static('public'));
 app.use('/images', express.static('uploads'));
+app.use('/groupAvatars', express.static('groupAvatars'));
 app.use(express.json());
 
 // Ana sayfa route'u
@@ -536,12 +537,16 @@ app.get('/api/groups', async (req, res) => {
 // Grup oluşturma endpoint'i
 app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) => {
   try {
-    const { groupName, description, adminName, adminPassword, visibility } = req.body;
+    const { groupName, description, adminName, adminPassword, visibility, selectedAvatarPath } = req.body;
     
     let groupImageUrl = null;
     
-    // Eğer resim varsa Dropbox'a yükle
-    if (req.file) {
+    // Hazır avatar seçildiyse onu kullan
+    if (selectedAvatarPath) {
+      groupImageUrl = selectedAvatarPath;
+    }
+    // Eğer resim dosyası varsa Dropbox'a yükle
+    else if (req.file) {
       try {
         const fileName = `${Date.now()}-${req.file.originalname}`;
         const fileBuffer = fs.readFileSync(req.file.path);
@@ -802,6 +807,72 @@ app.post('/api/remove-group-image/:groupId', async (req, res) => {
     res.json({ success: true, group: updatedGroup });
   } catch (error) {
     console.error('Error removing group image:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Hazır avatar listesi endpoint'i
+app.get('/api/group-avatars', (req, res) => {
+  try {
+    const avatarDir = path.join(__dirname, 'groupAvatars');
+    
+    if (!fs.existsSync(avatarDir)) {
+      return res.json([]);
+    }
+    
+    const files = fs.readdirSync(avatarDir);
+    const avatars = files
+      .filter(file => /\.(jpg|jpeg|png|gif|webp)$/i.test(file))
+      .map(file => ({
+        name: file,
+        path: `/groupAvatars/${file}`
+      }));
+    
+    res.json(avatars);
+  } catch (error) {
+    console.error('Avatar listesi yükleme hatası:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Hazır avatar ile grup resmini güncelleme endpoint'i
+app.post('/api/update-group-image-from-avatar/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { avatarPath } = req.body;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Eski grup resmini Dropbox'tan sil
+    if (group.groupImage && group.groupImage.includes('dropbox.com')) {
+      deleteGroupImageFromDropboxByUrl(group.groupImage).catch(err => 
+        console.error('Eski grup resmi silme hatası:', err)
+      );
+    }
+
+    // Avatar dosyasının varlığını kontrol et
+    const avatarFilePath = path.join(__dirname, avatarPath);
+    if (!fs.existsSync(avatarFilePath)) {
+      return res.status(404).json({ error: 'Avatar dosyası bulunamadı' });
+    }
+
+    // Hazır avatar için yerel path'i kullan (Dropbox'a yükleme yok)
+    const newImageUrl = avatarPath;
+
+    // Grup resmini güncelle
+    const updatedGroup = await UserGroup.findOneAndUpdate(
+      { groupId },
+      { groupImage: newImageUrl },
+      { new: true }
+    );
+
+    res.json({ success: true, imageUrl: newImageUrl, group: updatedGroup });
+  } catch (error) {
+    console.error('Error updating group image from avatar:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -1893,19 +1964,17 @@ function schedulePing() {
 
 // Dropbox token yenileme sistemi
 function scheduleTokenRefresh() {
-  // Her 30 dakikada bir token durumunu kontrol et
-  const tokenJob = schedule.scheduleJob('*/30 * * * *', async () => {
+  // Her 1 saatte bir token'ı yenile
+  const tokenJob = schedule.scheduleJob('0 * * * *', async () => {
     try {
-      if (tokenExpiry && Date.now() >= tokenExpiry - 1800000) { // 30 dakika önceden yenile
-        console.log('🔄 Dropbox token otomatik yenileniyor...');
-        await refreshDropboxToken();
-      }
+      console.log('🔄 Dropbox token otomatik yenileniyor...');
+      await refreshDropboxToken();
     } catch (error) {
       console.error('Token refresh failed:', error.message);
     }
   });
   
-  console.log("Token refresh scheduler started. Token will be checked every 30 minutes.");
+  console.log("Token refresh scheduler started. Token will be refreshed every 1 hour.");
   
   // Handle graceful shutdown
   process.on('SIGINT', async () => {

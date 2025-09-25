@@ -418,12 +418,39 @@
                 <img id="currentGroupImage" src="/images/open-book.webp" alt="Grup resmi" class="group-image-preview" onclick="document.getElementById('groupImage').click()">
                 <div class="group-image-actions">
                   <input type="file" id="groupImage" name="groupImage" accept="image/*" style="display: none;" />
-                  <label for="groupImage" class="change-image-btn">
-                    <i class="fa-solid fa-upload"></i>
-                  </label>
-                  <button type="button" class="group-image-remove-btn" title="Resmi Kaldır" style="display: none;">
-                    <i class="fa-solid fa-trash"></i>
+                  <div class="top-buttons">
+                    <label for="groupImage" class="change-image-btn">
+                      <i class="fa-solid fa-upload"></i>
+                      <span>Yükle</span>
+                    </label>
+                    <button type="button" class="group-image-remove-btn" title="Resmi Kaldır" style="display: none;">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                  <button type="button" class="ready-images-btn" onclick="toggleReadyImagesModal()">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Hazır Görseller</span>
                   </button>
+                </div>
+              </div>
+              
+              <!-- Hazır Görseller Modal -->
+              <div id="readyImagesModal" class="ready-images-modal">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3>
+                      <i class="fa-solid fa-images"></i>
+                      Hazır Görseller
+                    </h3>
+                    <button type="button" class="modal-close-btn" onclick="toggleReadyImagesModal()">
+                      <i class="fa-solid fa-times"></i>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="avatar-grid" id="avatarGrid">
+                      <!-- Avatar resimleri JavaScript ile yüklenecek -->
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
