@@ -595,7 +595,7 @@ label.custom-file-input:hover {
 .group-info-section {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .group-image-section {

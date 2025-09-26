@@ -34,6 +34,11 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
     if (typeof renderUserList === 'function') {
         renderUserList();
     }
+    
+    // Grup ayarlarını da yükle
+    if (typeof loadGroupSettings === 'function') {
+        loadGroupSettings();
+    }
 }
 
 
@@ -114,6 +119,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Reload data to update UI with admin privileges
                 loadTrackerTable();
+                
+                // Grup ayarlarını da yükle
+                if (typeof loadGroupSettings === 'function') {
+                    loadGroupSettings();
+                }
             } else {
                 loginError.textContent = 'Geçersiz kullanıcı adı veya şifre';
                 logUnauthorizedAccess('admin-login');
@@ -247,6 +257,11 @@ document.addEventListener('DOMContentLoaded', function () {
             // Admin girişi yapıldığında user list'i yükle
             if (typeof renderUserList === 'function') {
                 renderUserList();
+            }
+            
+            // Grup ayarlarını da yükle
+            if (typeof loadGroupSettings === 'function') {
+                loadGroupSettings();
             }
         } else {
             if (adminIndicator) adminIndicator.style.display = 'none';
