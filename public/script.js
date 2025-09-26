@@ -30,19 +30,20 @@ window.getGroupIdFromUrl = function getGroupIdFromUrl() {
 };
 
 // Global grup ID değişkeni
-let currentGroupId = getGroupIdFromUrl();
+window.currentGroupId = getGroupIdFromUrl();
 let previousGroupId = localStorage.getItem('groupId');
 
 // Grup değişikliğinde çerezleri temizleme fonksiyonu
 function cleanupCrossGroupCookies() {
   const storedGroupId = localStorage.getItem('groupId');
 
-  if (storedGroupId && storedGroupId !== currentGroupId) {
+  if (storedGroupId && storedGroupId !== window.currentGroupId) {
     console.log('Grup değişikliği tespit edildi. Tüm admin çerezleri temizleniyor...');
     localStorage.removeItem('authenticated');
     localStorage.removeItem('adminUsername');
     localStorage.removeItem('groupName');
     localStorage.removeItem('groupId');
+    localStorage.removeItem('userAuthority');
     hideAdminElements();
     return true;
   }
@@ -63,17 +64,18 @@ function validateAdminForCurrentGroup() {
   const isAuth = localStorage.getItem('authenticated') === 'true';
 
   // Eğer admin girişi varsa ama grup ID'si uyuşmuyorsa
-  if (isAuth && storedGroupId !== currentGroupId) {
+  if (isAuth && storedGroupId !== window.currentGroupId) {
     localStorage.removeItem('authenticated');
     localStorage.removeItem('adminUsername');
     localStorage.removeItem('groupName');
     localStorage.removeItem('groupId');
+    localStorage.removeItem('userAuthority');
     console.log('Grup uyuşmazlığı tespit edildi. Admin yetkileri kaldırılıyor.');
     hideAdminElements();
     return false;
   }
 
-  return isAuth && storedGroupId === currentGroupId;
+  return isAuth && storedGroupId === window.currentGroupId;
 }
 
 // Cross-tab communication için storage event listener
@@ -109,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }, 2000);
 
     // Grup ID'si yoksa ana sayfaya yönlendir
-    if (currentGroupId === null) {
+    if (window.currentGroupId === null) {
       window.location.href = '/';
       return;
     }
@@ -138,8 +140,9 @@ document.addEventListener('DOMContentLoaded', async function () {
       { name: 'fetchRandomDua', fn: fetchRandomDua },
       { name: 'initializeVideos', fn: initializeVideos },
       { name: 'renderUserList', fn: () => {
-        // Admin yetkisi kontrolü
-        if (isAuthenticated()) {
+        // Sadece admin yetkisi kontrolü
+        const userAuthority = localStorage.getItem('userAuthority');
+        if (isAuthenticated() && userAuthority === 'admin') {
           return renderUserList();
         } else {
           console.log('Admin yetkisi yok, renderUserList atlanıyor');
@@ -174,12 +177,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 // Grup doğrulama fonksiyonu
 async function validateGroup() {
   try {
-    const response = await fetch(`/api/group/${currentGroupId}`);
+    const response = await fetch(`/api/group/${window.currentGroupId}`);
 
     if (!response.ok) {
       if (response.status === 404) {
         // Grup yoksa ana sayfaya yönlendir
-        console.log('Grup bulunamadı, ana sayfaya yönlendiriliyor:', currentGroupId);
+        console.log('Grup bulunamadı, ana sayfaya yönlendiriliyor:', window.currentGroupId);
         window.location.href = '/';
         return false;
       }
@@ -253,49 +256,67 @@ async function logPageVisit() {    //sayfa ziyaretleri kontrolü
   console.log("logPageVisit");
 }
 
-async function verifyAdminUsername() {     //admin kullanıcı adı doğrulama - halen geçerlimiye bakıyor
+async function verifyUserUsername() {     //kullanıcı adı doğrulama - hem admin hem member için
   const username = localStorage.getItem('adminUsername');
   const storedGroupId = localStorage.getItem('groupId');
+  const userAuthority = localStorage.getItem('userAuthority');
 
-  if (!username || !storedGroupId || storedGroupId !== currentGroupId) {
-    if (storedGroupId !== currentGroupId) {
+  if (!username || !storedGroupId || storedGroupId !== window.currentGroupId) {
+    if (storedGroupId !== window.currentGroupId) {
       // Grup uyuşmazlığı varsa bilgileri temizle
       localStorage.removeItem('authenticated');
       localStorage.removeItem('adminUsername');
       localStorage.removeItem('groupName');
       localStorage.removeItem('groupId');
+      localStorage.removeItem('userAuthority');
       hideAdminElements();
     }
     return false;
   }
 
   try {
-    const response = await fetch('/api/verify-admin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, groupId: currentGroupId })
-    });
+    // Admin kullanıcıları için admin doğrulama
+    if (userAuthority === 'admin') {
+      const response = await fetch('/api/verify-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, groupId: window.currentGroupId })
+      });
 
-    const data = await response.json();
-    if (!data.valid) {
-      // Admin username no longer exists in database or group mismatch, clear authentication
-      localStorage.removeItem('authenticated');
-      localStorage.removeItem('adminUsername');
-      localStorage.removeItem('groupName');
-      localStorage.removeItem('groupId');
-
-      // Hide admin elements
-      hideAdminElements();
-      const mainArea = document.querySelector('.main-area');
-      if (mainArea) console.log(mainArea.style.display+" silindi");
-      mainArea.style.display = 'none';
-
-      return false;
+      const data = await response.json();
+      if (!data.valid) {
+        // Admin username no longer exists in database or group mismatch, clear authentication
+        localStorage.removeItem('authenticated');
+        localStorage.removeItem('adminUsername');
+        localStorage.removeItem('groupName');
+        localStorage.removeItem('groupId');
+        localStorage.removeItem('userAuthority');
+        hideAdminElements();
+        const mainArea = document.querySelector('.main-area');
+        if (mainArea) console.log(mainArea.style.display+" silindi");
+        mainArea.style.display = 'none';
+        return false;
+      }
+    }
+    // Member kullanıcıları için basit grup kontrolü yeterli
+    else if (userAuthority === 'member') {
+      // Member kullanıcıları için sadece grup varlığını kontrol et
+      const response = await fetch(`/api/group/${window.currentGroupId}`);
+      if (!response.ok) {
+        // Grup yoksa bilgileri temizle
+        localStorage.removeItem('authenticated');
+        localStorage.removeItem('adminUsername');
+        localStorage.removeItem('groupName');
+        localStorage.removeItem('groupId');
+        localStorage.removeItem('userAuthority');
+        hideAdminElements();
+        return false;
+      }
     }
 
     return true;
   } catch (error) {
-    console.error('Error verifying admin username:', error);
+    console.error('User verification error:', error);
     return false;
   }
 }

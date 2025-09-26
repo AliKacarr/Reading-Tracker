@@ -418,6 +418,7 @@ class GroupsPage {
                 localStorage.setItem('adminUsername', adminName);
                 localStorage.setItem('groupName', result.group.groupName);
                 localStorage.setItem('groupId', result.group.groupId);
+                localStorage.setItem('userAuthority', 'admin');
                 
                 this.closeCreateModal();
                 window.location.href = `/groupid=${result.group.groupId}`;

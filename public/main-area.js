@@ -47,10 +47,11 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         imagePreviewContainer.style.display = 'none';
         
         // Input-profile-image'i varsayılan resme döndür
-        inputProfileImage.src = '/images/default.webp';
+        inputProfileImage.src = '/images/default.png';
 
         // UI'ı güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
-        if (isAuthenticated()) {
+        const userAuthority = localStorage.getItem('userAuthority');
+        if (isAuthenticated() && userAuthority === 'admin') {
             renderUserList();
         }
         loadTrackerTable();
@@ -100,7 +101,8 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
                 body: JSON.stringify({ id })
             });
 
-            if (isAuthenticated()) {
+            const userAuthority = localStorage.getItem('userAuthority');
+            if (isAuthenticated() && userAuthority === 'admin') {
                 renderUserList();
             }
             loadTrackerTable();
@@ -184,7 +186,7 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
         loadReadingStats();
         renderLongestSeries();
         if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
-
+        saveButton.disabled = false;
         showSuccessMessage('Kullanıcı adı başarıyla güncellendi!');
 
     } catch (error) {
@@ -333,7 +335,7 @@ function resetImagePreview() {    // Resim önizleme kapatma fonksiyonu
     profileImageInput.value = ''; // Input değerini de temizle
     
     // Input-profile-image'i varsayılan resme döndür
-    inputProfileImage.src = '/images/default.webp';
+    inputProfileImage.src = '/images/default.png';
 }
 
 if (closePreviewButton) {
@@ -466,8 +468,9 @@ function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
 }
 
 function renderUserList() {
-    // Admin yetkisi kontrolü
-    if (!isAuthenticated()) {
+    // Sadece admin yetkisi kontrolü
+    const userAuthority = localStorage.getItem('userAuthority');
+    if (!isAuthenticated() || userAuthority !== 'admin') {
         console.log('Admin yetkisi yok, renderUserList çalıştırılmıyor');
         return;
     }
@@ -496,7 +499,7 @@ function renderUserList() {
                 
                 if (!li) {
                     // Sadece yeni kullanıcı için HTML oluştur
-                    const userProfileImage = user.profileImage || '/images/default.webp';
+                    const userProfileImage = user.profileImage || '/images/default.png';
                     const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-user-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
                     
                     li = document.createElement('li');
@@ -936,6 +939,14 @@ async function deleteGroup() {
 
         if (response.ok) {
             showSuccessMessage('Grup başarıyla silindi!');
+            
+            // Çerezleri temizle
+            localStorage.removeItem('authenticated');
+            localStorage.removeItem('adminUsername');
+            localStorage.removeItem('groupName');
+            localStorage.removeItem('groupId');
+            localStorage.removeItem('userAuthority');
+            
             setTimeout(() => {
                 window.location.href = '/';
             }, 1500);

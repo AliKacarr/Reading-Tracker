@@ -12,6 +12,7 @@ require('dotenv').config();
 const schedule = require('node-schedule');
 const { Dropbox } = require('dropbox');
 const sharp = require('sharp');
+const bcrypt = require('bcrypt');
 const app = express();
 const port = 3000;
 
@@ -417,12 +418,7 @@ const UserGroup = mongoose.model('UserGroup', {
   createdAt: { type: Date, default: Date.now }
 });
 
-// Admin model
-const Admin = mongoose.model('Admin', {
-  username: String,
-  password: String,
-  groupId: String
-});
+// Admin model kaldırıldı - artık users koleksiyonunda admin olarak saklanıyor
 
 // MongoDB index'lerini oluşturma fonksiyonu
 async function createIndexesForGroup(groupId) {
@@ -595,20 +591,18 @@ app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) 
 
     await newGroup.save();
 
-    // Admin bilgilerini grupId ile ilişkilendirerek kaydet
-    const admin = new Admin({
-      username: adminName,
-      password: adminPassword,
-      groupId: finalGroupId
-    });
-
-    await admin.save();
-
-    // Varsayılan kullanıcı ekle
+    // Varsayılan kullanıcı ekle (admin olarak)
     const { users } = getGroupCollections(finalGroupId);
+    
+    // Admin şifresini hash'le
+    const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
+    
     const defaultUser = new users({
-      name: "Siz",
-      profileImage: "/images/default.png" // Varsayılan resim URL'i
+      name: adminName,
+      profileImage: "/images/default.png",
+      username: adminName,
+      userpassword: hashedAdminPassword,
+      authority: "admin"
     });
     await defaultUser.save();
 
@@ -911,9 +905,41 @@ app.delete('/api/delete-group/:groupId', async (req, res) => {
     // Grup koleksiyonlarını sil
     await users.deleteMany({});
     await readingStatuses.deleteMany({});
+    
+    // Koleksiyonları tamamen sil - MongoDB native yöntemle
+    try {
+      // Doğrudan database bağlantısı ile koleksiyonları sil
+      const db = mongoose.connection.db;
+      
+      // Users koleksiyonunu sil
+      try {
+        await db.collection(`users_${groupId}`).drop();
+        console.log(`✅ Users koleksiyonu silindi: users_${groupId}`);
+      } catch (dropErr) {
+        if (dropErr.code === 26) {
+          console.log(`ℹ️ Users koleksiyonu zaten yok: users_${groupId}`);
+        } else {
+          console.error('❌ Users koleksiyonu silme hatası:', dropErr);
+        }
+      }
+      
+      // ReadingStatuses koleksiyonunu sil
+      try {
+        await db.collection(`readingstatuses_${groupId}`).drop();
+        console.log(`✅ ReadingStatuses koleksiyonu silindi: readingstatuses_${groupId}`);
+      } catch (dropErr) {
+        if (dropErr.code === 26) {
+          console.log(`ℹ️ ReadingStatuses koleksiyonu zaten yok: readingstatuses_${groupId}`);
+        } else {
+          console.error('❌ ReadingStatuses koleksiyonu silme hatası:', dropErr);
+        }
+      }
+      
+    } catch (error) {
+      console.error('❌ Koleksiyon silme genel hatası:', error);
+    }
 
-    // Admin kaydını sil
-    await Admin.deleteMany({ groupId });
+    // Admin kaydı artık users koleksiyonunda, ayrı silmeye gerek yok
 
     // Grubu sil
     await UserGroup.findOneAndDelete({ groupId });
@@ -945,7 +971,10 @@ function getGroupCollections(groupId) {
   // Model'leri oluştur ve index'leri ayarla
   const userSchema = new mongoose.Schema({
     name: String,
-    profileImage: String
+    profileImage: String,
+    username: String,
+    userpassword: String,
+    authority: String
   }, { collection: userModelName }); // Koleksiyon ismini açıkça belirt
 
   const readingStatusSchema = new mongoose.Schema({
@@ -1060,14 +1089,28 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
       }
     }
 
-    // 2. Adım: Kullanıcıyı kaydet (yerel resim URL'i ile birlikte)
-    const user = new users({ name, profileImage: profileImageUrl });
+    // 2. Adım: Username ve password oluştur
+    const username = name;
+    const randomNumber = Math.floor(Math.random() * 900) + 100; // 100-999 arası rastgele sayı
+    const plainPassword = name + randomNumber;
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+    
+    console.log(`Yeni kullanıcı ekleniyor: ${name}, username: ${username}, plainPassword: ${plainPassword}`);
+    
+    // 3. Adım: Kullanıcıyı kaydet (yerel resim URL'i ile birlikte)
+    const user = new users({ 
+      name, 
+      profileImage: profileImageUrl,
+      username: username,
+      userpassword: hashedPassword,
+      authority: "member"
+    });
     await user.save();
     
-    // 3. Adım: Kullanıcıya hemen yanıt ver
+    // 4. Adım: Kullanıcıya hemen yanıt ver
     res.json({ success: true, user: user, fileName: fileName });
 
-    // 4. Adım: Dropbox'a yükle (arka planda)
+    // 5. Adım: Dropbox'a yükle (arka planda)
     if (fileName && user) {
       try {
         const localPath = path.join(__dirname, 'uploads', fileName);
@@ -1529,20 +1572,29 @@ app.post('/api/admin-login', async (req, res) => {
   try {
     const { username, password, groupId } = req.body;
 
-    // Find admin in the adminData collection with matching groupId
-    const admin = await Admin.findOne({ username, password, groupId });
+    // Users koleksiyonundan kullanıcıyı bul (admin veya member)
+    const { users } = getGroupCollections(groupId);
+    const user = await users.findOne({ username });
 
-    if (admin) {
-      // Grup bilgisini al
-      const group = await UserGroup.findOne({ groupId: admin.groupId });
-      if (!group) {
-        return res.json({ success: false, error: 'Grup bulunamadı' });
+    if (user) {
+      // Şifre kontrolü
+      const isPasswordValid = await bcrypt.compare(password, user.userpassword);
+      
+      if (isPasswordValid) {
+        // Grup bilgisini al
+        const group = await UserGroup.findOne({ groupId });
+        if (!group) {
+          return res.json({ success: false, error: 'Grup bulunamadı' });
+        }
+        res.json({
+          success: true,
+          groupName: group.groupName,
+          groupId: group.groupId,
+          authority: user.authority // Kullanıcının yetkisini de döndür
+        });
+      } else {
+        res.json({ success: false });
       }
-      res.json({
-        success: true,
-        groupName: group.groupName,
-        groupId: group.groupId
-      });
     } else {
       res.json({ success: false });
     }
@@ -1557,8 +1609,9 @@ app.post('/api/verify-admin', async (req, res) => {
   try {
     const { username, groupId } = req.body;
 
-    // Use the existing mongoose connection instead of creating a new client
-    const admin = await Admin.findOne({ username, groupId });
+    // Users koleksiyonundan admin kullanıcısını bul
+    const { users } = getGroupCollections(groupId);
+    const admin = await users.findOne({ username, authority: 'admin' });
 
     res.json({ valid: !!admin });
   } catch (error) {

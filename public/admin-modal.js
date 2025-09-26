@@ -1,6 +1,6 @@
 function showAdminIndicator() {     //admin modu butonunu gösterme
     // Check if admin username is valid
-    if (!verifyAdminUsername()) {
+    if (!verifyUserUsername()) {
         return;
     }
     // Create admin indicator if it doesn't exist
@@ -25,14 +25,16 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
 
     // Logs butonları kaldırıldı
 
+    // Sadece admin yetkisi olan kullanıcılar için main-area göster
+    const userAuthority = localStorage.getItem('userAuthority');
     const mainArea = document.querySelector('.main-area');
-    if (mainArea) {
+    if (mainArea && userAuthority === 'admin') {
         mainArea.style.display = 'flex';
-    }
-
-    // Admin girişi yapıldığında user list'i yükle
-    if (typeof renderUserList === 'function') {
-        renderUserList();
+        
+        // Admin girişi yapıldığında user list'i yükle
+        if (typeof renderUserList === 'function') {
+            renderUserList();
+        }
     }
     
     // Grup ayarlarını da yükle
@@ -103,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.setItem('adminUsername', username);
                 localStorage.setItem('groupName', data.groupName);
                 localStorage.setItem('groupId', data.groupId);
+                localStorage.setItem('userAuthority', data.authority);
                 adminLoginModal.style.display = 'none';
                 loginError.textContent = '';
 
@@ -202,6 +205,7 @@ function showAdminInfoPanel() {
             localStorage.removeItem('adminUsername');
             localStorage.removeItem('groupName');
             localStorage.removeItem('groupId');
+            localStorage.removeItem('userAuthority');
             adminInfoModal.style.display = 'none';
 
             const adminIndicator = document.querySelector('.admin-indicator');
@@ -242,7 +246,7 @@ function showAdminInfoPanel() {
 
 document.addEventListener('DOMContentLoaded', function () {
     if (isAuthenticated()) {
-        verifyAdminUsername();
+        verifyUserUsername();
     }
     const adminIndicator = document.querySelector('.admin-indicator');
     
@@ -252,11 +256,16 @@ document.addEventListener('DOMContentLoaded', function () {
     function checkAdminAuth() {
         if (isAuthenticated()) {
             if (adminIndicator) adminIndicator.style.display = 'flex';
-            if (mainArea) mainArea.style.display = 'flex';
             
-            // Admin girişi yapıldığında user list'i yükle
-            if (typeof renderUserList === 'function') {
-                renderUserList();
+            // Sadece admin yetkisi olan kullanıcılar için main-area göster
+            const userAuthority = localStorage.getItem('userAuthority');
+            if (mainArea && userAuthority === 'admin') {
+                mainArea.style.display = 'flex';
+                
+                // Admin girişi yapıldığında user list'i yükle
+                if (typeof renderUserList === 'function') {
+                    renderUserList();
+                }
             }
             
             // Grup ayarlarını da yükle

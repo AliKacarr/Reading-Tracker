@@ -556,7 +556,7 @@ body {
 }
 
 .modal-body {
-    padding: 30px;
+    padding: 25px 30px;
     position: relative;
     z-index: 1;
 }
@@ -700,7 +700,7 @@ body {
     .header-icon i {
         font-size: 2rem;
     }
-
+    
     .header-title {
         font-size: 2rem;
     }
@@ -714,42 +714,44 @@ body {
         min-width: auto;
     }
 
-    @media (max-width: 768px) {
 
-        .group-card {
-            padding: 22px;
-        }
+    .group-card {
+        padding: 22px;
+    }
 
 
-        .group-desc {
-            width: 100%;
-            margin-top: -10px;
-            margin-bottom: 10px;
-        }
+    .group-desc {
+        width: 100%;
+        margin-top: -10px;
+        margin-bottom: 10px;
+    }
 
-        .groupDescription {
-            max-width: 95%;
-        }
+    .groupDescription {
+        max-width: 95%;
+    }
 
-        .group-modal-content {
-            width: 95%;
-            margin: 15px;
-        }
+    .group-modal-content {
+        width: 95%;
+        margin: 15px;
+    }
 
-        .modal-header,
-        .modal-body {
-            padding: 22px;
-        }
+    .modal-header {
+        padding: 25px 22px 18px 22px;
+    }
+    
+    .modal-body {
+        padding: 22px;
+    }
 
-        .form-actions {
-            flex-direction: column;
-        }
+    .form-actions {
+        flex-direction: column;
+    }
 
-        .btn-primary,
-        .btn-secondary {
-            width: 100%;
-            justify-content: center;
-        }
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
 
     }
 
@@ -794,7 +796,7 @@ body {
             font-size: 1.3rem;
         }
     }
-}
+
 
 .input-container input[type="file"] {
     display: none;
@@ -803,8 +805,7 @@ body {
 .input-container .file-input-label {
     display: flex;
     align-items: center;
-    padding: 12px 15px;
-    padding-right: 160px; /* Hazır Görseller butonu için boşluk */
+    padding: 15px;
     background-color: #e3f2fd;
     border: 2px solid #64b5f6;
     border-radius: 8px;
@@ -952,7 +953,7 @@ body {
     height: 40px;
     box-shadow: 0 2px 8px rgba(100, 181, 246, 0.3);
     position: absolute;
-    right: 8px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;

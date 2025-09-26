@@ -203,7 +203,7 @@ async function loadUserCards() {
     card.innerHTML = `
       <div class="user-card-header" style="background: ${headerBg};">
         <div class="profile-img-wrapper">
-          <img class="profile-img" src="${user.profileImage || '/images/default.webp'}" alt="${user.name}">
+          <img class="profile-img" src="${user.profileImage || '/images/default.png'}" alt="${user.name}">
         </div>
         <div class="user-card-header-content">
           <div class="user-card-user-name">${user.name}</div>
