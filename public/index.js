@@ -350,6 +350,10 @@ class GroupsPage {
             fileInputText.textContent = 'Bir resim seçin...';
             fileInputText.style.color = '#6c757d';
         }
+
+        if (adminPasswordError) {
+            adminPasswordError.style.display = 'none';
+        }
     }
 
     togglePasswordVisibility() {
@@ -385,9 +389,47 @@ class GroupsPage {
         const groupImageInput = document.getElementById('groupImageInput');
         const visibility = document.getElementById('groupVisibilityInput').value;
 
+        // Karakter limiti kontrolü
+        const errors = [];
+
+        // Kontroller
         if (!groupName || !adminName || !adminPassword) {
-            alert('Lütfen tüm zorunlu alanları doldurun.');
+            errors.push('Lütfen tüm zorunlu alanları doldurun.');
             return;
+        }
+
+        if (groupName.length > 40) {
+            errors.push('Grup ismi 40 karakterden uzun olamaz.');
+        }
+        
+        if (groupDescription.length > 200) {
+            errors.push('Grup açıklaması 200 karakterden uzun olamaz.');
+        }
+        
+        if (adminName.length > 40) {
+            errors.push('Yönetici adı 40 karakterden uzun olamaz.');
+        }
+        
+        if (adminPassword.length > 40) {
+            errors.push('Yönetici şifresi 40 karakterden uzun olamaz.');
+        }
+
+        // Hata varsa göster
+        if (errors.length > 0) {
+            // Hata mesajlarını adminPasswordError alanında göster
+            const adminPasswordError = document.getElementById('adminPasswordError');
+            if (adminPasswordError) {
+                adminPasswordError.textContent = errors.join('\n');
+                adminPasswordError.style.display = 'block';
+            }
+            
+            return;
+        } else {
+            // Hata yoksa hata mesajını gizle
+            const adminPasswordError = document.getElementById('adminPasswordError');
+            if (adminPasswordError) {
+                adminPasswordError.style.display = 'none';
+            }
         }
 
         const formData = new FormData();

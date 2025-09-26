@@ -1089,13 +1089,33 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
       }
     }
 
-    // 2. Adım: Username ve password oluştur
-    const username = name;
-    const randomNumber = Math.floor(Math.random() * 900) + 100; // 100-999 arası rastgele sayı
+    // 2. Adım: Username ve password oluştur (çakışma kontrolü ile)
+    let username = name;
+    let randomNumber = Math.floor(Math.random() * 900) + 100; // 100-999 arası rastgele sayı
+    
+    // Username çakışması kontrolü
+    let usernameExists = await users.findOne({ username });
+    let attemptCount = 0;
+    
+    // Önce orijinal ismi dene
+    if (usernameExists) {
+      // Çakışma varsa sayı ekle
+      while (usernameExists && attemptCount < 100) {
+        attemptCount++;
+        randomNumber = Math.floor(Math.random() * 900) + 100;
+        username = name + randomNumber;
+        usernameExists = await users.findOne({ username });
+      }
+    }
+    
+    if (usernameExists) {
+      return res.status(400).json({ error: 'Bu isimde çok fazla kullanıcı var. Lütfen farklı bir isim deneyin.' });
+    }
+    
     const plainPassword = name + randomNumber;
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
     
-    console.log(`Yeni kullanıcı ekleniyor: ${name}, username: ${username}, plainPassword: ${plainPassword}`);
+    console.log(`Yeni kullanıcı ekleniyor: ${name}, username: ${username}, plainPassword: ${plainPassword}${attemptCount > 0 ? ` (${attemptCount} deneme sonrası)` : ''}`);
     
     // 3. Adım: Kullanıcıyı kaydet (yerel resim URL'i ile birlikte)
     const user = new users({ 

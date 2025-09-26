@@ -945,8 +945,9 @@ label.custom-file-input:hover {
 
 .group-actions {
     display: flex;
+    flex-direction: column;
     gap: 15px;
-    justify-content: center;
+    align-items: center;
     padding-top: 15px;
     border-top: 1px solid #e0e0e0;
 }
@@ -961,11 +962,11 @@ label.custom-file-input:hover {
     font-size: 16px;
     font-weight: 600;
     transition: all 0.3s ease;
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    width: 100%;
 }
 
 .save-group-btn:hover {
@@ -977,8 +978,8 @@ label.custom-file-input:hover {
 .delete-group-btn {
     background-color: #e74c3c;
     color: white;
-    height: 38px;
-    width: 130px;
+    padding: 12px 24px;
+    width: 100%;
     border: none;
     border-radius: 6px;
     cursor: pointer;
