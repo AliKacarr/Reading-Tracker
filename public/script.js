@@ -525,7 +525,7 @@ async function updatePageTitle() {
         const imgSrc = groupImage || '/images/open-book.webp';
         
         secretAdminLogin.innerHTML = `
-          <img src="${imgSrc}" class="secretAdminLoginImage loading" alt="Grup Resmi" style="border-radius: 6px;" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/open-book.webp'">
+          <img src="${imgSrc}" class="secretAdminLoginImage" alt="Grup Resmi" style="border-radius: 6px;" onerror="this.src='/images/open-book.webp'">
           <h2 style="margin: 0; font-size: inherit; font-weight: inherit;">${groupName} Okuma Grubu</h2>
         `;
       }

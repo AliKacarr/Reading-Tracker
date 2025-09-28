@@ -1260,6 +1260,55 @@ app.post('/api/update-user/:groupId', async (req, res) => {
   }
 });
 
+// Kullanıcı yetkisi güncelleme endpoint'i
+app.post('/api/update-user-authority/:groupId', async (req, res) => {
+  const { groupId } = req.params;
+  const { userId, authority } = req.body;
+
+  try {
+    // Parametreleri kontrol et
+    if (!userId || !authority) {
+      return res.status(400).json({ error: 'userId ve authority parametreleri gerekli' });
+    }
+
+    // Yetki değerini kontrol et
+    if (!['admin', 'member'].includes(authority)) {
+      return res.status(400).json({ error: 'Geçersiz yetki değeri. Sadece admin veya member olabilir' });
+    }
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Dinamik koleksiyonu al
+    const { users } = getGroupCollections(groupId);
+
+    // Kullanıcıyı bul
+    const user = await users.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    }
+
+    // Kullanıcıyı güncelle
+    const updatedUser = await users.findByIdAndUpdate(
+      userId,
+      { authority: authority },
+      { new: true }
+    );
+
+    res.json({ 
+      success: true, 
+      user: updatedUser,
+      message: `Kullanıcı yetkisi ${authority === 'admin' ? 'Yönetici' : 'Üye'} olarak güncellendi`
+    });
+  } catch (error) {
+    console.error('Error updating user authority:', error);
+    res.status(500).json({ error: 'Kullanıcı yetkisi güncellenirken hata oluştu' });
+  }
+});
+
 // Kullanıcı resmi güncelleme endpoint'i
 app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async (req, res) => {
   const { groupId } = req.params;

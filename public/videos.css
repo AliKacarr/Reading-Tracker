@@ -55,37 +55,36 @@
     opacity: 1 !important;
     transform: translateY(0) !important;
     cursor: default;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background: linear-gradient(90deg, #f8f9fa 25%, #e9ecef 50%, #f8f9fa 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
+    display: flex;
+    flex-direction: column;
 }
 
 .loading-thumbnail {
     width: 100%;
     height: 225px;
-    background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+    background: linear-gradient(90deg, #f1f3f4 25%, #e8eaed 50%, #f1f3f4 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
     flex-shrink: 0;
 }
 
 .loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 40px;
     height: 40px;
-    border: 3px solid #f3f3f3;
+    border: 3px solid #e8eaed;
     border-top: 3px solid #4e54c8;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 50px 0 0 40px;
+    margin: 0;
     padding: 0;
-    position: relative;
-    top: 0;
-    left: 0;
-    transform-origin: center center;
 }
 
 .loading-content {
@@ -109,7 +108,7 @@
 
 .loading-line {
     height: 12px;
-    background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+    background: linear-gradient(90deg, #f1f3f4 25%, #e8eaed 50%, #f1f3f4 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 6px;

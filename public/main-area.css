@@ -238,6 +238,39 @@ ul#userList li span {
 .user-actions {
     display: flex;
     align-items: center;
+    gap: 8px;
+}
+
+
+.authority-select {
+    background-color: #ffffff;
+    border: 1px solid #b0b0b0;
+    border-radius: 4px;
+    color: #333;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+    height: 28px;
+    outline: none;
+}
+
+.authority-select:hover {
+    border-color: #5b9bd5;
+    box-shadow: 0 1px 3px rgba(91, 155, 213, 0.2);
+}
+
+.authority-select:focus {
+    border-color: #4e54c8;
+    box-shadow: 0 0 0 2px rgba(78, 84, 200, 0.2);
+}
+
+.authority-select option {
+    background-color: #ffffff;
+    color: #333;
+    padding: 4px;
 }
 
 .settings-button {

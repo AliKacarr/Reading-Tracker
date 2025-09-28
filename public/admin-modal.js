@@ -15,7 +15,7 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
         scrollToMainButton.innerHTML = '<i class="fa-solid fa-gear"></i> Grup Ayarları';
         scrollToMainButton.style.cssText = `
             position: fixed;
-            bottom: 90px;
+            bottom: 85px;
             left: 20px;
             background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;

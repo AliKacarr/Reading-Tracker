@@ -418,6 +418,29 @@ function showSuccessMessage(message) {
     }, 3000);
 }
 
+function showErrorMessage(message) {
+    const messageElement = document.createElement('div');
+    messageElement.className = 'error-message';
+    messageElement.textContent = message;
+    document.body.appendChild(messageElement);
+
+    // Style the message
+    messageElement.style.position = 'fixed';
+    messageElement.style.top = '20px';
+    messageElement.style.right = '20px';
+    messageElement.style.backgroundColor = '#f8d7da';
+    messageElement.style.color = '#721c24';
+    messageElement.style.padding = '10px';
+    messageElement.style.borderRadius = '5px';
+    messageElement.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+    messageElement.style.zIndex = '1000';
+
+    // Remove the message after 3 seconds
+    setTimeout(() => {
+        document.body.removeChild(messageElement);
+    }, 3000);
+}
+
 function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
@@ -500,6 +523,73 @@ function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
     editButton.style.display = 'inline-block';
 }
 
+// Kullanıcı yetkisini değiştirme fonksiyonu
+async function changeUserAuthority(userId, newAuthority) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
+        logUnauthorizedAccess('change-user-authority');
+        return;
+    }
+
+    // Kendi yetkisini değiştirmeye izin verme
+    const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+    if (currentUserInfo && currentUserInfo.userId === userId) {
+        showErrorMessage('Kendi yetkinizi değiştiremezsiniz!');
+        // Combobox'ı eski değerine geri döndür
+        const authoritySelect = document.querySelector(`li[data-user-id="${userId}"] .authority-select`);
+        if (authoritySelect) {
+            authoritySelect.value = currentUserInfo.userAuthority;
+        }
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/update-user-authority/${currentGroupId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                authority: newAuthority
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            showSuccessMessage(`Kullanıcı yetkisi başarıyla ${newAuthority === 'admin' ? 'Yönetici' : 'Üye'} olarak güncellendi!`);
+            
+            // Eğer güncellenen kullanıcı admin olduysa ve şu anki kullanıcı da admin ise
+            // LocalStorage'daki adminUserName'i güncelle
+            if (newAuthority === 'admin' && currentUserInfo && currentUserInfo.userAuthority === 'admin') {
+                // Sayfayı yenile veya admin indicator'ı güncelle
+                if (typeof showAdminIndicator === 'function') {
+                    showAdminIndicator();
+                }
+            }
+        } else {
+            throw new Error('Yetki güncellenemedi');
+        }
+    } catch (error) {
+        console.error('Yetki güncelleme hatası:', error);
+        showErrorMessage('Yetki güncellenirken hata oluştu!');
+        
+        // Hata durumunda combobox'ı eski değerine geri döndür
+        const authoritySelect = document.querySelector(`li[data-user-id="${userId}"] .authority-select`);
+        if (authoritySelect) {
+            // Eski değeri geri yükle (API'den alınan değer)
+            fetch(`/api/users/${currentGroupId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const user = data.users.find(u => u._id === userId);
+                    if (user) {
+                        authoritySelect.value = user.authority;
+                    }
+                });
+        }
+    }
+}
+
 function renderUserList() {
     // Sadece admin yetkisi kontrolü
     if (!LocalStorageManager.isAdmin()) {
@@ -538,6 +628,17 @@ function renderUserList() {
                     li.setAttribute('data-user-id', user._id);
                     li.innerHTML = liHTML;
                     userList.appendChild(li);
+                    
+                    // Authority select'i li'den sonra doğrudan ekle
+                    const authoritySelect = document.createElement('select');
+                    authoritySelect.className = 'authority-select';
+                    authoritySelect.setAttribute('onchange', `changeUserAuthority('${user._id}', this.value)`);
+                    authoritySelect.setAttribute('title', 'Kullanıcı Yetkisi');
+                    authoritySelect.innerHTML = `
+                        <option value="member" ${user.authority === 'member' ? 'selected' : ''}>Üye</option>
+                        <option value="admin" ${user.authority === 'admin' ? 'selected' : ''}>Yönetici</option>
+                    `;
+                    userList.appendChild(authoritySelect);
                 }
                 // Mevcut kullanıcılar için hiçbir şey yapma - gereksiz resim yüklemelerini önle
             });
