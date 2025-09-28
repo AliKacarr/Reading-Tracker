@@ -1,14 +1,18 @@
 function showAdminIndicator() {     //admin modu butonunu gösterme
-    // Check if admin username is valid
-    if (!verifyUserUsername()) {
+    // Check if user is logged in and valid
+    if (!LocalStorageManager.isUserLoggedIn() || !verifyUserUsername()) {
         return;
     }
+    
+    const userInfo = LocalStorageManager.getCurrentUserInfo();
+    if (!userInfo) return;
+    
     // Create admin indicator if it doesn't exist
     let adminIndicator = document.querySelector('.admin-indicator');
     if (!adminIndicator) {
         adminIndicator = document.createElement('div');
         adminIndicator.className = 'admin-indicator';
-        adminIndicator.textContent = 'Yönetici Modu';
+        adminIndicator.textContent = userInfo.userAuthority === 'admin' ? 'Yönetici Modu' : 'Üye Modu';
 
         // Add click event to open admin info panel
         adminIndicator.addEventListener('click', function () {
@@ -19,16 +23,16 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
         adminIndicator.style.cursor = 'pointer';
 
         document.body.appendChild(adminIndicator);
+    } else {
+        // Update text based on user authority
+        adminIndicator.textContent = userInfo.userAuthority === 'admin' ? 'Yönetici Modu' : 'Üye Modu';
     }
 
     adminIndicator.style.display = 'block';
 
-    // Logs butonları kaldırıldı
-
     // Sadece admin yetkisi olan kullanıcılar için main-area göster
-    const userAuthority = localStorage.getItem('userAuthority');
     const mainArea = document.querySelector('.main-area');
-    if (mainArea && userAuthority === 'admin') {
+    if (mainArea && userInfo.userAuthority === 'admin') {
         mainArea.style.display = 'flex';
         
         // Admin girişi yapıldığında user list'i yükle
@@ -55,13 +59,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const adminPassword = document.getElementById('adminPassword');
 
     // Check if already authenticated
-    if (isAuthenticated()) {
+    if (LocalStorageManager.isUserLoggedIn()) {
         showAdminIndicator();
     }
 
     adminLogin.addEventListener('click', function () {
         // Check if already authenticated
-        if (isAuthenticated()) {
+        if (LocalStorageManager.isUserLoggedIn()) {
             showAdminInfoPanel();
         } else {
             adminLoginModal.style.display = 'flex';
@@ -101,11 +105,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             if (data.success) {
-                localStorage.setItem('authenticated', 'true');
-                localStorage.setItem('adminUsername', username);
-                localStorage.setItem('groupName', data.groupName);
-                localStorage.setItem('groupId', data.groupId);
-                localStorage.setItem('userAuthority', data.authority);
+                // Yeni sistem ile giriş yap
+                LocalStorageManager.loginUser(data.groupId, data.userId, data.authority, username, data.groupName);
                 adminLoginModal.style.display = 'none';
                 loginError.textContent = '';
 
@@ -192,7 +193,8 @@ function showAdminInfoPanel() {
 
         const usernameValue = document.createElement('div');
         usernameValue.className = 'admin-info-value';
-        usernameValue.textContent = localStorage.getItem('adminUsername') || 'Yönetici';
+        const userInfo = LocalStorageManager.getCurrentUserInfo();
+        usernameValue.textContent = userInfo ? userInfo.adminUserName : 'Kullanıcı';
 
         usernameItem.appendChild(usernameLabel);
         usernameItem.appendChild(usernameValue);
@@ -201,20 +203,15 @@ function showAdminInfoPanel() {
         logoutBtn.className = 'logout-button';
         logoutBtn.textContent = 'Çıkış Yap';
         logoutBtn.onclick = function () {
-            localStorage.removeItem('authenticated');
-            localStorage.removeItem('adminUsername');
-            localStorage.removeItem('groupName');
-            localStorage.removeItem('groupId');
-            localStorage.removeItem('userAuthority');
+            // Yeni sistem ile çıkış yap
+            LocalStorageManager.logoutUser();
             adminInfoModal.style.display = 'none';
 
             const adminIndicator = document.querySelector('.admin-indicator');
-            
             const mainArea = document.querySelector('.main-area');
 
-
-            adminIndicator.style.display = 'none';
-            mainArea.style.display = 'none';
+            if (adminIndicator) adminIndicator.style.display = 'none';
+            if (mainArea) mainArea.style.display = 'none';
 
             // Profil butonunu güncelle
             if (typeof window.updateProfileButton === 'function') {
@@ -245,21 +242,24 @@ function showAdminInfoPanel() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (isAuthenticated()) {
+    if (LocalStorageManager.isUserLoggedIn()) {
         verifyUserUsername();
     }
     const adminIndicator = document.querySelector('.admin-indicator');
-    
     const mainArea = document.querySelector('.main-area');
 
-
     function checkAdminAuth() {
-        if (isAuthenticated()) {
-            if (adminIndicator) adminIndicator.style.display = 'flex';
+        if (LocalStorageManager.isUserLoggedIn()) {
+            const userInfo = LocalStorageManager.getCurrentUserInfo();
+            if (!userInfo) return;
+            
+            if (adminIndicator) {
+                adminIndicator.style.display = 'flex';
+                adminIndicator.textContent = userInfo.userAuthority === 'admin' ? 'Yönetici Modu' : 'Üye Modu';
+            }
             
             // Sadece admin yetkisi olan kullanıcılar için main-area göster
-            const userAuthority = localStorage.getItem('userAuthority');
-            if (mainArea && userAuthority === 'admin') {
+            if (mainArea && userInfo.userAuthority === 'admin') {
                 mainArea.style.display = 'flex';
                 
                 // Admin girişi yapıldığında user list'i yükle
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Listen for authentication changes
     window.addEventListener('storage', function (e) {
-        if (e.key === 'authenticated') {
+        if (e.key === 'groups' || e.key === 'groupid' || e.key === 'userid' || e.key === 'userAuthority' || e.key === 'adminUserName' || e.key === 'groupName') {
             checkAdminAuth();
         }
     });
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = function (key, value) {
         originalSetItem.call(this, key, value);
-        if (key === 'authenticated') {
+        if (key === 'groups' || key === 'groupid' || key === 'userid' || key === 'userAuthority' || key === 'adminUserName' || key === 'groupName') {
             checkAdminAuth();
         }
     };

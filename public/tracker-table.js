@@ -320,8 +320,20 @@ function calculateStreak(userStats) {
 }
 
 async function toggleStatus(userId, date) {
-    if (!isAuthenticated()) {
+    if (!LocalStorageManager.isUserLoggedIn()) {
         logUnauthorizedAccess('toggle-status');
+        return;
+    }
+
+    const userInfo = LocalStorageManager.getCurrentUserInfo();
+    if (!userInfo) {
+        logUnauthorizedAccess('toggle-status');
+        return;
+    }
+
+    // Member kullanıcıları sadece kendi verilerini güncelleyebilir
+    if (userInfo.userAuthority === 'member' && userInfo.userId !== userId) {
+        logUnauthorizedAccess('toggle-status-other-user');
         return;
     }
     const cell = event.target;
@@ -370,7 +382,13 @@ async function toggleStatus(userId, date) {
     await fetch(`/api/update-status/${currentGroupId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, date, status })
+        body: JSON.stringify({ 
+            userId, 
+            date, 
+            status,
+            requestingUserId: userInfo.userId,
+            requestingUserAuthority: userInfo.userAuthority
+        })
     });
 
     // Kullanıcının serisini güncelle (satırın son hücresi) - optimize edilmiş

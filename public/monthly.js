@@ -321,9 +321,24 @@ function loadMonthlyCalendar() {
     }
 
     function toggleUserReadingStatus(userName, day, month, year, clickedCell) {
-        if (!isAuthenticated()) {
+        if (!LocalStorageManager.isUserLoggedIn()) {
             logUnauthorizedAccess('toggleMontlyReadingStatus');
             return;
+        }
+
+        const userInfo = LocalStorageManager.getCurrentUserInfo();
+        if (!userInfo) {
+            logUnauthorizedAccess('toggleMontlyReadingStatus');
+            return;
+        }
+
+        // Member kullanıcıları sadece kendi verilerini güncelleyebilir
+        if (userInfo.userAuthority === 'member') {
+            const currentUserName = userInfo.adminUserName;
+            if (currentUserName !== userName) {
+                logUnauthorizedAccess('toggleMontlyReadingStatus-other-user');
+                return;
+            }
         }
         const dateStr = formatDateForTable(day, month, year);
 
@@ -363,7 +378,9 @@ function loadMonthlyCalendar() {
                     body: JSON.stringify({
                         userId: user._id,
                         date: dateStr,
-                        status: newStatus
+                        status: newStatus,
+                        requestingUserId: userInfo.userId,
+                        requestingUserAuthority: userInfo.userAuthority
                     })
                 });
             })

@@ -510,9 +510,25 @@ async function loadUserCards() {
 // Kullanıcı kartlarında okuma durumunu değiştiren fonksiyon
 toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElement) {
 
-  if (!isAuthenticated()) {
+  if (!LocalStorageManager.isUserLoggedIn()) {
     logUnauthorizedAccess('toggleUserCardsReadingStatus');
     return;
+  }
+
+  const userInfo = LocalStorageManager.getCurrentUserInfo();
+  if (!userInfo) {
+    logUnauthorizedAccess('toggleUserCardsReadingStatus');
+    return;
+  }
+
+  // Member kullanıcıları sadece kendi verilerini güncelleyebilir
+  if (userInfo.userAuthority === 'member') {
+    // Kullanıcı adını kontrol et (userName parametresi ile)
+    const currentUserName = userInfo.adminUserName;
+    if (currentUserName !== userName) {
+      logUnauthorizedAccess('toggleUserCardsReadingStatus-other-user');
+      return;
+    }
   }
 
   // Tarih formatını yyyy-mm-dd olarak hazırla
@@ -550,7 +566,9 @@ toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElem
         body: JSON.stringify({
           userId: user._id,
           date: dateStr,
-          status: newStatus
+          status: newStatus,
+          requestingUserId: userInfo.userId,
+          requestingUserAuthority: userInfo.userAuthority
         })
       });
     })

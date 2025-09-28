@@ -1,8 +1,8 @@
 newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonksiyonu
     e.preventDefault();
 
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('add-user');
         return;
     }
@@ -50,8 +50,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         inputProfileImage.src = '/images/default.png';
 
         // UI'ı güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
-        const userAuthority = localStorage.getItem('userAuthority');
-        if (isAuthenticated() && userAuthority === 'admin') {
+        if (LocalStorageManager.isAdmin()) {
             renderUserList();
         }
         loadTrackerTable();
@@ -72,8 +71,8 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
 });
 
 async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('delete-user');
         return;
     }
@@ -101,8 +100,7 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
                 body: JSON.stringify({ id })
             });
 
-            const userAuthority = localStorage.getItem('userAuthority');
-            if (isAuthenticated() && userAuthority === 'admin') {
+            if (LocalStorageManager.isAdmin()) {
                 renderUserList();
             }
             loadTrackerTable();
@@ -125,8 +123,8 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
 }
 
 async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksiyonu
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('save-user-name');
         return;
     }
@@ -215,8 +213,8 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
 }
 
 function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('edit-user-name');
         return;
     }
@@ -243,8 +241,8 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
 }
 
 function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyonu
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('change-user-image');
         return;
     }
@@ -395,8 +393,8 @@ function showSuccessMessage(message) {
 }
 
 function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fonksiyonu
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('toggle-delete-button');
         return;
     }
@@ -421,8 +419,8 @@ function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fon
 }
 
 function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fonksiyonu
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('cancel-edit-user-name');
         return;
     }
@@ -448,8 +446,8 @@ function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fo
 }
 
 function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
+    // Check if user is authenticated and has admin rights
+    if (!LocalStorageManager.isAdmin()) {
         logUnauthorizedAccess('cancel-settings');
         return;
     }
@@ -469,8 +467,7 @@ function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
 
 function renderUserList() {
     // Sadece admin yetkisi kontrolü
-    const userAuthority = localStorage.getItem('userAuthority');
-    if (!isAuthenticated() || userAuthority !== 'admin') {
+    if (!LocalStorageManager.isAdmin()) {
         console.log('Admin yetkisi yok, renderUserList çalıştırılmıyor');
         return;
     }
@@ -515,8 +512,8 @@ function renderUserList() {
 
 // Grup bilgilerini yükle
 async function loadGroupSettings() {
-    if (!isAuthenticated()) {
-        console.log('Admin yetkisi yok, grup ayarları yüklenmiyor');
+    if (!LocalStorageManager.isUserLoggedIn()) {
+        console.log('Kullanıcı girişi yok, grup ayarları yüklenmiyor');
         return;
     }
 
@@ -689,7 +686,7 @@ async function updateGroupImageFromAvatar(avatarPath) {
 
 // Grup ayarlarını kaydet
 async function saveGroupSettings() {
-    if (!isAuthenticated()) {
+    if (!LocalStorageManager.isAdmin()) {
         showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
         return;
     }
@@ -741,7 +738,7 @@ async function saveGroupSettings() {
 
 // Grup resmini değiştir
 async function changeGroupImage() {
-    if (!isAuthenticated()) {
+    if (!LocalStorageManager.isAdmin()) {
         showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
         return;
     }
@@ -796,7 +793,7 @@ async function changeGroupImage() {
 
 // Grup resmini kaldır
 async function removeGroupImage() {
-    if (!isAuthenticated()) {
+    if (!LocalStorageManager.isAdmin()) {
         showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
         return;
     }
@@ -901,8 +898,7 @@ async function shareGroup() {
 // Grubu sil
 async function deleteGroup() {
     // Admin kontrolü
-    const isAuth = isAuthenticated();
-    if (!isAuth) {
+    if (!LocalStorageManager.isAdmin()) {
         showErrorMessage('Bu işlem için admin yetkisi gereklidir!');
         return;
     }
@@ -940,12 +936,8 @@ async function deleteGroup() {
         if (response.ok) {
             showSuccessMessage('Grup başarıyla silindi!');
             
-            // Çerezleri temizle
-            localStorage.removeItem('authenticated');
-            localStorage.removeItem('adminUsername');
-            localStorage.removeItem('groupName');
-            localStorage.removeItem('groupId');
-            localStorage.removeItem('userAuthority');
+            // Yeni sistem ile çıkış yap
+            LocalStorageManager.logoutUser();
             
             setTimeout(() => {
                 window.location.href = '/';
@@ -1023,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Admin girişi yapıldığında grup ayarlarını yükle
-    if (isAuthenticated()) {
+    if (LocalStorageManager.isUserLoggedIn()) {
         loadGroupSettings();
     }
     

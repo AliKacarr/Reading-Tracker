@@ -609,7 +609,7 @@ app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) 
     // Yeni grup için index'leri oluştur
     await createIndexesForGroup(finalGroupId);
 
-    res.status(201).json({ success: true, group: newGroup });
+    res.status(201).json({ success: true, group: newGroup, userId: defaultUser._id });
   } catch (error) {
     console.error('Error creating group:', error);
     res.status(500).json({ error: 'Grup oluşturulurken bir hata oluştu' });
@@ -1555,12 +1555,27 @@ app.get('/api/longest-streaks/:groupId', async (req, res) => {
 app.post('/api/update-status/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
-    const { userId, date, status } = req.body;
+    const { userId, date, status, requestingUserId, requestingUserAuthority } = req.body;
 
     // Grup var mı kontrol et
     const group = await UserGroup.findOne({ groupId });
     if (!group) {
       return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Yetki kontrolü
+    if (!requestingUserId || !requestingUserAuthority) {
+      return res.status(401).json({ error: 'Kullanıcı bilgileri eksik' });
+    }
+
+    // Member kullanıcıları sadece kendi verilerini güncelleyebilir
+    if (requestingUserAuthority === 'member' && requestingUserId !== userId) {
+      return res.status(403).json({ error: 'Bu işlem için yetkiniz yok' });
+    }
+
+    // Admin kullanıcıları tüm verileri güncelleyebilir
+    if (requestingUserAuthority !== 'admin' && requestingUserAuthority !== 'member') {
+      return res.status(403).json({ error: 'Geçersiz kullanıcı yetkisi' });
     }
 
     // Dinamik koleksiyonu al
@@ -1610,6 +1625,7 @@ app.post('/api/admin-login', async (req, res) => {
           success: true,
           groupName: group.groupName,
           groupId: group.groupId,
+          userId: user._id, // Kullanıcı ID'sini de döndür
           authority: user.authority // Kullanıcının yetkisini de döndür
         });
       } else {
