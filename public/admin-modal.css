@@ -16,7 +16,7 @@
 }
 
 #secretAdminLogin h2 {
-    max-width: 405px;
+    max-width: 420px;
     word-wrap: break-word;
     white-space: normal;
     line-height: 1.3;
@@ -31,6 +31,28 @@
     height: 1.6em;
     width: 1.6em;
     border-radius: 6px;
+    position: relative;
+}
+
+#secretAdminLogin img.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border: 2px dashed #ccc;
+}
+
+#secretAdminLogin img.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid #4e54c8;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 /* Mobil uyumluluk */
@@ -257,7 +279,7 @@
     font-size: 1.18rem;
     padding: 2px;
     font-weight: 500;
-    width: 110px;
+    width: 125px;
     color: #1e1717;
     display: flex;
     align-items: center;
@@ -314,23 +336,46 @@
 .admin-indicator {
     position: fixed;
     bottom: 20px;
-    right: 20px;
-    background-color: #4a90e2;
+    left: 20px;
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
     color: white;
-    padding: 18px 50px;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: 500;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    height: 50px;
+    min-width: 160px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(78, 84, 200, 0.3);
     display: none;
     transition: all 0.3s ease;
-    z-index: 99;
+    z-index: 9998;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
 }
 
 .admin-indicator:hover {
-    background-color: #3367d6;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(135deg, #5a5fd8, #9fa4fc);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(78, 84, 200, 0.5);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 

@@ -423,13 +423,12 @@ function initializeProfileButton() {
     const userInfo = LocalStorageManager.getCurrentUserInfo();
     
     if (userInfo) {
-      // Giriş yapılmışsa - Kullanıcı adı butonu
+      // Giriş yapılmışsa - Sabit "Profilim" yazısı
       const username = userInfo.adminUserName || 'Kullanıcı';
       const userAuthority = userInfo.userAuthority;
       
-      // Uzun isimleri kısalt
-      const shortUsername = username.length > 12 ? username.substring(0, 12) + '...' : username;
-      profileButtonText.textContent = shortUsername;
+      // Sabit "Profilim" yazısı
+      profileButtonText.textContent = 'Profilim';
       
       if (userAuthority === 'admin') {
         profileButton.title = 'Yönetici Profili: ' + username;
@@ -526,7 +525,7 @@ async function updatePageTitle() {
         const imgSrc = groupImage || '/images/open-book.webp';
         
         secretAdminLogin.innerHTML = `
-          <img src="${imgSrc}" class="secretAdminLoginImage" alt="Grup Resmi" style="border-radius: 6px;">
+          <img src="${imgSrc}" class="secretAdminLoginImage loading" alt="Grup Resmi" style="border-radius: 6px;" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/open-book.webp'">
           <h2 style="margin: 0; font-size: inherit; font-weight: inherit;">${groupName} Okuma Grubu</h2>
         `;
       }
@@ -536,7 +535,7 @@ async function updatePageTitle() {
   }
 }
 
-// Sayfa yüklendiğinde title'ı güncelle
+// Sayfa yüklendiğinde title'ı güncelle ve videoları başlat
 document.addEventListener('DOMContentLoaded', function() {
   updatePageTitle();
 });

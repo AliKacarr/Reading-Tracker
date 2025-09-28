@@ -178,6 +178,15 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
         // Update the name span with new name
         nameSpan.textContent = newName;
 
+        // Profile image'ı normal haline döndür
+        const profileImage = userItem.querySelector('.profile-image.user-profile-image');
+        if (profileImage) {
+            profileImage.style.border = '';
+            profileImage.style.boxShadow = '';
+            profileImage.style.transform = '';
+            profileImage.style.transition = '';
+        }
+
         // Update other components that might show the user name
         loadTrackerTable();
         loadUserCards();
@@ -226,6 +235,7 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     const saveButton = userItem.querySelector('.save-name-button');
     const cancelButton = userItem.querySelector('.cancel-edit-button');
     const settingsButton = userItem.querySelector('.settings-button');
+    const profileImage = userItem.querySelector('.profile-image.user-profile-image');
 
     // Hide name span, edit button and settings button, show input, save button and cancel button
     nameSpan.style.display = 'none';
@@ -234,6 +244,13 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     nameInput.style.display = 'inline-block';
     saveButton.style.display = 'inline-block';
     cancelButton.style.display = 'inline-block';
+    
+    // Profile image'ı belirgin hale getir
+    if (profileImage) {
+        profileImage.style.border = '1px solid #4e54c8';
+        profileImage.style.boxShadow = '0 0 5px rgba(78, 84, 200, 0.5)'
+        profileImage.style.transition = 'all 0.3s ease';
+    }
     
     // Focus on input and select text
     nameInput.focus();
@@ -325,6 +342,15 @@ const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 const closePreviewButton = document.getElementById('closePreview');
 const inputProfileImage = document.getElementById('inputProfileImage');
 
+// inputProfileImage tıklanınca file seçim işlemi
+if (inputProfileImage) {
+    inputProfileImage.addEventListener('click', function() {
+        const fileInputLabel = document.querySelector('label.custom-file-input');
+        if (fileInputLabel) {
+            fileInputLabel.click();
+        }
+    });
+}
 
 function resetImagePreview() {    // Resim önizleme kapatma fonksiyonu
     imagePreviewContainer.style.display = 'none';
@@ -432,6 +458,7 @@ function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fo
     const saveButton = userItem.querySelector('.save-name-button');
     const cancelButton = userItem.querySelector('.cancel-edit-button');
     const settingsButton = userItem.querySelector('.settings-button');
+    const profileImage = userItem.querySelector('.profile-image.user-profile-image');
 
     // Reset to original state: hide input, save and cancel buttons, show name span, edit button and settings button
     nameSpan.style.display = 'inline-block';
@@ -440,6 +467,14 @@ function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fo
     cancelButton.style.display = 'none';
     editButton.style.display = 'inline-block';
     settingsButton.style.display = 'inline-block';
+
+    // Profile image'ı normal haline döndür
+    if (profileImage) {
+        profileImage.style.border = '';
+        profileImage.style.boxShadow = '';
+        profileImage.style.transform = '';
+        profileImage.style.transition = '';
+    }
 
     // Reset input value to original name
     nameInput.value = nameSpan.textContent;
@@ -497,7 +532,7 @@ function renderUserList() {
                 if (!li) {
                     // Sadece yeni kullanıcı için HTML oluştur
                     const userProfileImage = user.profileImage || '/images/default.png';
-                    const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image" onclick="changeUserImage('${user._id}')"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-user-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
+                    const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image loading" onclick="changeUserImage('${user._id}')" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/default.png'"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-user-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
                     
                     li = document.createElement('li');
                     li.setAttribute('data-user-id', user._id);
@@ -532,11 +567,25 @@ async function loadGroupSettings() {
             const groupImage = document.getElementById('currentGroupImage');
             const removeBtn = document.querySelector('.group-image-remove-btn');
             
+            // Loading state başlat
+            groupImage.classList.add('loading');
+            
             if (group.groupImage) {
-                groupImage.src = group.groupImage;
-                removeBtn.style.display = 'flex';
+                const img = new Image();
+                img.onload = function() {
+                    groupImage.src = group.groupImage;
+                    groupImage.classList.remove('loading');
+                    removeBtn.style.display = 'flex';
+                };
+                img.onerror = function() {
+                    groupImage.src = '/images/open-book.webp';
+                    groupImage.classList.remove('loading');
+                    removeBtn.style.display = 'none';
+                };
+                img.src = group.groupImage;
             } else {
                 groupImage.src = '/images/open-book.webp';
+                groupImage.classList.remove('loading');
                 removeBtn.style.display = 'none';
             }
             
@@ -764,8 +813,23 @@ async function changeGroupImage() {
 
         if (response.ok) {
             const data = await response.json();
-            document.getElementById('currentGroupImage').src = data.imageUrl;
-            document.querySelector('.group-image-remove-btn').style.display = 'flex';
+            const groupImage = document.getElementById('currentGroupImage');
+            
+            // Loading state başlat
+            groupImage.classList.add('loading');
+            
+            const img = new Image();
+            img.onload = function() {
+                groupImage.src = data.imageUrl;
+                groupImage.classList.remove('loading');
+                document.querySelector('.group-image-remove-btn').style.display = 'flex';
+            };
+            img.onerror = function() {
+                groupImage.src = '/images/open-book.webp';
+                groupImage.classList.remove('loading');
+                document.querySelector('.group-image-remove-btn').style.display = 'none';
+            };
+            img.src = data.imageUrl;
             
             // secretAdminLogin'deki grup resmini de güncelle
             const secretAdminImage = document.querySelector('.secretAdminLogin img');

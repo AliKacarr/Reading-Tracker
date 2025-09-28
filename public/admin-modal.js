@@ -7,12 +7,73 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
     const userInfo = LocalStorageManager.getCurrentUserInfo();
     if (!userInfo) return;
     
+    // Create scroll to main area button if it doesn't exist (only for admin)
+    let scrollToMainButton = document.querySelector('.scroll-to-main-button');
+    if (!scrollToMainButton && userInfo.userAuthority === 'admin') {
+        scrollToMainButton = document.createElement('div');
+        scrollToMainButton.className = 'scroll-to-main-button';
+        scrollToMainButton.innerHTML = '<i class="fa-solid fa-gear"></i> Grup Ayarları';
+        scrollToMainButton.style.cssText = `
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            height: 50px;
+            width: 160px;
+            padding-left: 20px;
+            padding-right: 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s ease;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        `;
+
+        // Add hover effects
+        scrollToMainButton.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px) scale(1.05)';
+            this.style.boxShadow = '0 8px 25px rgba(231, 76, 60, 0.6)';
+        });
+
+        scrollToMainButton.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.boxShadow = '0 6px 20px rgba(231, 76, 60, 0.4)';
+        });
+
+        // Add click event to scroll to main area
+        scrollToMainButton.addEventListener('click', function() {
+            const mainArea = document.querySelector('.main-area');
+            if (mainArea) {
+                mainArea.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+
+        document.body.appendChild(scrollToMainButton);
+    }
+    
+    // Scroll butonunu göster (eğer varsa)
+    if (scrollToMainButton) {
+        scrollToMainButton.style.display = 'flex';
+    }
+
     // Create admin indicator if it doesn't exist
     let adminIndicator = document.querySelector('.admin-indicator');
     if (!adminIndicator) {
         adminIndicator = document.createElement('div');
         adminIndicator.className = 'admin-indicator';
-        adminIndicator.textContent = userInfo.userAuthority === 'admin' ? 'Yönetici Modu' : 'Üye Modu';
+        adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
+            `<i class="fa-solid fa-user-shield"></i> ${userInfo.adminUserName}` : 
+            `<i class="fa-solid fa-user"></i> ${userInfo.adminUserName}`;
 
         // Add click event to open admin info panel
         adminIndicator.addEventListener('click', function () {
@@ -25,10 +86,12 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
         document.body.appendChild(adminIndicator);
     } else {
         // Update text based on user authority
-        adminIndicator.textContent = userInfo.userAuthority === 'admin' ? 'Yönetici Modu' : 'Üye Modu';
+        adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
+            `<i class="fa-solid fa-user-shield"></i> ${userInfo.adminUserName}` : 
+            `<i class="fa-solid fa-user"></i> ${userInfo.adminUserName}`;
     }
 
-    adminIndicator.style.display = 'block';
+    adminIndicator.style.display = 'flex';
 
     // Sadece admin yetkisi olan kullanıcılar için main-area göster
     const mainArea = document.querySelector('.main-area');
@@ -179,7 +242,7 @@ function showAdminInfoPanel() {
         };
 
         const title = document.createElement('h2');
-        title.textContent = 'Yönetici Bilgileri';
+        title.textContent = 'Kullanıcı Bilgileri';
 
         const infoPanel = document.createElement('div');
         infoPanel.className = 'admin-info-panel';
@@ -189,7 +252,7 @@ function showAdminInfoPanel() {
 
         const usernameLabel = document.createElement('div');
         usernameLabel.className = 'admin-info-label';
-        usernameLabel.textContent = 'Yönetici Adı:';
+        usernameLabel.textContent = 'Kullanıcı Adı:';
 
         const usernameValue = document.createElement('div');
         usernameValue.className = 'admin-info-value';
@@ -212,6 +275,10 @@ function showAdminInfoPanel() {
 
             if (adminIndicator) adminIndicator.style.display = 'none';
             if (mainArea) mainArea.style.display = 'none';
+            
+            // Scroll butonunu da gizle
+            const scrollToMainButton = document.querySelector('.scroll-to-main-button');
+            if (scrollToMainButton) scrollToMainButton.style.display = 'none';
 
             // Profil butonunu güncelle
             if (typeof window.updateProfileButton === 'function') {
@@ -255,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (adminIndicator) {
                 adminIndicator.style.display = 'flex';
-                adminIndicator.textContent = userInfo.userAuthority === 'admin' ? 'Yönetici Modu' : 'Üye Modu';
+                adminIndicator.textContent = userInfo.userAuthority === 'admin' ? `${userInfo.adminUserName}` : `${userInfo.adminUserName}`;
             }
             
             // Sadece admin yetkisi olan kullanıcılar için main-area göster
@@ -275,6 +342,10 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             if (adminIndicator) adminIndicator.style.display = 'none';
             if (mainArea) mainArea.style.display = 'none';
+            
+            // Scroll butonunu da gizle
+            const scrollToMainButton = document.querySelector('.scroll-to-main-button');
+            if (scrollToMainButton) scrollToMainButton.style.display = 'none';
         }
     }
 

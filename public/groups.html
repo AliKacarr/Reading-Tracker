@@ -47,9 +47,7 @@
   <div class="container">
     <div style="display: flex; align-items: center; gap: 12px;">
       <button onclick="window.location.href='/'" class="showGroups" title="Grupları Görüntüle">
-        <i class="fa-solid fa-user-group" style="font-size: 20px; margin-right: 7px; color: #4e54c8;"></i>
-        Gruplar
-      </button>
+        <i class="fa-solid fa-user-group" style="font-size: 20px; margin-right: 7px; color: #4e54c8;"></i> Gruplar</button>
       <div id="secretAdminLogin">
         
       </div>
@@ -63,7 +61,7 @@
     <div id="adminLoginModal" class="admin-modal">
       <div class="modal-content-admin">
         <span class="close-button">&times;</span>
-        <h2>Yönetici Girişi</h2>
+        <h2>Kullanıcı Girişi</h2>
         <form id="adminLoginForm">
           <div class="admin-form-group">
             <label for="adminUsername">Kullanıcı Adı</label>
@@ -338,7 +336,7 @@
       </div>
     </div>
 
-    <div class="videos" style="display: none;">
+    <div class="videos">
       <h3><i class="fa-regular fa-circle-play"
           style=" font-size: 1.3em; padding-left:2px; padding-right: 8px;"></i>Videolar</h3>
       <div class="top-bar">
@@ -356,7 +354,91 @@
         </button>
       </div>
       <div id="videos" class="videos-container" style="position: relative;">
-        <!-- Videos will be rendered here -->
+        <!-- Loading state - 6 video kartı -->
+        <div class="video-card loading-card">
+          <div class="loading-thumbnail">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="loading-content">
+            <div class="loading-title">
+              <div class="loading-line loading-line-1"></div>
+              <div class="loading-line loading-line-2"></div>
+            </div>
+            <div class="loading-view-count">
+              <div class="loading-line loading-line-3"></div>
+            </div>
+          </div>
+        </div>
+        <div class="video-card loading-card">
+          <div class="loading-thumbnail">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="loading-content">
+            <div class="loading-title">
+              <div class="loading-line loading-line-1"></div>
+              <div class="loading-line loading-line-2"></div>
+            </div>
+            <div class="loading-view-count">
+              <div class="loading-line loading-line-3"></div>
+            </div>
+          </div>
+        </div>
+        <div class="video-card loading-card">
+          <div class="loading-thumbnail">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="loading-content">
+            <div class="loading-title">
+              <div class="loading-line loading-line-1"></div>
+              <div class="loading-line loading-line-2"></div>
+            </div>
+            <div class="loading-view-count">
+              <div class="loading-line loading-line-3"></div>
+            </div>
+          </div>
+        </div>
+        <div class="video-card loading-card">
+          <div class="loading-thumbnail">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="loading-content">
+            <div class="loading-title">
+              <div class="loading-line loading-line-1"></div>
+              <div class="loading-line loading-line-2"></div>
+            </div>
+            <div class="loading-view-count">
+              <div class="loading-line loading-line-3"></div>
+            </div>
+          </div>
+        </div>
+        <div class="video-card loading-card">
+          <div class="loading-thumbnail">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="loading-content">
+            <div class="loading-title">
+              <div class="loading-line loading-line-1"></div>
+              <div class="loading-line loading-line-2"></div>
+            </div>
+            <div class="loading-view-count">
+              <div class="loading-line loading-line-3"></div>
+            </div>
+          </div>
+        </div>
+        <div class="video-card loading-card">
+          <div class="loading-thumbnail">
+            <div class="loading-spinner"></div>
+          </div>
+          <div class="loading-content">
+            <div class="loading-title">
+              <div class="loading-line loading-line-1"></div>
+              <div class="loading-line loading-line-2"></div>
+            </div>
+            <div class="loading-view-count">
+              <div class="loading-line loading-line-3"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div id="videoModal" class="video-modal">
@@ -369,7 +451,7 @@
 
     <div class="main-area" style="display: none;">
       <div class="left-column">
-        <div class="new-user">
+        <div class="user-settings">
           <!-- Add the Add User section -->
           <form id="newUserForm" enctype="multipart/form-data">
             <h3>➕ Kullanıcı Ekle</h3>
@@ -377,8 +459,7 @@
               <label for="profileImage">Profil Resmi:</label>
               <div class="file-input-container">
                 <input type="file" id="profileImage" name="profileImage" accept="image/*" />
-                <label for="profileImage" class="custom-file-input" id="file-input-label">Resim
-                  Seç</label>
+                <label for="profileImage" class="custom-file-input" id="file-input-label">Resim Seç</label>
                 <span id="file-name">Resim seçilmedi</span>
               </div>
             </div>
@@ -399,11 +480,12 @@
                   class="fa-solid fa-xmark"></i></button>
             </div>
           </form>
-        </div>
+
 
         <div class="user-list">
           <h3>👤 Kullanıcılar</h3>
           <ul id="userList"></ul>
+        </div>
         </div>
       </div>
 
