@@ -1198,8 +1198,22 @@ app.post('/api/delete-user/:groupId', async (req, res) => {
     // Dinamik koleksiyonları al
     const { users, readingStatuses } = getGroupCollections(groupId);
 
+    // Kullanıcıyı bul ve yetkisini kontrol et
+    const user = await users.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    }
+
+    // Admin sayısını kontrol et
+    const adminCount = await users.countDocuments({ authority: 'admin' });
+    
+    // Eğer son admin'i silmeye çalışıyorsa engelle
+    if (user.authority === 'admin' && adminCount <= 1) {
+      return res.status(400).json({ error: 'En az bir yönetici hesabı bulunmalıdır!' });
+    }
+
     // Kullanıcıyı sil
-    const user = await users.findByIdAndDelete(id);
+    await users.findByIdAndDelete(id);
 
     // Kullanıcıya hemen yanıt ver
     res.json({ success: true });
@@ -1289,6 +1303,14 @@ app.post('/api/update-user-authority/:groupId', async (req, res) => {
     const user = await users.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    }
+
+    // Admin sayısını kontrol et
+    const adminCount = await users.countDocuments({ authority: 'admin' });
+    
+    // Eğer son admin'i üye yapmaya çalışıyorsa engelle
+    if (user.authority === 'admin' && authority === 'member' && adminCount <= 1) {
+      return res.status(400).json({ error: 'En az bir yönetici hesabı bulunmalıdır!' });
     }
 
     // Kullanıcıyı güncelle

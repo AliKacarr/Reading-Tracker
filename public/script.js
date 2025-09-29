@@ -222,6 +222,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     initializeProfileButton();
 
     // İlk çalışacak kritik fonksiyonlar
+    console.log('🚀 Kritik fonksiyonlar başlatılıyor...');
     await Promise.all([
       loadTrackerTable(),
       loadUserCards(),
@@ -229,6 +230,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       renderLongestSeries(),
       loadMonthlyCalendar()
     ]);
+    console.log('✅ Kritik fonksiyonlar tamamlandı');
 
     // Sırayla çalışacak diğer fonksiyonlar
     const functions = [
@@ -239,11 +241,13 @@ document.addEventListener('DOMContentLoaded', async function () {
       { name: 'fetchRandomDua', fn: fetchRandomDua },
       { name: 'initializeVideos', fn: initializeVideos },
       { name: 'renderUserList', fn: () => {
+        console.log('🔍 renderUserList çağrılıyor...');
         // Sadece admin yetkisi kontrolü
         if (LocalStorageManager.isAdmin()) {
+          console.log('✅ Admin yetkisi var, renderUserList çalıştırılıyor');
           return renderUserList();
         } else {
-          console.log('Admin yetkisi yok, renderUserList atlanıyor');
+          console.log('❌ Admin yetkisi yok, renderUserList atlanıyor');
           return Promise.resolve();
         }
       }},
@@ -551,43 +555,57 @@ window.addEventListener('popstate', function() {
 
 // Groups.html sayfası için otomatik giriş kontrolü
 async function checkAutoLoginForGroups() {
+  console.log('🔐 checkAutoLoginForGroups başlatıldı');
+  
   const currentGroupId = getGroupIdFromUrl();
-  if (!currentGroupId) return;
+  if (!currentGroupId) {
+    console.log('❌ Grup ID bulunamadı');
+    return;
+  }
+  console.log('✅ Grup ID:', currentGroupId);
 
   // Groups objesinde bu grup var mı kontrol et
   const groups = LocalStorageManager.getGroups();
   const userId = groups[currentGroupId];
+  console.log('🔍 Groups objesi:', groups);
+  console.log('🔍 Bu grup için userId:', userId);
   
   if (!userId) {
-    console.log('Bu grup için kayıtlı kullanıcı yok');
+    console.log('❌ Bu grup için kayıtlı kullanıcı yok');
     return;
   }
 
   try {
+    console.log('🌐 Kullanıcı doğrulaması yapılıyor...');
     // Kullanıcının hala bu grupta olup olmadığını kontrol et
     const response = await fetch(`/api/users/${currentGroupId}`);
     if (!response.ok) {
-      console.log('Grup bulunamadı veya erişim hatası');
+      console.log('❌ Grup bulunamadı veya erişim hatası');
       return;
     }
 
     const data = await response.json();
+    console.log('👥 Sunucudan gelen kullanıcılar:', data.users.map(u => ({ id: u._id, name: u.name })));
+    
     const user = data.users.find(u => u._id === userId);
     
     if (!user) {
-      console.log('Kullanıcı bu grupta bulunamadı, groups objesinden kaldırılıyor');
+      console.log('❌ Kullanıcı bu grupta bulunamadı, groups objesinden kaldırılıyor');
       LocalStorageManager.removeUserFromGroup(currentGroupId);
       return;
     }
+    console.log('✅ Kullanıcı bulundu:', user.name, user.authority);
 
+    console.log('🌐 Grup bilgisi alınıyor...');
     // Kullanıcı bilgilerini otomatik olarak yükle
     const groupResponse = await fetch(`/api/group/${currentGroupId}`);
     if (!groupResponse.ok) {
-      console.log('Grup bilgisi alınamadı');
+      console.log('❌ Grup bilgisi alınamadı');
       return;
     }
 
     const groupData = await groupResponse.json();
+    console.log('✅ Grup bilgisi alındı:', groupData.group.groupName);
     
     // Kullanıcı bilgilerini localStorage'a kaydet
     LocalStorageManager.loginUser(
@@ -598,7 +616,7 @@ async function checkAutoLoginForGroups() {
       groupData.group.groupName
     );
 
-    console.log('Otomatik giriş başarılı:', {
+    console.log('🎉 Otomatik giriş başarılı:', {
       groupId: currentGroupId,
       userId: userId,
       authority: user.authority,
@@ -608,16 +626,18 @@ async function checkAutoLoginForGroups() {
 
     // Profil butonunu güncelle
     if (typeof window.updateProfileButton === 'function') {
+      console.log('🔄 Profil butonu güncelleniyor...');
       window.updateProfileButton();
     }
 
     // Admin indicator'ı göster
     if (typeof showAdminIndicator === 'function') {
+      console.log('🔄 Admin indicator gösteriliyor...');
       showAdminIndicator();
     }
 
   } catch (error) {
-    console.error('Otomatik giriş kontrolü hatası:', error);
+    console.error('❌ Otomatik giriş kontrolü hatası:', error);
   }
 }
 

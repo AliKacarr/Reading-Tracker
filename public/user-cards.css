@@ -161,6 +161,35 @@
     box-shadow: 0 0 0 3px #00b3ff, 0 4px 16px rgba(0, 0, 0, 0.10);
 }
 
+/* Giriş yapılan kullanıcının kartı için özel stil */
+.user-card.current-user-card {
+    background: linear-gradient(135deg, #e8f0f5 0%, #f0f4f8 100%);
+    border: 2px solid #3498db;
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.25);
+    position: relative;
+}
+
+.user-card.current-user-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    z-index: 1;
+}
+
+.user-card.current-user-card .user-card-header {
+    background: linear-gradient(90deg, #d4e6f1 60%, #e8f0f5 100%);
+    border-bottom: 2px solid #3498db;
+}
+
+.user-card.current-user-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.35);
+}
+
 .user-card .league-badge img {
     width: 65px;
     height: 65px;

@@ -1,7 +1,7 @@
 .main-area {
     display: flex;
     gap: 0;
-    padding: 5px 0px;
+    padding: 20px;
     align-items: flex-start;
     flex-wrap: wrap;
     margin-top: 20px;
@@ -11,93 +11,12 @@
 .left-column {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 3 2;
     min-width: 300px;
-    padding-right: 20px;
-    border-right: 2px solid #e0e0e0;
 }
 
 .right-column {
-    flex: 1;
-    padding-left: 20px;
-}
-
-@media (max-width: 768px) {
-    .main-area {
-        flex-direction: column;
-    }
-    
-    .left-column {
-        border-right: none;
-        padding-right: 0;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #e0e0e0;
-    }
-    
-    .right-column {
-        padding-left: 0;
-        padding-top: 20px;
-    }
-    
-    #newUserForm {
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-    
-    #newUserForm h3 {
-        font-size: 18px;
-        margin-bottom: 15px;
-    }
-    
-    .input-container {
-        flex-direction: column;
-        gap: 8px;
-        padding: 8px;
-    }
-    
-    .input-icon {
-        margin: 0;
-        order: -1;
-    }
-    
-    #newUserInput {
-        width: 100%;
-        text-align: center;
-        padding: 10px;
-    }
-    
-    .submit-button {
-        width: 100%;
-        margin-left: 0;
-        margin-top: 8px;
-    }
-    
-    .file-input-container {
-        flex-direction: column;
-        gap: 8px;
-        padding: 8px;
-    }
-    
-    label.custom-file-input {
-        width: 100%;
-        margin-right: 0;
-        text-align: center;
-    }
-    
-    #file-name {
-        text-align: center;
-        font-size: 13px;
-    }
-    
-    #imagePreviewContainer {
-        padding: 10px;
-        margin-top: 10px;
-    }
-    
-    .profile-preview-image {
-        width: 100px;
-        height: 100px;
-    }
+    flex: 2;
 }
 
 .user-settings {
@@ -107,44 +26,66 @@
 .user-list {
     padding: 24px;
     margin: 0 auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .user-list h3 {
     color: #34495e;
-    margin: 0 0 20px 0;
+    margin: 0 0 24px 0;
     font-size: 22px;
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 2px solid #3498db;
-    width: 300px;
+    width: 294px;
 }
 
 ul#userList {
     list-style: none;
     padding: 0;
     min-width: 100px;
-    max-width: 285px;
+    max-width: 100%;
     margin-top: 10px;
-    width: 95%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-ul#userList li {
-    margin: 8px 0;
+.user-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-container li {
+    flex: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 15px;
-    background: #ffffff;
+    background: aliceblue;
     padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #c0c0c0;
+    border-radius: 12px;
+    border: 1px solid #b0b0b0;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    width: 260px;
 }
 
-ul#userList li::before {
+.user-container li:hover {
+    transform: translateY(-2px);
+    border-color: #3498db;
+    box-shadow: 0 4px 16px rgba(52, 152, 219, 0.15);
+    background: #eef8ff;
+}
+
+
+.user-container li::before {
     content: '';
     position: absolute;
     top: 0;
@@ -156,14 +97,35 @@ ul#userList li::before {
     transition: opacity 0.3s ease;
 }
 
-ul#userList li:hover {
-    transform: translateY(-1px);
-    border-color: #d0d0d0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+.user-container li:hover::before {
+    opacity: 1;
 }
 
-ul#userList li:hover::before {
+/* Giriş yapılan kullanıcı için özel stil */
+.user-container li.current-user {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    border: 2px solid #28a745;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    position: relative;
+}
+
+.user-container li.current-user::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.user-container li.current-user:hover {
+    transform: translateY(-2px);
+    border-color: #20c997;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+    background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%);
 }
 
 ul#userList li span {
@@ -243,34 +205,73 @@ ul#userList li span {
 
 
 .authority-select {
-    background-color: #ffffff;
-    border: 1px solid #b0b0b0;
-    border-radius: 4px;
-    color: #333;
-    font-size: 12px;
+    background: mintcream;
+    border: 1px solid #aeb2b5;
+    border-radius: 8px;
+    color: #2c3e50;
+    font-size: 14px;
     font-weight: 500;
-    padding: 4px 8px;
+    padding: 10px 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 80px;
-    height: 28px;
+    min-width: 110px;
+    height: 40px;
     outline: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .authority-select:hover {
-    border-color: #5b9bd5;
-    box-shadow: 0 1px 3px rgba(91, 155, 213, 0.2);
+    border-color: #3498db;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+    transform: translateY(-1px);
 }
 
 .authority-select:focus {
-    border-color: #4e54c8;
-    box-shadow: 0 0 0 2px rgba(78, 84, 200, 0.2);
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
 }
 
 .authority-select option {
     background-color: #ffffff;
     color: #333;
     padding: 4px;
+}
+
+.invite-button {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    height: 40px;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.invite-button:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(52, 152, 219, 0.4);
+}
+
+.invite-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.invite-button i {
+    font-size: 12px;
 }
 
 .settings-button {
@@ -395,9 +396,17 @@ ul#userList li span {
 
 /* Kullanıcı Ekleme Formu - Site Temasına Uygun */
 #newUserForm {
+    position: relative;
     padding: 24px;
-    width: 300px;
-    margin: 0 auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    max-width: 100%;
 }
 
 #newUserForm h3 {
@@ -407,7 +416,25 @@ ul#userList li span {
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 2px solid #27ae60;
-    width: 98%;
+    width: 300px;
+}
+
+.form-left-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+}
+
+.form-right-column {
+    flex: 0 0 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 200px;
+    height: 200px;
+    align-self: flex-end;
 }
 
 .ad-user-form-group label {
@@ -421,15 +448,15 @@ ul#userList li span {
 .input-container {
     display: flex;
     align-items: center;
-    background: #ffffff;
+    background: rgb(246, 249, 251);
     border: 1px solid #b0b0b0;
-    border-radius: 6px;
+    border-radius: 10px;
     padding: 6px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    max-width: 92%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    width: 280px;
 }
 
 .input-container::before {
@@ -446,13 +473,15 @@ ul#userList li span {
 }
 
 .input-container:hover {
-    border-color: #bbb;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-color: #3498db;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
 }
 
 .input-container:focus-within {
-    border-color: #5b9bd5;
-    box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.2);
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
 }
 
 .input-container > * {
@@ -483,10 +512,11 @@ ul#userList li span {
     font-size: 16px;
     padding: 12px 10px;
     border: none;
-    background: transparent;
-    color: #333;
+    background: #f2f8ff;
+    color: #2c3e50;
     outline: none;
     width: 100%;
+    font-weight: 500;
 }
 
 #newUserInput::placeholder {
@@ -527,15 +557,15 @@ ul#userList li span {
 .file-input-container {
     display: flex;
     align-items: center;
-    background: #ffffff;
+    background: rgb(246, 249, 251);
     border: 1px solid #b0b0b0;
-    border-radius: 6px;
-    padding: 8px 0px 8px 8px;
+    border-radius: 10px;
+    padding: 8px;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    max-width: 93%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    width: 275px;
 }
 
 .file-input-container::before {
@@ -552,8 +582,9 @@ ul#userList li span {
 }
 
 .file-input-container:hover {
-    border-color: #bbb;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-color: #3498db;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
 }
 
 .file-input-container > * {
@@ -606,11 +637,11 @@ label.custom-file-input:hover {
     align-items: center;
     background-color: #f9f9f9;
     border-radius: 8px;
-    margin-top: 15px;
     padding: 15px;
     border: 1px solid #b0b0b0;
     transition: all 0.3s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
 }
 
 .profile-preview-image {
@@ -660,6 +691,10 @@ label.custom-file-input:hover {
     padding: 24px;
     width: 270px;
     margin: 0 auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .group-settings h3 {
@@ -1040,18 +1075,20 @@ label.custom-file-input:hover {
 
 .group-input, .group-textarea, .group-select {
     padding: 12px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+    border: 1px solid #b0b0b0;
+    border-radius: 10px;
     font-size: 16px;
-    background: #ffffff;
+    background: #f2f8ff;
     transition: all 0.3s ease;
     font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .group-input:focus, .group-textarea:focus, .group-select:focus {
     outline: none;
-    border-color: #5b9bd5;
-    box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.2);
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background: #eef8ff;
 }
 
 .group-textarea {
@@ -1259,26 +1296,17 @@ label.custom-file-input:hover {
 }
 
 /* Responsive tasarım */
-@media (max-width: 768px) {
-    .left-column, .right-column {
-        min-width: 100%;
-    }
+@media (max-width: 1025px) {
     
-    .group-image-actions {
-        flex-direction: column;
-        align-items: center;
+    .left-column {
+        border-right: none;
+        padding-right: 0;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+        flex: none;
     }
-    
-    .change-image-btn, .remove-image-btn {
-        width: 100%;
-        max-width: 200px;
-    }
-    
-    .group-actions {
-        flex-direction: column;
-    }
-    
-    .save-group-btn, .delete-group-btn {
-        max-width: 100%;
+    .right-column {
+        flex: none;
+        margin-top: 20px;
     }
 }

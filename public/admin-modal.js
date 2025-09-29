@@ -61,9 +61,13 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
         document.body.appendChild(scrollToMainButton);
     }
     
-    // Scroll butonunu göster (eğer varsa)
+    // Scroll butonunu göster (sadece admin yetkisi olan kullanıcılar için)
     if (scrollToMainButton) {
-        scrollToMainButton.style.display = 'flex';
+        if (userInfo.userAuthority === 'admin') {
+            scrollToMainButton.style.display = 'flex';
+        } else {
+            scrollToMainButton.style.display = 'none';
+        }
     }
 
     // Create admin indicator if it doesn't exist
@@ -71,9 +75,10 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
     if (!adminIndicator) {
         adminIndicator = document.createElement('div');
         adminIndicator.className = 'admin-indicator';
+        const displayName = userInfo.adminUserName && userInfo.adminUserName !== 'null' ? userInfo.adminUserName : '';
         adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
-            `<i class="fa-solid fa-user-shield"></i> ${userInfo.adminUserName}` : 
-            `<i class="fa-solid fa-user"></i> ${userInfo.adminUserName}`;
+            `<i class="fa-solid fa-user-shield"></i> ${displayName}` : 
+            `<i class="fa-solid fa-user"></i> ${displayName}`;
 
         // Add click event to open admin info panel
         adminIndicator.addEventListener('click', function () {
@@ -86,9 +91,10 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
         document.body.appendChild(adminIndicator);
     } else {
         // Update text based on user authority
+        const displayName = userInfo.adminUserName && userInfo.adminUserName !== 'null' ? userInfo.adminUserName : '';
         adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
-            `<i class="fa-solid fa-user-shield"></i> ${userInfo.adminUserName}` : 
-            `<i class="fa-solid fa-user"></i> ${userInfo.adminUserName}`;
+            `<i class="fa-solid fa-user-shield"></i> ${displayName}` : 
+            `<i class="fa-solid fa-user"></i> ${displayName}`;
     }
 
     adminIndicator.style.display = 'flex';
@@ -186,6 +192,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Reload data to update UI with admin privileges
                 loadTrackerTable();
+                loadUserCards();
+                loadReadingStats();
+                renderLongestSeries();
+                loadMonthlyCalendar();
                 
                 // Grup ayarlarını da yükle
                 if (typeof loadGroupSettings === 'function') {
@@ -256,6 +266,7 @@ function showAdminInfoPanel() {
 
         const usernameValue = document.createElement('div');
         usernameValue.className = 'admin-info-value';
+        // Güncel kullanıcı bilgisini al
         const userInfo = LocalStorageManager.getCurrentUserInfo();
         usernameValue.textContent = userInfo ? userInfo.adminUserName : 'Kullanıcı';
 
@@ -304,6 +315,13 @@ function showAdminInfoPanel() {
                 adminInfoModal.style.display = 'none';
             }
         });
+    } else {
+        // Modal zaten varsa, güncel kullanıcı bilgisini güncelle
+        const usernameValue = adminInfoModal.querySelector('.admin-info-value');
+        if (usernameValue) {
+            const userInfo = LocalStorageManager.getCurrentUserInfo();
+            usernameValue.textContent = userInfo ? userInfo.adminUserName : 'Kullanıcı';
+        }
     }
     adminInfoModal.style.display = 'flex';
 }
@@ -322,7 +340,8 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (adminIndicator) {
                 adminIndicator.style.display = 'flex';
-                adminIndicator.textContent = userInfo.userAuthority === 'admin' ? `${userInfo.adminUserName}` : `${userInfo.adminUserName}`;
+                const displayName = userInfo.adminUserName && userInfo.adminUserName !== 'null' ? userInfo.adminUserName : '';
+                adminIndicator.textContent = userInfo.userAuthority === 'admin' ? `${displayName}` : `${displayName}`;
             }
             
             // Sadece admin yetkisi olan kullanıcılar için main-area göster
@@ -332,6 +351,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Admin girişi yapıldığında user list'i yükle
                 if (typeof renderUserList === 'function') {
                     renderUserList();
+                }
+            }
+            
+            // Scroll butonunu sadece admin yetkisi olan kullanıcılar için göster
+            const scrollToMainButton = document.querySelector('.scroll-to-main-button');
+            if (scrollToMainButton) {
+                if (userInfo.userAuthority === 'admin') {
+                    scrollToMainButton.style.display = 'flex';
+                } else {
+                    scrollToMainButton.style.display = 'none';
                 }
             }
             

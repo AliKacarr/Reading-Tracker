@@ -24,6 +24,32 @@
     justify-content: center;
 }
 
+/* Giriş yapılan kullanıcının serisi için özel stil */
+.longest-series-bar-row.current-user-series {
+    background: linear-gradient(135deg, #e8f0f5 0%, #f0f4f8 100%);
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    padding: 8px 15px;
+    margin: 4px 0;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+    position: relative;
+    width: auto;
+}
+
+.longest-series-bar-row.current-user-series .longest-series-bar {
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.longest-series-bar-row.current-user-series .series-date-outside {
+    color: #3498db;
+    font-weight: 600;
+}
+
+.longest-series-bar-row.current-user-series .series-name {
+    color: #3498db;
+    font-weight: 600;
+}
+
 .series-date-outside {
     color: #888;
     font-size: 1.08em;

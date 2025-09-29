@@ -149,7 +149,12 @@ async function loadTrackerTable() {
         // Lig ve arka planı belirle (önbellekten al)
         const okudumDays = userReadingCounts.get(user._id) || 0;
         const league = LEAGUES.find(l => okudumDays >= l.min && okudumDays < l.max) || LEAGUES[LEAGUES.length - 1];
-        let row = `<tr><td class="user-item" data-user-id="${user._id}" style="background: ${league.bg};">`;
+        // Giriş yapılan kullanıcı için özel class ekle
+        const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+        const isCurrentUser = currentUserInfo && currentUserInfo.userId === user._id;
+        const currentUserClass = isCurrentUser ? ' current-user-row' : '';
+        
+        let row = `<tr class="user-row${currentUserClass}"><td class="user-item" data-user-id="${user._id}" style="background: ${league.bg};">`;
         const profileImage = user.profileImage || '/images/default.png';
         row += `<img src="${profileImage}" alt="${user.name}" class="profile-image loading" loading="lazy" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/default.png'" />`;
         row += `<span class="user-item-name">${user.name}</span></td>`;

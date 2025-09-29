@@ -46,6 +46,9 @@ function renderLongestSeries() {
             // Animasyon için bar ve değerleri saklayacağız
             const barsToAnimate = [];
 
+            // Giriş yapılan kullanıcı bilgisini al
+            const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+
             data.forEach((user, idx) => {
                 // Normalize bar width
                 const widthPercent = user.streak / maxStreak;
@@ -54,6 +57,11 @@ function renderLongestSeries() {
                 // Satır kapsayıcı
                 const row = document.createElement('div');
                 row.className = 'longest-series-bar-row';
+                
+                // Giriş yapılan kullanıcı için özel class ekle
+                if (currentUserInfo && currentUserInfo.userId === user.userId) {
+                    row.classList.add('current-user-series');
+                }
 
                 // Başlangıç tarihi
                 const startDate = document.createElement('span');

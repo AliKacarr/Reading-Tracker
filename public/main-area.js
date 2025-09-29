@@ -78,11 +78,37 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
     }
 
     // Find the user name for the confirmation message
-    const userElement = document.querySelector(`li[data-user-id="${id}"]`);
+    const userContainer = document.querySelector(`#userList [data-user-id="${id}"]`);
+    if (!userContainer) {
+        console.error('User container not found for userId:', id);
+        return;
+    }
+    const userElement = userContainer.querySelector('li');
     const userName = userElement ? userElement.querySelector('.profil-image-user-name').textContent : 'this user';
 
+    // Admin sayısını kontrol et
+    const currentAdminCount = await getAdminCount();
+    const userAuthority = userContainer.querySelector('.authority-select').value;
+    
+    // Eğer son admin'i silmeye çalışıyorsa engelle
+    if (userAuthority === 'admin' && currentAdminCount <= 1) {
+        showErrorMessage('En az bir yönetici hesabı bulunmalıdır!');
+        return;
+    }
+
+    // Kendi hesabını silme kontrolü
+    const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+    const isDeletingSelf = currentUserInfo && currentUserInfo.userId === id;
+    
+    let confirmMessage = `Silmek istediğine emin misin: ->  ${userName}  <- Bu işlem geri alınamaz.`;
+    if (isDeletingSelf) {
+        confirmMessage = `Kendi hesabınızı silmek istediğinizi onaylıyor musunuz?\n\n` +
+                        `Bu işlem sonrasında otomatik olarak çıkış yapacaksınız ve hesabınız tamamen silinecektir.\n\n` +
+                        `Bu işlem geri alınamaz!`;
+    }
+
     // Ask for confirmation before deleting
-    const confirmed = confirm(`Silmek istediğine emin misin: ->  ${userName}  <- Bu işlem geri alınamaz.`);
+    const confirmed = confirm(confirmMessage);
 
     if (confirmed) {
         // Loading göstergesi
@@ -100,6 +126,18 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
                 body: JSON.stringify({ id })
             });
 
+            // Eğer kendi hesabını sildiyse
+            if (isDeletingSelf) {
+                showSuccessMessage('Hesabınız silindi. Çıkış yapılıyor...');
+                // LocalStorage'dan çıkış yap
+                LocalStorageManager.logoutUser();
+                // Sayfayı yenile
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+                return;
+            }
+            
             if (LocalStorageManager.isAdmin()) {
                 renderUserList();
             }
@@ -129,7 +167,16 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
         return;
     }
 
-    const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+    const userContainer = document.querySelector(`#userList [data-user-id="${userId}"]`);
+    if (!userContainer) {
+        console.error('User container not found for userId:', userId);
+        return;
+    }
+    const userItem = userContainer.querySelector('li');
+    if (!userItem) {
+        console.error('1-User item not found in container for userId:', userId);
+        return;
+    }
     const nameSpan = userItem.querySelector('.profil-image-user-name');
     const nameInput = userItem.querySelector('.edit-name-input');
     const saveButton = userItem.querySelector('.save-name-button');
@@ -228,7 +275,18 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
         return;
     }
 
-    const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+    const userContainer = document.querySelector(`#userList [data-user-id="${userId}"]`);
+    if (!userContainer) {
+        console.error('User container bulunamadı, userId:', userId);
+        return;
+    }
+    
+    const userItem = userContainer.querySelector('li');
+    if (!userItem) {
+        console.error('Li element bulunamadı, userId:', userId);
+        return;
+    }
+    
     const nameSpan = userItem.querySelector('.profil-image-user-name');
     const nameInput = userItem.querySelector('.edit-name-input');
     const editButton = userItem.querySelector('.edit-name-button');
@@ -238,12 +296,12 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     const profileImage = userItem.querySelector('.profile-image.user-profile-image');
 
     // Hide name span, edit button and settings button, show input, save button and cancel button
-    nameSpan.style.display = 'none';
-    editButton.style.display = 'none';
-    settingsButton.style.display = 'none';
-    nameInput.style.display = 'inline-block';
-    saveButton.style.display = 'inline-block';
-    cancelButton.style.display = 'inline-block';
+    if (nameSpan) nameSpan.style.display = 'none';
+    if (editButton) editButton.style.display = 'none';
+    if (settingsButton) settingsButton.style.display = 'none';
+    if (nameInput) nameInput.style.display = 'inline-block';
+    if (saveButton) saveButton.style.display = 'inline-block';
+    if (cancelButton) cancelButton.style.display = 'inline-block';
     
     // Profile image'ı belirgin hale getir
     if (profileImage) {
@@ -253,8 +311,10 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     }
     
     // Focus on input and select text
-    nameInput.focus();
-    nameInput.select();
+    if (nameInput) {
+        nameInput.focus();
+        nameInput.select();
+    }
 }
 
 function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyonu
@@ -280,7 +340,12 @@ function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyo
             const file = this.files[0];
             
             // Önce UI'da resmi güncelle
-            const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+            const userContainer = document.querySelector(`#userList [data-user-id="${userId}"]`);
+            if (!userContainer) {
+                console.error('User container not found for userId:', userId);
+                return;
+            }
+            const userItem = userContainer.querySelector('li');
             if (userItem) {
                 const userImage = userItem.querySelector('.user-profile-image');
                 if (userImage) {
@@ -448,22 +513,33 @@ function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fon
         return;
     }
 
-    const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+    const userContainer = document.querySelector(`#userList [data-user-id="${userId}"]`);
+    if (!userContainer) {
+        console.error('User container bulunamadı, userId:', userId);
+        return;
+    }
+    
+    const userItem = userContainer.querySelector('li');
+    if (!userItem) {
+        console.error('Li element bulunamadı, userId:', userId);
+        return;
+    }
+    
     const deleteButton = userItem.querySelector('.delete-button');
     const settingsButton = userItem.querySelector('.settings-button');
     const cancelButton = userItem.querySelector('.cancel-settings-button');
     const editButton = userItem.querySelector('.edit-name-button');
 
-    if (deleteButton.style.display === 'none') {
-        deleteButton.style.display = 'inline-block';
-        settingsButton.style.display = 'none';
-        editButton.style.display = 'none';
-        cancelButton.style.display = 'inline-block';
+    if (deleteButton && deleteButton.style.display === 'none') {
+        if (deleteButton) deleteButton.style.display = 'inline-block';
+        if (settingsButton) settingsButton.style.display = 'none';
+        if (editButton) editButton.style.display = 'none';
+        if (cancelButton) cancelButton.style.display = 'inline-block';
     } else {
-        settingsButton.style.display = 'inline-block';
-        editButton.style.display = 'inline-block';
-        deleteButton.style.display = 'none';
-        cancelButton.style.display = 'none';
+        if (settingsButton) settingsButton.style.display = 'inline-block';
+        if (editButton) editButton.style.display = 'inline-block';
+        if (deleteButton) deleteButton.style.display = 'none';
+        if (cancelButton) cancelButton.style.display = 'none';
     }
 }
 
@@ -474,7 +550,16 @@ function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fo
         return;
     }
 
-    const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+    const userContainer = document.querySelector(`#userList [data-user-id="${userId}"]`);
+    if (!userContainer) {
+        console.error('User container not found for userId:', userId);
+        return;
+    }
+    const userItem = userContainer.querySelector('li');
+    if (!userItem) {
+        console.error('4-User item not found in container for userId:', userId);
+        return;
+    }
     const nameSpan = userItem.querySelector('.profil-image-user-name');
     const nameInput = userItem.querySelector('.edit-name-input');
     const editButton = userItem.querySelector('.edit-name-button');
@@ -510,7 +595,16 @@ function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
         return;
     }
 
-    const userItem = document.querySelector(`li[data-user-id="${userId}"]`);
+    const userContainer = document.querySelector(`#userList [data-user-id="${userId}"]`);
+    if (!userContainer) {
+        console.error('User container not found for userId:', userId);
+        return;
+    }
+    const userItem = userContainer.querySelector('li');
+    if (!userItem) {
+        console.error('5-User item not found in container for userId:', userId);
+        return;
+    }
     const deleteButton = userItem.querySelector('.delete-button');
     const settingsButton = userItem.querySelector('.settings-button');
     const cancelButton = userItem.querySelector('.cancel-settings-button');
@@ -523,6 +617,20 @@ function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
     editButton.style.display = 'inline-block';
 }
 
+// Admin sayısını kontrol eden yardımcı fonksiyon
+async function getAdminCount() {
+    try {
+        const response = await fetch(`/api/users/${currentGroupId}`);
+        if (!response.ok) return 0;
+        
+        const data = await response.json();
+        return data.users.filter(user => user.authority === 'admin').length;
+    } catch (error) {
+        console.error('Admin sayısı alınırken hata:', error);
+        return 0;
+    }
+}
+
 // Kullanıcı yetkisini değiştirme fonksiyonu
 async function changeUserAuthority(userId, newAuthority) {
     // Check if user is authenticated and has admin rights
@@ -531,16 +639,53 @@ async function changeUserAuthority(userId, newAuthority) {
         return;
     }
 
-    // Kendi yetkisini değiştirmeye izin verme
+    // Admin sayısını kontrol et (önce admin sayısını kontrol et)
+    const currentAdminCount = await getAdminCount();
     const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
-    if (currentUserInfo && currentUserInfo.userId === userId) {
-        showErrorMessage('Kendi yetkinizi değiştiremezsiniz!');
+    
+    // Eğer son admin'i üye yapmaya çalışıyorsa engelle
+    if (currentUserInfo && currentUserInfo.userId === userId && 
+        currentUserInfo.userAuthority === 'admin' && newAuthority === 'member' && 
+        currentAdminCount <= 1) {
+        showErrorMessage('En az bir yönetici hesabı bulunmalıdır!');
         // Combobox'ı eski değerine geri döndür
-        const authoritySelect = document.querySelector(`li[data-user-id="${userId}"] .authority-select`);
+        const authoritySelect = document.querySelector(`#userList [data-user-id="${userId}"] .authority-select`);
         if (authoritySelect) {
-            authoritySelect.value = currentUserInfo.userAuthority;
+            authoritySelect.value = 'admin';
         }
         return;
+    }
+
+    // Kendi yetkisini değiştirme kontrolü (admin sayısı kontrolünden sonra)
+    if (currentUserInfo && currentUserInfo.userId === userId) {
+        // Kendi yetkisini değiştirmek istiyor
+        const currentAuthority = currentUserInfo.userAuthority;
+        const newAuthorityText = newAuthority === 'admin' ? 'Yönetici' : 'Üye';
+        const currentAuthorityText = currentAuthority === 'admin' ? 'Yönetici' : 'Üye';
+        
+        if (currentAuthority === newAuthority) {
+            // Aynı yetkiye değiştirmeye çalışıyor, combobox'ı eski değerine döndür
+            const authoritySelect = document.querySelector(`#userList [data-user-id="${userId}"] .authority-select`);
+            if (authoritySelect) {
+                authoritySelect.value = currentAuthority;
+            }
+            return;
+        }
+        
+        // Kendi yetkisini değiştirmek istediğini onayla
+        const confirmed = confirm(
+            `Kendi yetkinizi "${currentAuthorityText}" den "${newAuthorityText}" ye değiştirmek istediğinizi onaylıyor musunuz?\n\n` +
+            `Bu işlem sonrasında yetkiniz değişecek ve bazı işlemler için yeniden giriş yapmanız gerekebilir.`
+        );
+        
+        if (!confirmed) {
+            // Onaylanmadı, combobox'ı eski değerine döndür
+            const authoritySelect = document.querySelector(`#userList [data-user-id="${userId}"] .authority-select`);
+            if (authoritySelect) {
+                authoritySelect.value = currentAuthority;
+            }
+            return;
+        }
     }
 
     try {
@@ -558,6 +703,19 @@ async function changeUserAuthority(userId, newAuthority) {
         if (response.ok) {
             const result = await response.json();
             showSuccessMessage(`Kullanıcı yetkisi başarıyla ${newAuthority === 'admin' ? 'Yönetici' : 'Üye'} olarak güncellendi!`);
+            
+            // Eğer kendi yetkisini değiştirdiyse
+            if (currentUserInfo && currentUserInfo.userId === userId) {
+                // Kendi yetkisi değişti, otomatik çıkış yap
+                setTimeout(() => {
+                    showSuccessMessage('Yetkiniz değiştirildi. Sayfa yenileniyor...');
+                    // LocalStorage'dan çıkış yap
+                    LocalStorageManager.logoutUser();
+                    // Sayfayı yenile
+                    window.location.reload();
+                }, 1500);
+                return;
+            }
             
             // Eğer güncellenen kullanıcı admin olduysa ve şu anki kullanıcı da admin ise
             // LocalStorage'daki adminUserName'i güncelle
@@ -590,59 +748,125 @@ async function changeUserAuthority(userId, newAuthority) {
     }
 }
 
+// Kullanıcı davet etme fonksiyonu
+async function inviteUser(userId, userName) {
+    try {
+        // Grup URL'ini oluştur
+        const groupUrl = `${window.location.origin}/groupid=${currentGroupId}`;
+        
+        // Davet metnini oluştur
+        const inviteText = `RoTaKip okuma grubuna katıl! ${userName} seni davet ediyor.\n\nGrup Linki: ${groupUrl}`;
+        
+        // Panoya kopyala
+        await navigator.clipboard.writeText(inviteText);
+        
+        // Web Share API'yi dene
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `RoTaKip - ${userName} Daveti`,
+                    text: inviteText,
+                });
+                showSuccessMessage(`${userName} için davet linki paylaşıldı ve panoya kopyalandı!`);
+            } catch (shareError) {
+                showSuccessMessage(`${userName} için davet linki panoya kopyalandı!`);
+            }
+        } else {
+            showSuccessMessage(`${userName} için davet linki panoya kopyalandı!`);
+        }
+        
+    } catch (error) {
+        console.error('Davet hatası:', error);
+        showErrorMessage('Davet linki kopyalanamadı. Lütfen manuel olarak kopyalayın.');
+    }
+}
+
+// renderUserList için debounce mekanizması
+let renderUserListTimeout = null;
+
 function renderUserList() {
     // Sadece admin yetkisi kontrolü
     if (!LocalStorageManager.isAdmin()) {
-        console.log('Admin yetkisi yok, renderUserList çalıştırılmıyor');
         return;
     }
 
+    // Debounce: Eğer zaten bir render işlemi varsa iptal et
+    if (renderUserListTimeout) {
+        clearTimeout(renderUserListTimeout);
+    }
+
+    // 100ms sonra render işlemini başlat
+    renderUserListTimeout = setTimeout(() => {
+        performRenderUserList();
+    }, 100);
+}
+
+function performRenderUserList() {
     const userList = document.getElementById('userList');
+    if (!userList) {
+        console.error('userList element bulunamadı');
+        return;
+    }
+    
     const prevScrollTop = userList.scrollTop; // scroll pozisyonunu koru
+    
     fetch(`/api/users/${currentGroupId}`)
         .then(res => res.json())
         .then(data => {
             const users = data.users;
-            // Mevcut kullanıcı ID'lerini al
-            const existingIds = Array.from(userList.children).map(li => li.getAttribute('data-user-id'));
-            const newIds = users.map(u => u._id);
-
-            // Silinen kullanıcıları kaldır (veritabanında olmayan ama UI'da olan)
-            existingIds.forEach(id => {
-                if (!newIds.includes(id)) {
-                    const li = userList.querySelector(`li[data-user-id="${id}"]`);
-                    if (li) userList.removeChild(li);
-                }
-            });
-
-            // Sadece yeni kullanıcıları ekle, mevcut olanları güncelleme
-            users.forEach(user => {
-                let li = userList.querySelector(`li[data-user-id="${user._id}"]`);
+            
+            // Kullanıcı listesini tamamen temizle ve yeniden oluştur
+            userList.innerHTML = '';
+            
+            // Tüm kullanıcıları yeniden oluştur
+            users.forEach((user, index) => {
+                const userProfileImage = user.profileImage || '/images/default.png';
+                const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image loading" onclick="changeUserImage('${user._id}')" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/default.png'"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-user-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
                 
-                if (!li) {
-                    // Sadece yeni kullanıcı için HTML oluştur
-                    const userProfileImage = user.profileImage || '/images/default.png';
-                    const liHTML = `<div class="kullanıcı-item"><img src="${userProfileImage}" alt="${user.name}" class="profile-image user-profile-image loading" onclick="changeUserImage('${user._id}')" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/default.png'"/><span class="profil-image-user-name">${user.name}</span><input type="text" class="edit-name-input" value="${user.name}" style="display:none;"><button class="edit-name-button" onclick="editUserName('${user._id}')" alt="Düzenle" title="İsmi Düzenle"><i class="fa-solid fa-pen"></i></button><button class="save-name-button" onclick="saveUserName('${user._id}')" alt="Onayla" title="İsmi Onayla" style="display:none; justify-content:center;"><i class="fa-solid fa-check"></i></button><button class="cancel-edit-button" onclick="cancelEditUserName('${user._id}')" alt="İptal" title="Düzenlemeyi İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div><div class="user-actions"><button class="settings-button" onclick="toggleDeleteButton('${user._id}')"><i class="fa-solid fa-user-minus"></i></button><button class="delete-button" style="display:none;" onclick="deleteUser('${user._id}')"><i class="fa-solid fa-trash-can"></i></button><button class="cancel-settings-button" onclick="cancelSettings('${user._id}')" alt="İptal" title="Ayarları İptal Et" style="display:none;"><i class="fa-solid fa-times"></i></button></div>`;
-                    
-                    li = document.createElement('li');
-                    li.setAttribute('data-user-id', user._id);
-                    li.innerHTML = liHTML;
-                    userList.appendChild(li);
-                    
-                    // Authority select'i li'den sonra doğrudan ekle
-                    const authoritySelect = document.createElement('select');
-                    authoritySelect.className = 'authority-select';
-                    authoritySelect.setAttribute('onchange', `changeUserAuthority('${user._id}', this.value)`);
-                    authoritySelect.setAttribute('title', 'Kullanıcı Yetkisi');
-                    authoritySelect.innerHTML = `
-                        <option value="member" ${user.authority === 'member' ? 'selected' : ''}>Üye</option>
-                        <option value="admin" ${user.authority === 'admin' ? 'selected' : ''}>Yönetici</option>
-                    `;
-                    userList.appendChild(authoritySelect);
+                // Kullanıcı container'ı oluştur
+                const userContainer = document.createElement('div');
+                userContainer.className = 'user-container';
+                userContainer.setAttribute('data-user-id', user._id);
+                
+                // Li elementini oluştur ve container'a ekle
+                const li = document.createElement('li');
+                li.setAttribute('data-user-id', user._id); // data-user-id attribute'u ekle
+                
+                // Giriş yapılan kullanıcı için özel class ekle
+                const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+                if (currentUserInfo && currentUserInfo.userId === user._id) {
+                    li.classList.add('current-user');
                 }
-                // Mevcut kullanıcılar için hiçbir şey yapma - gereksiz resim yüklemelerini önle
+                
+                li.innerHTML = liHTML;
+                userContainer.appendChild(li);
+                
+                // Authority select'i oluştur ve container'a ekle
+                const authoritySelect = document.createElement('select');
+                authoritySelect.className = 'authority-select';
+                authoritySelect.setAttribute('onchange', `changeUserAuthority('${user._id}', this.value)`);
+                authoritySelect.setAttribute('title', 'Kullanıcı Yetkisi');
+                authoritySelect.innerHTML = `
+                    <option value="member" ${user.authority === 'member' ? 'selected' : ''}>Üye</option>
+                    <option value="admin" ${user.authority === 'admin' ? 'selected' : ''}>Yönetici</option>
+                `;
+                userContainer.appendChild(authoritySelect);
+                
+                // Davet et butonunu oluştur ve container'a ekle
+                const inviteButton = document.createElement('button');
+                inviteButton.className = 'invite-button';
+                inviteButton.setAttribute('onclick', `inviteUser('${user._id}', '${user.name}')`);
+                inviteButton.setAttribute('title', 'Kullanıcıyı Davet Et');
+                inviteButton.innerHTML = '<i class="fa-solid fa-share"></i> Davet Et';
+                userContainer.appendChild(inviteButton);
+                
+                userList.appendChild(userContainer);
             });
+            
             userList.scrollTop = prevScrollTop; // scroll pozisyonunu geri yükle
+        })
+        .catch(error => {
+            console.error('Kullanıcı listesi yüklenirken hata:', error);
         });
 }
 

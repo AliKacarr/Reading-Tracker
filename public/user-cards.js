@@ -34,6 +34,17 @@ async function loadUserCards() {
     const streaksData = await streaksRes.json();
     const { streaks = [] } = streaksData;
 
+    // Giriş yapılan kullanıcıyı ilk sıraya koy
+    const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+    if (currentUserInfo && currentUserInfo.userId) {
+      const currentUserIndex = users.findIndex(user => user._id === currentUserInfo.userId);
+      if (currentUserIndex > 0) {
+        // Giriş yapılan kullanıcıyı ilk sıraya taşı
+        const currentUser = users.splice(currentUserIndex, 1)[0];
+        users.unshift(currentUser);
+      }
+    }
+
   // Mevcut kartları bir Map olarak tut
   const existingCards = new Map();
   container.querySelectorAll('.user-card[data-user-id]').forEach(card => {
@@ -192,12 +203,26 @@ async function loadUserCards() {
       card = document.createElement('div');
       card.className = 'user-card';
       card.setAttribute('data-user-id', user._id);
+      
+      // Giriş yapılan kullanıcı için özel class ekle
+      if (currentUserInfo && currentUserInfo.userId === user._id) {
+        card.classList.add('current-user-card');
+      }
+      
       container.appendChild(card);
       // Observer'ı başlat
       observer.observe(card);
     } else {
       // Kart zaten varsa, güncellenince de efekti tekrar uygula
       card.classList.remove('card-fade-in');
+      
+      // Giriş yapılan kullanıcı için özel class ekle
+      if (currentUserInfo && currentUserInfo.userId === user._id) {
+        card.classList.add('current-user-card');
+      } else {
+        card.classList.remove('current-user-card');
+      }
+      
       observer.observe(card);
     }
     card.innerHTML = `

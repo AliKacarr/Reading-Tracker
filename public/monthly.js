@@ -63,6 +63,10 @@ function loadMonthlyCalendar() {
                     // Sort users alphabetically
                     data.users.sort((a, b) => a.name.localeCompare(b.name));
 
+                    // Get current user info
+                    const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+                    let defaultUser = null;
+
                     // Add each user to the selector
                     data.users.forEach(user => {
                         const option = document.createElement('option');
@@ -70,15 +74,24 @@ function loadMonthlyCalendar() {
                         option.textContent = user.name;
                         option.dataset.userId = user._id; // Store user ID for easier access
                         userSelector.appendChild(option);
+
+                        // If this is the current user, mark it as default
+                        if (currentUserInfo && currentUserInfo.userId === user._id) {
+                            defaultUser = user.name;
+                        }
                     });
 
-                    // Select first user by default
-                    if (userSelector.options.length > 0) {
+                    // Set the default user (current user if logged in, otherwise first user)
+                    if (defaultUser) {
+                        selectedUser = defaultUser;
+                        userSelector.value = selectedUser;
+                    } else if (userSelector.options.length > 0) {
                         selectedUser = userSelector.options[0].value;
                         userSelector.value = selectedUser;
-                        // Generate calendar with the selected user
-                        generateCalendar(currentMonth, currentYear);
                     }
+                    
+                    // Generate calendar with the selected user
+                    generateCalendar(currentMonth, currentYear);
                 }
             })
             .catch(error => {

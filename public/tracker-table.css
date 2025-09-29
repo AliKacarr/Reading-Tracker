@@ -88,7 +88,7 @@
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
-    border: 2px dashed #ccc;
+    border: 1px dashed #ccc;
 }
 
 .profile-image.loading::after {
@@ -97,10 +97,10 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 15px;
-    height: 15px;
-    border: 2px solid #4e54c8;
-    border-top: 2px solid transparent;
+    width: 12px;
+    height: 12px;
+    border: 1px solid #4e54c8;
+    border-top: 1px solid transparent;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -434,3 +434,31 @@ th.today-column {
 }
 
 /* refresh-button kaldırıldı */
+
+/* Giriş yapılan kullanıcının satırı için özel stil */
+.user-row.current-user-row {
+    border: 3px solid #28a745;
+    box-shadow: 0 0 0 1px #28a745, 0 4px 12px rgba(40, 167, 69, 0.3);
+    position: relative;
+}
+
+.user-row.current-user-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    z-index: 1;
+}
+
+.user-row.current-user-row td {
+    border-color: #28a745;
+    border-width: 2px;
+    position: relative;
+}
+
+.user-row.current-user-row:hover {
+    box-shadow: 0 0 0 2px #28a745, 0 4px 16px rgba(40, 167, 69, 0.4);
+}

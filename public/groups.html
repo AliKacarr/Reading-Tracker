@@ -454,30 +454,34 @@
         <div class="user-settings">
           <!-- Add the Add User section -->
           <form id="newUserForm" enctype="multipart/form-data">
-            <h3>➕ Kullanıcı Ekle</h3>
-            <div class="image-upload">
-              <label for="profileImage">Profil Resmi:</label>
-              <div class="file-input-container">
-                <input type="file" id="profileImage" name="profileImage" accept="image/*" />
-                <label for="profileImage" class="custom-file-input" id="file-input-label">Resim Seç</label>
-                <span id="file-name">Resim seçilmedi</span>
-              </div>
-            </div>
-            <div class="ad-user-form-group">
-              <label for="newUserInput">Kullanıcı İsmi:</label>
-              <div class="input-container">
-                <div class="input-icon-container">
-                  <img src="/images/default.png" alt="Varsayılan profil resmi" class="input-profile-image" id="inputProfileImage">
+            <div class="form-left-column">
+              <h3>➕ Kullanıcı Ekle</h3>
+              <div class="image-upload">
+                <label for="profileImage">Profil Resmi:</label>
+                <div class="file-input-container">
+                  <input type="file" id="profileImage" name="profileImage" accept="image/*" />
+                  <label for="profileImage" class="custom-file-input" id="file-input-label">Resim Seç</label>
+                  <span id="file-name">Resim seçilmedi</span>
                 </div>
-                <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
-                <button type="submit" class="submit-button">Ekle</button>
+              </div>
+              <div class="ad-user-form-group">
+                <label for="newUserInput">Kullanıcı İsmi:</label>
+                <div class="input-container">
+                  <div class="input-icon-container">
+                    <img src="/images/default.png" alt="Varsayılan profil resmi" class="input-profile-image" id="inputProfileImage">
+                  </div>
+                  <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
+                  <button type="submit" class="submit-button">Ekle</button>
+                </div>
               </div>
             </div>
-            <!-- Resim ön izleme alanı - en altta -->
-            <div id="imagePreviewContainer" style="display: none; margin-top: 20px; position: relative;">
-              <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
-              <button type="button" id="closePreview" class="close-preview-button"><i
-                  class="fa-solid fa-xmark"></i></button>
+            <div class="form-right-column">
+              <!-- Resim ön izleme alanı - sağ sütunda -->
+              <div id="imagePreviewContainer" style="display: none;">
+                <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
+                <button type="button" id="closePreview" class="close-preview-button"><i
+                    class="fa-solid fa-xmark"></i></button>
+              </div>
             </div>
           </form>
 

@@ -57,7 +57,6 @@
     cursor: default;
     background: linear-gradient(90deg, #f8f9fa 25%, #e9ecef 50%, #f8f9fa 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
     display: flex;
     flex-direction: column;
 }
@@ -70,6 +69,7 @@
     animation: shimmer 1.5s infinite;
     position: relative;
     flex-shrink: 0;
+    border-bottom: 1px solid #bababa;
 }
 
 .loading-spinner {

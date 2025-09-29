@@ -35,6 +35,9 @@ async function loadReadingStats() {
             };
         });
 
+        // Giriş yapılan kullanıcı bilgisini al
+        const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
+
         // Get the canvas element
         const ctx = document.getElementById('readingStatsChart');
 
@@ -66,16 +69,24 @@ async function loadReadingStats() {
         // Find the highest success rate
         const highestSuccessRate = Math.max(...successRates);
 
-        // Create background colors array based on success rates
+        // Create background colors array based on success rates and current user
         const okudumBackgroundColors = enhancedUserStats.map((user, index) => {
+            // If this is the current user, highlight with a special color
+            if (currentUserInfo && currentUserInfo.userId === user.userId) {
+                return 'rgba(40, 167, 69, 0.9)'; // Special green for current user
+            }
             // If this user has the highest success rate, highlight with a more vibrant color
             return successRates[index] === highestSuccessRate
                 ? 'rgba(76, 217, 99, 0.95)' // Brighter green for highest success rate
                 : 'rgba(68, 206, 91, 0.79)'; // Regular green for others
         });
 
-        // Create border colors array based on success rates
+        // Create border colors array based on success rates and current user
         const okudumBorderColors = enhancedUserStats.map((user, index) => {
+            // If this is the current user, highlight with a special border
+            if (currentUserInfo && currentUserInfo.userId === user.userId) {
+                return 'rgba(28, 147, 49, 1)'; // Special dark green border for current user
+            }
             // If this user has the highest success rate, highlight with a thicker border
             return successRates[index] === highestSuccessRate
                 ? 'rgba(50, 180, 80, 1)' // Darker green border for highest success rate
