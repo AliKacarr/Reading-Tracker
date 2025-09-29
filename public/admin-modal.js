@@ -341,7 +341,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (adminIndicator) {
                 adminIndicator.style.display = 'flex';
                 const displayName = userInfo.adminUserName && userInfo.adminUserName !== 'null' ? userInfo.adminUserName : '';
-                adminIndicator.textContent = userInfo.userAuthority === 'admin' ? `${displayName}` : `${displayName}`;
+                adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
+                    `<i class="fa-solid fa-user-shield"></i> ${displayName}` : 
+                    `<i class="fa-solid fa-user"></i> ${displayName}`;
             }
             
             // Sadece admin yetkisi olan kullanıcılar için main-area göster

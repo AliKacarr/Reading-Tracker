@@ -548,72 +548,104 @@ toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElem
 
   // Member kullanıcıları sadece kendi verilerini güncelleyebilir
   if (userInfo.userAuthority === 'member') {
-    // Kullanıcı adını kontrol et (userName parametresi ile)
-    const currentUserName = userInfo.adminUserName;
-    if (currentUserName !== userName) {
-      logUnauthorizedAccess('toggleUserCardsReadingStatus-other-user');
-      return;
-    }
-  }
-
-  // Tarih formatını yyyy-mm-dd olarak hazırla
-  function formatDateForTable(day, month, year) {
-    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  }
-  const dateStr = formatDateForTable(day, month, year);
-
-  // Önce mevcut durumu al ve yeni durumu hesapla
-  fetch(`/api/all-data/${currentGroupId}`)
-    .then(response => response.json())
-    .then(data => {
-      const user = data.users.find(u => u.name === userName);
-      if (!user) throw new Error('Kullanıcı bulunamadı');
-
-      const stat = data.stats.find(s => s.userId === user._id && s.date === dateStr);
-      let currentStatus = stat ? stat.status : '';
-      let newStatus = '';
-
-      if (currentStatus === '') {
-        newStatus = 'okudum';
-      } else if (currentStatus === 'okudum') {
-        newStatus = 'okumadım';
-      } else if (currentStatus === 'okumadım') {
-        newStatus = '';
-      }
-
-      // Önce UI'ı anında güncelle
-      updateDayCircleStatus(clickedElement, newStatus);
-
-      // Sonra veritabanını güncelle
-      return fetch(`/api/update-status/${currentGroupId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user._id,
-          date: dateStr,
-          status: newStatus,
-          requestingUserId: userInfo.userId,
-          requestingUserAuthority: userInfo.userAuthority
-        })
+    // Member kullanıcılar için kullanıcı adını API'den al
+    fetch(`/api/users/${currentGroupId}`)
+      .then(response => response.json())
+      .then(data => {
+        const currentUser = data.users.find(u => u._id === userInfo.userId);
+        if (!currentUser) {
+          logUnauthorizedAccess('toggleUserCardsReadingStatus-user-not-found');
+          return;
+        }
+        
+        if (currentUser.name !== userName) {
+          logUnauthorizedAccess('toggleUserCardsReadingStatus-other-user');
+          return;
+        }
+        
+        // Yetki kontrolü başarılı, işlemi devam ettir
+        continueWithToggle();
+      })
+      .catch(error => {
+        console.error('Kullanıcı bilgisi alınırken hata:', error);
+        return;
       });
-    })
-    .then(response => {
-      if (response && response.ok) {
-        // Veritabanı güncellemesi başarılı olduktan sonra diğer bileşenleri güncelle
-        if (window.loadTrackerTable) window.loadTrackerTable();
-        if (window.loadReadingStats) window.loadReadingStats();
-        if (window.renderLongestSeries) window.renderLongestSeries();
-      } else {
-        // Veritabanı güncellemesi başarısız olursa UI'ı eski haline döndür
-        console.error('Veritabanı güncellemesi başarısız');
+    return; // Async işlem başladı, fonksiyondan çık
+  }
+  
+  // Admin kullanıcılar için direkt devam et
+  continueWithToggle();
+  
+  function continueWithToggle() {
+    // Tarih formatını yyyy-mm-dd olarak hazırla
+    function formatDateForTable(day, month, year) {
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+    const dateStr = formatDateForTable(day, month, year);
+
+    // 1. ÖNCE UI'YI GÜNCELLE (Anında görsel geri bildirim)
+    // Mevcut durumu tıklanan elementten tespit et
+    const dayCircle = clickedElement.querySelector('.day-circle');
+    let currentStatus = '';
+    if (dayCircle.classList.contains('ok')) {
+      currentStatus = 'okudum';
+    } else if (dayCircle.classList.contains('not')) {
+      currentStatus = 'okumadım';
+    } else {
+      currentStatus = '';
+    }
+
+    // Yeni durumu hesapla
+    let newStatus = '';
+    if (currentStatus === '') {
+      newStatus = 'okudum';
+    } else if (currentStatus === 'okudum') {
+      newStatus = 'okumadım';
+    } else if (currentStatus === 'okumadım') {
+      newStatus = '';
+    }
+
+    // UI'ı anında güncelle
+    updateDayCircleStatus(clickedElement, newStatus);
+
+    // 2. SONRA VERİTABANINI GÜNCELLE
+    fetch(`/api/all-data/${currentGroupId}`)
+      .then(response => response.json())
+      .then(data => {
+        const user = data.users.find(u => u.name === userName);
+        if (!user) throw new Error('Kullanıcı bulunamadı');
+
+        return fetch(`/api/update-status/${currentGroupId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user._id,
+            date: dateStr,
+            status: newStatus,
+            requestingUserId: userInfo.userId,
+            requestingUserAuthority: userInfo.userAuthority
+          })
+        });
+      })
+      .then(response => {
+        if (response && response.ok) {
+          // Veritabanı güncellemesi başarılı olduktan sonra tüm bileşenleri güncelle
+          if (window.loadUserCards) window.loadUserCards(); // Kullanıcı kartlarını yeniden render et
+          if (window.loadTrackerTable) window.loadTrackerTable();
+          if (window.loadReadingStats) window.loadReadingStats();
+          if (window.renderLongestSeries) window.renderLongestSeries();
+        } else {
+          // Veritabanı güncellemesi başarısız olursa UI'ı eski haline döndür
+          console.error('Veritabanı güncellemesi başarısız');
+          if (window.loadUserCards) window.loadUserCards();
+        }
+      })
+      .catch(error => {
+        console.error('Okuma durumu değiştirilirken hata oluştu:', error);
+        // Hata durumunda UI'ı eski haline döndür
         if (window.loadUserCards) window.loadUserCards();
-      }
-    })
-    .catch(error => {
-      console.error('Okuma durumu değiştirilirken hata oluştu:', error);
-      // Hata durumunda UI'ı eski haline döndür
-      if (window.loadUserCards) window.loadUserCards();
-    });
+      });
+  }
 }
 
 // Day-circle durumunu güncelleme yardımcı fonksiyonu

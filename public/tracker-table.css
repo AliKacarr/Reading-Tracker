@@ -447,7 +447,7 @@ th.today-column {
     position: absolute;
     top: 0;
     left: 0;
-    width: 6px;
+    width: 4px;
     height: 100%;
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     z-index: 1;
@@ -457,6 +457,11 @@ th.today-column {
     border-color: #28a745;
     border-width: 2px;
     position: relative;
+}
+
+/* Bugünün sütunundan sonrası için varsayılan renk */
+.user-row.current-user-row td:not(.today-column, .green, .pink, .lila, .red) {
+    background-color: aliceblue;
 }
 
 .user-row.current-user-row:hover {

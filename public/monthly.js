@@ -347,82 +347,106 @@ function loadMonthlyCalendar() {
 
         // Member kullanıcıları sadece kendi verilerini güncelleyebilir
         if (userInfo.userAuthority === 'member') {
-            const currentUserName = userInfo.adminUserName;
-            if (currentUserName !== userName) {
-                logUnauthorizedAccess('toggleMontlyReadingStatus-other-user');
-                return;
-            }
-        }
-        const dateStr = formatDateForTable(day, month, year);
-
-        // Mevcut durumu hücreden tespit et
-        let currentStatus = '';
-        if (clickedCell.classList.contains('read')) {
-            currentStatus = 'okudum';
-        } else if (clickedCell.classList.contains('not-read')) {
-            currentStatus = 'okumadım';
-        } else {
-            currentStatus = '';
-        }
-
-        // Yeni durumu hesapla
-        let newStatus = '';
-        if (currentStatus === '') {
-            newStatus = 'okudum';
-        } else if (currentStatus === 'okudum') {
-            newStatus = 'okumadım';
-        } else if (currentStatus === 'okumadım') {
-            newStatus = '';
-        }
-
-        // Önce UI'ı anında güncelle
-        updateMonthlyCellStatus(clickedCell, newStatus);
-
-        // Sonra veritabanını güncelle
-        fetch(`/api/all-data/${currentGroupId}`)
-            .then(response => response.json())
-            .then(data => {
-                const user = data.users.find(u => u.name === userName);
-                if (!user) throw new Error('User not found');
-
-                return fetch(`/api/update-status/${currentGroupId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: user._id,
-                        date: dateStr,
-                        status: newStatus,
-                        requestingUserId: userInfo.userId,
-                        requestingUserAuthority: userInfo.userAuthority
-                    })
+            // Member kullanıcılar için kullanıcı adını API'den al
+            fetch(`/api/users/${currentGroupId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const currentUser = data.users.find(u => u._id === userInfo.userId);
+                    if (!currentUser) {
+                        logUnauthorizedAccess('toggleMontlyReadingStatus-user-not-found');
+                        return;
+                    }
+                    
+                    if (currentUser.name !== userName) {
+                        logUnauthorizedAccess('toggleMontlyReadingStatus-other-user');
+                        return;
+                    }
+                    
+                    // Yetki kontrolü başarılı, işlemi devam ettir
+                    continueWithToggle();
+                })
+                .catch(error => {
+                    console.error('Kullanıcı bilgisi alınırken hata:', error);
+                    return;
                 });
-            })
-            .then(response => {
-                if (response && response.ok) {
-                    // Veritabanı güncellemesi başarılı olduktan sonra diğer bileşenleri güncelle
-                    if (window.loadTrackerTable) {
-                        window.loadTrackerTable();
+            return; // Async işlem başladı, fonksiyondan çık
+        }
+        
+        // Admin kullanıcılar için direkt devam et
+        continueWithToggle();
+        
+        function continueWithToggle() {
+            const dateStr = formatDateForTable(day, month, year);
+
+            // Mevcut durumu hücreden tespit et
+            let currentStatus = '';
+            if (clickedCell.classList.contains('read')) {
+                currentStatus = 'okudum';
+            } else if (clickedCell.classList.contains('not-read')) {
+                currentStatus = 'okumadım';
+            } else {
+                currentStatus = '';
+            }
+
+            // Yeni durumu hesapla
+            let newStatus = '';
+            if (currentStatus === '') {
+                newStatus = 'okudum';
+            } else if (currentStatus === 'okudum') {
+                newStatus = 'okumadım';
+            } else if (currentStatus === 'okumadım') {
+                newStatus = '';
+            }
+
+            // Önce UI'ı anında güncelle
+            updateMonthlyCellStatus(clickedCell, newStatus);
+
+            // Sonra veritabanını güncelle
+            fetch(`/api/all-data/${currentGroupId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const user = data.users.find(u => u.name === userName);
+                    if (!user) throw new Error('User not found');
+
+                    return fetch(`/api/update-status/${currentGroupId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: user._id,
+                            date: dateStr,
+                            status: newStatus,
+                            requestingUserId: userInfo.userId,
+                            requestingUserAuthority: userInfo.userAuthority
+                        })
+                    });
+                })
+                .then(response => {
+                    if (response && response.ok) {
+                        // Veritabanı güncellemesi başarılı olduktan sonra diğer bileşenleri güncelle
+                        if (window.loadTrackerTable) {
+                            window.loadTrackerTable();
+                        }
+                        if (window.loadUserCards) {
+                            window.loadUserCards();
+                        }
+                        if (window.loadReadingStats) {
+                            window.loadReadingStats();
+                        }
+                        if (window.renderLongestSeries) {
+                            window.renderLongestSeries();
+                        }
+                    } else {
+                        // Veritabanı güncellemesi başarısız olursa UI'ı eski haline döndür
+                        console.error('Veritabanı güncellemesi başarısız');
+                        generateCalendar(currentMonth, currentYear, false);
                     }
-                    if (window.loadUserCards) {
-                        window.loadUserCards();
-                    }
-                    if (window.loadReadingStats) {
-                        window.loadReadingStats();
-                    }
-                    if (window.renderLongestSeries) {
-                        window.renderLongestSeries();
-                    }
-                } else {
-                    // Veritabanı güncellemesi başarısız olursa UI'ı eski haline döndür
-                    console.error('Veritabanı güncellemesi başarısız');
+                })
+                .catch(error => {
+                    console.error('Error toggling reading status:', error);
+                    // Hata durumunda UI'ı eski haline döndür
                     generateCalendar(currentMonth, currentYear, false);
-                }
-            })
-            .catch(error => {
-                console.error('Error toggling reading status:', error);
-                // Hata durumunda UI'ı eski haline döndür
-                generateCalendar(currentMonth, currentYear, false);
-            });
+                });
+        }
     }
 
     // Aylık takvim hücresini güncelleme yardımcı fonksiyonu
