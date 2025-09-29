@@ -751,11 +751,35 @@ async function changeUserAuthority(userId, newAuthority) {
 // Kullanıcı davet etme fonksiyonu
 async function inviteUser(userId, userName) {
     try {
-        // Grup URL'ini oluştur
-        const groupUrl = `${window.location.origin}/groupid=${currentGroupId}`;
+        // Davet token'ı oluştur
+        const response = await fetch(`/api/create-invite/${currentGroupId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Davet token oluşturulamadı');
+        }
+
+        const data = await response.json();
+        const { inviteToken, groupName } = data;
+
+        // Grup URL'lerini oluştur
+        const baseUrl = window.location.origin;
+        const quickLoginUrl = `${baseUrl}/groupid=${currentGroupId}&quick-login?invite=${inviteToken}`;
+        const groupUrl = `${baseUrl}/groupid=${currentGroupId}`;
         
         // Davet metnini oluştur
-        const inviteText = `RoTaKip okuma grubuna katıl! ${userName} seni davet ediyor.\n\nGrup Linki: ${groupUrl}`;
+        const inviteText = `${groupName} okuma grubu
+
+• Katılma linkiniz:
+${quickLoginUrl}
+
+• Grup sayfası:
+${groupUrl}`;
         
         // Panoya kopyala
         await navigator.clipboard.writeText(inviteText);
@@ -764,10 +788,10 @@ async function inviteUser(userId, userName) {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: `RoTaKip - ${userName} Daveti`,
+                    title: `RoTaKip - ${groupName} Daveti`,
                     text: inviteText,
                 });
-                showSuccessMessage(`${userName} için davet linki paylaşıldı ve panoya kopyalandı!`);
+                showSuccessMessage(`${userName} için davet linki panoya kopyalandı!`);
             } catch (shareError) {
                 showSuccessMessage(`${userName} için davet linki panoya kopyalandı!`);
             }
@@ -777,7 +801,7 @@ async function inviteUser(userId, userName) {
         
     } catch (error) {
         console.error('Davet hatası:', error);
-        showErrorMessage('Davet linki kopyalanamadı. Lütfen manuel olarak kopyalayın.');
+        showErrorMessage('Davet linki oluşturulamadı. Lütfen tekrar deneyin.');
     }
 }
 
@@ -1268,7 +1292,7 @@ async function shareGroup() {
                     title: `RoTaKip ${groupName}`,
                     text: shareText, // Tam metni paylaş
                 });
-                showSuccessMessage('Grup davet linki paylaşıldı ve panoya kopyalandı!');
+                showSuccessMessage('Grup davet linki panoya kopyalandı!');
             } catch (shareError) {
                 // Web Share API iptal edilirse sadece panoya kopyalama mesajı göster
                 showSuccessMessage('Grup davet linki panoya kopyalandı!');

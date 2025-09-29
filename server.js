@@ -418,6 +418,16 @@ const UserGroup = mongoose.model('UserGroup', {
   createdAt: { type: Date, default: Date.now }
 });
 
+// Davet modeli
+const Invite = mongoose.model('Invite', {
+  inviteTokenHash: String,
+  userId: String,
+  groupId: String,
+  used: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  expiresAt: { type: Date, default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) } // 7 gün sonra
+});
+
 // Admin model kaldırıldı - artık users koleksiyonunda admin olarak saklanıyor
 
 // MongoDB index'lerini oluşturma fonksiyonu
@@ -1670,7 +1680,107 @@ app.post('/api/update-status/:groupId', async (req, res) => {
 });
 
 
-// 3.4. ADMIN VE GÜVENLİK
+// 3.4. DAVET SİSTEMİ
+// ============================================================================
+
+// Davet oluşturma endpoint'i
+app.post('/api/create-invite/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { userId } = req.body;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Kullanıcı var mı kontrol et
+    const { users } = getGroupCollections(groupId);
+    const user = await users.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    }
+
+    // Rastgele token oluştur (16 byte = 32 karakter hex)
+    const crypto = require('crypto');
+    const inviteToken = crypto.randomBytes(16).toString('hex');
+    const inviteTokenHash = crypto.createHash('sha256').update(inviteToken).digest('hex');
+
+    // Kullanıcının bu gruptaki kullanılmamış tüm davetlerini sil
+    await Invite.deleteMany({ 
+      userId, 
+      groupId, 
+      used: false 
+    });
+
+    // Yeni davet oluştur
+    const invite = new Invite({
+      inviteTokenHash,
+      userId,
+      groupId,
+      used: false
+    });
+
+    await invite.save();
+
+    res.json({ 
+      success: true, 
+      inviteToken,
+      groupName: group.groupName,
+      groupId: group.groupId
+    });
+  } catch (error) {
+    console.error('Davet oluşturma hatası:', error);
+    res.status(500).json({ error: 'Davet oluşturulurken hata oluştu' });
+  }
+});
+
+// Davet doğrulama endpoint'i
+app.get('/api/verify-invite/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { invite } = req.query;
+
+    if (!invite) {
+      return res.status(400).json({ error: 'Davet token\'ı gerekli' });
+    }
+
+    // Token'ı hash'le
+    const crypto = require('crypto');
+    const inviteTokenHash = crypto.createHash('sha256').update(invite).digest('hex');
+
+    // Davet kaydını bul
+    const inviteRecord = await Invite.findOne({
+      inviteTokenHash,
+      groupId,
+      used: false,
+      expiresAt: { $gt: new Date() }
+    });
+
+    if (!inviteRecord) {
+      return res.status(404).json({ error: 'Geçersiz veya süresi dolmuş davet' });
+    }
+
+    // Grup bilgilerini al
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    res.json({ 
+      success: true, 
+      groupName: group.groupName,
+      groupId: group.groupId,
+      inviteId: inviteRecord._id
+    });
+  } catch (error) {
+    console.error('Davet doğrulama hatası:', error);
+    res.status(500).json({ error: 'Davet doğrulanırken hata oluştu' });
+  }
+});
+
+// 3.5. ADMIN VE GÜVENLİK
 // ============================================================================
 
 // Admin girişi endpoint'i

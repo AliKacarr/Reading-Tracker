@@ -208,6 +208,8 @@
 .longest-fire-icon {
     font-size: 3rem;
     animation: flame 1.5s infinite alternate;
+    filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.4)) drop-shadow(0 0 24px rgba(255, 140, 0, 0.2));
+    text-shadow: 0 0 8px rgba(255, 140, 0, 0.5);
 }
 
 @keyframes flame {
@@ -230,7 +232,7 @@
 .loading-lines {
     display: flex;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 35px;
 }
 
 .loading-line {
@@ -239,6 +241,21 @@
     border-radius: 12px;
     background: linear-gradient(90deg, #ff7f50, #ff4500);
     animation: line-bounce 1s infinite;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.loading-text {
+    color: #ff6b35;
+    font-size: 1.2em;
+    font-weight: 900;
+    text-shadow:  0 0 3px rgba(255, 140, 0, 0.2);
+    position: absolute;
+    top: -24px; /* Çizgiden biraz daha uzak */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    white-space: nowrap;
 }
 
 @keyframes line-bounce {
