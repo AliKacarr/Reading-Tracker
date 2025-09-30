@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Tüm yenileme butonlarını seç
 
     const quote = document.querySelector('.quote');
-    const refreshButtons = document.querySelectorAll('.refresh-quote');
+    const refreshQuoteButtons = document.querySelectorAll('.refresh-quote');
     
     // Her buton için animasyonu başlat
-    refreshButtons.forEach(button => {
+    refreshQuoteButtons.forEach(button => {
         const icon = button.querySelector('i');
         if (icon) {
             // Her 30 saniyede bir animasyonu tetikle
@@ -87,9 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshBtn.onclick = function () {
             fetchRandomQuote();
             logUnauthorizedAccess('refresh-RandomQuote');
-            this.classList.add('spinning');
+            this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
-                this.classList.remove('spinning');
+                this.classList.remove('refresh-quote-spinning');
             }, 1000);
         };
     }
@@ -98,9 +98,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshImageBtn) {
         refreshImageBtn.onclick = function () {
             fetchRandomQuoteImage();
-            this.classList.add('spinning');
+            this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
-                this.classList.remove('spinning');
+                this.classList.remove('refresh-quote-spinning');
             }, 1000);
         };
     }
@@ -109,9 +109,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshAyatButton) {
         refreshAyatButton.onclick = function () {
             fetchRandomAyet();
-            this.classList.add('spinning');
+            this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
-                this.classList.remove('spinning');
+                this.classList.remove('refresh-quote-spinning');
             }, 1000);
         };
     }
@@ -120,9 +120,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshHadithButton) {
         refreshHadithButton.onclick = function () {
             fetchRandomHadis();
-            this.classList.add('spinning');
+            this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
-                this.classList.remove('spinning');
+                this.classList.remove('refresh-quote-spinning');
             }, 1000);
         };
     }
@@ -131,9 +131,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshDuaButton) {
         refreshDuaButton.onclick = function () {
             fetchRandomDua();
-            this.classList.add('spinning');
+            this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
-                this.classList.remove('spinning');
+                this.classList.remove('refresh-quote-spinning');
             }, 1000);
         };
     }

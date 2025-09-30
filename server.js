@@ -1807,7 +1807,8 @@ app.post('/api/admin-login', async (req, res) => {
           groupName: group.groupName,
           groupId: group.groupId,
           userId: user._id, // Kullanıcı ID'sini de döndür
-          authority: user.authority // Kullanıcının yetkisini de döndür
+          authority: user.authority, // Kullanıcının yetkisini de döndür
+          adminUsername: user.username // Kullanıcının admin kullanıcı adını de döndür
         });
       } else {
         res.json({ success: false });

@@ -294,14 +294,14 @@ body {
     position: relative;
 }
 
-.group-avatar .group-avatar-image.loading {
+.group-avatar .group-avatar-image.group-avatar-image-loading {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    animation: group-avatar-image-shimmer 1.5s infinite;
     border: 2px dashed #ccc;
 }
 
-.group-avatar .group-avatar-image.loading::after {
+.group-avatar .group-avatar-image.group-avatar-image-loading::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -312,7 +312,7 @@ body {
     border: 2px solid #3B82F6;
     border-top: 2px solid transparent;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: avatar-loading-spin 1s linear infinite;
 }
 
 .group-avatar span {
@@ -324,7 +324,7 @@ body {
     height: 100%;
 }
 
-@keyframes shimmer {
+@keyframes group-avatar-image-shimmer {
     0% {
         background-position: -200% 0;
     }
@@ -333,7 +333,7 @@ body {
     }
 }
 
-@keyframes spin {
+@keyframes avatar-loading-spin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
@@ -436,24 +436,24 @@ body {
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
-/* Loading Spinner */
-.loading-spinner {
+/* LoadingSpinner */
+.group-loading-spinner {
     text-align: center;
     padding: 40px 20px;
     color: #2563EB;
 }
 
-.spinner {
+.group-load-spinner {
     width: 40px;
     height: 40px;
     border: 4px solid rgba(37, 99, 235, 0.2);
     border-left-color: #2563EB;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: loading-spin 1s linear infinite;
     margin: 0 auto 15px;
 }
 
-@keyframes spin {
+@keyframes loading-spin {
     to {
         transform: rotate(360deg);
     }

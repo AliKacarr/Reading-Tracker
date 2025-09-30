@@ -228,7 +228,7 @@ async function loadUserCards() {
     card.innerHTML = `
       <div class="user-card-header" style="background: ${headerBg};">
         <div class="profile-img-wrapper">
-          <img class="profile-img loading" src="${user.profileImage || '/images/default.png'}" alt="${user.name}" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/default.png'">
+          <img class="profile-img profile-img-loading" src="${user.profileImage || '/images/default.png'}" alt="${user.name}" onload="this.classList.remove('profile-img-loading')" onerror="this.classList.remove('profile-img-loading'); this.src='/images/default.png'">
         </div>
         <div class="user-card-header-content">
           <div class="user-card-user-name">${user.name}</div>

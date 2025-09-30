@@ -150,6 +150,13 @@ function hideAdminElements() {
 // Sayfa yüklendiğinde 5 çerezi sil, groups dizisinden kontrol et, varsa yeniden oluştur
 async function initializeAuthSystem() {
   
+  // Admin sayfaları için çerezleri silme
+  const currentPath = window.location.pathname;
+  if (currentPath === '/login-logs.html' || currentPath === '/admin-logs.html') {
+    console.log('Admin sayfası - çerezler korunuyor');
+    return true;
+  }
+  
   // 1. Önce 5 çerezi temizle
   LocalStorageManager.clearCookies();
   
@@ -370,6 +377,14 @@ async function updatePageTitle() {
 // Ana DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', async function () {
   try {
+    // Admin sayfaları için özel kontrol
+    const currentPath = window.location.pathname;
+    if (currentPath === '/login-logs.html' || currentPath === '/admin-logs.html') {
+      // Admin sayfaları için çerezleri silmeden devam et
+      console.log('Admin sayfası tespit edildi:', currentPath);
+      return;
+    }
+    
     // Grup ID'si yoksa ana sayfaya yönlendir
     if (window.currentGroupId === null) {
       window.location.href = '/';
@@ -424,14 +439,6 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
     }
 
-    // Yenileme butonu event listener'ı
-    const refreshButton = document.getElementById('refreshButton');
-    if (refreshButton) {
-      refreshButton.addEventListener('click', () => {
-        window.location.reload();
-      });
-    }
-
   } catch (error) {
     console.error('Sayfa yüklenirken hata oluştu:', error);
   }
@@ -448,6 +455,13 @@ window.addEventListener('popstate', function() {
 
 // Groups.html sayfası için otomatik giriş kontrolü
 async function checkAutoLoginForGroups() {
+  
+  // Admin sayfaları için otomatik giriş kontrolü yapma
+  const currentPath = window.location.pathname;
+  if (currentPath === '/login-logs.html' || currentPath === '/admin-logs.html') {
+    console.log('Admin sayfası - otomatik giriş kontrolü atlanıyor');
+    return;
+  }
   
   const currentGroupId = getGroupIdFromUrl();
   if (!currentGroupId) {

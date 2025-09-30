@@ -14,8 +14,18 @@
   <div id="loginSection" class="login-container">
     <h2>Admin Girişi</h2>
     <form id="loginForm" class="login-form">
-      <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-      <input type="password" id="password" placeholder="Şifre" required>
+      <div class="form-group">
+        <label for="username">Kullanıcı Adı</label>
+        <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <input type="password" id="password" placeholder="Şifre" required>
+      </div>
+      <div class="form-group">
+        <label for="groupId">Grup ID</label>
+        <input type="text" id="groupId" placeholder="Grup ID" class="group-id-input">
+      </div>
       <button type="submit">Giriş Yap</button>
     </form>
     <div id="loginError" class="error-message"></div>
@@ -28,7 +38,7 @@
         <a href="/" class="back-button">Ana Sayfa</a>
         <div style="display: flex; align-items: center;">
           <div id="filterContainer" style="margin-right: 10px;"></div>
-          <button id="refreshButton" class="refresh-button">
+          <button id="refreshLoginButton" class="refresh-button">
             <span class="refresh-icon">↻</span>
             <span class="refresh-text">Yenile</span>
           </button>
@@ -122,15 +132,91 @@
       const loginForm = document.getElementById('loginForm');
       const loginError = document.getElementById('loginError');
 
-      // Check if already authenticated
-      if (localStorage.getItem('authenticated') === 'true') {
+      // Function to try auto-login with stored group credentials
+      async function tryAutoLoginWithStoredCredentials() {
+        try {
+          // Get stored group information
+          const groupId = localStorage.getItem('groupid');
+          const userId = localStorage.getItem('userid');
+          const adminUserName = localStorage.getItem('adminUserName');
+          const userAuthority = localStorage.getItem('userAuthority');
+
+          if (!groupId || !userId || !adminUserName) {
+            console.log('Stored credentials not found');
+            return;
+          }
+
+          // Check if user has admin authority
+          if (userAuthority !== 'admin') {
+            console.log('User is not admin, filling form with stored credentials');
+            fillLoginFormWithStoredCredentials(groupId, adminUserName);
+            return;
+          }
+
+          // Try to verify admin status with the server
+          const response = await fetch('/api/verify-admin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+              username: adminUserName, 
+              groupId: groupId 
+            })
+          });
+
+          const data = await response.json();
+          
+          if (data.valid) {
+            // Auto-login successful
+            loginSection.style.display = 'none';
+            logsSection.style.display = 'block';
+            loadLogs();
+          } else {
+            // Admin verification failed, fill form with stored credentials
+            fillLoginFormWithStoredCredentials(groupId, adminUserName);
+          }
+        } catch (error) {
+          console.error('Auto-login error:', error);
+          // On error, try to fill form with stored credentials
+          const groupId = localStorage.getItem('groupid');
+          const adminUserName = localStorage.getItem('adminUserName');
+          if (groupId && adminUserName) {
+            fillLoginFormWithStoredCredentials(groupId, adminUserName);
+          }
+        }
+      }
+
+      // Function to fill login form with stored credentials
+      function fillLoginFormWithStoredCredentials(groupId, adminUserName) {
+        // Pre-fill the form with stored information
+        document.getElementById('username').value = adminUserName;
+        document.getElementById('password').placeholder = 'Şifrenizi girin';
+        
+        // Fill groupId if available, otherwise leave it empty for user input
+        if (groupId) {
+          document.getElementById('groupId').value = groupId;
+        }
+        
+        // Show a helpful message
+        const loginError = document.getElementById('loginError');
+        if (groupId) {
+          loginError.textContent = `Grup: ${groupId} - Kullanıcı: ${adminUserName}`;
+        } else {
+          loginError.textContent = `Kullanıcı: ${adminUserName} - Grup ID'yi girin`;
+        }
+        loginError.style.color = '#666';
+        loginError.style.fontSize = '14px';
+      }
+
+      // Check if already authenticated or try auto-login with stored credentials
+      if (localStorage.getItem('userAuthority') === 'admin') {
         loginSection.style.display = 'none';
         logsSection.style.display = 'block';
         loadLogs();
       } else {
-        // Show login section and hide logs section if not authenticated
-        loginSection.style.display = 'block';
-        logsSection.style.display = 'none';
+        // Try auto-login with stored group credentials
+        tryAutoLoginWithStoredCredentials();
       }
 
       // Handle login form submission
@@ -139,6 +225,7 @@
 
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        const groupId = document.getElementById('groupId').value || localStorage.getItem('groupid');
 
         try {
           const response = await fetch('/api/admin-login', {
@@ -146,13 +233,13 @@
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ username, password, groupId })
           });
 
           const data = await response.json();
 
           if (data.success) {
-            localStorage.setItem('authenticated', 'true');
+            localStorage.setItem('userAuthority', 'admin');
             localStorage.setItem('adminUsername', username);
             loginSection.style.display = 'none';
             logsSection.style.display = 'block';
@@ -169,8 +256,8 @@
       });
 
       // Add refresh button functionality
-      refreshButton.addEventListener('click', function () {
-        if (localStorage.getItem('authenticated') === 'true') {
+      refreshLoginButton.addEventListener('click', function () {
+        if (localStorage.getItem('userAuthority') === 'admin') {
           // Clear any active filters
           const filterContainer = document.getElementById('filterContainer');
           if (filterContainer) {
@@ -178,7 +265,7 @@
           }
 
           // Add loading animation to button
-          refreshButton.classList.add('loading');
+          refreshLoginButton.classList.add('refresh-button-loading');
 
           // Store the current view state and selected date if any
           const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
@@ -218,17 +305,17 @@
               }
 
               // Remove loading animation from button
-              refreshButton.classList.remove('loading');
+              refreshLoginButton.classList.remove('refresh-button-loading');
 
               // Show success indicator on button
-              const originalText = refreshButton.querySelector('.refresh-text').textContent;
-              refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-              refreshButton.classList.add('success');
+              const originalText = refreshLoginButton.querySelector('.refresh-text').textContent;
+              refreshLoginButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
+              refreshLoginButton.classList.add('refresh-button-success');
 
               // Reset button after 2 seconds
               setTimeout(() => {
-                refreshButton.querySelector('.refresh-text').textContent = originalText;
-                refreshButton.classList.remove('success');
+                refreshLoginButton.querySelector('.refresh-text').textContent = originalText;
+                refreshLoginButton.classList.remove('refresh-button-success');
               }, 2000);
             }
           });
@@ -299,7 +386,7 @@
             // Only update button state if this is a direct call (not from refresh button)
             if (updateButtonState) {
               // Remove loading animation from button
-              refreshButton.classList.remove('loading');
+              refreshLoginButton.classList.remove('refresh-button-loading');
             }
 
             return;
@@ -468,20 +555,9 @@
           };
 
           // Remove loading animation from button
-          if (refreshButton) {
-            refreshButton.classList.remove('loading');
+          if (refreshLoginButton) {
+            refreshLoginButton.classList.remove('refresh-button-loading');
 
-            // --- REMOVE THESE LINES ---
-            // Show success indicator on button
-            // const originalText = refreshButton.querySelector('.refresh-text').textContent;
-            // refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-            // refreshButton.style.backgroundColor = '#000080';
-
-            // Reset button after 2 seconds
-            // setTimeout(() => {
-            //   refreshButton.querySelector('.refresh-text').textContent = originalText;
-            //   refreshButton.style.backgroundColor = '';
-            // }, 2000);
           }
 
         } catch (error) {
@@ -492,17 +568,17 @@
           document.getElementById('paginationContainer').style.display = 'none';
 
           // Remove loading animation from button
-          if (refreshButton) {
-            refreshButton.classList.remove('loading');
+          if (refreshLoginButton) {
+            refreshLoginButton.classList.remove('refresh-button-loading');
 
             // Show error indicator on button
-            refreshButton.querySelector('.refresh-text').textContent = 'Hata!';
-            refreshButton.style.backgroundColor = '#f44336';
+            refreshLoginButton.querySelector('.refresh-text').textContent = 'Hata!';
+            refreshLoginButton.style.backgroundColor = '#f44336';
 
             // Reset button after 2 seconds
             setTimeout(() => {
-              refreshButton.querySelector('.refresh-text').textContent = 'Yenile';
-              refreshButton.style.backgroundColor = '';
+              refreshLoginButton.querySelector('.refresh-text').textContent = 'Yenile';
+              refreshLoginButton.style.backgroundColor = '';
             }, 2000);
           }
         }
@@ -685,11 +761,11 @@
       const filterContainer = document.getElementById('filterContainer');
       if (!filterContainer) {
         // Create filter container if it doesn't exist
-        const refreshButtonContainer = document.querySelector('.refresh-button').parentElement;
+        const refreshLoginButtonContainer = document.querySelector('.refresh-button').parentElement;
         const newFilterContainer = document.createElement('div');
         newFilterContainer.id = 'filterContainer';
         newFilterContainer.style.marginRight = '10px';
-        refreshButtonContainer.insertBefore(newFilterContainer, refreshButtonContainer.firstChild);
+        refreshLoginButtonContainer.insertBefore(newFilterContainer, refreshLoginButtonContainer.firstChild);
       }
 
       // Clear any existing filters
@@ -726,7 +802,7 @@
           }
         } else {
           // Instead of manual reload, trigger the refresh button
-          refreshButton.click();
+          refreshLoginButton.click();
         }
       });
 

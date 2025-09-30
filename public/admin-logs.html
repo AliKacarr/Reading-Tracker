@@ -13,8 +13,18 @@
   <div id="loginSection" class="login-container">
     <h2>Admin Girişi</h2>
     <form id="loginForm" class="login-form">
-      <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-      <input type="password" id="password" placeholder="Şifre" required>
+      <div class="form-group">
+        <label for="username">Kullanıcı Adı</label>
+        <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Şifre</label>
+        <input type="password" id="password" placeholder="Şifre" required>
+      </div>
+      <div class="form-group">
+        <label for="groupId">Grup ID</label>
+        <input type="text" id="groupId" placeholder="Grup ID" class="group-id-input">
+      </div>
       <button type="submit">Giriş Yap</button>
     </form>
     <div id="loginError" class="error-message"></div>
@@ -27,7 +37,7 @@
         <a href="/" class="back-button">Ana Sayfa</a>
         <div style="display: flex; align-items: center;">
           <div id="filterContainer" style="margin-right: 10px;"></div>
-          <button id="refreshButton" class="refresh-button">
+          <button id="refreshLogsButton" class="refresh-button">
             <span class="refresh-icon">↻</span>
             <span class="refresh-text">Yenile</span>
           </button>
@@ -115,16 +125,96 @@
         const loginForm = document.getElementById('loginForm');
         const loginError = document.getElementById('loginError');
         const logsTableBody = document.getElementById('logsTableBody');
-        const refreshButton = document.getElementById('refreshButton');
+        const refreshLogsButton = document.getElementById('refreshLogsButton');
 
         // Define ipColors at the global scope
         let ipColors = {};
 
-        // Check if already authenticated
-        if (localStorage.getItem('authenticated') === 'true') {
+        // Function to try auto-login with stored group credentials
+        async function tryAutoLoginWithStoredCredentials() {
+          try {
+            // Get stored group information
+            const groupId = localStorage.getItem('groupid');
+            const userId = localStorage.getItem('userid');
+            const adminUserName = localStorage.getItem('adminUserName');
+            const userAuthority = localStorage.getItem('userAuthority');
+
+            if (!groupId || !userId || !adminUserName) {
+              console.log('Stored credentials not found');
+              return;
+            }
+
+            // Check if user has admin authority
+            if (userAuthority !== 'admin') {
+              console.log('User is not admin, filling form with stored credentials');
+              fillLoginFormWithStoredCredentials(groupId, adminUserName);
+              return;
+            }
+
+            // Try to verify admin status with the server
+            const response = await fetch('/api/verify-admin', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ 
+                username: adminUserName, 
+                groupId: groupId 
+              })
+            });
+
+            const data = await response.json();
+            
+            if (data.valid) {
+              // Auto-login successful
+              loginSection.style.display = 'none';
+              logsSection.style.display = 'block';
+              loadLogs();
+            } else {
+              // Admin verification failed, fill form with stored credentials
+              fillLoginFormWithStoredCredentials(groupId, adminUserName);
+            }
+          } catch (error) {
+            console.error('Auto-login error:', error);
+            // On error, try to fill form with stored credentials
+            const groupId = localStorage.getItem('groupid');
+            const adminUserName = localStorage.getItem('adminUserName');
+            if (groupId && adminUserName) {
+              fillLoginFormWithStoredCredentials(groupId, adminUserName);
+            }
+          }
+        }
+
+        // Function to fill login form with stored credentials
+        function fillLoginFormWithStoredCredentials(groupId, adminUserName) {
+          // Pre-fill the form with stored information
+          document.getElementById('username').value = adminUserName;
+          document.getElementById('password').placeholder = 'Şifrenizi girin';
+          
+          // Fill groupId if available, otherwise leave it empty for user input
+          if (groupId) {
+            document.getElementById('groupId').value = groupId;
+          }
+          
+          // Show a helpful message
+          const loginError = document.getElementById('loginError');
+          if (groupId) {
+            loginError.textContent = `Grup: ${groupId} - Kullanıcı: ${adminUserName}`;
+          } else {
+            loginError.textContent = `Kullanıcı: ${adminUserName} - Grup ID'yi girin`;
+          }
+          loginError.style.color = '#666';
+          loginError.style.fontSize = '14px';
+        }
+
+        // Check if already authenticated or try auto-login with stored credentials
+        if (localStorage.getItem('userAuthority') === 'admin') {
           loginSection.style.display = 'none';
           logsSection.style.display = 'block';
           loadLogs();
+        } else {
+          // Try auto-login with stored group credentials
+          tryAutoLoginWithStoredCredentials();
         }
 
         // Handle login form submission
@@ -133,6 +223,7 @@
 
           const username = document.getElementById('username').value;
           const password = document.getElementById('password').value;
+          const groupId = document.getElementById('groupId').value || localStorage.getItem('groupid');
 
           try {
             const response = await fetch('/api/admin-login', {
@@ -140,14 +231,17 @@
               headers: {
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ username, password })
+              body: JSON.stringify({ username, password, groupId })
             });
 
             const data = await response.json();
 
             if (data.success) {
-              localStorage.setItem('authenticated', 'true');
               localStorage.setItem('adminUsername', username);
+              localStorage.setItem('groupid', groupId);
+              localStorage.setItem('userid', userId);
+              localStorage.setItem('userAuthority', 'admin');
+              localStorage.setItem('groupName', groupName);
               loginSection.style.display = 'none';
               logsSection.style.display = 'block';
               loadLogs();
@@ -165,8 +259,8 @@
         });
 
         // Handle refresh button click
-        refreshButton.addEventListener('click', function () {
-          if (localStorage.getItem('authenticated') !== 'true') {
+        refreshLogsButton.addEventListener('click', function () {
+          if (localStorage.getItem('userAuthority') !== 'admin') {
             loginSection.style.display = 'block';
             logsSection.style.display = 'none';
             return;
@@ -179,7 +273,8 @@
           }
 
           // Add loading animation to button
-          refreshButton.classList.add('loading');
+          refreshLogsButton.classList.add('refresh-admin-logs-button-loading');
+          refreshLogsButton.classList.add('refresh-admin-logs-button-success');
 
           // Store the current view state and selected date if any
           const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
@@ -211,13 +306,13 @@
                   }
                 }
               }
-              refreshButton.classList.remove('loading');
-              const originalText = refreshButton.querySelector('.refresh-text').textContent;
-              refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-              refreshButton.classList.add('success');
+              refreshLogsButton.classList.remove('refresh-admin-logs-button-loading');
+              const originalText = refreshLogsButton.querySelector('.refresh-text').textContent;
+              refreshLogsButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
+              refreshLogsButton.classList.add('refresh-admin-logs-button-success');
               setTimeout(() => {
-                refreshButton.querySelector('.refresh-text').textContent = originalText;
-                refreshButton.classList.remove('success');
+                refreshLogsButton.querySelector('.refresh-text').textContent = originalText;
+                refreshLogsButton.classList.remove('refresh-admin-logs-button-success');
               }, 2000);
             }
           });
@@ -226,11 +321,7 @@
         // Function to load logs
         async function loadLogs() {
           try {
-            const response = await fetch('/api/access-logs', {
-              headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-              }
-            });
+            const response = await fetch('/api/access-logs');
 
             if (!response.ok) {
               throw new Error('Failed to fetch logs');
@@ -310,34 +401,23 @@
             }, 500);
 
             // Remove loading animation from button
-            refreshButton.classList.remove('loading');
-
-            // Show success indicator on button
-            // const originalText = refreshButton.querySelector('.refresh-text').textContent;
-            // refreshButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-            // refreshButton.style.backgroundColor = '#000080';
-
-            // Reset button after 2 seconds
-            // setTimeout(() => {
-            //   refreshButton.querySelector('.refresh-text').textContent = originalText;
-            //   refreshButton.style.backgroundColor = '';
-            // }, 2000);
+            refreshLogsButton.classList.remove('refresh-admin-logs-button-loading');
 
           } catch (error) {
             console.error('Error loading logs:', error);
             logsTableBody.innerHTML = `<tr><td colspan="4">Kayıtlar yüklenirken bir hata oluştu: ${error.message}</td></tr>`;
 
             // Remove loading animation from button
-            refreshButton.classList.remove('loading');
+            refreshLogsButton.classList.remove('refresh-admin-logs-button-loading');
 
             // Show error indicator on button
-            refreshButton.querySelector('.refresh-text').textContent = 'Hata!';
-            refreshButton.style.backgroundColor = '#f44336';
+            refreshLogsButton.querySelector('.refresh-text').textContent = 'Hata!';
+            refreshLogsButton.style.backgroundColor = '#f44336';
 
             // Reset button after 2 seconds
             setTimeout(() => {
-              refreshButton.querySelector('.refresh-text').textContent = 'Yenile';
-              refreshButton.style.backgroundColor = '';
+              refreshLogsButton.querySelector('.refresh-text').textContent = 'Yenile';
+              refreshLogsButton.style.backgroundColor = '';
             }, 2000);
           }
         }
@@ -741,11 +821,7 @@
           });
 
           // Fetch all logs and filter them
-          fetch('/api/access-logs', {
-            headers: {
-              'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-            }
-          })
+          fetch('/api/access-logs')
             .then(response => response.json())
             .then(logs => {
               // Filter logs by IP and device

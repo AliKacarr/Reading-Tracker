@@ -84,14 +84,14 @@
     position: relative;
 }
 
-.profile-image.loading {
+.profile-image.profile-image-loading {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    animation: profile-image-shimmer 1.5s infinite;
     border: 1px dashed #ccc;
 }
 
-.profile-image.loading::after {
+.profile-image.profile-image-loading::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -102,10 +102,10 @@
     border: 1px solid #4e54c8;
     border-top: 1px solid transparent;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: profile-image-spin 1s linear infinite;
 }
 
-@keyframes shimmer {
+@keyframes profile-image-shimmer {
     0% {
         background-position: -200% 0;
     }
@@ -114,7 +114,7 @@
     }
 }
 
-@keyframes spin {
+@keyframes profile-image-spin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
@@ -433,7 +433,6 @@ th.today-column {
     transform: translateY(0);
 }
 
-/* refresh-button kaldırıldı */
 
 /* Giriş yapılan kullanıcının satırı için özel stil */
 .user-row.current-user-row {

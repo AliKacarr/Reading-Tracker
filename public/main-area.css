@@ -147,14 +147,15 @@ ul#userList li span {
     position: relative;
 }
 
-.user-profile-image.loading {
+.user-profile-image.user-profile-image-loading {
+    animation: user-profile-image-spin 1s linear infinite;
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    animation: user-profile-image-shimmer 1.5s infinite;
     border: 2px dashed #ccc;
 }
 
-.user-profile-image.loading::after {
+.user-profile-image.user-profile-image-loading::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -165,7 +166,7 @@ ul#userList li span {
     border: 2px solid #4e54c8;
     border-top: 2px solid transparent;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: user-profile-image-spin 1s linear infinite;
 }
 
 .user-profile-image:hover {
@@ -742,14 +743,14 @@ label.custom-file-input:hover {
     position: relative;
 }
 
-.group-image-preview.loading {
+.group-image-preview.group-image-preview-loading {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+    animation: group-image-preview-shimmer 1.5s infinite;
     border: 2px dashed #ccc;
 }
 
-.group-image-preview.loading::after {
+.group-image-preview.group-image-preview-loading::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -760,14 +761,14 @@ label.custom-file-input:hover {
     border: 2px solid #4e54c8;
     border-top: 2px solid transparent;
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: group-image-preview-spin 1s linear infinite;
 }
 
 .group-image-preview:hover {
     opacity: 0.8;
 }
 
-@keyframes shimmer {
+@keyframes group-image-preview-shimmer {
     0% {
         background-position: -200% 0;
     }
@@ -776,7 +777,21 @@ label.custom-file-input:hover {
     }
 }
 
-@keyframes spin {
+@keyframes user-profile-image-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes user-profile-image-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes group-image-preview-spin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }

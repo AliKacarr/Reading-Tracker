@@ -38,11 +38,6 @@ function loadMonthlyCalendar() {
         }
     }
 
-    // Show monthly calendar section
-    const monthlyCalendarSection = document.querySelector('.monthly-calendar-section');
-    if (monthlyCalendarSection) {
-        monthlyCalendarSection.style.display = 'block';
-    }
 
     // Get user selector element
     const userSelector = document.getElementById('userSelector');
@@ -160,7 +155,7 @@ function loadMonthlyCalendar() {
         if (showLoading) {
             const loadingIndicator = document.createElement('div');
             loadingIndicator.className = 'calendar-loading';
-            loadingIndicator.innerHTML = '<div class="spinner"></div><p>Yükleniyor...</p>';
+            loadingIndicator.innerHTML = '<div class="monthly-spinner"></div><p>Yükleniyor...</p>';
             if (calendarContainer) {
                 calendarContainer.appendChild(loadingIndicator);
             }
@@ -501,6 +496,12 @@ function loadMonthlyCalendar() {
         generateCalendar(currentMonth, currentYear);
     }
 
+    // Show monthly calendar section
+    const monthlyCalendarSection = document.querySelector('.monthly-calendar-section');
+    if (monthlyCalendarSection) {
+        monthlyCalendarSection.style.display = 'block';
+    }
+        
     // Expose the update function globally so it can be called from your main script
     window.updateMonthlyCalendar = updateCalendarWithUserData;
 

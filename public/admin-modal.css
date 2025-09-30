@@ -345,21 +345,6 @@
     border-color: rgba(255, 255, 255, 0.4);
 }
 
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-@keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
-
-
 .admin-logs-button {
     bottom: 65px;
     right: 20px;

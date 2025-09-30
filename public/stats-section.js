@@ -269,7 +269,7 @@ async function loadReadingStats() {
             plugins: [ChartDataLabels]
         });
 
-        // Grafik başarıyla oluşturulduktan sonra loading spinner'ı gizle
+        // Grafik başarıyla oluşturulduktan sonra statsLoadingSpinner'ı gizle
         const statsLoading = document.getElementById('stats-loading');
         if (statsLoading) statsLoading.style.display = 'none';
 

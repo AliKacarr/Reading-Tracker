@@ -479,7 +479,7 @@ class GroupsPage {
 
         let avatarHtml;
         if (group.groupImage) {
-            avatarHtml = `<img src="${group.groupImage}" alt="${group.groupName}" class="group-avatar-image loading" onload="this.classList.remove('loading')" onerror="this.classList.remove('loading'); this.src='/images/open-book.webp'">`;
+            avatarHtml = `<img src="${group.groupImage}" alt="${group.groupName}" class="group-avatar-image group-avatar-image-loading" onload="this.classList.remove(group-avatar-image-loading')" onerror="this.classList.remove(group-avatar-image-loading'); this.src='/images/open-book.webp'">`;
         } else {
             const groupInitial = group.groupName.charAt(0).toUpperCase();
             avatarHtml = `<span>${groupInitial}</span>`;
@@ -540,8 +540,8 @@ class GroupsPage {
     }
 
     showLoading(show) {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = show ? 'block' : 'none';
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        loadingSpinner.style.display = show ? 'block' : 'none';
     }
 
     showError(message) {
