@@ -124,10 +124,10 @@
           // Get stored group information
           const groupId = localStorage.getItem('groupid');
           const userId = localStorage.getItem('userid');
-          const adminUserName = localStorage.getItem('adminUserName');
+          const userName = localStorage.getItem('userName');
           const userAuthority = localStorage.getItem('userAuthority');
 
-          if (!groupId || !userId || !adminUserName) {
+          if (!groupId || !userId || !userName) {
             console.log('Stored credentials not found');
             showAccessDenied();
             return;
@@ -147,7 +147,7 @@
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-              username: adminUserName, 
+              username: userName, 
               groupId: groupId 
             })
           });

@@ -105,7 +105,7 @@ async function loadTrackerTable() {
         prevWeekTodayBtn.style.display = 'none';
         nextWeekTodayBtn.style.display = 'none';
     }
-    const res = await fetch(`/api/all-data/${currentGroupId}`);
+    const res = await fetch(`/api/all-data/${window.groupid}`);
     const data = await res.json();
     const { users, stats } = data;
     
@@ -384,7 +384,7 @@ async function toggleStatus(userId, date) {
     userReadingCounts.set(userId, newCount);
 
     // Veri tabanı güncellemesini hemen yap
-    await fetch(`/api/update-status/${currentGroupId}`, {
+    await fetch(`/api/update-status/${window.groupid}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -398,7 +398,7 @@ async function toggleStatus(userId, date) {
 
     // Kullanıcının serisini güncelle (satırın son hücresi) - optimize edilmiş
     try {
-        const res = await fetch(`/api/user-stats/${currentGroupId}/${userId}`);
+        const res = await fetch(`/api/user-stats/${window.groupid}/${userId}`);
         const { stats } = await res.json();
         const userStatsMap = {};
         for (let s of stats) {
@@ -472,7 +472,7 @@ function updateAllUserBackgroundColors() {
 async function updateUserBackgroundColor(userId) {
     try {
         // Kullanıcının güncel istatistiklerini al
-        const response = await fetch(`/api/user-stats/${currentGroupId}/${userId}`);
+        const response = await fetch(`/api/user-stats/${window.groupid}/${userId}`);
         if (!response.ok) return;
         const { stats } = await response.json();
         

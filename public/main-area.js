@@ -28,7 +28,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         }
 
         // Kullanıcıyı ekle (yeni sistem: önce yerel, sonra Dropbox)
-        const response = await fetch(`/api/add-user/${currentGroupId}`, {
+        const response = await fetch(`/api/add-user/${window.groupid}`, {
             method: 'POST',
             body: formData
         });
@@ -120,7 +120,7 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
         }
 
         try {
-            await fetch(`/api/delete-user/${currentGroupId}`, {
+            await fetch(`/api/delete-user/${window.groupid}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id })
@@ -191,7 +191,7 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
 
     try {
         // Update the user name in the database
-        const response = await fetch(`/api/update-user/${currentGroupId}`, {
+        const response = await fetch(`/api/update-user/${window.groupid}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, name: newName })
@@ -364,7 +364,7 @@ function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyo
             formData.append('profileImage', file);
 
             try {
-                const response = await fetch(`/api/update-user-image/${currentGroupId}`, {
+                const response = await fetch(`/api/update-user-image/${window.groupid}`, {
                     method: 'POST',
                     body: formData
                 });
@@ -620,7 +620,7 @@ function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
 // Admin sayısını kontrol eden yardımcı fonksiyon
 async function getAdminCount() {
     try {
-        const response = await fetch(`/api/users/${currentGroupId}`);
+        const response = await fetch(`/api/users/${window.groupid}`);
         if (!response.ok) return 0;
         
         const data = await response.json();
@@ -689,7 +689,7 @@ async function changeUserAuthority(userId, newAuthority) {
     }
 
     try {
-        const response = await fetch(`/api/update-user-authority/${currentGroupId}`, {
+        const response = await fetch(`/api/update-user-authority/${window.groupid}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -716,9 +716,7 @@ async function changeUserAuthority(userId, newAuthority) {
                 }, 1500);
                 return;
             }
-            
-            // Eğer güncellenen kullanıcı admin olduysa ve şu anki kullanıcı da admin ise
-            // LocalStorage'daki adminUserName'i güncelle
+      
             if (newAuthority === 'admin' && currentUserInfo && currentUserInfo.userAuthority === 'admin') {
                 // Sayfayı yenile veya admin indicator'ı güncelle
                 if (typeof showAdminIndicator === 'function') {
@@ -736,7 +734,7 @@ async function changeUserAuthority(userId, newAuthority) {
         const authoritySelect = document.querySelector(`li[data-user-id="${userId}"] .authority-select`);
         if (authoritySelect) {
             // Eski değeri geri yükle (API'den alınan değer)
-            fetch(`/api/users/${currentGroupId}`)
+            fetch(`/api/users/${window.groupid}`)
                 .then(res => res.json())
                 .then(data => {
                     const user = data.users.find(u => u._id === userId);
@@ -752,7 +750,7 @@ async function changeUserAuthority(userId, newAuthority) {
 async function inviteUser(userId, userName) {
     try {
         // Davet token'ı oluştur
-        const response = await fetch(`/api/create-invite/${currentGroupId}`, {
+        const response = await fetch(`/api/create-invite/${window.groupid}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -769,8 +767,8 @@ async function inviteUser(userId, userName) {
 
         // Grup URL'lerini oluştur
         const baseUrl = window.location.origin;
-        const quickLoginUrl = `${baseUrl}/groupid=${currentGroupId}&quick-login?invite=${inviteToken}`;
-        const groupUrl = `${baseUrl}/groupid=${currentGroupId}`;
+        const quickLoginUrl = `${baseUrl}/groupid=${window.groupid}&quick-login?invite=${inviteToken}`;
+        const groupUrl = `${baseUrl}/groupid=${window.groupid}`;
         
         // Davet metnini oluştur
         const inviteText = `${groupName} okuma grubu
@@ -834,7 +832,7 @@ function performRenderUserList() {
     
     const prevScrollTop = userList.scrollTop; // scroll pozisyonunu koru
     
-    fetch(`/api/users/${currentGroupId}`)
+    fetch(`/api/users/${window.groupid}`)
         .then(res => res.json())
         .then(data => {
             const users = data.users;
@@ -902,7 +900,7 @@ async function loadGroupSettings() {
     }
 
     try {
-        const response = await fetch(`/api/group/${currentGroupId}`);
+        const response = await fetch(`/api/group/${window.groupid}`);
         if (response.ok) {
             const data = await response.json();
             const group = data.group;
@@ -1043,7 +1041,7 @@ function selectAvatar(avatarPath, avatarElement) {
 // Hazır avatar ile grup resmini güncelle
 async function updateGroupImageFromAvatar(avatarPath) {
     try {
-        const response = await fetch(`/api/update-group-image-from-avatar/${currentGroupId}`, {
+        const response = await fetch(`/api/update-group-image-from-avatar/${window.groupid}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1090,7 +1088,7 @@ async function saveGroupSettings() {
     saveBtn.disabled = true;
 
     try {
-        const response = await fetch(`/api/update-group/${currentGroupId}`, {
+        const response = await fetch(`/api/update-group/${window.groupid}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1141,7 +1139,7 @@ async function changeGroupImage() {
     changeBtn.disabled = true;
 
     try {
-        const response = await fetch(`/api/update-group-image/${currentGroupId}`, {
+        const response = await fetch(`/api/update-group-image/${window.groupid}`, {
             method: 'POST',
             body: formData
         });
@@ -1193,7 +1191,7 @@ async function removeGroupImage() {
     removeBtn.disabled = true;
 
     try {
-        const response = await fetch(`/api/remove-group-image/${currentGroupId}`, {
+        const response = await fetch(`/api/remove-group-image/${window.groupid}`, {
             method: 'POST'
         });
 
@@ -1250,7 +1248,7 @@ async function shareGroup() {
         const groupName = document.getElementById('groupName').value || 'Grup';
         
         // URL formatını oluştur
-        const groupUrl = `${window.location.origin}/groupid=${currentGroupId}`;
+        const groupUrl = `${window.location.origin}/groupid=${window.groupid}`;
         
         // Paylaşım metnini oluştur
         const shareText = `RoTaKip ${groupName}\n${groupUrl}`;
@@ -1289,7 +1287,7 @@ async function deleteGroup() {
         return;
     }
 
-    if (!currentGroupId) {
+    if (!window.groupid) {
         showErrorMessage('Grup ID bulunamadı!');
         return;
     }
@@ -1312,7 +1310,7 @@ async function deleteGroup() {
     deleteBtn.disabled = true;
 
     try {
-        const response = await fetch(`/api/delete-group/${currentGroupId}`, {
+        const response = await fetch(`/api/delete-group/${window.groupid}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'

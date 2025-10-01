@@ -31,32 +31,32 @@ class LocalStorageManager {
 
   // Mevcut grup için kullanıcı ID'sini al
   static getCurrentUserId() {
-    const currentGroupId = getGroupIdFromUrl();
-    if (!currentGroupId) return null;
+    const groupid = getGroupIdFromUrl();
+    if (!groupid) return null;
     
     const groups = this.getGroups();
-    return groups[currentGroupId] || null;
+    return groups[groupid] || null;
   }
 
   // Mevcut grup için kullanıcı bilgilerini al
   static getCurrentUserInfo() {
-    const currentGroupId = getGroupIdFromUrl();
-    if (!currentGroupId) return null;
+    const groupid = getGroupIdFromUrl();
+    if (!groupid) return null;
 
     const userId = this.getCurrentUserId();
     if (!userId) return null;
 
     return {
-      groupId: currentGroupId,
+      groupId: groupid,
       userId: userId,
       userAuthority: localStorage.getItem('userAuthority'),
-      adminUserName: localStorage.getItem('adminUserName'),
+      userName: localStorage.getItem('userName'),
       groupName: localStorage.getItem('groupName')
     };
   }
 
   // Kullanıcı girişi yap
-  static loginUser(groupId, userId, userAuthority, adminUserName, groupName) {
+  static loginUser(groupId, userId, userAuthority, userName, groupName) {
     // Groups objesine ekle
     this.addUserToGroup(groupId, userId);
     
@@ -64,22 +64,22 @@ class LocalStorageManager {
     localStorage.setItem('groupid', groupId);
     localStorage.setItem('userid', userId);
     localStorage.setItem('userAuthority', userAuthority);
-    localStorage.setItem('adminUserName', adminUserName);
+    localStorage.setItem('userName', userName);
     localStorage.setItem('groupName', groupName);
   }
 
   // Kullanıcı çıkışı yap
   static logoutUser() {
-    const currentGroupId = getGroupIdFromUrl();
-    if (currentGroupId) {
-      this.removeUserFromGroup(currentGroupId);
+    const groupid = getGroupIdFromUrl();
+    if (groupid) {
+      this.removeUserFromGroup(groupid);
     }
     
     // Mevcut grup bilgilerini sil
     localStorage.removeItem('groupid');
     localStorage.removeItem('userid');
     localStorage.removeItem('userAuthority');
-    localStorage.removeItem('adminUserName');
+    localStorage.removeItem('userName');
     localStorage.removeItem('groupName');
   }
 
@@ -88,7 +88,7 @@ class LocalStorageManager {
     localStorage.removeItem('groupid');
     localStorage.removeItem('userid');
     localStorage.removeItem('userAuthority');
-    localStorage.removeItem('adminUserName');
+    localStorage.removeItem('userName');
     localStorage.removeItem('groupName');
   }
 
@@ -138,7 +138,7 @@ window.getGroupIdFromUrl = function getGroupIdFromUrl() {
 };
 
 // Global grup ID değişkeni
-window.currentGroupId = getGroupIdFromUrl();
+window.groupid = getGroupIdFromUrl();
 
 // Admin elementlerini gizleme fonksiyonu
 function hideAdminElements() {
@@ -161,15 +161,15 @@ async function initializeAuthSystem() {
   LocalStorageManager.clearCookies();
   
   // 2. URL'deki grup ID'sini al
-  const currentGroupId = getGroupIdFromUrl();
-  if (!currentGroupId) {
+  const groupid = getGroupIdFromUrl();
+  if (!groupid) {
     console.log('❌ Grup ID bulunamadı');
     return false;
   }
-  
+
   // 3. Groups dizisinde bu grup var mı kontrol et
   const groups = LocalStorageManager.getGroups();
-  const userId = groups[currentGroupId];
+  const userId = groups[groupid];
   
   if (!userId) {
     return false;
@@ -178,10 +178,10 @@ async function initializeAuthSystem() {
   
   try {
     // 4. Kullanıcının hala bu grupta olup olmadığını kontrol et
-    const response = await fetch(`/api/users/${currentGroupId}`);
+    const response = await fetch(`/api/users/${groupid}`);
     if (!response.ok) {
       console.log('❌ Grup bulunamadı veya erişim hatası');
-      LocalStorageManager.removeUserFromGroup(currentGroupId);
+      LocalStorageManager.removeUserFromGroup(groupid);
       return false;
     }
 
@@ -190,14 +190,14 @@ async function initializeAuthSystem() {
     
     if (!user) {
       console.log('❌ Kullanıcı bu grupta bulunamadı, groups dizisinden kaldırılıyor');
-      LocalStorageManager.removeUserFromGroup(currentGroupId);
+      LocalStorageManager.removeUserFromGroup(groupid);
       return false;
     }
     
     console.log('✅ Kullanıcı bulundu:', user.name, user.authority);
 
     // 5. Grup bilgilerini al
-    const groupResponse = await fetch(`/api/group/${currentGroupId}`);
+    const groupResponse = await fetch(`/api/group/${groupid}`);
     if (!groupResponse.ok) {
       console.log('❌ Grup bilgisi alınamadı');
       return false;
@@ -208,7 +208,7 @@ async function initializeAuthSystem() {
     
     // 6. 5 çerezi yeniden oluştur
     LocalStorageManager.loginUser(
-      currentGroupId,
+      groupid,
       userId,
       user.authority,
       user.username,
@@ -236,11 +236,11 @@ async function initializeAuthSystem() {
 // Grup doğrulama fonksiyonu
 async function validateGroup() {
   try {
-    const response = await fetch(`/api/group/${window.currentGroupId}`);
+    const response = await fetch(`/api/group/${window.groupid}`);
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.log('Grup bulunamadı, ana sayfaya yönlendiriliyor:', window.currentGroupId);
+        console.log('Grup bulunamadı, ana sayfaya yönlendiriliyor:', window.groupid);
         window.location.href = '/';
         return false;
       }
@@ -274,7 +274,7 @@ function initializeProfileButton() {
     const userInfo = LocalStorageManager.getCurrentUserInfo();
     
     if (userInfo) {
-      const username = userInfo.adminUserName || 'Kullanıcı';
+      const username = userInfo.userName || 'Kullanıcı';
       const userAuthority = userInfo.userAuthority;
       
       profileButtonText.textContent = 'Profilim';
@@ -322,7 +322,7 @@ function initializeProfileButton() {
   
   // LocalStorage değişikliklerini dinle
   window.addEventListener('storage', function(e) {
-    if (e.key === 'groups' || e.key === 'groupid' || e.key === 'userid' || e.key === 'userAuthority' || e.key === 'adminUserName' || e.key === 'groupName') {
+    if (e.key === 'groups' || e.key === 'groupid' || e.key === 'userid' || e.key === 'userAuthority' || e.key === 'userName' || e.key === 'groupName') {
       checkAuthStatus();
     }
   });
@@ -331,7 +331,7 @@ function initializeProfileButton() {
   const originalSetItem = localStorage.setItem;
   localStorage.setItem = function(key, value) {
     originalSetItem.call(this, key, value);
-    if (key === 'groups' || key === 'groupid' || key === 'userid' || key === 'userAuthority' || key === 'adminUserName' || key === 'groupName') {
+    if (key === 'groups' || key === 'groupid' || key === 'userid' || key === 'userAuthority' || key === 'userName' || key === 'groupName') {
       setTimeout(checkAuthStatus, 100);
     }
   };
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     
     // Grup ID'si yoksa ana sayfaya yönlendir
-    if (window.currentGroupId === null) {
+    if (window.groupid === null) {
       window.location.href = '/';
       return;
     }
@@ -463,14 +463,14 @@ async function checkAutoLoginForGroups() {
     return;
   }
   
-  const currentGroupId = getGroupIdFromUrl();
-  if (!currentGroupId) {
+  const groupid = getGroupIdFromUrl();
+  if (!groupid) {
     return;
   }
 
   // Groups objesinde bu grup var mı kontrol et
   const groups = LocalStorageManager.getGroups();
-  const userId = groups[currentGroupId];
+  const userId = groups[groupid];
   
   if (!userId) {
     return;
@@ -478,7 +478,7 @@ async function checkAutoLoginForGroups() {
 
   try {
     // Kullanıcının hala bu grupta olup olmadığını kontrol et
-    const response = await fetch(`/api/users/${currentGroupId}`);
+    const response = await fetch(`/api/users/${groupid}`);
     if (!response.ok) {
       return;
     }
@@ -487,12 +487,12 @@ async function checkAutoLoginForGroups() {
     const user = data.users.find(u => u._id === userId);
     
     if (!user) {
-      LocalStorageManager.removeUserFromGroup(currentGroupId);
+      LocalStorageManager.removeUserFromGroup(groupid);
       return;
     }
 
     // Kullanıcı bilgilerini otomatik olarak yükle
-    const groupResponse = await fetch(`/api/group/${currentGroupId}`);
+    const groupResponse = await fetch(`/api/group/${groupid}`);
     if (!groupResponse.ok) {
       return;
     }
@@ -501,7 +501,7 @@ async function checkAutoLoginForGroups() {
     
     // Kullanıcı bilgilerini localStorage'a kaydet
     LocalStorageManager.loginUser(
-      currentGroupId,
+      groupid,
       userId,
       user.authority,
       user.username,
@@ -636,14 +636,14 @@ async function verifyUserUsername() {
     return false;
   }
 
-  const { groupId, userId, userAuthority, adminUserName } = userInfo;
+  const { groupId, userId, userAuthority, userName } = userInfo;
 
   try {
     if (userAuthority === 'admin') {
       const response = await fetch('/api/verify-admin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: adminUserName, groupId: groupId })
+        body: JSON.stringify({ username: userName, groupId: groupId })
       });
 
       const data = await response.json();

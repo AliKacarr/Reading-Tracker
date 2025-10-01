@@ -1,3 +1,14 @@
+// Ana sayfa yüklendiğinde çerezleri temizle
+function clearCookiesOnIndexPage() {
+    // 5 çerezi temizle
+    LocalStorageManager.clearCookies();
+    
+    console.log('Ana sayfa yüklendi - 5 çerez temizlendi');
+}
+
+// Sayfa yüklendiğinde çerezleri temizle
+document.addEventListener('DOMContentLoaded', clearCookiesOnIndexPage);
+
 // LocalStorageManager sınıfı
 class LocalStorageManager {
     static loginUser(groupId, userId, authority, username, groupName) {
@@ -11,11 +22,11 @@ class LocalStorageManager {
         localStorage.setItem('groups', JSON.stringify(groups));
         
         // Kullanıcı bilgilerini kaydet
-        localStorage.setItem('currentGroupId', groupId);
-        localStorage.setItem('currentUserId', userId);
-        localStorage.setItem('currentUserAuthority', authority);
-        localStorage.setItem('currentUsername', username);
-        localStorage.setItem('currentGroupName', groupName);
+        localStorage.setItem('groupid', groupId);
+        localStorage.setItem('userid', userId);
+        localStorage.setItem('userAuthority', authority);
+        localStorage.setItem('userName', username);
+        localStorage.setItem('groupName', groupName);
     }
     
     static getGroups() {
@@ -30,7 +41,16 @@ class LocalStorageManager {
     }
     
     static isAdmin() {
-        return localStorage.getItem('currentUserAuthority') === 'admin';
+        return localStorage.getItem('userAuthority') === 'admin';
+    }
+    
+    // 5 çerezi temizle
+    static clearCookies() {
+        localStorage.removeItem('groupid');
+        localStorage.removeItem('userid');
+        localStorage.removeItem('userAuthority');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('groupName');
     }
 }
 

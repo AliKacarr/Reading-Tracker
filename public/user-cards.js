@@ -20,8 +20,8 @@ async function loadUserCards() {
   try {
     // API'den tüm kullanıcı ve okuma verilerini çek
     const [allDataRes, streaksRes] = await Promise.all([
-      fetch(`/api/all-data/${currentGroupId}`),
-      fetch(`/api/longest-streaks/${currentGroupId}`)
+      fetch(`/api/all-data/${window.groupid}`),
+      fetch(`/api/longest-streaks/${window.groupid}`)
     ]);
 
     if (!allDataRes.ok || !streaksRes.ok) {
@@ -549,7 +549,7 @@ toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElem
   // Member kullanıcıları sadece kendi verilerini güncelleyebilir
   if (userInfo.userAuthority === 'member') {
     // Member kullanıcılar için kullanıcı adını API'den al
-    fetch(`/api/users/${currentGroupId}`)
+    fetch(`/api/users/${window.groupid}`)
       .then(response => response.json())
       .then(data => {
         const currentUser = data.users.find(u => u._id === userInfo.userId);
@@ -609,13 +609,13 @@ toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElem
     updateDayCircleStatus(clickedElement, newStatus);
 
     // 2. SONRA VERİTABANINI GÜNCELLE
-    fetch(`/api/all-data/${currentGroupId}`)
+    fetch(`/api/all-data/${window.groupid}`)
       .then(response => response.json())
       .then(data => {
         const user = data.users.find(u => u.name === userName);
         if (!user) throw new Error('Kullanıcı bulunamadı');
 
-        return fetch(`/api/update-status/${currentGroupId}`, {
+        return fetch(`/api/update-status/${window.groupid}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

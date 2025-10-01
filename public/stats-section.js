@@ -1,11 +1,11 @@
 async function loadReadingStats() {
     try {
         // Fetch the reading statistics from the server
-        const response = await fetch(`/api/reading-stats/${currentGroupId}`);
+        const response = await fetch(`/api/reading-stats/${window.groupid}`);
         const userStats = await response.json();
 
         // Get all stats to calculate "okumadım" counts
-        const allDataResponse = await fetch(`/api/all-data/${currentGroupId}`);
+        const allDataResponse = await fetch(`/api/all-data/${window.groupid}`);
         const allData = await allDataResponse.json();
 
         // Create a map of all dates with status for each user

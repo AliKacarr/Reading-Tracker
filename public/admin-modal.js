@@ -75,7 +75,7 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
     if (!adminIndicator) {
         adminIndicator = document.createElement('div');
         adminIndicator.className = 'admin-indicator';
-        const displayName = userInfo.adminUserName && userInfo.adminUserName !== 'null' ? userInfo.adminUserName : '';
+        const displayName = userInfo.userName && userInfo.userName !== 'null' ? userInfo.userName : '';
         adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
             `<i class="fa-solid fa-user-shield"></i> ${displayName}` : 
             `<i class="fa-solid fa-user"></i> ${displayName}`;
@@ -91,7 +91,7 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
         document.body.appendChild(adminIndicator);
     } else {
         // Update text based on user authority
-        const displayName = userInfo.adminUserName && userInfo.adminUserName !== 'null' ? userInfo.adminUserName : '';
+        const displayName = userInfo.userName && userInfo.userName !== 'null' ? userInfo.userName : '';
         adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
             `<i class="fa-solid fa-user-shield"></i> ${displayName}` : 
             `<i class="fa-solid fa-user"></i> ${displayName}`;
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const closeButton = document.querySelector('.close-button');
     const adminLoginForm = document.getElementById('adminLoginForm');
     const loginError = document.getElementById('loginError');
-    const adminUserName = document.getElementById('adminUserName');
+    const userName = document.getElementById('adminUserName');
     const adminPassword = document.getElementById('adminPassword');
 
     // Check if already authenticated
@@ -268,7 +268,7 @@ function showAdminInfoPanel() {
         usernameValue.className = 'admin-info-value';
         // Güncel kullanıcı bilgisini al
         const userInfo = LocalStorageManager.getCurrentUserInfo();
-        usernameValue.textContent = userInfo ? userInfo.adminUserName : 'Kullanıcı';
+        usernameValue.textContent = userInfo ? userInfo.userName : 'Kullanıcı';
 
         usernameItem.appendChild(usernameLabel);
         usernameItem.appendChild(usernameValue);
@@ -320,7 +320,7 @@ function showAdminInfoPanel() {
         const usernameValue = adminInfoModal.querySelector('.admin-info-value');
         if (usernameValue) {
             const userInfo = LocalStorageManager.getCurrentUserInfo();
-            usernameValue.textContent = userInfo ? userInfo.adminUserName : 'Kullanıcı';
+            usernameValue.textContent = userInfo ? userInfo.userName : 'Kullanıcı';
         }
     }
     adminInfoModal.style.display = 'flex';
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (adminIndicator) {
                 adminIndicator.style.display = 'flex';
-                const displayName = userInfo.adminUserName && userInfo.adminUserName !== 'null' ? userInfo.adminUserName : '';
+                const displayName = userInfo.userName && userInfo.userName !== 'null' ? userInfo.userName : '';
                 adminIndicator.innerHTML = userInfo.userAuthority === 'admin' ? 
                     `<i class="fa-solid fa-user-shield"></i> ${displayName}` : 
                     `<i class="fa-solid fa-user"></i> ${displayName}`;
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Listen for authentication changes
     window.addEventListener('storage', function (e) {
-        if (e.key === 'groups' || e.key === 'groupid' || e.key === 'userid' || e.key === 'userAuthority' || e.key === 'adminUserName' || e.key === 'groupName') {
+        if (e.key === 'groups' || e.key === 'groupid' || e.key === 'userid' || e.key === 'userAuthority' || e.key === 'userName' || e.key === 'groupName') {
             checkAdminAuth();
         }
     });
@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const originalSetItem = localStorage.setItem;
     localStorage.setItem = function (key, value) {
         originalSetItem.call(this, key, value);
-        if (key === 'groups' || key === 'groupid' || key === 'userid' || key === 'userAuthority' || key === 'adminUserName' || key === 'groupName') {
+        if (key === 'groups' || key === 'groupid' || key === 'userid' || key === 'userAuthority' || key === 'userName' || key === 'groupName') {
             checkAdminAuth();
         }
     };

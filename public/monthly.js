@@ -51,7 +51,7 @@ function loadMonthlyCalendar() {
         userSelector.innerHTML = '';
 
         // Fetch users directly from the API
-        fetch(`/api/users/${currentGroupId}`)
+        fetch(`/api/users/${window.groupid}`)
             .then(response => response.json())
             .then(data => {
                 if (data.users && Array.isArray(data.users)) {
@@ -184,7 +184,7 @@ function loadMonthlyCalendar() {
         // If a user is selected, fetch their reading data
         if (selectedUser) {
             // Fetch all data including user stats
-            fetch(`/api/all-data/${currentGroupId}`)
+            fetch(`/api/all-data/${window.groupid}`)
                 .then(response => response.json())
                 .then(data => {
                     // Find the user by name
@@ -343,7 +343,7 @@ function loadMonthlyCalendar() {
         // Member kullanıcıları sadece kendi verilerini güncelleyebilir
         if (userInfo.userAuthority === 'member') {
             // Member kullanıcılar için kullanıcı adını API'den al
-            fetch(`/api/users/${currentGroupId}`)
+            fetch(`/api/users/${window.groupid}`)
                 .then(response => response.json())
                 .then(data => {
                     const currentUser = data.users.find(u => u._id === userInfo.userId);
@@ -397,13 +397,13 @@ function loadMonthlyCalendar() {
             updateMonthlyCellStatus(clickedCell, newStatus);
 
             // Sonra veritabanını güncelle
-            fetch(`/api/all-data/${currentGroupId}`)
+            fetch(`/api/all-data/${window.groupid}`)
                 .then(response => response.json())
                 .then(data => {
                     const user = data.users.find(u => u.name === userName);
                     if (!user) throw new Error('User not found');
 
-                    return fetch(`/api/update-status/${currentGroupId}`, {
+                    return fetch(`/api/update-status/${window.groupid}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
