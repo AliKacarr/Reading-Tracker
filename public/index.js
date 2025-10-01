@@ -1,3 +1,39 @@
+// LocalStorageManager sınıfı
+class LocalStorageManager {
+    static loginUser(groupId, userId, authority, username, groupName) {
+        // Mevcut grupları al
+        const groups = this.getGroups();
+        
+        // Yeni grubu ekle
+        groups[groupId] = userId;
+        
+        // LocalStorage'a kaydet
+        localStorage.setItem('groups', JSON.stringify(groups));
+        
+        // Kullanıcı bilgilerini kaydet
+        localStorage.setItem('currentGroupId', groupId);
+        localStorage.setItem('currentUserId', userId);
+        localStorage.setItem('currentUserAuthority', authority);
+        localStorage.setItem('currentUsername', username);
+        localStorage.setItem('currentGroupName', groupName);
+    }
+    
+    static getGroups() {
+        const groups = localStorage.getItem('groups');
+        return groups ? JSON.parse(groups) : {};
+    }
+    
+    static removeUserFromGroup(groupId) {
+        const groups = this.getGroups();
+        delete groups[groupId];
+        localStorage.setItem('groups', JSON.stringify(groups));
+    }
+    
+    static isAdmin() {
+        return localStorage.getItem('currentUserAuthority') === 'admin';
+    }
+}
+
 class GroupsPage {
     constructor() {
         this.groups = [];
@@ -189,6 +225,7 @@ class GroupsPage {
                 this.groups = [...userGroupsData, ...this.groups];
                 this.filteredGroups = this.groups;
                 await this.loadMemberCounts(userGroupsData);
+                await this.loadUserAuthorities(userGroupsData, groupsData);
                 this.renderGroups();
             }
         } catch (error) {
@@ -213,6 +250,33 @@ class GroupsPage {
             await Promise.all(promises);
         } catch (error) {
             console.error('Error loading member counts:', error);
+        }
+    }
+
+    async loadUserAuthorities(groups, groupsData) {
+        try {
+            const promises = groups.map(async (group) => {
+                const userId = groupsData[group.groupId];
+                if (userId) {
+                    try {
+                        const response = await fetch(`/api/users/${group.groupId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            const user = data.users.find(u => u._id === userId);
+                            if (user) {
+                                // Kullanıcının yetkisini grup objesine ekle
+                                group.userAuthority = user.authority;
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error loading user authority for group ${group.groupId}:`, error);
+                    }
+                }
+            });
+
+            await Promise.all(promises);
+        } catch (error) {
+            console.error('Error loading user authorities:', error);
         }
     }
 
@@ -537,8 +601,14 @@ class GroupsPage {
         // Gizli grup için kilit ikonu (sadece kullanıcının grubu değilse)
         const lockIcon = isPrivate ? '<img src="/images/lock.webp" alt="Kilit" title="Gizli Grup" class="private-group-lock">' : '';
         
-        // Kullanıcının grubu için özel işaret
-        const userGroupIcon = isUserGroup ? '<div class="user-group-badge"><i class="fas fa-user"></i></div>' : '';
+        // Kullanıcının grubu için özel işaret - yetkiye göre
+        let userGroupIcon = '';
+        if (isUserGroup) {
+            const userAuthority = group.userAuthority || 'member';
+            const iconClass = userAuthority === 'admin' ? 'fas fa-user-shield' : 'fas fa-user';
+            const badgeClass = userAuthority === 'admin' ? 'user-group-badge admin-badge' : 'user-group-badge member-badge';
+            userGroupIcon = `<div class="${badgeClass}"><i class="${iconClass}"></i></div>`;
+        }
 
         const card = document.createElement('div');
         // Kullanıcının grubu ise özel class ekle

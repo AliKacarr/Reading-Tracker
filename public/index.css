@@ -443,7 +443,7 @@ body {
 .memberCount {
     color: #2c72e4;
     font-size: 1rem;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .member-count:hover {
@@ -1227,6 +1227,18 @@ body {
 
 .user-group-badge i {
     font-size: 10px;
+}
+
+/* Admin badge - gold/orange background */
+.user-group-badge.admin-badge {
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+}
+
+/* Member badge - blue background (default) */
+.user-group-badge.member-badge {
+    background: #3B82F6;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
 .user-group:hover {
