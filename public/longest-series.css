@@ -242,6 +242,9 @@
     background: linear-gradient(90deg, #ff7f50, #ff4500);
     animation: line-bounce 1s infinite;
     position: relative;
+    flex-shrink: 0;
+    min-width: 35px;
+    max-width: 35px;
 }
 
 .loading-text {
@@ -255,6 +258,12 @@
     transform: translateX(-50%);
     z-index: 2;
     white-space: nowrap;
+    text-align: center;
+    line-height: 1;
+    width: 100%;
+    max-width: 35px;
+    overflow: hidden;
+    display: block;
 }
 
 @keyframes line-bounce {

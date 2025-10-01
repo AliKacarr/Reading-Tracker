@@ -13,6 +13,17 @@ const schedule = require('node-schedule');
 const { Dropbox } = require('dropbox');
 const sharp = require('sharp');
 const bcrypt = require('bcrypt');
+
+// Hash fonksiyonu
+function hashCode(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // 32bit integer'a çevir
+  }
+  return hash;
+}
 const app = express();
 const port = 3000;
 
@@ -438,6 +449,7 @@ async function createIndexesForGroup(groupId) {
     // Yeni grup için index'leri oluştur
     await db.collection(`readingstatuses_${groupId}`).createIndex({ userId: 1, date: 1 });
     await db.collection(`users_${groupId}`).createIndex({ name: 1 });
+    await db.collection(`users_${groupId}`).createIndex({ username: 1 });
     
     console.log(`Yeni grup için index'ler oluşturuldu: ${groupId}`);
   } catch (error) {
@@ -524,11 +536,22 @@ app.get('/api/groups', async (req, res) => {
       ...visibilityFilter
     };
 
-    // Grupları getir
-    const groups = await UserGroup.find(finalFilter)
-      .sort({ createdAt: -1 })
-      .skip(Number(skip))
-      .limit(Number(limit));
+    // Grupları getir - rastgele sıralama için
+    let groups;
+    if (search) {
+      // Arama yapılıyorsa normal sıralama
+      groups = await UserGroup.find(finalFilter)
+        .sort({ createdAt: -1 })
+        .skip(Number(skip))
+        .limit(Number(limit));
+    } else {
+      // Arama yapılmıyorsa MongoDB'nin kendi rastgele sıralama özelliğini kullan
+      // Bu daha performanslı ve gerçek rastgelelik sağlar
+      groups = await UserGroup.aggregate([
+        { $match: finalFilter },
+        { $sample: { size: Number(limit) } }
+      ]);
+    }
 
     // Toplam grup sayısını al
     const total = await UserGroup.countDocuments(finalFilter);
@@ -724,14 +747,16 @@ app.post('/api/update-group-image/:groupId', uploadGroupImage.single('groupImage
         const fileBuffer = fs.readFileSync(webpPath);
         newImageUrl = await uploadToDropbox(fileBuffer, webpFileName, 'groupImages');
         
-        // 4. Adım: Yerel dosyaları temizle
-        try {
-          if (fs.existsSync(tempPath)) {
-            fs.unlinkSync(tempPath); // Geçici orijinal dosya
+        // 4. Adım: Yerel dosyaları temizle (gecikmeli)
+        setTimeout(() => {
+          try {
+            if (fs.existsSync(tempPath)) {
+              fs.unlinkSync(tempPath); // Geçici orijinal dosya
+            }
+          } catch (unlinkError) {
+            console.log('⚠️ Geçici dosya silinemedi:', tempPath);
           }
-        } catch (unlinkError) {
-          console.log('⚠️ Geçici dosya silinemedi:', tempPath);
-        }
+        }, 1000); // 1 saniye bekle
         
         try {
           if (fs.existsSync(webpPath)) {
@@ -1069,15 +1094,17 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
         if (conversionSuccess) {
           fileName = webpFileName;
           profileImageUrl = `/images/${fileName}`;
-          // WebP başarılıysa orijinal dosyayı sil
-          try {
-            if (fs.existsSync(tempPath)) {
-              fs.unlinkSync(tempPath);
-              console.log('✅ Orijinal dosya silindi (WebP dönüştürme başarılı)');
+          // WebP başarılıysa orijinal dosyayı sil (gecikmeli)
+          setTimeout(() => {
+            try {
+              if (fs.existsSync(tempPath)) {
+                fs.unlinkSync(tempPath);
+                console.log('✅ Orijinal dosya silindi (WebP dönüştürme başarılı)');
+              }
+            } catch (unlinkError) {
+              console.log('⚠️ Orijinal dosya silinemedi:', tempPath);
             }
-          } catch (unlinkError) {
-            console.log('⚠️ Orijinal dosya silinemedi:', tempPath);
-          }
+          }, 1000); // 1 saniye bekle
         } else {
           // Dönüştürme başarısızsa orijinal dosyayı kullan
           fileName = tempFileName;
@@ -1184,6 +1211,16 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
           }
         } catch (cleanupError) {
           console.error('Yerel dosya temizleme hatası:', cleanupError);
+        }
+        
+        // Orijinal temp dosyasını da temizle (Dropbox hatası durumunda)
+        try {
+          if (fs.existsSync(tempPath)) {
+            fs.unlinkSync(tempPath);
+            console.log('✅ Orijinal temp dosya temizlendi (Dropbox hatası nedeniyle)');
+          }
+        } catch (tempCleanupError) {
+          console.log('⚠️ Orijinal temp dosya silinemedi:', tempPath);
         }
       }
     }
@@ -1379,15 +1416,17 @@ app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async
       let fileName;
       if (conversionSuccess) {
         fileName = webpFileName;
-        // WebP başarılıysa orijinal dosyayı sil
-        try {
-          if (fs.existsSync(tempPath)) {
-            fs.unlinkSync(tempPath);
-            console.log('✅ Orijinal dosya silindi (WebP dönüştürme başarılı)');
+        // WebP başarılıysa orijinal dosyayı sil (gecikmeli)
+        setTimeout(() => {
+          try {
+            if (fs.existsSync(tempPath)) {
+              fs.unlinkSync(tempPath);
+              console.log('✅ Orijinal dosya silindi (WebP dönüştürme başarılı)');
+            }
+          } catch (unlinkError) {
+            console.log('⚠️ Orijinal dosya silinemedi:', tempPath);
           }
-        } catch (unlinkError) {
-          console.log('⚠️ Orijinal dosya silinemedi:', tempPath);
-        }
+        }, 1000); // 1 saniye bekle
       } else {
         // Dönüştürme başarısızsa orijinal dosyayı kullan
         fileName = tempFileName;
@@ -1463,6 +1502,16 @@ app.post('/api/update-user-image/:groupId', upload.single('profileImage'), async
           }
         } catch (cleanupError) {
           console.log('⚠️ Yerel dosya temizleme hatası:', cleanupError);
+        }
+        
+        // Orijinal temp dosyasını da temizle (Dropbox hatası durumunda)
+        try {
+          if (fs.existsSync(tempPath)) {
+            fs.unlinkSync(tempPath);
+            console.log('✅ Orijinal temp dosya temizlendi (Dropbox hatası nedeniyle)');
+          }
+        } catch (tempCleanupError) {
+          console.log('⚠️ Orijinal temp dosya silinemedi:', tempPath);
         }
       }
     } else {
@@ -1808,7 +1857,7 @@ app.post('/api/admin-login', async (req, res) => {
           groupId: group.groupId,
           userId: user._id, // Kullanıcı ID'sini de döndür
           authority: user.authority, // Kullanıcının yetkisini de döndür
-          adminUsername: user.username // Kullanıcının admin kullanıcı adını de döndür
+          adminUserName: user.username // Kullanıcının admin kullanıcı adını de döndür
         });
       } else {
         res.json({ success: false });
@@ -1843,7 +1892,8 @@ const AccessLog = mongoose.model('AccessLog', {
   action: String,
   timestamp: Date,
   deviceInfo: Object,
-  ipAddress: String
+  ipAddress: String,
+  groupId: String
 });
 
 // Yetkisiz erişim logu endpoint'i
@@ -1859,7 +1909,8 @@ app.post('/api/log-unauthorized', async (req, res) => {
       action,
       timestamp: new Date(),
       deviceInfo,
-      ipAddress
+      ipAddress,
+      groupId: req.body.groupId || null
     });
 
     await log.save();
@@ -1873,11 +1924,37 @@ app.post('/api/log-unauthorized', async (req, res) => {
 // Erişim logları endpoint'i
 app.get('/api/access-logs', async (req, res) => {
   try {
-    // Admin kontrolü yapmadan doğrudan logları getir
-    const logs = await AccessLog.find().sort({ timestamp: -1 });
+    const { groupId } = req.query;
+    let query = {};
+    
+    // If groupId is provided, filter by groupId
+    if (groupId) {
+      query.groupId = groupId;
+    }
+    
+    const logs = await AccessLog.find(query).sort({ timestamp: -1 });
     res.json(logs);
   } catch (error) {
     console.error('Error fetching access logs:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Login logs endpoint
+app.get('/api/login-logs', async (req, res) => {
+  try {
+    const { groupId } = req.query;
+    let query = {};
+    
+    // If groupId is provided, filter by groupId
+    if (groupId) {
+      query.groupId = groupId;
+    }
+    
+    const logs = await LoginLog.find(query).sort({ date: -1 });
+    res.json(logs);
+  } catch (error) {
+    console.error('Error fetching login logs:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
@@ -1887,7 +1964,8 @@ const requestIp = require('request-ip');
 const loginLogSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
   ipAddress: String,
-  deviceInfo: Object
+  deviceInfo: Object,
+  groupId: String
 });
 
 const LoginLog = mongoose.model('LoginLog', loginLogSchema);
@@ -1900,7 +1978,8 @@ app.post('/api/log-visit', async (req, res) => {
 
     const log = new LoginLog({
       ipAddress,
-      deviceInfo
+      deviceInfo,
+      groupId: req.body.groupId || null
     });
 
     await log.save();

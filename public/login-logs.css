@@ -2,7 +2,70 @@ body {
     background-image: url('../images/arkaplan.webp');
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
+    background-repeat: repeat;
+}
+
+.access-denied-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  backdrop-filter: blur(10px);
+}
+
+.access-denied-content {
+    text-align: center;
+    padding: 60px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+.access-denied-content h2 {
+  color: #e74c3c;
+  margin-bottom: 30px;
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.access-denied-content p {
+  color: #666;
+  margin-bottom: 40px;
+  font-size: 20px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.back-button {
+  display: inline-block;
+  padding: 8px 24px;
+  background-color: #19366f;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #152f62;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  color: white;
+  text-decoration: none;
+}
+
+.back-button:active {
+  transform: translateY(0);
 }
 
 .logs-container {
@@ -57,24 +120,6 @@ body {
     background-color: #f0f7ff;
 }
 
-.back-button {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    display: inline-block;
-    padding: 5px 25px;
-    background-color: #19366f;
-    color: white;
-    border-radius: 0px 25px 0px 25px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: background-color 0.3s;
-}
-
-.back-button:hover {
-    background-color: #152f62;
-}
 
 .no-logs {
     text-align: center;
@@ -129,19 +174,6 @@ body {
     }
 }
 
-@keyframes highlightNew {
-    0% {
-        background-color: rgba(74, 144, 226, 0.3);
-    }
-
-    100% {
-        background-color: transparent;
-    }
-}
-
-.highlight-row {
-    animation: highlightNew 2s ease-out;
-}
 
 @keyframes fadeIn {
     from {

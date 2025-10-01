@@ -11,24 +11,12 @@
 
 <body>
 
-  <div id="loginSection" class="login-container">
-    <h2>Admin Girişi</h2>
-    <form id="loginForm" class="login-form">
-      <div class="form-group">
-        <label for="username">Kullanıcı Adı</label>
-        <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Şifre</label>
-        <input type="password" id="password" placeholder="Şifre" required>
-      </div>
-      <div class="form-group">
-        <label for="groupId">Grup ID</label>
-        <input type="text" id="groupId" placeholder="Grup ID" class="group-id-input">
-      </div>
-      <button type="submit">Giriş Yap</button>
-    </form>
-    <div id="loginError" class="error-message"></div>
+  <div id="accessDenied" class="access-denied-container" style="display: none;">
+    <div class="access-denied-content">
+      <h2>Erişim Reddedildi</h2>
+      <p>Bu sayfaya erişim için admin yetkisi gereklidir.</p>
+      <a href="/" class="back-button">Ana Sayfa</a>
+    </div>
   </div>
 
   <div id="logsSection" class="logs-container" style="display: none;">
@@ -119,7 +107,7 @@
       </div>
     </div>
 
-    <div id="noLogs" class="no-logs" style="display: none;">
+    <div id="noLogs" class="no-logs" style="display: none; margin-top: 20px;">
       Henüz kayıt bulunmamaktadır.
     </div>
   </div>
@@ -127,13 +115,11 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
-      const loginSection = document.getElementById('loginSection');
+      const accessDenied = document.getElementById('accessDenied');
       const logsSection = document.getElementById('logsSection');
-      const loginForm = document.getElementById('loginForm');
-      const loginError = document.getElementById('loginError');
 
-      // Function to try auto-login with stored group credentials
-      async function tryAutoLoginWithStoredCredentials() {
+      // Check admin authority from cookies
+      async function checkAdminAccess() {
         try {
           // Get stored group information
           const groupId = localStorage.getItem('groupid');
@@ -143,13 +129,14 @@
 
           if (!groupId || !userId || !adminUserName) {
             console.log('Stored credentials not found');
+            showAccessDenied();
             return;
           }
 
           // Check if user has admin authority
           if (userAuthority !== 'admin') {
-            console.log('User is not admin, filling form with stored credentials');
-            fillLoginFormWithStoredCredentials(groupId, adminUserName);
+            console.log('User is not admin');
+            showAccessDenied();
             return;
           }
 
@@ -168,92 +155,25 @@
           const data = await response.json();
           
           if (data.valid) {
-            // Auto-login successful
-            loginSection.style.display = 'none';
+            // Admin verified, show logs with group filtering
             logsSection.style.display = 'block';
-            loadLogs();
+            loadLogs(groupId);
           } else {
-            // Admin verification failed, fill form with stored credentials
-            fillLoginFormWithStoredCredentials(groupId, adminUserName);
+            // Admin verification failed
+            showAccessDenied();
           }
         } catch (error) {
-          console.error('Auto-login error:', error);
-          // On error, try to fill form with stored credentials
-          const groupId = localStorage.getItem('groupid');
-          const adminUserName = localStorage.getItem('adminUserName');
-          if (groupId && adminUserName) {
-            fillLoginFormWithStoredCredentials(groupId, adminUserName);
-          }
+          console.error('Admin access check error:', error);
+          showAccessDenied();
         }
       }
 
-      // Function to fill login form with stored credentials
-      function fillLoginFormWithStoredCredentials(groupId, adminUserName) {
-        // Pre-fill the form with stored information
-        document.getElementById('username').value = adminUserName;
-        document.getElementById('password').placeholder = 'Şifrenizi girin';
-        
-        // Fill groupId if available, otherwise leave it empty for user input
-        if (groupId) {
-          document.getElementById('groupId').value = groupId;
-        }
-        
-        // Show a helpful message
-        const loginError = document.getElementById('loginError');
-        if (groupId) {
-          loginError.textContent = `Grup: ${groupId} - Kullanıcı: ${adminUserName}`;
-        } else {
-          loginError.textContent = `Kullanıcı: ${adminUserName} - Grup ID'yi girin`;
-        }
-        loginError.style.color = '#666';
-        loginError.style.fontSize = '14px';
+      function showAccessDenied() {
+        accessDenied.style.display = 'block';
       }
 
-      // Check if already authenticated or try auto-login with stored credentials
-      if (localStorage.getItem('userAuthority') === 'admin') {
-        loginSection.style.display = 'none';
-        logsSection.style.display = 'block';
-        loadLogs();
-      } else {
-        // Try auto-login with stored group credentials
-        tryAutoLoginWithStoredCredentials();
-      }
-
-      // Handle login form submission
-      loginForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const groupId = document.getElementById('groupId').value || localStorage.getItem('groupid');
-
-        try {
-          const response = await fetch('/api/admin-login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password, groupId })
-          });
-
-          const data = await response.json();
-
-          if (data.success) {
-            localStorage.setItem('userAuthority', 'admin');
-            localStorage.setItem('adminUsername', username);
-            loginSection.style.display = 'none';
-            logsSection.style.display = 'block';
-            loadLogs();
-          } else {
-            loginError.textContent = 'Geçersiz kullanıcı adı veya şifre';
-          }
-        } catch (error) {
-          console.error('Login error:', error);
-          loginError.textContent = 'Giriş işlemi sırasında bir hata oluştu';
-        }
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-      });
+      // Check admin access on page load
+      checkAdminAccess();
 
       // Add refresh button functionality
       refreshLoginButton.addEventListener('click', function () {
@@ -277,7 +197,7 @@
           const minimumAnimationTime = 1500; // 1.5 seconds minimum animation time
 
           // Load logs without updating button state
-          loadLogs(false).then(() => {
+          loadLogs(localStorage.getItem('groupid'), false).then(() => {
             // Calculate how long the refresh has been running
             const refreshDuration = Date.now() - refreshStartTime;
 
@@ -320,9 +240,8 @@
             }
           });
         } else {
-          // Show login section if not authenticated
-          loginSection.style.display = 'block';
-          logsSection.style.display = 'none';
+          // Show access denied if not authenticated
+          showAccessDenied();
         }
       });
 
@@ -347,17 +266,17 @@
         });
 
         // --- FIX: Always reload all logs when returning to all logs view ---
-        loadLogs(true);
+        loadLogs(localStorage.getItem('groupid'), true);
       });
 
       // Function to load logs
-      async function loadLogs(updateButtonState = true) {
+      async function loadLogs(groupId, updateButtonState = true) {
         try {
           // Store the current view state
           const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
 
-          // Fetch login logs
-          const response = await fetch('/api/login-logs');
+          // Fetch login logs with group filtering
+          const response = await fetch(`/api/login-logs?groupId=${groupId}`);
           const data = await response.json();
 
           // Ensure logs is an array
@@ -490,8 +409,6 @@
               const log = logs[i];
               const row = document.createElement('tr');
 
-              // Add highlight class to show new data
-              row.classList.add('highlight-row');
 
               // Format date
               const date = new Date(log.date);
@@ -635,7 +552,6 @@
           for (let i = startIndex; i < endIndex; i++) {
             const log = dateGroup[i];
             const row = document.createElement('tr');
-            row.classList.add('highlight-row');
 
             const date = new Date(log.date);
             const hours = String(date.getHours()).padStart(2, '0');

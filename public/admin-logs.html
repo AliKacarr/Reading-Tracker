@@ -10,24 +10,13 @@
 </head>
 
 <body>
-  <div id="loginSection" class="login-container">
-    <h2>Admin Girişi</h2>
-    <form id="loginForm" class="login-form">
-      <div class="form-group">
-        <label for="username">Kullanıcı Adı</label>
-        <input type="text" id="username" placeholder="Kullanıcı Adı" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Şifre</label>
-        <input type="password" id="password" placeholder="Şifre" required>
-      </div>
-      <div class="form-group">
-        <label for="groupId">Grup ID</label>
-        <input type="text" id="groupId" placeholder="Grup ID" class="group-id-input">
-      </div>
-      <button type="submit">Giriş Yap</button>
-    </form>
-    <div id="loginError" class="error-message"></div>
+
+  <div id="accessDenied" class="access-denied-container" style="display: none;">
+    <div class="access-denied-content">
+      <h2>Erişim Reddedildi</h2>
+      <p>Bu sayfaya erişim için admin yetkisi gereklidir.</p>
+      <a href="/" class="back-button">Ana Sayfa</a>
+    </div>
   </div>
 
   <div id="logsSection" class="logs-container" style="display: none;">
@@ -37,31 +26,33 @@
         <a href="/" class="back-button">Ana Sayfa</a>
         <div style="display: flex; align-items: center;">
           <div id="filterContainer" style="margin-right: 10px;"></div>
-          <button id="refreshLogsButton" class="refresh-button">
+          <button id="refreshAdminLogsButton" class="refresh-button">
             <span class="refresh-icon">↻</span>
             <span class="refresh-text">Yenile</span>
           </button>
         </div>
       </div>
     </div>
-    <table class="log-table">
+
+    <table class="logs-table">
       <thead>
         <tr>
-          <th class="action-column">İşlem</th>
-          <th class="timestamp-column">Tarih/Saat</th>
-          <th class="ip-column">IP Adresi</th>
-          <th class="device-column">Cihaz Bilgisi</th>
+          <th>Tarih</th>
+          <th>IP Adresi</th>
+          <th>Eylem</th>
+          <th>Cihaz Bilgisi</th>
+          <th>Ekran Boyutu</th>
         </tr>
       </thead>
       <tbody id="logsTableBody">
-        <!-- Logs will be inserted here -->
+        <!-- Logs will be loaded here -->
       </tbody>
     </table>
 
     <!-- Add pagination controls -->
     <div id="paginationContainer"
       style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
-      <div id="paginationInfo" style="color: #666;">1-10 / 100 kayıt gösteriliyor</div>
+      <div id="paginationInfo">1-10 / 100 kayıt gösteriliyor</div>
       <div style="display: flex; gap: 10px;">
         <button id="prevPageBtn" class="refresh-button" style="margin-bottom: 0; padding: 5px 10px;">
           <span style="margin-right: 5px;">←</span> Önceki
@@ -80,13 +71,14 @@
         </button>
         <h2 id="selectedDateTitle">Tarih Kayıtları</h2>
       </div>
-      <table class="log-table">
+      <table class="logs-table">
         <thead>
           <tr>
-            <th class="action-column">İşlem</th>
-            <th class="time-column">Saat</th>
-            <th class="ip-column">IP Adresi</th>
-            <th class="device-column">Cihaz Bilgisi</th>
+            <th>Saat</th>
+            <th>IP Adresi</th>
+            <th>Eylem</th>
+            <th>Cihaz Bilgisi</th>
+            <th>Ekran Boyutu</th>
           </tr>
         </thead>
         <tbody id="dateGroupTableBody">
@@ -97,7 +89,7 @@
       <!-- Add pagination controls for date group -->
       <div id="dateGroupPaginationContainer"
         style="display: none; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border-radius: 8px;">
-        <div id="dateGroupPaginationInfo" style="color: #666;">1-10 / 100 kayıt gösteriliyor</div>
+        <div id="dateGroupPaginationInfo">1-10 / 100 kayıt gösteriliyor</div>
         <div style="display: flex; gap: 10px;">
           <button id="prevDatePageBtn" class="refresh-button" style="margin-bottom: 0; padding: 5px 10px;">
             <span style="margin-right: 5px;">←</span> Önceki
@@ -117,155 +109,77 @@
       </div>
     </div>
 
+    <div id="noLogs" class="no-logs" style="display: none; margin-top: 20px;">
+      Henüz kayıt bulunmamaktadır.
+      </div>
+    </div>
+
 
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const loginSection = document.getElementById('loginSection');
+    document.addEventListener('DOMContentLoaded', async function () {
+      const accessDenied = document.getElementById('accessDenied');
         const logsSection = document.getElementById('logsSection');
-        const loginForm = document.getElementById('loginForm');
-        const loginError = document.getElementById('loginError');
-        const logsTableBody = document.getElementById('logsTableBody');
-        const refreshLogsButton = document.getElementById('refreshLogsButton');
 
-        // Define ipColors at the global scope
-        let ipColors = {};
+      // Check admin authority from cookies
+      async function checkAdminAccess() {
+        try {
+          // Get stored group information
+          const groupId = localStorage.getItem('groupid');
+          const userId = localStorage.getItem('userid');
+          const adminUserName = localStorage.getItem('adminUserName');
+          const userAuthority = localStorage.getItem('userAuthority');
 
-        // Function to try auto-login with stored group credentials
-        async function tryAutoLoginWithStoredCredentials() {
-          try {
-            // Get stored group information
-            const groupId = localStorage.getItem('groupid');
-            const userId = localStorage.getItem('userid');
-            const adminUserName = localStorage.getItem('adminUserName');
-            const userAuthority = localStorage.getItem('userAuthority');
-
-            if (!groupId || !userId || !adminUserName) {
-              console.log('Stored credentials not found');
-              return;
-            }
-
-            // Check if user has admin authority
-            if (userAuthority !== 'admin') {
-              console.log('User is not admin, filling form with stored credentials');
-              fillLoginFormWithStoredCredentials(groupId, adminUserName);
-              return;
-            }
-
-            // Try to verify admin status with the server
-            const response = await fetch('/api/verify-admin', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ 
-                username: adminUserName, 
-                groupId: groupId 
-              })
-            });
-
-            const data = await response.json();
-            
-            if (data.valid) {
-              // Auto-login successful
-              loginSection.style.display = 'none';
-              logsSection.style.display = 'block';
-              loadLogs();
-            } else {
-              // Admin verification failed, fill form with stored credentials
-              fillLoginFormWithStoredCredentials(groupId, adminUserName);
-            }
-          } catch (error) {
-            console.error('Auto-login error:', error);
-            // On error, try to fill form with stored credentials
-            const groupId = localStorage.getItem('groupid');
-            const adminUserName = localStorage.getItem('adminUserName');
-            if (groupId && adminUserName) {
-              fillLoginFormWithStoredCredentials(groupId, adminUserName);
-            }
-          }
-        }
-
-        // Function to fill login form with stored credentials
-        function fillLoginFormWithStoredCredentials(groupId, adminUserName) {
-          // Pre-fill the form with stored information
-          document.getElementById('username').value = adminUserName;
-          document.getElementById('password').placeholder = 'Şifrenizi girin';
-          
-          // Fill groupId if available, otherwise leave it empty for user input
-          if (groupId) {
-            document.getElementById('groupId').value = groupId;
-          }
-          
-          // Show a helpful message
-          const loginError = document.getElementById('loginError');
-          if (groupId) {
-            loginError.textContent = `Grup: ${groupId} - Kullanıcı: ${adminUserName}`;
-          } else {
-            loginError.textContent = `Kullanıcı: ${adminUserName} - Grup ID'yi girin`;
-          }
-          loginError.style.color = '#666';
-          loginError.style.fontSize = '14px';
-        }
-
-        // Check if already authenticated or try auto-login with stored credentials
-        if (localStorage.getItem('userAuthority') === 'admin') {
-          loginSection.style.display = 'none';
-          logsSection.style.display = 'block';
-          loadLogs();
-        } else {
-          // Try auto-login with stored group credentials
-          tryAutoLoginWithStoredCredentials();
-        }
-
-        // Handle login form submission
-        loginForm.addEventListener('submit', async function (e) {
-          e.preventDefault();
-
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
-          const groupId = document.getElementById('groupId').value || localStorage.getItem('groupid');
-
-          try {
-            const response = await fetch('/api/admin-login', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ username, password, groupId })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              localStorage.setItem('adminUsername', username);
-              localStorage.setItem('groupid', groupId);
-              localStorage.setItem('userid', userId);
-              localStorage.setItem('userAuthority', 'admin');
-              localStorage.setItem('groupName', groupName);
-              loginSection.style.display = 'none';
-              logsSection.style.display = 'block';
-              loadLogs();
-            } else {
-              loginError.textContent = 'Geçersiz kullanıcı adı veya şifre';
-            }
-          } catch (error) {
-            console.error('Login error:', error);
-            loginError.textContent = 'Giriş işlemi sırasında bir hata oluştu';
-          }
-
-          // Clear the username and password fields after login attempt
-          document.getElementById('username').value = '';
-          document.getElementById('password').value = '';
-        });
-
-        // Handle refresh button click
-        refreshLogsButton.addEventListener('click', function () {
-          if (localStorage.getItem('userAuthority') !== 'admin') {
-            loginSection.style.display = 'block';
-            logsSection.style.display = 'none';
+          if (!groupId || !userId || !adminUserName) {
+            console.log('Stored credentials not found');
+            showAccessDenied();
             return;
           }
 
+          // Check if user has admin authority
+          if (userAuthority !== 'admin') {
+            console.log('User is not admin');
+            showAccessDenied();
+            return;
+          }
+
+          // Try to verify admin status with the server
+          const response = await fetch('/api/verify-admin', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+            body: JSON.stringify({ 
+              username: adminUserName, 
+              groupId: groupId 
+            })
+            });
+
+            const data = await response.json();
+
+          if (data.valid) {
+            // Admin verified, show logs with group filtering
+              logsSection.style.display = 'block';
+            loadLogs(groupId);
+            } else {
+            // Admin verification failed
+            showAccessDenied();
+            }
+          } catch (error) {
+          console.error('Admin access check error:', error);
+          showAccessDenied();
+        }
+      }
+
+      function showAccessDenied() {
+        accessDenied.style.display = 'block';
+      }
+
+      // Check admin access on page load
+      checkAdminAccess();
+
+      // Add refresh button functionality
+      refreshAdminLogsButton.addEventListener('click', function () {
+        if (localStorage.getItem('userAuthority') === 'admin') {
           // Clear any active filters
           const filterContainer = document.getElementById('filterContainer');
           if (filterContainer) {
@@ -273,8 +187,7 @@
           }
 
           // Add loading animation to button
-          refreshLogsButton.classList.add('refresh-admin-logs-button-loading');
-          refreshLogsButton.classList.add('refresh-admin-logs-button-success');
+          refreshAdminLogsButton.classList.add('refresh-admin-logs-button-loading');
 
           // Store the current view state and selected date if any
           const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
@@ -285,9 +198,12 @@
           const refreshStartTime = Date.now();
           const minimumAnimationTime = 1500; // 1.5 seconds minimum animation time
 
-          // Load logs
-          loadLogs().then(() => {
+          // Load logs without updating button state
+          loadLogs(localStorage.getItem('groupid'), false).then(() => {
+            // Calculate how long the refresh has been running
             const refreshDuration = Date.now() - refreshStartTime;
+
+            // If the refresh was too quick, wait before finishing
             if (refreshDuration < minimumAnimationTime) {
               setTimeout(() => {
                 finishRefresh();
@@ -297,143 +213,128 @@
             }
 
             function finishRefresh() {
+              // If we were viewing a date group, restore that view immediately
               if (isDateGroupVisible && selectedDate) {
+                // Find the date group in the updated data
                 const dateCards = document.querySelectorAll('.date-summary-item');
                 for (const card of dateCards) {
                   if (card.querySelector('h4').textContent.includes(selectedDate)) {
+                    // Simulate a click on the date card to show that date's logs
                     card.click();
                     break;
                   }
                 }
               }
-              refreshLogsButton.classList.remove('refresh-admin-logs-button-loading');
-              const originalText = refreshLogsButton.querySelector('.refresh-text').textContent;
-              refreshLogsButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
-              refreshLogsButton.classList.add('refresh-admin-logs-button-success');
+
+              // Remove loading animation from button
+              refreshAdminLogsButton.classList.remove('refresh-admin-logs-button-loading');
+
+              // Show success indicator on button
+              const originalText = refreshAdminLogsButton.querySelector('.refresh-text').textContent;
+              refreshAdminLogsButton.querySelector('.refresh-text').textContent = 'Yenilendi!';
+              refreshAdminLogsButton.classList.add('refresh-admin-logs-button-success');
+
+              // Reset button after 2 seconds
               setTimeout(() => {
-                refreshLogsButton.querySelector('.refresh-text').textContent = originalText;
-                refreshLogsButton.classList.remove('refresh-admin-logs-button-success');
+                refreshAdminLogsButton.querySelector('.refresh-text').textContent = originalText;
+                refreshAdminLogsButton.classList.remove('refresh-admin-logs-button-success');
               }, 2000);
             }
           });
+        } else {
+          // Show access denied if not authenticated
+          showAccessDenied();
+        }
+      });
+
+      // Add back button functionality
+      document.getElementById('backToAllLogs').addEventListener('click', () => {
+        document.getElementById('dateGroupContainer').style.display = 'none';
+        document.getElementById('dateGroupPaginationContainer').style.display = 'none';
+        document.querySelector('.logs-table').style.display = 'table';
+        document.getElementById('paginationContainer').style.display = 'flex';
+        document.getElementById('dateSummaryContainer').style.display = 'block';
+
+        // Clear any IP filters
+        const filterContainer = document.getElementById('filterContainer');
+        if (filterContainer) {
+          filterContainer.innerHTML = '';
+        }
+
+        // Remove active highlight from all date cards
+        const allDateCards = document.querySelectorAll('.date-summary-item');
+        allDateCards.forEach(card => {
+          card.classList.remove('date-summary-item-active');
         });
 
-        // Function to load logs
-        async function loadLogs() {
-          try {
-            const response = await fetch('/api/access-logs');
+        // --- FIX: Always reload all logs when returning to all logs view ---
+        loadLogs(localStorage.getItem('groupid'), true);
+      });
 
-            if (!response.ok) {
-              throw new Error('Failed to fetch logs');
-            }
+      // Function to load logs
+      async function loadLogs(groupId, updateButtonState = true) {
+        try {
+          // Store the current view state
+          const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
 
-            const logs = await response.json();
+          // Fetch access logs with group filtering
+          const response = await fetch(`/api/access-logs?groupId=${groupId}`);
+          const data = await response.json();
 
-            // Define monthNames array
-            const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-              'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+          // Ensure logs is an array
+          const logs = Array.isArray(data) ? data : (data.logs || []);
 
-            // Helper function to get month index from name
-            function getMonthIndex(monthName) {
-              return monthNames.indexOf(monthName);
-            }
+          const tableBody = document.getElementById('logsTableBody');
+          const noLogs = document.getElementById('noLogs');
 
-            // Group logs by date
-            const logsByDate = {};
-            logs.forEach(log => {
-              const date = new Date(log.timestamp);
-              const dateKey = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-
-              if (!logsByDate[dateKey]) {
-                logsByDate[dateKey] = [];
-              }
-
-              logsByDate[dateKey].push(log);
-            });
-
-            // Clear existing logs
-            logsTableBody.innerHTML = '';
-
-            // Clear date summary
-            const dateSummaryList = document.getElementById('dateSummaryList');
-            dateSummaryList.innerHTML = '';
-
-            // Create date summary items
-            Object.keys(logsByDate).sort((a, b) => {
-              // Sort dates in descending order (newest first)
-              const dateA = new Date(a.split(' ')[2], getMonthIndex(a.split(' ')[1]), a.split(' ')[0]);
-              const dateB = new Date(b.split(' ')[2], getMonthIndex(b.split(' ')[1]), b.split(' ')[0]);
-              return dateB - dateA;
-            }).forEach(dateKey => {
-              const dateGroup = logsByDate[dateKey];
-              const dateSummaryItem = document.createElement('div');
-              dateSummaryItem.className = 'date-summary-item';
-
-              // Count unique actions
-              const uniqueActions = new Set(dateGroup.map(log => log.action));
-
-              dateSummaryItem.innerHTML = `
-              <h4>${dateKey} <span class="date-summary-count">${dateGroup.length}</span></h4>
-              <p>IP Adresleri: <span style="color: black; font-weight: 500;">${[...new Set(dateGroup.map(log => log.ipAddress))].length}</span> farklı</p>
-              <p>İşlemler: <span style="color: black; font-weight: 500;">${uniqueActions.size}</span> farklı</p>
-            `;
-
-              // Add click event to show only logs for this date
-              dateSummaryItem.addEventListener('click', () => {
-                showDateGroup(dateKey, dateGroup);
-              });
-
-              dateSummaryList.appendChild(dateSummaryItem);
-            });
-
-            // Generate IP colors before showing logs
-            generateIpColors(logs);
-
-            // Show all logs initially
-            showAllLogs(logs);
+          // Clear existing logs
+          tableBody.innerHTML = '';
 
             // Add fade-in class to table
-            document.querySelector('.log-table').classList.add('fade-in');
+          document.querySelector('.logs-table').classList.add('fade-in');
 
             // Remove fade-in class after animation completes
             setTimeout(() => {
-              document.querySelector('.log-table').classList.remove('fade-in');
+            document.querySelector('.logs-table').classList.remove('fade-in');
             }, 500);
 
+          if (!logs || logs.length === 0) {
+            console.log('No logs found or empty array');
+            noLogs.style.display = 'block';
+            document.getElementById('dateSummaryContainer').style.display = 'none';
+            document.getElementById('paginationContainer').style.display = 'none';
+
+            // Only update button state if this is a direct call (not from refresh button)
+            if (updateButtonState) {
             // Remove loading animation from button
-            refreshLogsButton.classList.remove('refresh-admin-logs-button-loading');
+              refreshAdminLogsButton.classList.remove('refresh-admin-logs-button-loading');
+            }
 
-          } catch (error) {
-            console.error('Error loading logs:', error);
-            logsTableBody.innerHTML = `<tr><td colspan="4">Kayıtlar yüklenirken bir hata oluştu: ${error.message}</td></tr>`;
+            return;
+          } else {
+            noLogs.style.display = 'none';
+            document.getElementById('dateSummaryContainer').style.display = 'block';
 
-            // Remove loading animation from button
-            refreshLogsButton.classList.remove('refresh-admin-logs-button-loading');
-
-            // Show error indicator on button
-            refreshLogsButton.querySelector('.refresh-text').textContent = 'Hata!';
-            refreshLogsButton.style.backgroundColor = '#f44336';
-
-            // Reset button after 2 seconds
-            setTimeout(() => {
-              refreshLogsButton.querySelector('.refresh-text').textContent = 'Yenile';
-              refreshLogsButton.style.backgroundColor = '';
-            }, 2000);
+            // Only show pagination if we're not in date view
+            if (!isDateGroupVisible) {
+              document.getElementById('paginationContainer').style.display = 'flex';
+            }
           }
-        }
 
-        // Function to generate IP colors
-        function generateIpColors(logs) {
-          // Reset the global ipColors
-          ipColors = {};
+          // Sort logs by date (newest first)
+          logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-          // Create unique combinations of IP and device info
+          // Create a map of IP+device+screen combinations to colors
+          window.ipColors = {};
+
+          // Create unique combinations of IP, device info, and screen size
           const uniqueCombinations = [];
           logs.forEach(log => {
             const deviceInfo = formatDeviceInfo(log.deviceInfo);
-            const ipDevice = `${log.ipAddress || 'Bilinmiyor'}-${deviceInfo}`;
-            if (!uniqueCombinations.includes(ipDevice)) {
-              uniqueCombinations.push(ipDevice);
+            const screenSize = `${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}`;
+            const ipDeviceScreen = `${log.ipAddress || 'Bilinmiyor'}-${deviceInfo}-${screenSize}`;
+            if (!uniqueCombinations.includes(ipDeviceScreen)) {
+              uniqueCombinations.push(ipDeviceScreen);
             }
           });
 
@@ -446,61 +347,54 @@
           ];
 
           uniqueCombinations.forEach((combo, index) => {
-            ipColors[combo] = colors[index % colors.length];
+            window.ipColors[combo] = colors[index % colors.length];
           });
-        }
 
-        // Helper function to format device info
-        function formatDeviceInfo(deviceInfo) {
-          if (!deviceInfo) return 'Bilinmiyor';
+          // Group logs by date
+          const logsByDate = {};
+          logs.forEach(log => {
+            const date = new Date(log.timestamp);
+            const day = date.getDate();
+            const month = getMonthName(date.getMonth());
+            const year = date.getFullYear();
+            const dateKey = `${day} ${month} ${year}`;
 
-          const userAgent = deviceInfo.userAgent || '';
+            if (!logsByDate[dateKey]) {
+              logsByDate[dateKey] = [];
+            }
 
-          // Check for Windows devices
-          const windowsVersion = userAgent.match(/Windows NT [0-9.]+/);
-          const windowsArch = userAgent.match(/Win64|Win32/);
-
-          // Check for Android devices
-          const androidVersion = userAgent.match(/Android [0-9.]+/);
-
-          if (windowsVersion && windowsArch) {
-            return `${windowsVersion[0]} - ${windowsArch[0]}`;
-          } else if (windowsVersion) {
-            return windowsVersion[0];
-          } else if (androidVersion) {
-            // For Android devices, show "Linux - Android X"
-            return `Linux - ${androidVersion[0]}`;
-          } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
-            // For iOS devices
-            const iosDevice = userAgent.match(/iPhone|iPad/)[0];
-            const iosVersion = userAgent.match(/OS ([0-9_]+)/);
-            return iosVersion ? `${iosDevice} - iOS ${iosVersion[1].replace('_', '.')}` : iosDevice;
-          } else if (userAgent.includes('Mac OS')) {
-            // For Mac devices
-            const macVersion = userAgent.match(/Mac OS X ([0-9_]+)/);
-            return macVersion ? `Mac OS X ${macVersion[1].replace(/_/g, '.')}` : 'Mac OS';
-          } else {
-            // Default fallback to platform or unknown
-            return deviceInfo.platform || 'Bilinmiyor';
-          }
-        }
-
-        // Function to show all logs
-        function showAllLogs(logs) {
-          const logsTableBody = document.getElementById('logsTableBody');
-          logsTableBody.innerHTML = '';
-
-          // Add back button functionality
-          document.getElementById('backToAllLogs').addEventListener('click', () => {
-            document.getElementById('dateGroupContainer').style.display = 'none';
-            document.getElementById('dateGroupPaginationContainer').style.display = 'none';
-            document.querySelector('.log-table').style.display = 'table';
-            document.getElementById('paginationContainer').style.display = 'flex';
+            logsByDate[dateKey].push(log);
           });
-          document.querySelector('.log-table').style.display = 'table';
 
-          // Show pagination controls
-          document.getElementById('paginationContainer').style.display = 'flex';
+          // Create date summary cards
+          const dateSummaryList = document.getElementById('dateSummaryList');
+          dateSummaryList.innerHTML = '';
+
+          // Sort dates (newest first)
+          const sortedDates = Object.keys(logsByDate).sort((a, b) => {
+            const dateA = new Date(a.replace(/(\d+) (\w+) (\d+)/, '$3 $2 $1'));
+            const dateB = new Date(b.replace(/(\d+) (\w+) (\d+)/, '$3 $2 $1'));
+            return dateB - dateA;
+          });
+
+          sortedDates.forEach(dateKey => {
+            const dateCount = logsByDate[dateKey].length;
+            const uniqueIPs = new Set(logsByDate[dateKey].map(log => log.ipAddress)).size;
+
+            const dateCard = document.createElement('div');
+            dateCard.className = 'date-summary-item';
+            dateCard.innerHTML = `
+              <h4>${dateKey}</h4>
+              <p>IP Adresleri: <span style="color: black; font-weight: 500;">${uniqueIPs}</span> farklı</p>
+              <p>Erişim: <span class="date-summary-count">${dateCount}</span></p>
+            `;
+
+            dateCard.addEventListener('click', () => {
+              showDateGroup(dateKey, logsByDate[dateKey]);
+            });
+
+            dateSummaryList.appendChild(dateCard);
+          });
 
           // Initialize pagination
           const itemsPerPage = 10;
@@ -509,13 +403,48 @@
 
           // Function to display logs for current page
           function displayLogsForPage(page) {
-            logsTableBody.innerHTML = '';
+            tableBody.innerHTML = '';
             const startIndex = (page - 1) * itemsPerPage;
             const endIndex = Math.min(startIndex + itemsPerPage, logs.length);
 
             for (let i = startIndex; i < endIndex; i++) {
-              const row = createLogRow(logs[i]);
-              logsTableBody.appendChild(row);
+              const log = logs[i];
+              const row = document.createElement('tr');
+
+
+              // Format date
+              const date = new Date(log.timestamp);
+              const day = date.getDate();
+              const month = getMonthName(date.getMonth());
+              const year = date.getFullYear();
+              const hours = String(date.getHours()).padStart(2, '0');
+              const minutes = String(date.getMinutes()).padStart(2, '0');
+
+              // Format date with styled day and month
+              const formattedDate = `<span style="font-weight: bold; color: #11171c;">${day} ${month}</span> ${year} ${hours}:${minutes}`;
+
+              // Check if deviceInfo exists
+              if (!log.deviceInfo) {
+                console.error('Missing deviceInfo for log:', log);
+                continue; // Skip this log
+              }
+
+              const ipAddress = log.ipAddress || 'Bilinmiyor';
+              const deviceInfo = formatDeviceInfo(log.deviceInfo);
+              const screenSize = `${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}`;
+              const ipDeviceScreen = `${ipAddress}-${deviceInfo}-${screenSize}`;
+              const ipColor = window.ipColors[ipDeviceScreen];
+
+              row.innerHTML = `
+                <td>${formattedDate}</td>
+                <td style="color: ${ipColor}; font-weight: bold; cursor: pointer;" 
+                    onclick="filterByIp('${ipAddress}')">${ipAddress}</td>
+                <td>${log.action}</td>
+                <td>${deviceInfo}</td>
+                <td>${screenSize}</td>
+              `;
+
+              tableBody.appendChild(row);
             }
 
             // Update pagination info
@@ -544,17 +473,49 @@
               displayLogsForPage(currentPage);
             }
           };
+
+          // Remove loading animation from button
+          if (refreshAdminLogsButton) {
+            refreshAdminLogsButton.classList.remove('refresh-admin-logs-button-loading');
+
+          }
+
+        } catch (error) {
+          console.error('Error loading logs:', error);
+          document.getElementById('noLogs').textContent = 'Kayıtlar yüklenirken bir hata oluştu.';
+          document.getElementById('noLogs').style.display = 'block';
+          document.getElementById('dateSummaryContainer').style.display = 'none';
+          document.getElementById('paginationContainer').style.display = 'none';
+
+          // Remove loading animation from button
+          if (refreshAdminLogsButton) {
+            refreshAdminLogsButton.classList.remove('refresh-admin-logs-button-loading');
+
+            // Show error indicator on button
+            refreshAdminLogsButton.querySelector('.refresh-text').textContent = 'Hata!';
+            refreshAdminLogsButton.style.backgroundColor = '#f44336';
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+              refreshAdminLogsButton.querySelector('.refresh-text').textContent = 'Yenile';
+              refreshAdminLogsButton.style.backgroundColor = '';
+            }, 2000);
+          }
+        }
         }
 
         // Function to show logs for a specific date
         function showDateGroup(dateKey, dateGroup) {
-          // Clear any active filters
+        // Clear any active IP filters when switching dates
           const filterContainer = document.getElementById('filterContainer');
-          if (filterContainer) {
+        if (filterContainer && filterContainer.innerHTML !== '') {
             filterContainer.innerHTML = '';
           }
 
-          document.querySelector('.log-table').style.display = 'none';
+        // Hide the main logs table but keep the date summary visible
+        const mainTable = document.querySelectorAll('.logs-table')[0]; // Get the first table
+        mainTable.style.display = 'none';
+
           document.getElementById('dateGroupContainer').style.display = 'block';
           document.getElementById('selectedDateTitle').textContent = `${dateKey} Kayıtları`;
 
@@ -585,7 +546,7 @@
           let currentPage = 1;
           const totalPages = Math.ceil(dateGroup.length / itemsPerPage);
 
-          // Function to display logs for current page in date group view
+        // Function to display logs for current page
           function displayLogsForPage(page) {
             dateGroupTableBody.innerHTML = '';
             const startIndex = (page - 1) * itemsPerPage;
@@ -594,69 +555,35 @@
             for (let i = startIndex; i < endIndex; i++) {
               const log = dateGroup[i];
               const row = document.createElement('tr');
-              row.classList.add('highlight-row');
 
               const date = new Date(log.timestamp);
               const hours = String(date.getHours()).padStart(2, '0');
               const minutes = String(date.getMinutes()).padStart(2, '0');
               const seconds = String(date.getSeconds()).padStart(2, '0');
 
-              // Map action codes to readable descriptions
-              const actionMap = {
-                'toggle-delete-button': 'Ayarlar butonu tıklama',
-                'edit-user-name': 'Kullanıcı adı düzenleme',
-                'save-user-name': 'Kullanıcı adı kaydetme',
-                'change-user-image': 'Profil resmi değiştirme',
-                'refresh-RandomQuote': 'Bir söz yenileme',
-                'admin-login': 'Yönetici girişi hatası',
-                'toggleUserCardsReadingStatus': 'Kart okuma durumu değiştirme',
-                'toggleMontlyReadingStatus': 'Aylık okuma durumu değiştirme',
-                'error': 'Bağlantı hatası',
-                // Add the new action type with a function to handle the dynamic content
-                'monthly-calendar-user-change': function (action) {
-                  // Extract the user names from the action string
-                  const match = action.match(/Aylık istatislikler değiştirme: (.+)-to-(.+)/);
-                  if (match) {
-                    const [_, prevUser, newUser] = match;
-                    return `Takvim kullanıcı değişimi: ${prevUser || 'Seçilmemiş'} → ${newUser || 'Seçilmemiş'}`;
-                  }
-                  return 'Takvim kullanıcı değişimi';
-                }
-              };
-
-              const actionText = actionMap[log.action] || log.action;
-
-              // Get IP address and device info for color
               const ipAddress = log.ipAddress || 'Bilinmiyor';
               const deviceInfo = formatDeviceInfo(log.deviceInfo);
-              const ipDeviceCombo = `${ipAddress}-${deviceInfo}`;
-              const ipColor = ipColors[ipDeviceCombo];
+            const screenSize = `${log.deviceInfo.screenWidth || '?'}x${log.deviceInfo.screenHeight || '?'}`;
+            const ipDeviceScreen = `${ipAddress}-${deviceInfo}-${screenSize}`;
+            const ipColor = window.ipColors[ipDeviceScreen];
 
               row.innerHTML = `
-              <td>${actionText}</td>
               <td>${hours}:${minutes}:${seconds}</td>
-              <td class="ip-cell" style="color: ${ipColor}; font-weight: bold; cursor: pointer;" data-ip="${ipAddress}" data-device="${deviceInfo}">${ipAddress}</td>
+              <td style="color: ${ipColor}; font-weight: bold; cursor: pointer;" 
+                  onclick="filterByIp('${ipAddress}')">${ipAddress}</td>
+              <td>${log.action}</td>
               <td>${deviceInfo}</td>
+              <td>${screenSize}</td>
             `;
 
-              // Add click event to IP cell for filtering
-              const ipCell = row.querySelector('.ip-cell');
-              ipCell.addEventListener('click', function () {
-                filterByIpDevice(ipAddress, deviceInfo);
-              });
-
               dateGroupTableBody.appendChild(row);
-              // Add click event to IP cell
-              row.querySelector('.ip-cell').addEventListener('click', function () {
-                filterByIpDevice(ipAddress, deviceInfo);
-              });
             }
 
             // Update pagination info
             document.getElementById('dateGroupPaginationInfo').textContent =
               `${startIndex + 1}-${endIndex} / ${dateGroup.length} kayıt gösteriliyor`;
 
-            // Update button states - Fix: Explicitly set the disabled attribute
+          // Update button states
             const prevBtn = document.getElementById('prevDatePageBtn');
             const nextBtn = document.getElementById('nextDatePageBtn');
 
@@ -682,9 +609,14 @@
           }
 
           // Display first page
+        try {
           displayLogsForPage(currentPage);
+        } catch (error) {
+          console.error('Error displaying logs:', error);
+          dateGroupTableBody.innerHTML = '<tr><td colspan="5">Kayıtlar gösterilirken bir hata oluştu.</td></tr>';
+        }
 
-          // Set up pagination button handlers
+        // Set up pagination button handlers for date group
           document.getElementById('prevDatePageBtn').onclick = () => {
             if (currentPage > 1) {
               currentPage--;
@@ -700,111 +632,86 @@
           };
         }
 
-        // Helper function to create a log row
-        function createLogRow(log) {
-          const row = document.createElement('tr');
+      // Helper function to format device info
+      function formatDeviceInfo(deviceInfo) {
+        if (!deviceInfo) return 'Bilinmiyor';
 
-          // Add highlight class to show new data
-          row.classList.add('highlight-row');
+        const userAgent = deviceInfo.userAgent || '';
 
-          // Format date as "13 Nisan 14:15"
-          const date = new Date(log.timestamp);
-          const day = date.getDate();
-          const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-            'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-          const month = monthNames[date.getMonth()];
-          const year = date.getFullYear();
-          const hours = String(date.getHours()).padStart(2, '0');
-          const minutes = String(date.getMinutes()).padStart(2, '0');
+        // Check for Windows devices
+        const windowsVersion = userAgent.match(/Windows NT [0-9.]+/);
+        const windowsArch = userAgent.match(/Win64|Win32/);
 
-          // Format date with styled day and month
-          const formattedDate = `<span style="font-weight: bold; color: #11171c;">${day} ${month}</span> ${year} ${hours}:${minutes}`;
+        // Check for Android devices
+        const androidVersion = userAgent.match(/Android [0-9.]+/);
 
-          // Map action codes to readable descriptions
-          const actionMap = {
-            'toggle-delete-button': 'Ayarlar butonu tıklama',
-            'edit-user-name': 'Kullanıcı adı düzenleme',
-            'save-user-name': 'Kullanıcı adı kaydetme',
-            'change-user-image': 'Profil resmi değiştirme',
-            'refresh-RandomQuote': 'Bir söz yenileme',
-            'admin-login': 'Yönetici girişi hatası',
-            'toggleUserCardsReadingStatus': 'Kart okuma durumu değiştirme',
-            'toggleMontlyReadingStatus': 'Aylık okuma durumu değiştirme',
-            'error': 'Bağlantı hatası',
-            // Add the new action type with a function to handle the dynamic content
-            'monthly-calendar-user-change': function (action) {
-              // Extract the user names from the action string
-              const match = action.match(/Aylık istatislikler değiştirme: (.+)-to-(.+)/);
-              if (match) {
-                const [_, prevUser, newUser] = match;
-                return `Takvim kullanıcı değişimi: ${prevUser || 'Seçilmemiş'} → ${newUser || 'Seçilmemiş'}`;
-              }
-              return 'Takvim kullanıcı değişimi';
-            }
-          };
-
-          const actionText = actionMap[log.action] || log.action;
-          // Get IP address and device info for color
-          const ipAddress = log.ipAddress || 'Bilinmiyor';
-          const deviceInfo = formatDeviceInfo(log.deviceInfo);
-          const ipDeviceCombo = `${ipAddress}-${deviceInfo}`;
-          const ipColor = ipColors[ipDeviceCombo];
-
-          row.innerHTML = `
-          <td>${actionText}</td>
-          <td>${formattedDate}</td>
-          <td class="ip-cell" style="color: ${ipColor}; font-weight: bold; cursor: pointer;" data-ip="${ipAddress}" data-device="${deviceInfo}">${ipAddress}</td>
-          <td>${deviceInfo}</td>
-        `;
-          // Add click event to IP cell
-          row.querySelector('.ip-cell').addEventListener('click', function () {
-            filterByIpDevice(ipAddress, deviceInfo);
-          });
-
-          return row;
+        if (windowsVersion && windowsArch) {
+          return `${windowsVersion[0]} - ${windowsArch[0]}`;
+        } else if (windowsVersion) {
+          return windowsVersion[0];
+        } else if (androidVersion) {
+          // For Android devices, show "Linux - Android X"
+          return `Linux - ${androidVersion[0]}`;
+        } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
+          // For iOS devices
+          const iosDevice = userAgent.match(/iPhone|iPad/)[0];
+          const iosVersion = userAgent.match(/OS ([0-9_]+)/);
+          return iosVersion ? `${iosDevice} - iOS ${iosVersion[1].replace('_', '.')}` : iosDevice;
+        } else if (userAgent.includes('Mac OS')) {
+          // For Mac devices
+          const macVersion = userAgent.match(/Mac OS X ([0-9_]+)/);
+          return macVersion ? `Mac OS X ${macVersion[1].replace(/_/g, '.')}` : 'Mac OS';
+        } else {
+          // Default fallback to platform or unknown
+          return deviceInfo.platform || 'Bilinmiyor';
         }
-        // Add function to filter logs by IP and device
-        function filterByIpDevice(ip, device) {
-          // Check if we're in date group view
+      }
+    });
+
+    // Helper functions
+    function getMonthName(monthIndex) {
+      const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+        'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+      return months[monthIndex];
+    }
+
+    // Function to filter logs by IP address
+    window.filterByIp = function (ipAddress) {
+      // Create filter notification
+      const filterContainer = document.getElementById('filterContainer');
+      if (!filterContainer) {
+        // Create filter container if it doesn't exist
+        const refreshAdminLogsButtonContainer = document.querySelector('.refresh-button').parentElement;
+        const newFilterContainer = document.createElement('div');
+        newFilterContainer.id = 'filterContainer';
+        newFilterContainer.style.marginRight = '10px';
+        refreshAdminLogsButtonContainer.insertBefore(newFilterContainer, refreshAdminLogsButtonContainer.firstChild);
+      }
+
+      // Clear any existing filters
+      document.getElementById('filterContainer').innerHTML = '';
+
+      // Check if we're in date view
           const isDateGroupVisible = document.getElementById('dateGroupContainer').style.display === 'block';
           const selectedDateTitle = document.getElementById('selectedDateTitle').textContent;
           const selectedDate = selectedDateTitle.replace(' Kayıtları', '');
 
-          // Remove existing filter notification if it exists
-          const existingNotification = document.getElementById('ipFilterNotification');
-          if (existingNotification) {
-            existingNotification.remove();
-          }
-
           // Create filter notification
-          const filterNotification = document.createElement('div');
-          filterNotification.id = 'ipFilterNotification';
-
-          // Add date information to the filter notification if we're in date view
-          let filterText = `<strong>Filtre Aktif:</strong> ${ip}`;
-          if (isDateGroupVisible) {
-            filterText += ` (${selectedDate})`;
-          }
-
-          filterNotification.innerHTML = `
-            <div class="filter-text">${filterText}</div>
-            <button id="clearIpFilter" title="Filtreyi Kaldır">×</button>
-          `;
-
-          // Get the filter container and add the notification
-          const filterContainer = document.getElementById('filterContainer');
-          filterContainer.innerHTML = ''; // Clear any existing content
-          filterContainer.appendChild(filterNotification);
+      const ipFilterNotification = document.createElement('div');
+      ipFilterNotification.id = 'ipFilterNotification';
+      ipFilterNotification.innerHTML = `
+        <span class="filter-text">${ipAddress} IP adresine göre filtrelendi</span>
+        <button id="clearIpFilter">×</button>
+      `;
+      document.getElementById('filterContainer').appendChild(ipFilterNotification);
 
           // Add event listener to clear filter button
-          document.getElementById('clearIpFilter').addEventListener('click', function () {
-            filterContainer.innerHTML = ''; // Clear the filter notification
+      document.getElementById('clearIpFilter').addEventListener('click', function (e) {
+        e.stopPropagation(); // Prevent the click from bubbling up
+        document.getElementById('filterContainer').innerHTML = '';
 
+        if (isDateGroupVisible) {
             // If we were in date view, go back to that date view
-            loadLogs().then(() => {
-              // If we were viewing a date group, restore that view
-              if (isDateGroupVisible && selectedDate) {
-                // Find the date group in the updated data
                 const dateCards = document.querySelectorAll('.date-summary-item');
                 for (const card of dateCards) {
                   if (card.querySelector('h4').textContent.includes(selectedDate)) {
@@ -814,88 +721,65 @@
                   }
                 }
               } else {
-                // Otherwise reload all logs
-                loadLogs();
-              }
-            });
-          });
-
-          // Fetch all logs and filter them
-          fetch('/api/access-logs')
-            .then(response => response.json())
-            .then(logs => {
-              // Filter logs by IP and device
-              let filteredLogs = logs.filter(log =>
-                log.ipAddress === ip && formatDeviceInfo(log.deviceInfo) === device
-              );
-
-              // If we're in date view, further filter by the selected date
-              if (isDateGroupVisible) {
-                const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-                  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-
-                filteredLogs = filteredLogs.filter(log => {
-                  const date = new Date(log.timestamp);
-                  const dateKey = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-                  return dateKey === selectedDate;
-                });
-              }
-
-              // Generate colors for the filtered logs
-              generateIpColors(filteredLogs);
-
-              // Always go to all logs view to show filtered results
-              document.getElementById('dateGroupContainer').style.display = 'none';
-              document.getElementById('dateGroupPaginationContainer').style.display = 'none';
-              document.querySelector('.log-table').style.display = 'table';
-              document.getElementById('paginationContainer').style.display = 'flex';
-
-              // Keep the active state on the date card if we were in date view
-              if (isDateGroupVisible) {
-                const allDateCards = document.querySelectorAll('.date-summary-item');
-                allDateCards.forEach(card => {
-                  if (card.querySelector('h4').textContent.includes(selectedDate)) {
-                    card.classList.add('date-summary-item-active');
-                  } else {
-                    card.classList.remove('date-summary-item-active');
-                  }
-                });
-              } else {
-                // Remove active state from all date cards if we weren't in date view
-                const allDateCards = document.querySelectorAll('.date-summary-item');
-                allDateCards.forEach(card => {
-                  card.classList.remove('date-summary-item-active');
-                });
-              }
-
-              // Show the filtered logs
-              showAllLogs(filteredLogs);
-            })
-            .catch(error => {
-              console.error('Error filtering logs:', error);
-            });
+          // Instead of manual reload, trigger the refresh button
+          refreshAdminLogsButton.click();
         }
-        // Add back button functionality
-        document.getElementById('backToAllLogs').addEventListener('click', () => {
-          document.getElementById('dateGroupContainer').style.display = 'none';
-          document.getElementById('dateGroupPaginationContainer').style.display = 'none';
-          document.querySelector('.log-table').style.display = 'table';
-          document.getElementById('paginationContainer').style.display = 'flex';
-          // Remove active state from all date cards
-          const allDateCards = document.querySelectorAll('.date-summary-item');
-          allDateCards.forEach(card => {
-            card.classList.remove('date-summary-item-active');
-          });
-          // Clear any filter notification
-          const filterContainer = document.getElementById('filterContainer');
-          if (filterContainer) {
-            filterContainer.innerHTML = '';
-          }
-          // Always reload all logs to reset any filter
-          loadLogs();
-        });
       });
 
+      if (isDateGroupVisible) {
+        // We're in date view, filter the date group table
+        const filteredLogs = Array.from(document.querySelectorAll('#dateGroupTableBody tr')).filter(row => {
+          return row.querySelector('td:nth-child(2)').textContent.trim() === ipAddress;
+        });
+
+        // Hide all rows in date group table
+        document.querySelectorAll('#dateGroupTableBody tr').forEach(row => {
+          row.style.display = 'none';
+        });
+
+        // Show only filtered rows
+        filteredLogs.forEach(row => {
+          row.style.display = '';
+        });
+
+        // Update pagination info
+        document.getElementById('dateGroupPaginationInfo').textContent =
+          `1-${filteredLogs.length} / ${filteredLogs.length} kayıt gösteriliyor`;
+
+        // Disable pagination buttons
+        document.getElementById('prevDatePageBtn').disabled = true;
+        document.getElementById('nextDatePageBtn').disabled = true;
+      } else {
+        // We're in main view, filter the main table
+        const filteredLogs = Array.from(document.querySelectorAll('#logsTableBody tr')).filter(row => {
+          return row.querySelector('td:nth-child(2)').textContent.trim() === ipAddress;
+        });
+
+        // Hide date group container and show main table
+              document.getElementById('dateGroupContainer').style.display = 'none';
+              document.getElementById('dateGroupPaginationContainer').style.display = 'none';
+        document.querySelector('.logs-table').style.display = 'table';
+              document.getElementById('paginationContainer').style.display = 'flex';
+
+        // Hide all rows
+        document.querySelectorAll('#logsTableBody tr').forEach(row => {
+          row.style.display = 'none';
+        });
+
+        // Show only filtered rows
+        filteredLogs.forEach(row => {
+          row.style.display = '';
+        });
+
+        // Update pagination info
+        document.getElementById('paginationInfo').textContent =
+          `1-${filteredLogs.length} / ${filteredLogs.length} kayıt gösteriliyor`;
+
+        // Disable pagination buttons
+        document.getElementById('prevPageBtn').disabled = true;
+        document.getElementById('nextPageBtn').disabled = true;
+      }
+    };
     </script>
     <script src="script.js"></script>
 </body>

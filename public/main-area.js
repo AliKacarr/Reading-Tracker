@@ -916,25 +916,11 @@ async function loadGroupSettings() {
             const groupImage = document.getElementById('currentGroupImage');
             const removeBtn = document.querySelector('.group-image-remove-btn');
             
-            // Loading state başlat
-            groupImage.classList.add('group-image-preview-loading');
-            
             if (group.groupImage) {
-                const img = new Image();
-                img.onload = function() {
-                    groupImage.src = group.groupImage;
-                    groupImage.classList.remove('group-image-preview-loading');
-                    removeBtn.style.display = 'flex';
-                };
-                img.onerror = function() {
-                    groupImage.src = '/images/open-book.webp';
-                    groupImage.classList.remove('group-image-preview-loading');
-                    removeBtn.style.display = 'none';
-                };
-                img.src = group.groupImage;
+                groupImage.src = group.groupImage;
+                removeBtn.style.display = 'flex';
             } else {
                 groupImage.src = '/images/open-book.webp';
-                groupImage.classList.remove('group-image-preview-loading');
                 removeBtn.style.display = 'none';
             }
             
@@ -1164,21 +1150,8 @@ async function changeGroupImage() {
             const data = await response.json();
             const groupImage = document.getElementById('currentGroupImage');
             
-            // Loading state başlat
-            groupImage.classList.add('group-image-preview-loading');
-            
-            const img = new Image();
-            img.onload = function() {
-                groupImage.src = data.imageUrl;
-                groupImage.classList.remove('group-image-preview-loading');
-                document.querySelector('.group-image-remove-btn').style.display = 'flex';
-            };
-            img.onerror = function() {
-                groupImage.src = '/images/open-book.webp';
-                groupImage.classList.remove('group-image-preview-loading');
-                document.querySelector('.group-image-remove-btn').style.display = 'none';
-            };
-            img.src = data.imageUrl;
+            groupImage.src = data.imageUrl;
+            document.querySelector('.group-image-remove-btn').style.display = 'flex';
             
             // secretAdminLogin'deki grup resmini de güncelle
             const secretAdminImage = document.querySelector('.secretAdminLogin img');

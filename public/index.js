@@ -14,7 +14,7 @@ class GroupsPage {
 
     init() {
         this.bindEvents();
-        this.loadGroups();
+        this.loadGroups(true); // reset=true ile başlat
         this.setupInfiniteScroll();
     }
 
@@ -94,33 +94,105 @@ class GroupsPage {
         this.showLoading(true);
 
         try {
-            const skip = reset ? 0 : this.currentPage * this.groupsPerPage;
-            const response = await fetch(`/api/groups?skip=${skip}&limit=${this.groupsPerPage}&search=${this.searchQuery}`);
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch groups');
-            }
-
-            const data = await response.json();
-
-            if (reset) {
-                this.groups = data.groups;
-                this.currentPage = 0;
+            // İlk yükleme ise önce kullanıcının gruplarını yükle
+            if (reset && this.currentPage === 0) {
+                await this.loadUserGroups();
+                // Kullanıcının grupları yüklendikten sonra normal grupları yükle
+                const skip = 0;
+                const response = await fetch(`/api/groups?skip=${skip}&limit=${this.groupsPerPage}&search=${this.searchQuery}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // Sadece kullanıcının gruplarında olmayan grupları ekle
+                    const userGroupIds = new Set();
+                    const userGroups = localStorage.getItem('groups');
+                    if (userGroups) {
+                        const groupsData = JSON.parse(userGroups);
+                        Object.keys(groupsData).forEach(id => userGroupIds.add(id));
+                    }
+                    
+                    const newGroups = data.groups.filter(group => !userGroupIds.has(group.groupId));
+                    this.groups = [...this.groups, ...newGroups];
+                    this.filteredGroups = this.groups;
+                    await this.loadMemberCounts(newGroups);
+                    this.renderGroups();
+                    this.currentPage++;
+                }
             } else {
-                this.groups = [...this.groups, ...data.groups];
-            }
+                // Normal infinite scroll
+                const skip = this.currentPage * this.groupsPerPage;
+                const response = await fetch(`/api/groups?skip=${skip}&limit=${this.groupsPerPage}&search=${this.searchQuery}`);
 
-            this.filteredGroups = this.groups;
-            await this.loadMemberCounts(data.groups);
-            this.renderGroups();
-            this.currentPage++;
+                if (!response.ok) {
+                    throw new Error('Failed to fetch groups');
+                }
+
+                const data = await response.json();
+
+                // Sadece yeni grupları ekle (duplicate kontrolü)
+                const existingGroupIds = new Set(this.groups.map(g => g.groupId));
+                const newGroups = data.groups.filter(group => !existingGroupIds.has(group.groupId));
+                this.groups = [...this.groups, ...newGroups];
+
+                this.filteredGroups = this.groups;
+                await this.loadMemberCounts(newGroups);
+                this.renderGroups();
+                this.currentPage++;
+
+                // Eğer yüklenen grup sayısı limit'ten azsa, daha fazla grup yok demektir
+                if (data.groups.length < this.groupsPerPage) {
+                    return { groups: data.groups, hasMore: false };
+                }
+
+                return { groups: data.groups, hasMore: true };
+            }
 
         } catch (error) {
             console.error('Error loading groups:', error);
             this.showError('Failed to load groups. Please try again.');
+            return { groups: [], hasMore: false };
         } finally {
             this.isLoading = false;
             this.showLoading(false);
+        }
+    }
+
+    async loadUserGroups() {
+        try {
+            // LocalStorage'dan kullanıcının gruplarını al
+            const userGroups = localStorage.getItem('groups');
+            if (!userGroups) return;
+
+            const groupsData = JSON.parse(userGroups);
+            const groupIds = Object.keys(groupsData);
+
+            if (groupIds.length === 0) return;
+
+            // Her grup için detayları al
+            const groupPromises = groupIds.map(async (groupId) => {
+                try {
+                    const response = await fetch(`/api/group/${groupId}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.group;
+                    }
+                } catch (error) {
+                    console.error(`Error loading group ${groupId}:`, error);
+                }
+                return null;
+            });
+
+            const userGroupsData = (await Promise.all(groupPromises)).filter(group => group !== null);
+
+            if (userGroupsData.length > 0) {
+                // Kullanıcının gruplarını en başa ekle
+                this.groups = [...userGroupsData, ...this.groups];
+                this.filteredGroups = this.groups;
+                await this.loadMemberCounts(userGroupsData);
+                this.renderGroups();
+            }
+        } catch (error) {
+            console.error('Error loading user groups:', error);
         }
     }
 
@@ -178,60 +250,6 @@ class GroupsPage {
         }
     }
 
-    createGroupCard(group) {
-        const memberCount = this.memberCounts.get(group.groupId) || 0;
-
-        let avatarHtml;
-        if (group.groupImage) {
-            avatarHtml = `<img src="${group.groupImage}" alt="${group.groupName}" class="group-avatar-image">`;
-        } else {
-            const groupInitial = group.groupName.charAt(0).toUpperCase();
-            avatarHtml = `<span>${groupInitial}</span>`;
-        }
-
-        const card = document.createElement('div');
-        card.className = 'group-card';
-        card.setAttribute('data-group-id', group.groupId);
-
-        card.innerHTML = `
-            <div class="group-header">
-                <div class="group-avatar">
-                    ${avatarHtml}
-                </div>
-                <div class="group-info">
-                    <h3 class="group-name">${this.escapeHtml(group.groupName)}</h3>
-                    <p class="group-id">@${this.escapeHtml(group.groupId)}</p>
-                </div>
-            </div>
-            <div>
-               <span class="groupDescription">${this.escapeHtml((group.description || '').substring(0, 100))}</span>
-            </div>
-
-        <div class="group-stats">
-            <div class="stat-item">
-                <i class="fas fa-users"></i>
-                <span class="member-count"><span class="memberCount">${memberCount}</span> üye</span>
-
-
-            </div>
-        </div>
-    `;
-
-        card.addEventListener('click', () => {
-            window.location.href = `/groupid=${group.groupId}`;
-        });
-
-        // Add hover effect
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-5px)';
-        });
-
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0)';
-        });
-
-        return card;
-    }
 
     handleSearch(e) {
         const query = e.target.value.trim().toLowerCase();
@@ -292,25 +310,47 @@ class GroupsPage {
     setupInfiniteScroll() {
         let ticking = false;
         let lastLoadTime = 0;
+        let hasMoreGroups = true; // Daha fazla grup var mı kontrolü
+        let loadedGroupIds = new Set(); // Yüklenen grup ID'lerini takip et
+        
         window.addEventListener('scroll', () => {
             if (!ticking) {
                 requestAnimationFrame(() => {
                     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
                     const nearBottom = scrollTop + clientHeight >= scrollHeight - 200;
                     const now = Date.now();
-                    // Sadece yüklenmiyorsa, arama yapılmıyorsa ve son yüklemeden yeterli süre geçtiyse yükle
-                    if (nearBottom && !this.isLoading && this.searchQuery === '' && now - lastLoadTime > 600) {
-                        // Sadece daha fazla grup varsa yükle
-                        if (this.filteredGroups.length >= (this.currentPage * this.groupsPerPage)) {
-                            this.loadGroups();
-                            lastLoadTime = now;
-                        }
+                    
+                    // Sadece yüklenmiyorsa, arama yapılmıyorsa, daha fazla grup varsa ve son yüklemeden yeterli süre geçtiyse yükle
+                    if (nearBottom && !this.isLoading && this.searchQuery === '' && hasMoreGroups && now - lastLoadTime > 600) {
+                        this.loadGroups();
+                        lastLoadTime = now;
                     }
                     ticking = false;
                 });
                 ticking = true;
             }
         });
+        
+        // hasMoreGroups'u güncellemek için loadGroups'u override et
+        const originalLoadGroups = this.loadGroups.bind(this);
+        this.loadGroups = async (reset = false) => {
+            const result = await originalLoadGroups(reset);
+            
+            if (result && result.groups) {
+                // Yeni gelen grupları kontrol et
+                const newGroups = result.groups.filter(group => !loadedGroupIds.has(group.groupId));
+                
+                // Eğer yeni grup yoksa veya çok az varsa daha fazla grup yok demektir
+                if (newGroups.length === 0 || (result.groups.length < this.groupsPerPage && newGroups.length < 3)) {
+                    hasMoreGroups = false;
+                }
+                
+                // Yüklenen grup ID'lerini kaydet
+                result.groups.forEach(group => loadedGroupIds.add(group.groupId));
+            }
+            
+            return result;
+        };
     }
 
     openCreateModal() {
@@ -475,21 +515,38 @@ class GroupsPage {
     // Grup kartı oluşturma
     createGroupCard(group) {
         const memberCount = this.memberCounts.get(group.groupId) || 0;
-        const isPrivate = group.visibility === 'private';
+        
+        // Kullanıcının grupları için private kontrolü yapma
+        const userGroups = localStorage.getItem('groups');
+        let isUserGroup = false;
+        if (userGroups) {
+            const groupsData = JSON.parse(userGroups);
+            isUserGroup = groupsData.hasOwnProperty(group.groupId);
+        }
+        
+        const isPrivate = group.visibility === 'private' && !isUserGroup;
 
         let avatarHtml;
         if (group.groupImage) {
-            avatarHtml = `<img src="${group.groupImage}" alt="${group.groupName}" class="group-avatar-image group-avatar-image-loading" onload="this.classList.remove(group-avatar-image-loading')" onerror="this.classList.remove(group-avatar-image-loading'); this.src='/images/open-book.webp'">`;
+            avatarHtml = `<img src="${group.groupImage}" alt="${group.groupName}" class="group-avatar-image group-avatar-image-loading" onload="this.classList.remove('group-avatar-image-loading')" onerror="this.classList.remove('group-avatar-image-loading'); this.src='/images/open-book.webp'">`;
         } else {
             const groupInitial = group.groupName.charAt(0).toUpperCase();
             avatarHtml = `<span>${groupInitial}</span>`;
         }
 
-        // Gizli grup için kilit ikonu
+        // Gizli grup için kilit ikonu (sadece kullanıcının grubu değilse)
         const lockIcon = isPrivate ? '<img src="/images/lock.webp" alt="Kilit" title="Gizli Grup" class="private-group-lock">' : '';
+        
+        // Kullanıcının grubu için özel işaret
+        const userGroupIcon = isUserGroup ? '<div class="user-group-badge"><i class="fas fa-user"></i></div>' : '';
 
         const card = document.createElement('div');
-        card.className = isPrivate ? 'group-card private-group' : 'group-card';
+        // Kullanıcının grubu ise özel class ekle
+        if (isUserGroup) {
+            card.className = isPrivate ? 'group-card private-group user-group' : 'group-card user-group';
+        } else {
+            card.className = isPrivate ? 'group-card private-group' : 'group-card';
+        }
         card.setAttribute('data-group-id', group.groupId);
 
         card.innerHTML = `
@@ -502,6 +559,7 @@ class GroupsPage {
                     <p class="group-id">@${this.escapeHtml(group.groupId)}</p>
                 </div>
                 ${lockIcon}
+                ${userGroupIcon}
             </div>
             <div>
                <span class="groupDescription">${this.escapeHtml((group.description || '').substring(0, 100))}</span>
@@ -511,19 +569,29 @@ class GroupsPage {
             <div class="stat-item">
                 <i class="fas fa-users"></i>
                 <span class="member-count"><span class="memberCount">${memberCount}</span> üye</span>
-
-
             </div>
+            ${!isUserGroup ? '<button class="join-group-btn"><i class="fas fa-plus"></i> Gruba Katıl</button>' : ''}
         </div>
     `;
 
-        // Sadece gizli olmayan gruplar için tıklama işlevi
-        if (!isPrivate) {
+        // Gruba katıl butonu için event listener
+        if (!isUserGroup) {
+            const joinBtn = card.querySelector('.join-group-btn');
+            if (joinBtn) {
+                joinBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Kart tıklamasını engelle
+                    window.location.href = `/groupid=${group.groupId}`;
+                });
+            }
+        }
+
+        // Sadece kullanıcının grupları veya public gruplar için tıklama işlevi
+        if (isUserGroup || !isPrivate) {
             card.addEventListener('click', () => {
                 window.location.href = `/groupid=${group.groupId}`;
             });
 
-            // Add hover effect only for non-private groups
+            // Hover efekti
             card.addEventListener('mouseenter', () => {
                 card.style.transform = 'translateY(-5px)';
             });
@@ -532,7 +600,7 @@ class GroupsPage {
                 card.style.transform = 'translateY(0)';
             });
         } else {
-            // Gizli gruplar için cursor pointer'ı kaldır
+            // Private gruplar için cursor pointer'ı kaldır
             card.style.cursor = 'default';
         }
 

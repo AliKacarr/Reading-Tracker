@@ -546,6 +546,12 @@ async function logUnauthorizedAccess(action) {
     return;
   }
 
+  // Ad blocker veya güvenlik yazılımı kontrolü
+  if (typeof fetch === 'undefined') {
+    console.log('Fetch API not available, skipping unauthorized access log');
+    return;
+  }
+
   try {
     const deviceInfo = {
       userAgent: navigator.userAgent,
@@ -553,14 +559,29 @@ async function logUnauthorizedAccess(action) {
       screenHeight: window.screen.height,
     };
 
-    await fetch('/api/log-unauthorized', {
+    const response = await fetch('/api/log-unauthorized', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, deviceInfo })
+      body: JSON.stringify({ 
+        action, 
+        deviceInfo,
+        groupId: getGroupIdFromUrl()
+      })
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    console.log('Unauthorized access logged successfully');
   } catch (error) {
-    console.error('Error logging unauthorized access:', error);
-    logUnauthorizedAccess('error');
+    // Sadece gerçek hataları logla, ad blocker'ları sessizce geç
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      console.log('Request blocked by client (likely ad blocker)');
+    } else {
+      console.error('Error logging unauthorized access:', error);
+      // Recursive call'u kaldırdık çünkü sonsuz döngüye sebep olabilir
+    }
   }
 }
 
@@ -569,6 +590,13 @@ async function logPageVisit() {
   if (localStorage.getItem('cookieConsent') !== 'accepted') {
     return;
   }
+  
+  // Ad blocker veya güvenlik yazılımı kontrolü
+  if (typeof fetch === 'undefined') {
+    console.log('Fetch API not available, skipping log');
+    return;
+  }
+  
   try {
     const deviceInfo = {
       userAgent: navigator.userAgent,
@@ -576,15 +604,28 @@ async function logPageVisit() {
       screenHeight: window.screen.height,
     };
 
-    await fetch('/api/log-visit', {
+    const response = await fetch('/api/log-visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceInfo })
+      body: JSON.stringify({ 
+        deviceInfo,
+        groupId: getGroupIdFromUrl()
+      })
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    console.log('Page visit logged successfully');
   } catch (error) {
-    console.error('Error logging page visit:', error);
+    // Sadece gerçek hataları logla, ad blocker'ları sessizce geç
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      console.log('Request blocked by client (likely ad blocker)');
+    } else {
+      console.error('Error logging page visit:', error);
+    }
   }
-  console.log("logPageVisit");
 }
 
 // Kullanıcı adı doğrulama

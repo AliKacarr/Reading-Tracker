@@ -743,39 +743,11 @@ label.custom-file-input:hover {
     position: relative;
 }
 
-.group-image-preview.group-image-preview-loading {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: group-image-preview-shimmer 1.5s infinite;
-    border: 2px dashed #ccc;
-}
-
-.group-image-preview.group-image-preview-loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 20px;
-    height: 20px;
-    border: 2px solid #4e54c8;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: group-image-preview-spin 1s linear infinite;
-}
 
 .group-image-preview:hover {
     opacity: 0.8;
 }
 
-@keyframes group-image-preview-shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
 
 @keyframes user-profile-image-shimmer {
     0% {
@@ -791,10 +763,6 @@ label.custom-file-input:hover {
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-@keyframes group-image-preview-spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-}
 
 .group-image-actions {
     display: flex;

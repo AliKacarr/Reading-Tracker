@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const closeButton = document.querySelector('.close-button');
     const adminLoginForm = document.getElementById('adminLoginForm');
     const loginError = document.getElementById('loginError');
-    const adminUsername = document.getElementById('adminUsername');
+    const adminUserName = document.getElementById('adminUserName');
     const adminPassword = document.getElementById('adminPassword');
 
     // Check if already authenticated
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Handle form submission
     adminLoginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        const username = document.getElementById('adminUsername').value;
+        const username = document.getElementById('adminUserName').value;
         const password = document.getElementById('adminPassword').value;
 
         try {
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    adminUsername.addEventListener('keydown', function (e) {
+    adminUserName.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent form submission
             adminPassword.focus(); // Move focus to adminPassword field
