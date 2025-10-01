@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshBtn) {
         refreshBtn.onclick = function () {
             fetchRandomQuote();
-            logUnauthorizedAccess('refresh-RandomQuote');
+            logUnauthorizedAccess('Bir söz yenileme denemesi');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshImageBtn) {
         refreshImageBtn.onclick = function () {
             fetchRandomQuoteImage();
+            logUnauthorizedAccess('Bir söz resmi yenileme denemesi');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshAyatButton) {
         refreshAyatButton.onclick = function () {
             fetchRandomAyet();
+            logUnauthorizedAccess('Bir ayet yenileme denemesi');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -120,6 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshHadithButton) {
         refreshHadithButton.onclick = function () {
             fetchRandomHadis();
+            logUnauthorizedAccess('Bir hadis yenileme denemesi');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -131,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshDuaButton) {
         refreshDuaButton.onclick = function () {
             fetchRandomDua();
+            logUnauthorizedAccess('Bir dua yenileme denemesi');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -155,7 +159,7 @@ async function fetchRandomQuote() {
             }, 50);
         }
     } catch (error) {
-        console.error('Error fetching quote:', error);
+        console.error('Bir söz yüklenemedi:', error);
         const quoteTextElement = document.getElementById('quoteText');
         if (quoteTextElement) {
             quoteTextElement.innerHTML = 'Günün sözü yüklenemedi.';
@@ -182,7 +186,7 @@ async function fetchRandomQuoteImage() {
         img.classList.add('visible');
     } catch (error) {
         img.style.display = 'none';
-        console.error('Error loading quote image:', error);
+        console.error('Bir söz resmi yüklenemedi:', error);
     }
 }
 
@@ -205,7 +209,7 @@ async function fetchRandomAyet() {
             }, 50);
         }
     } catch (error) {
-        console.error('Ayet getirme hatası:', error);
+        console.error('Bir ayet yüklenemedi:', error);
         const ayatTextElement = document.getElementById('ayatText');
         if (ayatTextElement) {
             ayatTextElement.innerHTML = 'Ayet yüklenemedi';
@@ -234,7 +238,7 @@ async function fetchRandomHadis() {
             }, 50);
         }
     } catch (error) {
-        console.error('Hadis getirme hatası:', error);
+        console.error('Bir hadis yüklenemedi:', error);
         const hadithTextElement = document.getElementById('hadithText');
         if (hadithTextElement) {
             hadithTextElement.innerHTML = 'Hadis yüklenemedi';
@@ -262,7 +266,7 @@ async function fetchRandomDua() {
             }, 50);
         }
     } catch (error) {
-        console.error('Dua getirme hatası:', error);
+        console.error('Bir dua yüklenemedi:', error);
         const duaTextElement = document.getElementById('duaText');
         if (duaTextElement) {
             duaTextElement.innerHTML = 'Dua yüklenemedi';

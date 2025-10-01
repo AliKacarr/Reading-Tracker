@@ -536,13 +536,13 @@ async function loadUserCards() {
 toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElement) {
 
   if (!LocalStorageManager.isUserLoggedIn()) {
-    logUnauthorizedAccess('toggleUserCardsReadingStatus');
+    logUnauthorizedAccess('Kullanıcı kartlarında okuma durumu değiştirme denemesi');
     return;
   }
 
   const userInfo = LocalStorageManager.getCurrentUserInfo();
   if (!userInfo) {
-    logUnauthorizedAccess('toggleUserCardsReadingStatus');
+    logUnauthorizedAccess('Kullanıcı kartlarında okuma durumu değiştirme denemesi-kullanıcı bulunamadı');
     return;
   }
 
@@ -554,12 +554,12 @@ toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElem
       .then(data => {
         const currentUser = data.users.find(u => u._id === userInfo.userId);
         if (!currentUser) {
-          logUnauthorizedAccess('toggleUserCardsReadingStatus-user-not-found');
+          logUnauthorizedAccess('Kullanıcı kartlarında okuma durumu değiştirme denemesi-kullanıcı bulunamadı');
           return;
         }
         
         if (currentUser.name !== userName) {
-          logUnauthorizedAccess('toggleUserCardsReadingStatus-other-user');
+          logUnauthorizedAccess('Kullanıcı kartlarında okuma durumu değiştirme denemesi-başka kullanıcı');
           return;
         }
         
@@ -567,7 +567,7 @@ toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElem
         continueWithToggle();
       })
       .catch(error => {
-        console.error('Kullanıcı bilgisi alınırken hata:', error);
+        console.error('Kullanıcı kartlarında okuma durumu değiştirme denemesi-kullanıcı bilgisi alınırken hata:', error);
         return;
       });
     return; // Async işlem başladı, fonksiyondan çık
@@ -641,7 +641,7 @@ toggleUserCardsReadingStatus = function (userName, day, month, year, clickedElem
         }
       })
       .catch(error => {
-        console.error('Okuma durumu değiştirilirken hata oluştu:', error);
+        console.error('Kullanıcı kartlarında okuma durumu değiştirme denemesi-okuma durumu değiştirilirken hata oluştu:', error);
         // Hata durumunda UI'ı eski haline döndür
         if (window.loadUserCards) window.loadUserCards();
       });

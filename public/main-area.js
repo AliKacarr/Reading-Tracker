@@ -3,7 +3,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
 
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('add-user');
+        logUnauthorizedAccess('Kullanıcı ekleme denemesi');
         return;
     }
 
@@ -73,7 +73,7 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
 async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('delete-user');
+        logUnauthorizedAccess('Kullanıcı silme denemesi');
         return;
     }
 
@@ -163,7 +163,7 @@ async function deleteUser(id) {     //Kullanıcıyı silme fonksiyonu
 async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('save-user-name');
+        logUnauthorizedAccess('Kullanıcı adı güncelleme denemesi');
         return;
     }
 
@@ -271,7 +271,7 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
 function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('edit-user-name');
+        logUnauthorizedAccess('Kullanıcı adı düzenleme denemesi');
         return;
     }
 
@@ -320,7 +320,7 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
 function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('change-user-image');
+        logUnauthorizedAccess('Kullanıcı resmi değiştirme denemesi');
         return;
     }
 
@@ -509,7 +509,7 @@ function showErrorMessage(message) {
 function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('toggle-delete-button');
+        logUnauthorizedAccess('Kullanıcı silme butonu açma denemesi');
         return;
     }
 
@@ -546,7 +546,7 @@ function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fon
 function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('cancel-edit-user-name');
+        logUnauthorizedAccess('Kullanıcı adı düzenleme iptal denemesi');
         return;
     }
 
@@ -591,7 +591,7 @@ function cancelEditUserName(userId) {     //Kullanıcı adı düzenleme iptal fo
 function cancelSettings(userId) {     //Ayarlar iptal fonksiyonu
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('cancel-settings');
+        logUnauthorizedAccess('Ayarlar iptal denemesi');
         return;
     }
 
@@ -635,7 +635,7 @@ async function getAdminCount() {
 async function changeUserAuthority(userId, newAuthority) {
     // Check if user is authenticated and has admin rights
     if (!LocalStorageManager.isAdmin()) {
-        logUnauthorizedAccess('change-user-authority');
+        logUnauthorizedAccess('Kullanıcı yetkisi değiştirme denemesi');
         return;
     }
 

@@ -104,7 +104,7 @@ function loadMonthlyCalendar() {
 
         // Log the user selection change
         if (typeof logUnauthorizedAccess === 'function') {
-            logUnauthorizedAccess(`monthly-calendar-user-change: ${previousUser}-to-${selectedUser}`);
+            logUnauthorizedAccess(`Aylık takvim kullanıcı değiştirme denemesi: ${previousUser}-to-${selectedUser}`);
         }
 
         generateCalendar(currentMonth, currentYear);
@@ -330,13 +330,13 @@ function loadMonthlyCalendar() {
 
     function toggleUserReadingStatus(userName, day, month, year, clickedCell) {
         if (!LocalStorageManager.isUserLoggedIn()) {
-            logUnauthorizedAccess('toggleMontlyReadingStatus');
+            logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi');
             return;
         }
 
         const userInfo = LocalStorageManager.getCurrentUserInfo();
         if (!userInfo) {
-            logUnauthorizedAccess('toggleMontlyReadingStatus');
+            logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi');
             return;
         }
 
@@ -348,12 +348,12 @@ function loadMonthlyCalendar() {
                 .then(data => {
                     const currentUser = data.users.find(u => u._id === userInfo.userId);
                     if (!currentUser) {
-                        logUnauthorizedAccess('toggleMontlyReadingStatus-user-not-found');
+                        logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi-kullanıcı bulunamadı');
                         return;
                     }
                     
                     if (currentUser.name !== userName) {
-                        logUnauthorizedAccess('toggleMontlyReadingStatus-other-user');
+                        logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi-başka kullanıcı');
                         return;
                     }
                     
@@ -361,7 +361,7 @@ function loadMonthlyCalendar() {
                     continueWithToggle();
                 })
                 .catch(error => {
-                    console.error('Kullanıcı bilgisi alınırken hata:', error);
+                    console.error('Aylık takvim okuma durumu değiştirme denemesi-kullanıcı bilgisi alınırken hata:', error);
                     return;
                 });
             return; // Async işlem başladı, fonksiyondan çık
