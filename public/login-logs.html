@@ -5,8 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="images/favicon.webp" type="image/x-icon" />
-  <title>Giriş Kayıtları</title>
+  <title>Görüntülenme Kayıtları</title>
   <link rel="stylesheet" href="login-logs.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -21,7 +22,7 @@
 
   <div id="logsSection" class="logs-container" style="display: none;">
     <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-      <h1 style="margin: 0 0 10px 0; text-align: center;">Giriş Kayıtları</h1>
+      <h1 style="margin: 0 0 15px 0; text-align: center; font-size: 30px;">Üyelerin Giriş Kayıtları</h1>
       <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
         <a href="/" class="back-button">Ana Sayfa</a>
         <div style="display: flex; align-items: center;">
@@ -38,7 +39,7 @@
       <thead>
         <tr>
           <th>Tarih</th>
-          <th>IP Adresi</th>
+          <th>Kullanıcı Adı</th>
           <th>Cihaz Bilgisi</th>
           <th>Ekran Boyutu</th>
         </tr>
@@ -74,7 +75,7 @@
         <thead>
           <tr>
             <th>Saat</th>
-            <th>IP Adresi</th>
+            <th>Kullanıcı Adı</th>
             <th>Cihaz Bilgisi</th>
             <th>Ekran Boyutu</th>
           </tr>
@@ -97,6 +98,12 @@
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Cookie information notice -->
+    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 10px; margin-top: 15px; text-align: center; font-size: 15px; color: #6c757d;">
+      <i class="fa-solid fa-circle-info" style="margin-right: 2px;"></i>
+      Bu kayıtlar yalnızca çerezleri kabul edip grubu görüntüleyen kullanıcılar için tutulmaktadır.
     </div>
 
     <!-- Add date summary section -->
@@ -383,12 +390,17 @@
             dateCard.className = 'date-summary-item';
             dateCard.innerHTML = `
               <h4>${dateKey}</h4>
-              <p>IP Adresleri: <span style="color: black; font-weight: 500;">${uniqueIPs}</span> farklı</p>
+              <p>Kullanıcı Adları: <span style="color: black; font-weight: 500;">${uniqueIPs}</span> farklı</p>
               <p>Giriş: <span class="date-summary-count">${dateCount}</span></p>
             `;
 
             dateCard.addEventListener('click', () => {
               showDateGroup(dateKey, logsByDate[dateKey]);
+              // Sayfanın en üstüne yavaşça kaydır
+              window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+              });
             });
 
             dateSummaryList.appendChild(dateCard);
@@ -696,7 +708,7 @@
       const ipFilterNotification = document.createElement('div');
       ipFilterNotification.id = 'ipFilterNotification';
       ipFilterNotification.innerHTML = `
-        <span class="filter-text">${ipAddress} IP adresine göre filtrelendi</span>
+        <span class="filter-text">${ipAddress} Kullanıcı adına göre filtrelendi</span>
         <button id="clearIpFilter">×</button>
       `;
       document.getElementById('filterContainer').appendChild(ipFilterNotification);

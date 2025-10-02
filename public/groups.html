@@ -456,144 +456,175 @@
     </div>
 
     <div class="main-area" style="display: none;">
-      <div class="left-column">
-        <div class="user-settings">
-          <!-- Add the Add User section -->
-          <form id="newUserForm" enctype="multipart/form-data">
-            <div class="form-left-column">
-              <h3>➕ Kullanıcı Ekle</h3>
-              <div class="image-upload">
-                <label for="profileImage">Profil Resmi:</label>
-                <div class="file-input-container">
-                  <input type="file" id="profileImage" name="profileImage" accept="image/*" />
-                  <label for="profileImage" class="custom-file-input" id="file-input-label">Resim Seç</label>
-                  <span id="file-name">Resim seçilmedi</span>
-                </div>
-              </div>
-              <div class="ad-user-form-group">
-                <label for="newUserInput">Kullanıcı İsmi:</label>
-                <div class="input-container">
-                  <div class="input-icon-container">
-                    <img src="/images/default.png" alt="Varsayılan profil resmi" class="input-profile-image" id="inputProfileImage">
+      <div class="top-section">
+      <div class="group-settings">
+        <h3>⚙️ Grup Ayarları</h3>
+        
+        <div class="group-info-section">
+          <!-- Sol Sütun: Grup Bilgileri -->
+          <div class="group-left-column">
+            <!-- Üst Bölüm: İki Alt Sütun -->
+            <div class="group-top-section">
+              <!-- Sol Alt Sütun: Grup Resmi ve Adı -->
+              <div class="group-left-sub-column">
+                <div class="group-image-section">
+                  <label for="groupImage"><i class="fa-solid fa-image"></i> Grup Resmi:</label>
+                  <div class="group-image-container">
+                    <img id="currentGroupImage" src="/images/open-book.webp" alt="Grup resmi" class="group-image-preview" onclick="document.getElementById('groupImage').click()">
+                    <div class="group-image-actions">
+                      <input type="file" id="groupImage" name="groupImage" accept="image/*" style="display: none;" />
+                      <div class="top-buttons">
+                        <label for="groupImage" class="change-image-btn">
+                          <i class="fa-solid fa-upload"></i>
+                          <span>Yükle</span>
+                        </label>
+                        <button type="button" class="group-image-remove-btn" title="Resmi Kaldır" style="display: none;">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                      <button type="button" class="ready-images-btn" onclick="toggleReadyImagesModal()">
+                        <i class="fa-solid fa-images"></i>
+                        <span>Hazır Görseller</span>
+                      </button>
+                    </div>
                   </div>
-                  <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
-                  <button type="submit" class="submit-button">Ekle</button>
-                </div>
-              </div>
-            </div>
-            <div class="form-right-column">
-              <!-- Resim ön izleme alanı - sağ sütunda -->
-              <div id="imagePreviewContainer" style="display: none;">
-                <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
-                <button type="button" id="closePreview" class="close-preview-button"><i
-                    class="fa-solid fa-xmark"></i></button>
-              </div>
-            </div>
-          </form>
-
-
-        <div class="user-list">
-          <h3>👤 Kullanıcılar</h3>
-          <ul id="userList"></ul>
-        </div>
-        </div>
-      </div>
-
-      <div class="right-column">
-        <div class="group-settings">
-          <h3>⚙️ Grup Ayarları</h3>
-          
-          <div class="group-info-section">
-            <div class="group-image-section">
-              <label for="groupImage">Grup Resmi:</label>
-              <div class="group-image-container">
-                <img id="currentGroupImage" src="/images/open-book.webp" alt="Grup resmi" class="group-image-preview" onclick="document.getElementById('groupImage').click()">
-                <div class="group-image-actions">
-                  <input type="file" id="groupImage" name="groupImage" accept="image/*" style="display: none;" />
-                  <div class="top-buttons">
-                    <label for="groupImage" class="change-image-btn">
-                      <i class="fa-solid fa-upload"></i>
-                      <span>Yükle</span>
-                    </label>
-                    <button type="button" class="group-image-remove-btn" title="Resmi Kaldır" style="display: none;">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
-                  </div>
-                  <button type="button" class="ready-images-btn" onclick="toggleReadyImagesModal()">
-                    <i class="fa-solid fa-images"></i>
-                    <span>Hazır Görseller</span>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Hazır Görseller Modal -->
-              <div id="readyImagesModal" class="ready-images-modal">
-                <div class="ready-images-modal-content">
-                  <div class="modal-header">
-                    <h3>
-                      <i class="fa-solid fa-images"></i>
-                      Hazır Görseller
-                    </h3>
-                    <button type="button" class="modal-close-btn" onclick="toggleReadyImagesModal()">
-                      <i class="fa-solid fa-times"></i>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="avatar-grid" id="avatarGrid">
-                      <!-- Avatar resimleri JavaScript ile yüklenecek -->
+                  
+                  <!-- Hazır Görseller Modal -->
+                  <div id="readyImagesModal" class="ready-images-modal">
+                    <div class="ready-images-modal-content">
+                      <div class="modal-header">
+                        <h3>
+                          <i class="fa-solid fa-images"></i>
+                          Hazır Görseller
+                        </h3>
+                        <button type="button" class="modal-close-btn" onclick="toggleReadyImagesModal()">
+                          <i class="fa-solid fa-times"></i>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="avatar-grid" id="avatarGrid">
+                          <!-- Avatar resimleri JavaScript ile yüklenecek -->
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                <div class="form-group">
+                  <label for="groupVisibility">Grup Görünürlüğü:</label>
+                  <div class="visibility-container">
+                    <i class="fa-solid fa-eye visibility-icon" id="visibilityIcon"></i>
+                    <select id="groupVisibility" class="group-select">
+                      <option value="public">Herkese Açık</option>
+                      <option value="private">Gizli Grup</option>
+                    </select>
+                  </div>
+                  <div class="visibility-info" id="visibilityInfo">
+                    <i class="fa-solid fa-info-circle"></i>
+                    <span>Herkes bu grubu görüntüleyebilir</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sağ Alt Sütun: Açıklama ve Görünürlük -->
+              <div class="group-right-sub-column">
+                <div class="form-group">
+                  <label for="groupName"><i class="fas fa-layer-group"></i> Grup Adı:</label>
+                  <input type="text" id="groupName" class="group-input" placeholder="Grup adını giriniz" />
+                </div>
+                <div class="form-group">
+                  <label for="groupDescription"><i class="fa-solid fa-align-left"></i> Grup Açıklaması:</label>
+                  <textarea id="groupDescription" class="group-textarea" placeholder="Grup açıklamasını giriniz" rows="3"></textarea>
+                </div>
+
               </div>
             </div>
 
-            <div class="group-details-section">
-              <div class="form-group">
-                <label for="groupName">Grup Adı:</label>
-                <input type="text" id="groupName" class="group-input" placeholder="Grup adını giriniz" />
-              </div>
-
-              <div class="form-group">
-                <label for="groupDescription">Grup Açıklaması:</label>
-                <textarea id="groupDescription" class="group-textarea" placeholder="Grup açıklamasını giriniz" rows="3"></textarea>
-              </div>
-
-              <div class="form-group">
-                <label for="groupVisibility">Grup Görünürlüğü:</label>
-                <div class="visibility-container">
-                  <i class="fa-solid fa-eye visibility-icon" id="visibilityIcon"></i>
-                  <select id="groupVisibility" class="group-select">
-                    <option value="public">Herkese Açık</option>
-                    <option value="private">Gizli Grup</option>
-                  </select>
-                </div>
-                <div class="visibility-info" id="visibilityInfo">
-                  <i class="fa-solid fa-info-circle"></i>
-                  <span>Herkes bu grubu görüntüleyebilir</span>
-                </div>
-                <div style="margin-top: 15px; display: flex; gap: 10px; align-items: center;">
-                  <button type="button" class="danger-toggle-btn">
-                    <i class="fa-solid fa-trash-can"></i>
-                    <span class="danger-text">Grubu Sil</span>
-                  </button>
-                  <button type="button" class="share-group-btn">
-                    <i class="fa-solid fa-share-nodes"></i>
-                    <span>Grubu Paylaş</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
+            <!-- Alt Satır: Kaydet Butonu -->
             <div class="group-actions">
               <button type="button" class="save-group-btn">
                 <i class="fa-solid fa-save"></i> Kaydet
               </button>
-              <button type="button" class="delete-group-btn">
+            </div>
+          </div>
+
+          <!-- Sağ Sütun: Butonlar -->
+          <div class="group-right-column">
+            <div class="group-buttons">
+              <form class="form-group">
+                <label for="group-link-btn"><i class="fa-solid fa-chart-line"></i> Üye Kayıtları:</label>
+                <button type="button" class="group-link-btn" onclick="window.location.href='/admin-logs.html'">
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <span>Son İşlemler</span>
+                </button>
+                <button type="button" class="group-link-btn" onclick="window.location.href='/login-logs.html'">
+                  <i class="fa-solid fa-font-awesome"></i>
+                  <span>Giriş Kayıtları</span>
+                </button>
+              </form>
+              
+              <div class="group-action-buttons">
+                <button type="button" class="danger-toggle-btn">
+                  <i class="fa-solid fa-trash-can"></i>
+                  <span class="danger-text">Grubu Sil</span>
+                </button>
+                <button type="button" class="share-group-btn">
+                  <i class="fa-solid fa-share-nodes"></i>
+                  <span>Grubu Paylaş</span>
+                </button>
+              </div>
+              <button type="button" class="delete-group-btn" style="display: none;">
                 <i class="fa-solid fa-trash"></i>
                 <span>Grubu Silmeyi Onaylıyorum</span>
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Alt Bölüm: Kullanıcı Listesi ve Kullanıcı Ekleme Formu -->
+      <div class="bottom-section">
+        <div class="left-column">
+          <div class="user-list">
+            <h3>👤 Kullanıcılar</h3>
+            <ul id="userList"></ul>
+          </div>
+        </div>
+
+        <div class="right-column">
+            <!-- Add the Add User section -->
+            <form id="newUserForm" enctype="multipart/form-data">
+              <div class="form-left-column">
+                <h3>➕ Kullanıcı Ekle</h3>
+                <div class="image-upload">
+                  <label for="profileImage">Profil Resmi:</label>
+                  <div class="file-input-container">
+                    <input type="file" id="profileImage" name="profileImage" accept="image/*" />
+                    <label for="profileImage" class="custom-file-input" id="file-input-label">Resim Seç</label>
+                    <span id="file-name">Resim seçilmedi</span>
+                  </div>
+                </div>
+                <div class="ad-user-form-group">
+                  <label for="newUserInput">Kullanıcı İsmi:</label>
+                  <div class="input-container">
+                    <div class="input-icon-container">
+                      <img src="/images/default.png" alt="Varsayılan profil resmi" class="input-profile-image" id="inputProfileImage">
+                    </div>
+                    <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
+                    <button type="submit" class="submit-button">Ekle</button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-right-column">
+                <!-- Resim ön izleme alanı - sağ sütunda -->
+                <div id="imagePreviewContainer" style="display: none;">
+                  <img id="imagePreview" alt="Profil resmi ön izlemesi" class="profile-preview-image">
+                  <button type="button" id="closePreview" class="close-preview-button"><i
+                      class="fa-solid fa-xmark"></i></button>
+                </div>
+              </div>
+            </form>
         </div>
       </div>
     </div>

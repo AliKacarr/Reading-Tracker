@@ -326,19 +326,19 @@ function calculateStreak(userStats) {
 
 async function toggleStatus(userId, date) {
     if (!LocalStorageManager.isUserLoggedIn()) {
-        logUnauthorizedAccess('Haftalık tabloya tıklama denemesi');
+        logUnauthorizedAccess('Haftalık tabloya tıklama');
         return;
     }
 
     const userInfo = LocalStorageManager.getCurrentUserInfo();
     if (!userInfo) {
-        logUnauthorizedAccess('Haftalık tabloya tıklama denemesi-kullanıcı bulunamadı');
+        logUnauthorizedAccess('Haftalık tabloya tıklama-kullanıcı bulunamadı');
         return;
     }
 
     // Member kullanıcıları sadece kendi verilerini güncelleyebilir
     if (userInfo.userAuthority === 'member' && userInfo.userId !== userId) {
-        logUnauthorizedAccess('Başka üyenin haftalık tablosuna tıklama denemesi');
+        logUnauthorizedAccess('Başka üyenin haftalık tablosuna tıklama');
         return;
     }
     const cell = event.target;

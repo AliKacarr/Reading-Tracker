@@ -104,7 +104,7 @@ function loadMonthlyCalendar() {
 
         // Log the user selection change
         if (typeof logUnauthorizedAccess === 'function') {
-            logUnauthorizedAccess(`Aylık takvim kullanıcı değiştirme denemesi: ${previousUser}-to-${selectedUser}`);
+            logUnauthorizedAccess(`Aylık takvim kullanıcı değiştirme: ${previousUser}-to-${selectedUser}`);
         }
 
         generateCalendar(currentMonth, currentYear);
@@ -330,13 +330,13 @@ function loadMonthlyCalendar() {
 
     function toggleUserReadingStatus(userName, day, month, year, clickedCell) {
         if (!LocalStorageManager.isUserLoggedIn()) {
-            logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi');
+            logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme');
             return;
         }
 
         const userInfo = LocalStorageManager.getCurrentUserInfo();
         if (!userInfo) {
-            logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi');
+            logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme');
             return;
         }
 
@@ -348,12 +348,12 @@ function loadMonthlyCalendar() {
                 .then(data => {
                     const currentUser = data.users.find(u => u._id === userInfo.userId);
                     if (!currentUser) {
-                        logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi-kullanıcı bulunamadı');
+                        logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme-kullanıcı bulunamadı');
                         return;
                     }
                     
                     if (currentUser.name !== userName) {
-                        logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme denemesi-başka kullanıcı');
+                        logUnauthorizedAccess('Aylık takvim okuma durumu değiştirme-başka kullanıcı');
                         return;
                     }
                     
@@ -361,7 +361,7 @@ function loadMonthlyCalendar() {
                     continueWithToggle();
                 })
                 .catch(error => {
-                    console.error('Aylık takvim okuma durumu değiştirme denemesi-kullanıcı bilgisi alınırken hata:', error);
+                    console.error('Aylık takvim okuma durumu değiştirme-kullanıcı bilgisi alınırken hata:', error);
                     return;
                 });
             return; // Async işlem başladı, fonksiyondan çık

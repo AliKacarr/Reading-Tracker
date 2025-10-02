@@ -290,7 +290,7 @@ body {
 }
 
 .back-to-all {
-    background-color: #e7f0ff;
+    background-color: #cbdaf2;
     border: none;
     color: #19366f;
     padding: 8px 15px;
@@ -304,7 +304,7 @@ body {
 }
 
 .back-to-all:hover {
-    background-color: #d0e1ff;
+    background-color: #c2d3ef;
 }
 
 .back-icon {

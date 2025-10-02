@@ -203,12 +203,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } else {
                 loginError.textContent = 'Geçersiz kullanıcı adı veya şifre';
-                logUnauthorizedAccess('Yönetici girişi denemesi');
+                logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
                 return;
             }
         } catch (error) {
             console.error('Login error:', error);
             loginError.textContent = 'Giriş işlemi sırasında bir hata oluştu';
+            logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
         }
     });
 

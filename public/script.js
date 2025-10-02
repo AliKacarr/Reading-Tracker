@@ -546,6 +546,12 @@ async function logUnauthorizedAccess(action) {
     return;
   }
 
+  // userName kontrolü
+  const userName = localStorage.getItem('userName');
+  if (!userName) {
+    return;
+  }
+
   // Ad blocker veya güvenlik yazılımı kontrolü
   if (typeof fetch === 'undefined') {
     console.log('Fetch API not available, skipping unauthorized access log');
@@ -565,7 +571,8 @@ async function logUnauthorizedAccess(action) {
       body: JSON.stringify({ 
         action, 
         deviceInfo,
-        groupId: getGroupIdFromUrl()
+        groupId: getGroupIdFromUrl(),
+        userName: userName
       })
     });
     
@@ -590,6 +597,12 @@ async function logPageVisit() {
   if (localStorage.getItem('cookieConsent') !== 'accepted') {
     return;
   }
+
+  // userName kontrolü
+  const userName = localStorage.getItem('userName');
+  if (!userName) {
+    return;
+  }
   
   // Ad blocker veya güvenlik yazılımı kontrolü
   if (typeof fetch === 'undefined') {
@@ -609,7 +622,8 @@ async function logPageVisit() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         deviceInfo,
-        groupId: getGroupIdFromUrl()
+        groupId: getGroupIdFromUrl(),
+        userName: userName
       })
     });
     

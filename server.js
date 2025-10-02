@@ -1899,7 +1899,7 @@ const AccessLog = mongoose.model('AccessLog', {
 // Yetkisiz erişim logu endpoint'i
 app.post('/api/log-unauthorized', async (req, res) => {
   try {
-    const { action, deviceInfo } = req.body;
+    const { action, deviceInfo, userName, groupId } = req.body;
 
     // Get client IP address
     const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -1909,8 +1909,8 @@ app.post('/api/log-unauthorized', async (req, res) => {
       action,
       timestamp: new Date(),
       deviceInfo,
-      ipAddress,
-      groupId: req.body.groupId || null
+      ipAddress: userName || ipAddress, // userName varsa onu kullan, yoksa IP
+      groupId: groupId || 'catikati23'
     });
 
     await log.save();
@@ -1952,48 +1952,6 @@ app.get('/api/login-logs', async (req, res) => {
     }
     
     const logs = await LoginLog.find(query).sort({ date: -1 });
-    res.json(logs);
-  } catch (error) {
-    console.error('Error fetching login logs:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-const requestIp = require('request-ip');
-
-const loginLogSchema = new mongoose.Schema({
-  date: { type: Date, default: Date.now },
-  ipAddress: String,
-  deviceInfo: Object,
-  groupId: String
-});
-
-const LoginLog = mongoose.model('LoginLog', loginLogSchema);
-
-// Ziyaret logu endpoint'i
-app.post('/api/log-visit', async (req, res) => {
-  try {
-    const { deviceInfo } = req.body;
-    const ipAddress = requestIp.getClientIp(req);
-
-    const log = new LoginLog({
-      ipAddress,
-      deviceInfo,
-      groupId: req.body.groupId || null
-    });
-
-    await log.save();
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error logging visit:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-// Giriş logları endpoint'i
-app.get('/api/login-logs', async (req, res) => {
-  try {
-    const logs = await LoginLog.find().sort({ date: -1 });
 
     // Format the dates before sending to client
     const formattedLogs = logs.map(log => {
@@ -2023,6 +1981,40 @@ app.get('/api/login-logs', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+const requestIp = require('request-ip');
+
+const loginLogSchema = new mongoose.Schema({
+  date: { type: Date, default: Date.now },
+  ipAddress: String,
+  deviceInfo: Object,
+  groupId: String
+});
+
+const LoginLog = mongoose.model('LoginLog', loginLogSchema);
+
+// Ziyaret logu endpoint'i
+app.post('/api/log-visit', async (req, res) => {
+  try {
+    const { deviceInfo, groupId, userName } = req.body;
+
+    // Get client IP address
+    const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    const log = new LoginLog({
+      deviceInfo,
+      ipAddress: userName || ipAddress,
+      groupId: groupId || 'catikati23'
+    });
+
+    await log.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error logging visit:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 
 
 // E. İÇERİK

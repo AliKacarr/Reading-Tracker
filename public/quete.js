@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshBtn) {
         refreshBtn.onclick = function () {
             fetchRandomQuote();
-            logUnauthorizedAccess('Bir söz yenileme denemesi');
+            logUnauthorizedAccess('Bir söz yenileme');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshImageBtn) {
         refreshImageBtn.onclick = function () {
             fetchRandomQuoteImage();
-            logUnauthorizedAccess('Bir söz resmi yenileme denemesi');
+            logUnauthorizedAccess('Bir söz resmi yenileme');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshAyatButton) {
         refreshAyatButton.onclick = function () {
             fetchRandomAyet();
-            logUnauthorizedAccess('Bir ayet yenileme denemesi');
+            logUnauthorizedAccess('Bir ayet yenileme');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshHadithButton) {
         refreshHadithButton.onclick = function () {
             fetchRandomHadis();
-            logUnauthorizedAccess('Bir hadis yenileme denemesi');
+            logUnauthorizedAccess('Bir hadis yenileme');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (refreshDuaButton) {
         refreshDuaButton.onclick = function () {
             fetchRandomDua();
-            logUnauthorizedAccess('Bir dua yenileme denemesi');
+            logUnauthorizedAccess('Bir dua yenileme');
             this.classList.add('refresh-quote-spinning');
             setTimeout(() => {
                 this.classList.remove('refresh-quote-spinning');

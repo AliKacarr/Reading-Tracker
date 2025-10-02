@@ -1,26 +1,52 @@
 .main-area {
     display: flex;
-    gap: 0;
+    flex-direction: column;
+    gap: 40px;
     padding: 20px;
-    align-items: flex-start;
-    flex-wrap: wrap;
     margin-top: 20px;
     position: relative;
 }
 
+.top-section {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.bottom-section {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.group-settings {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
+    border: 1px solid #e1e8ed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+}
+
+
 .left-column {
     display: flex;
     flex-direction: column;
-    flex: 3 2;
     min-width: 300px;
 }
 
 .right-column {
-    flex: 2;
-}
-
-.user-settings {
-    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
 }
 
 .user-list {
@@ -250,7 +276,7 @@ ul#userList li span {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
+    display: none;
     align-items: center;
     gap: 8px;
     white-space: nowrap;
@@ -405,8 +431,9 @@ ul#userList li span {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     margin-bottom: 25px;
     display: flex;
-    gap: 30px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
     max-width: 100%;
 }
 
@@ -417,25 +444,22 @@ ul#userList li span {
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 2px solid #27ae60;
-    width: 300px;
+    width: 301px;
 }
 
 .form-left-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 300px;
-}
-
-.form-right-column {
-    flex: 0 0 200px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-    min-width: 200px;
-    height: 200px;
-    align-self: flex-end;
+}
+
+.form-right-column {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .ad-user-form-group label {
@@ -690,7 +714,6 @@ label.custom-file-input:hover {
 /* Grup Ayarları Stilleri */
 .group-settings {
     padding: 24px;
-    width: 270px;
     margin: 0 auto;
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border-radius: 12px;
@@ -705,13 +728,73 @@ label.custom-file-input:hover {
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 2px solid #e74c3c;
-    width: 98%;
+    width: 302px;
 }
 
 .group-info-section {
     display: flex;
+    flex-direction: row;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* Sol Sütun: Grup Bilgileri */
+.group-left-column {
+    flex: 1;
+    display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+/* Üst Bölüm: İki Alt Sütun */
+.group-top-section {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* Sol Alt Sütun: Grup Resmi ve Adı */
+.group-left-sub-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Sağ Alt Sütun: Açıklama ve Görünürlük */
+.group-right-sub-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Sağ Sütun: Butonlar */
+.group-right-column {
+    flex: 0 0 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.group-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.group-action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.group-action-buttons .danger-toggle-btn,
+.group-action-buttons .share-group-btn {
+    flex: 1;
 }
 
 .group-image-section {
@@ -723,6 +806,11 @@ label.custom-file-input:hover {
     color: #34495e;
     font-weight: bold;
     font-size: 16px;
+}
+
+.group-image-section label i {
+    margin-right: 3px;
+    margin-left: 1px;
 }
 
 .group-image-container {
@@ -770,6 +858,7 @@ label.custom-file-input:hover {
     gap: 8px;
     flex: 1;
     height: 80px;
+    width: 170px;
     justify-content: space-between;
 }
 
@@ -789,7 +878,7 @@ label.custom-file-input:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.3s;
     border: none;
     text-decoration: none;
@@ -834,7 +923,6 @@ label.custom-file-input:hover {
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 8px 16px;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
@@ -1047,13 +1135,18 @@ label.custom-file-input:hover {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .form-group label {
     color: #34495e;
     font-weight: bold;
     font-size: 16px;
+}
+
+.form-group label i {
+    margin-left: 1px;
+    margin-right: 3px;
 }
 
 .group-input, .group-textarea, .group-select {
@@ -1076,14 +1169,15 @@ label.custom-file-input:hover {
 
 .group-textarea {
     resize: vertical;
-    min-height: 80px;
+    min-height: 110px;
 }
 
 .group-actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 15px;
     align-items: center;
+    justify-content: center;
     padding-top: 15px;
     border-top: 1px solid #e0e0e0;
 }
@@ -1132,6 +1226,35 @@ label.custom-file-input:hover {
     background-color: #c0392b;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
+}
+
+/* Grup Link Butonları */
+.group-link-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    width: 100%;
+}
+
+.group-link-btn:hover {
+    background-color: #2980b9;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    transform: translateY(-2px);
+}
+
+.group-link-btn i {
+    font-size: 16px;
 }
 
 .group-danger-zone {
@@ -1189,7 +1312,7 @@ label.custom-file-input:hover {
 }
 
 .share-group-btn {
-    background-color: #3498db;
+    background-color: #27ae60;
     color: white;
     height: 38px;
     width: 130px;
@@ -1206,7 +1329,7 @@ label.custom-file-input:hover {
 }
 
 .share-group-btn:hover {
-    background-color: #2980b9;
+    background-color: #229954;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -1278,18 +1401,3 @@ label.custom-file-input:hover {
     color: #dc3545;
 }
 
-/* Responsive tasarım */
-@media (max-width: 1025px) {
-    
-    .left-column {
-        border-right: none;
-        padding-right: 0;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #e0e0e0;
-        flex: none;
-    }
-    .right-column {
-        flex: none;
-        margin-top: 20px;
-    }
-}
