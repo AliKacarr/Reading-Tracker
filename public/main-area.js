@@ -973,6 +973,25 @@ async function loadGroupSettings() {
     }
 }
 
+// Karakter sınırı kontrolü
+function checkCharacterLimit(event) {
+    const input = event.target;
+    const currentLength = input.value.length;
+    const maxLength = parseInt(input.getAttribute('maxlength'));
+    
+    if (currentLength >= maxLength) {
+        // Fazla karakter durumunda uyarı göster
+        if (input.id === 'groupName') {
+            showErrorMessage('Grup adı en fazla 40 karakter olabilir!');
+        } else if (input.id === 'groupDescription') {
+            showErrorMessage('Grup açıklaması en fazla 200 karakter olabilir!');
+        }
+        
+        // Fazla karakterleri kes
+        input.value = input.value.substring(0, maxLength);
+    }
+}
+
 // Görünürlük ikonunu güncelle
 function updateVisibilityIcon(visibility) {
     const icon = document.getElementById('visibilityIcon');
@@ -1122,6 +1141,18 @@ async function saveGroupSettings() {
 
     if (!groupName) {
         showErrorMessage('Grup adı boş olamaz!');
+        return;
+    }
+
+    // Grup adı karakter sınırı kontrolü
+    if (groupName.length > 40) {
+        showErrorMessage('Grup adı en fazla 40 karakter olabilir!');
+        return;
+    }
+
+    // Grup açıklaması karakter sınırı kontrolü
+    if (groupDescription.length > 200) {
+        showErrorMessage('Grup açıklaması en fazla 200 karakter olabilir!');
         return;
     }
 
@@ -1444,6 +1475,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Admin girişi yapıldığında grup ayarlarını yükle
     if (LocalStorageManager.isUserLoggedIn()) {
         loadGroupSettings();
+    }
+    
+    // Karakter sınırı kontrolü event listener'ları
+    const groupNameInput = document.getElementById('groupName');
+    const groupDescriptionInput = document.getElementById('groupDescription');
+    
+    if (groupNameInput) {
+        groupNameInput.addEventListener('input', checkCharacterLimit);
+    }
+    
+    if (groupDescriptionInput) {
+        groupDescriptionInput.addEventListener('input', checkCharacterLimit);
     }
     
     // Modal dışına tıklandığında kapat
