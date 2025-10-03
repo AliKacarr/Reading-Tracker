@@ -320,7 +320,7 @@
             <button class="share-quote" id="shareQuoteImageBtn" title="Resmi Paylaş">
               <img src="images/share.webp" alt="Paylaş" style="width: 20px; height: 20px;" />
             </button>
-            <img id="quoteImage" src="quotes/WhatsApp Görsel 2025-04-23 saat 00.22.58_f95eae1a.jpg" alt="Vecize görseli"  />
+            <img id="quoteImage" src="quotes/bir_gorsel.jpg" alt="Vecize görseli"  />
           </div>
           <div class="quote-section">
             <button class="refresh-quote" id="refreshQuote" title="Yeni söz getir"><i
@@ -552,9 +552,9 @@
           <div class="group-right-column">
             <div class="group-buttons">
               <form class="form-group">
-                <label for="group-link-btn"><i class="fa-solid fa-chart-line"></i> Üye Kayıtları:</label>
+                <label for="group-link-btn"><i class="fa-solid fa-clipboard-list"></i> Üye Kayıtları:</label>
                 <button type="button" class="group-link-btn" onclick="window.location.href='/admin-logs.html'">
-                  <i class="fa-solid fa-shield-halved"></i>
+                  <i class="fa-solid fa-history"></i>
                   <span>Son İşlemler</span>
                 </button>
                 <button type="button" class="group-link-btn" onclick="window.location.href='/login-logs.html'">
@@ -589,6 +589,20 @@
           <div class="user-list">
             <h3>👤 Kullanıcılar</h3>
             <ul id="userList"></ul>
+            
+            <!-- Kullanıcı Davet Sistemi -->
+            <div class="invite-section">
+              <h3>📤 Kullanıcı Davet Et</h3>
+              <div class="invite-controls">
+                <select id="userSelectForInvite" class="user-select-dropdown">
+                  <option value="">Kullanıcı seçiniz...</option>
+                </select>
+                <button type="button" class="invite-selected-btn" onclick="inviteSelectedUser()">
+                  <i class="fa-solid fa-share"></i>
+                  <span>Davet Et</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -746,8 +746,47 @@ async function changeUserAuthority(userId, newAuthority) {
     }
 }
 
-// Kullanıcı davet etme fonksiyonu
-async function inviteUser(userId, userName) {
+// Kullanıcı seçim kutusunu güncelle
+function updateUserSelectDropdown(users) {
+    const userSelect = document.getElementById('userSelectForInvite');
+    if (!userSelect) return;
+    
+    // Mevcut seçimi temizle (ilk seçenek hariç)
+    userSelect.innerHTML = '<option value="">Kullanıcı seçiniz...</option>';
+    
+    // Kullanıcıları seçim kutusuna ekle
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user._id;
+        option.textContent = user.name;
+        userSelect.appendChild(option);
+    });
+}
+
+// Seçili kullanıcıyı davet et
+async function inviteSelectedUser() {
+    const userSelect = document.getElementById('userSelectForInvite');
+    const inviteBtn = document.querySelector('.invite-selected-btn');
+    
+    if (!userSelect || !inviteBtn) {
+        showErrorMessage('Davet sistemi bulunamadı!');
+        return;
+    }
+    
+    const selectedUserId = userSelect.value;
+    if (!selectedUserId) {
+        showErrorMessage('Lütfen davet edilecek kullanıcıyı seçiniz!');
+        return;
+    }
+    
+    // Kullanıcı adını al
+    const selectedUserName = userSelect.options[userSelect.selectedIndex].textContent;
+    
+    // Butonu devre dışı bırak
+    inviteBtn.disabled = true;
+    const originalText = inviteBtn.innerHTML;
+    inviteBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    
     try {
         // Davet token'ı oluştur
         const response = await fetch(`/api/create-invite/${window.groupid}`, {
@@ -755,7 +794,7 @@ async function inviteUser(userId, userName) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ userId })
+            body: JSON.stringify({ userId: selectedUserId })
         });
 
         if (!response.ok) {
@@ -789,17 +828,24 @@ ${groupUrl}`;
                     title: `RoTaKip - ${groupName} Daveti`,
                     text: inviteText,
                 });
-                showSuccessMessage(`${userName} için davet linki panoya kopyalandı!`);
+                showSuccessMessage(`${selectedUserName} için davet linki panoya kopyalandı!`);
             } catch (shareError) {
-                showSuccessMessage(`${userName} için davet linki panoya kopyalandı!`);
+                showSuccessMessage(`${selectedUserName} için davet linki panoya kopyalandı!`);
             }
         } else {
-            showSuccessMessage(`${userName} için davet linki panoya kopyalandı!`);
+            showSuccessMessage(`${selectedUserName} için davet linki panoya kopyalandı!`);
         }
+        
+        // Seçimi temizle
+        userSelect.value = '';
         
     } catch (error) {
         console.error('Davet hatası:', error);
         showErrorMessage('Davet linki oluşturulamadı. Lütfen tekrar deneyin.');
+    } finally {
+        // Butonu eski haline döndür
+        inviteBtn.disabled = false;
+        inviteBtn.innerHTML = originalText;
     }
 }
 
@@ -874,18 +920,15 @@ function performRenderUserList() {
                 `;
                 userContainer.appendChild(authoritySelect);
                 
-                // Davet et butonunu oluştur ve container'a ekle
-                const inviteButton = document.createElement('button');
-                inviteButton.className = 'invite-button';
-                inviteButton.setAttribute('onclick', `inviteUser('${user._id}', '${user.name}')`);
-                inviteButton.setAttribute('title', 'Kullanıcıyı Davet Et');
-                inviteButton.innerHTML = '<i class="fa-solid fa-share"></i> Davet Et';
-                userContainer.appendChild(inviteButton);
+                // Davet butonunu kaldır - artık ayrı bir davet sistemi kullanıyoruz
                 
                 userList.appendChild(userContainer);
             });
             
             userList.scrollTop = prevScrollTop; // scroll pozisyonunu geri yükle
+            
+            // Kullanıcı seçim kutusunu güncelle
+            updateUserSelectDropdown(users);
         })
         .catch(error => {
             console.error('Kullanıcı listesi yüklenirken hata:', error);

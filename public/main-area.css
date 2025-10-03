@@ -242,7 +242,7 @@ ul#userList li span {
     cursor: pointer;
     transition: all 0.3s ease;
     min-width: 110px;
-    height: 40px;
+    height: 50px;
     outline: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
@@ -264,41 +264,6 @@ ul#userList li span {
     background-color: #ffffff;
     color: #333;
     padding: 4px;
-}
-
-.invite-button {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: none;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-    height: 40px;
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.invite-button:hover {
-    background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(52, 152, 219, 0.4);
-}
-
-.invite-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-}
-
-.invite-button i {
-    font-size: 12px;
 }
 
 .settings-button {
@@ -788,7 +753,7 @@ label.custom-file-input:hover {
     flex-direction: row;
     gap: 10px;
     width: 100%;
-    padding-top: 10px;
+    padding: 10px 0;
     border-top: 1px solid #e0e0e0;
 }
 
@@ -810,7 +775,7 @@ label.custom-file-input:hover {
 
 .group-image-section label i {
     margin-right: 3px;
-    margin-left: 1px;
+    margin-left: 5px;
 }
 
 .group-image-container {
@@ -1145,7 +1110,7 @@ label.custom-file-input:hover {
 }
 
 .form-group label i {
-    margin-left: 1px;
+    margin-left: 3px;
     margin-right: 3px;
 }
 
@@ -1211,6 +1176,7 @@ label.custom-file-input:hover {
     padding: 12px 24px;
     width: 100%;
     border: none;
+    border-top: 1px solid #c0392b;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
@@ -1236,7 +1202,7 @@ label.custom-file-input:hover {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     transition: all 0.3s ease;
     display: flex;
@@ -1400,4 +1366,96 @@ label.custom-file-input:hover {
 .visibility-info.private i {
     color: #dc3545;
 }
+
+.invite-section {
+    margin-top: 35px;
+}
+
+.invite-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.user-select-dropdown {
+    width: 250px;
+    padding:16px;
+    border: 1px solid #b0b0b0;
+    border-radius: 10px;
+    font-size: 16px;
+    background: #f2f8ff;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    outline: none;
+}
+
+.user-select-dropdown:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background: #eef8ff;
+}
+
+.user-select-dropdown:hover {
+    border-color: #3498db;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+}
+
+.user-select-dropdown option {
+    background-color: #ffffff;
+    color: #333;
+    padding: 8px;
+}
+
+.invite-selected-btn {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+    width: 145px;
+    height: 50px;
+}
+
+.invite-selected-btn:hover {
+    background: linear-gradient(135deg, #2980b9 0%, #1f5f8b 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(52, 152, 219, 0.4);
+}
+
+.invite-selected-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+
+.invite-selected-btn:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.invite-selected-btn i {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.invite-selected-btn:hover i {
+    transform: scale(1.1);
+}
+
 
