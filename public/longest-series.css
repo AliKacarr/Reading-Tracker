@@ -232,7 +232,8 @@
 .loading-lines {
     display: flex;
     gap: 8px;
-    margin-top: 40px;
+    margin-top: 41px;
+    margin-right: 1px;
 }
 
 .loading-line {

@@ -737,7 +737,6 @@ label.custom-file-input:hover {
 
 /* Sağ Sütun: Butonlar */
 .group-right-column {
-    flex: 0 0 250px;
     display: flex;
     flex-direction: column;
 }
@@ -753,7 +752,7 @@ label.custom-file-input:hover {
     flex-direction: row;
     gap: 10px;
     width: 100%;
-    padding: 10px 0;
+    padding: 15px 0;
     border-top: 1px solid #e0e0e0;
 }
 
