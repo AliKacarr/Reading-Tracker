@@ -292,7 +292,7 @@ setInterval(() => {
     setTimeout(() => {
         refreshIcon.classList.remove('pulse');
     }, 1000); // Animasyon süresi kadar bekle
-}, 20000);
+}, 15000);
 
 refreshBtn.addEventListener('click', function () {
     rotateDeg += 180;

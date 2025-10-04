@@ -3,7 +3,6 @@ function clearCookiesOnIndexPage() {
     // 5 çerezi temizle
     LocalStorageManager.clearCookies();
     
-    console.log('Ana sayfa yüklendi - 5 çerez temizlendi');
 }
 
 // Sayfa yüklendiğinde çerezleri temizle

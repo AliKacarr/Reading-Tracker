@@ -62,7 +62,7 @@
 #trackerTable td:last-child {
     font-size: 20px;
     color: red;
-    font-weight: 500;
+    font-weight: bold;
     border: 1px solid #ccc;
     background: #f7f7f7;
     white-space: nowrap;
@@ -331,42 +331,24 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
 /* Fire emoji animation */
 .weekly-fire-emoji {
     display: inline-block;
-    animation: flame 4s infinite;
+    animation: weekly-fire-emoji-flame 4s infinite;
     transform-origin: bottom center;
+    text-shadow: 1px 1px #ffd100, 0 0 10px #ffd700;
     position: relative;
 }
 
-@keyframes flame {
-    0% {
-        transform: scale(1) translateX(0) rotate(0deg);
-        opacity: 0.95;
-    }
 
-    20% {
-        transform: scale(1.03) translateX(-1px) rotate(-2deg);
-        opacity: 1;
-    }
-
-    40% {
-        transform: scale(0.98) translateX(1px) rotate(3deg);
-        opacity: 0.92;
-    }
-
-    60% {
-        transform: scale(1.02) translateX(0) rotate(1deg);
-        opacity: 0.98;
-    }
-
-    80% {
-        transform: scale(0.99) translateX(-1px) rotate(-1deg);
-        opacity: 0.94;
-    }
-
+@keyframes weekly-fire-emoji-flame {
+    0%,
     100% {
-        transform: scale(1) translateX(0) rotate(0deg);
-        opacity: 0.95;
+        transform: scale(1) rotate(-2deg);
+    }
+
+    50% {
+        transform: scale(1.15) rotate(4deg);
     }
 }
+
 
 /* Today's column highlighting */
 .today-column {

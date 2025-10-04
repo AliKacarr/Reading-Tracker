@@ -182,7 +182,7 @@ async function loadTrackerTable() {
             row += `<td class="${className}" onclick="toggleStatus('${user._id}', '${date}')">${symbol}</td>`;
         }
         const streak = calculateStreak(userStats);
-        row += `<td>${streak > 0 ? `<span class="weekly-fire-emoji">🔥</span> ${streak}` : '-'}</td>`;
+        row += `<td>${streak > 0 ? `<span class="weekly-fire-emoji">⭐</span> ${streak}` : '-'}</td>`;
         row += `</tr>`;
         tbodyHTML += row;
     }
@@ -412,7 +412,7 @@ async function toggleStatus(userId, date) {
         if (rowEl) {
             const lastTd = rowEl.querySelector('td:last-child');
             if (lastTd) {
-                lastTd.innerHTML = newStreak > 0 ? `<span class="weekly-fire-emoji">🔥</span> ${newStreak}` : '-';
+                lastTd.innerHTML = newStreak > 0 ? `<span class="weekly-fire-emoji">⭐</span> ${newStreak}` : '-';
             }
         }
     } catch (e) {

@@ -254,7 +254,7 @@ async function loadUserCards() {
           `).join('')}
         </div>
         <div class="streak-info">
-          <span class="user-card-fire-emoji">🔥</span>
+          <span class="user-card-fire-emoji">⭐</span>
           <span class="user-card-fire-label">${streak}</span>
         </div>
       </div>

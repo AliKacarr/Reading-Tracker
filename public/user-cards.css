@@ -274,18 +274,18 @@
 }
 
 .user-card-fire-emoji {
-    font-size: 24px;
-    animation: flame 2s infinite;
+    font-size: 22px;
+    text-shadow: 1px 1px #ffd100, 0 0 10px #ffd700;
+    animation: user-card-fire-emoji-flame 4s infinite;
 }
 
 .user-card-fire-label {
-    font-size: 24px;
+    font-size: 25px;
     font-weight: bold;
     color: red;
 }
 
-@keyframes flame {
-
+@keyframes user-card-fire-emoji-flame {
     0%,
     100% {
         transform: scale(1) rotate(-2deg);
@@ -571,7 +571,7 @@
     right: 12px;
     font-size: 16px;
     opacity: 0.6;
-    animation: bounce 4s infinite;
+    animation: bounce 3s infinite;
     z-index: 1;
 }
 

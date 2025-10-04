@@ -152,12 +152,12 @@
 
 .longest-fire-emoji {
     display: inline-block;
-    animation: flame 4s infinite;
+    animation: longest-fire-emoji-flame 4s infinite;
     transform-origin: bottom center;
     position: relative;
 }
 
-@keyframes flame {
+@keyframes longest-fire-emoji-flame {
     0% {
         transform: scale(1) translateX(0) rotate(0deg);
         opacity: 0.95;
@@ -195,64 +195,56 @@
     align-items: center;
     justify-content: center;
     position: absolute;
-    /* Bu satır, animasyonun yalnızca belirli bir alan içinde görünmesini sağlar */
     top: 50%;
-    /* Yükseklik ayarı */
     left: 50%;
-    /* Genişlik ayarı */
     transform: translate(-50%, -50%);
-    /* Ortalamak için */
     z-index: 2;
 }
 
 .longest-fire-icon {
-    font-size: 2.8rem;
-    animation: flame 1.5s infinite alternate;
-    filter: drop-shadow(0 0 12px rgba(255, 140, 0, 0.4)) drop-shadow(0 0 48px rgba(255, 140, 0, 0.2));
-    text-shadow: 0 0 8px rgba(255, 140, 0, 0.5);
+    font-size: 2.5rem;
+    animation: longest-fire-icon-flame 2s infinite alternate;
+    filter: drop-shadow(0 0 3px rgba(255, 200, 0, 0.4))
+    drop-shadow(0 0 8px rgba(255, 220, 0, 0.3))
+    drop-shadow(0 0 15px rgba(255, 240, 0, 0.2));
+    text-shadow: 0 0 5px rgba(255, 200, 0, 0.3),
+         0 0 10px rgba(255, 220, 0, 0.2),
+         0 0 20px rgba(255, 240, 0, 0.15);
 }
 
-@keyframes flame {
-    0% {
-        transform: scale(1);
-        opacity: 1;
+@keyframes longest-fire-icon-flame {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
     }
-
     50% {
-        transform: scale(1.1);
-        opacity: 0.8;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
+        transform: scale(1.2) rotate(0deg);
     }
 }
 
-.loading-lines {
+.longest-series-loading-lines {
     display: flex;
     gap: 8px;
-    margin-top: 41px;
+    margin-top: 45px;
     margin-right: 1px;
 }
 
-.loading-line {
+.longest-series-loading-line {
     width: 35px;
     height: 5px;
     border-radius: 12px;
     background: linear-gradient(90deg, #ff7f50, #ff4500);
-    animation: line-bounce 1s infinite;
+    animation: longest-series-line-bounce 1.2s infinite;
     position: relative;
     flex-shrink: 0;
     min-width: 35px;
     max-width: 35px;
 }
 
-.loading-text {
+.longest-series-loading-text {
     color: #ff6b35;
     font-size: 1.2em;
     font-weight: 900;
-    text-shadow:  0 0 3px rgba(255, 140, 0, 0.2);
+    text-shadow:  0 0 3px rgba(231, 111, 81, 0.2);
     position: absolute;
     top: -24px; /* Çizgiden biraz daha uzak */
     left: 50%;
@@ -267,7 +259,7 @@
     display: block;
 }
 
-@keyframes line-bounce {
+@keyframes longest-series-line-bounce {
 
     0%,
     100% {
@@ -279,10 +271,10 @@
     }
 }
 
-.loading-line:nth-child(2) {
+.longest-series-loading-line:nth-child(2) {
     animation-delay: 0.2s;
 }
 
-.loading-line:nth-child(3) {
+.longest-series-loading-line:nth-child(3) {
     animation-delay: 0.4s;
 }
