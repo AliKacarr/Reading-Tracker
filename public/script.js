@@ -398,6 +398,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       loadTrackerTable(),
       loadUserCards(),
       loadReadingStats(),
+      renderLongestSeries(),
       loadMonthlyCalendar()
     ]);
 
@@ -666,3 +667,27 @@ async function verifyUserUsername() {
     return false;
   }
 }
+
+// Yukarı Çık Butonu Fonksiyonalitesi
+document.addEventListener('DOMContentLoaded', function() {
+  const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+  
+  if (scrollToTopBtn) {
+    // Sayfa kaydırma olayını dinle
+    window.addEventListener('scroll', function() {
+      if (window.pageYOffset > 1000) {
+        scrollToTopBtn.classList.add('show');
+      } else {
+        scrollToTopBtn.classList.remove('show');
+      }
+    });
+    
+    // Butona tıklandığında sayfanın en üstüne git
+    scrollToTopBtn.addEventListener('click', function() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+});

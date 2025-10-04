@@ -22,7 +22,7 @@
 
   <div id="logsSection" class="logs-container" style="display: none;">
     <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-      <h1 style="margin: 0 0 15px 0; text-align: center;">Üyelerin Son İşlemleri</h1>
+      <h1 style="text-align: center; font-size: 30px;">Üyelerin Son İşlemleri</h1>
       <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
         <a href="/" class="back-button">Ana Sayfa</a>
         <div style="display: flex; align-items: center;">
@@ -103,7 +103,7 @@
     </div>
 
     <!-- Cookie information notice -->
-    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 10px; margin-top: 15px; text-align: center; font-size: 15px; color: #6c757d;">
+    <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 10px; margin-top: 15px; text-align: center; font-size: 15px; color: #5f5f5f;">
       <i class="fa-solid fa-circle-info" style="margin-right: 2px;"></i>
       Bu kayıtlar yalnızca çerezleri kabul edip grupta herhangi bir işlem yapan kullanıcılar için tutulmaktadır.
     </div>
@@ -389,8 +389,8 @@
             dateCard.className = 'date-summary-item';
             dateCard.innerHTML = `
               <h4>${dateKey}</h4>
-              <p>Kullanıcı Adları: <span style="color: black; font-weight: 500;">${uniqueIPs}</span> farklı</p>
-              <p>Erişim: <span class="date-summary-count">${dateCount}</span></p>
+              <p>Kullanıcı Sayısı: <span style="color: black; font-weight: 500;">${uniqueIPs}</span> farklı</p>
+              <p>Toplam İşlem: <span class="date-summary-count">${dateCount}</span></p>
             `;
 
             dateCard.addEventListener('click', () => {

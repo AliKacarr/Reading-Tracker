@@ -120,6 +120,13 @@ body {
     background-color: #f0f7ff;
 }
 
+.no-logs {
+    text-align: center;
+    padding: 30px;
+    color: #333;
+    font-style: italic;
+}
+
 .action-column {
     width: 150px;
 }

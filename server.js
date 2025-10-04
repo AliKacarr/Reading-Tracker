@@ -625,7 +625,7 @@ app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) 
     await newGroup.save();
 
     // Varsayılan kullanıcı ekle (admin olarak)
-    const { users } = getGroupCollections(finalGroupId);
+    const { users, readingStatuses } = getGroupCollections(finalGroupId);
     
     // Admin şifresini hash'le
     const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
@@ -638,6 +638,17 @@ app.post('/api/groups', uploadGroupImage.single('groupImage'), async (req, res) 
       authority: "admin"
     });
     await defaultUser.save();
+
+    // Varsayılan kullanıcının bugünkü okuma durumunu "okudum" olarak kaydet
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    
+    const defaultReadingStatus = new readingStatuses({
+      userId: defaultUser._id.toString(),
+      date: todayStr,
+      status: "okudum"
+    });
+    await defaultReadingStatus.save();
 
     // Yeni grup için index'leri oluştur
     await createIndexesForGroup(finalGroupId);

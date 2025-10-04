@@ -55,3 +55,65 @@ h3 {
 .fas {
   display: inline;
 }
+
+/* Yukarı Çık Butonu */
+  .scroll-to-top-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(78, 84, 200, 0.3);
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  opacity: 0;
+}
+
+.scroll-to-top-btn:hover {
+  background: linear-gradient(135deg, #8f94fb 0%, #4e54c8 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(78, 84, 200, 0.4);
+}
+
+.scroll-to-top-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(78, 84, 200, 0.3);
+}
+
+.scroll-to-top-btn.show {
+  opacity: 1;
+}
+
+.scroll-to-top-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.scroll-to-top-btn:hover svg {
+  transform: translateY(-2px);
+}
+
+
+/* Mobil responsive */
+@media (max-width: 768px) {
+  .scroll-to-top-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 55px;
+    height: 55px;
+  }
+  
+  .scroll-to-top-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
