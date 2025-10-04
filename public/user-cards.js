@@ -517,20 +517,7 @@ async function loadUserCards() {
     if (everyoneReadYesterday) {
       const missedMsg = document.createElement('div');
       missedMsg.className = 'consecutive-missed-message';
-      
-      // Zincir yazısı için element oluştur
-      const chainText = document.createElement('div');
-      chainText.className = 'chain-text';
-      chainText.textContent = 'Zinciri Kırma';
-      
-      // Ana mesaj içeriği
-      const messageContent = document.createElement('div');
-      messageContent.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
-      
-      // Elementleri birleştir
-      missedMsg.appendChild(chainText);
-      missedMsg.appendChild(messageContent);
-      
+      missedMsg.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
       afterElem.insertAdjacentElement('afterend', missedMsg);
     // Tıklama ile panoya kopyalama ve bildirim
     missedMsg.style.cursor = 'pointer';

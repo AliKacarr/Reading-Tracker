@@ -333,7 +333,7 @@ td:not(.green):not(.pink):not(.lila):not(.red):hover {
     display: inline-block;
     animation: weekly-fire-emoji-flame 4s infinite;
     transform-origin: bottom center;
-    text-shadow: 0 0 1px red, 0 0 2px #ff4500, 0 0 5px #ffd700;
+    text-shadow: 0 0 1px #ff5555, 0 0 1px #ff4500;
     position: relative;
 }
 

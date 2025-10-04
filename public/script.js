@@ -408,7 +408,6 @@ document.addEventListener('DOMContentLoaded', async function () {
       loadTrackerTable(),
       loadUserCards(),
       loadReadingStats(),
-      renderLongestSeries(),
       loadMonthlyCalendar()
     ]);
 

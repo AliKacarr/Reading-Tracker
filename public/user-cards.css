@@ -275,7 +275,8 @@
 
 .user-card-fire-emoji {
     font-size: 22px;
-    text-shadow: 0 0 1px red, 0 0 2px #ff4500, 0 0 5px #ffd700;
+    margin-right: 2px;
+    text-shadow: 0 0 1px #ff5555, 0 0 1px #ff4500;
     animation: user-card-fire-emoji-flame 4s infinite;
 }
 
@@ -589,7 +590,7 @@
     left: 0;
     right: 0;
     width: 100%;
-    height: 15px;
+    height: 16px;
     background-image: url('images/zincir.webp');
     background-size: contain;
     background-repeat: repeat-x;
@@ -600,19 +601,18 @@
 
 .consecutive-missed-message .chain-text {
     position: absolute;
-    top: 20px;
+    top: 18px;
     left: 50%;
     transform: translateX(-50%);
     background-color: #f0f7ff;
-    padding: 0 8px;
+    padding: 2px 8px;
     height: 20px;
     line-height: 15px;
     font-size: 17px;
     font-weight: bold;
-    color: #173A7D;
+    color: #333;
     z-index: 2;
     white-space: nowrap;
-    border-radius: 10px;
 }
 
 
@@ -684,7 +684,7 @@
     }
 
     .consecutive-missed-message::before {
-        height: 15px;
+        height: 16px;
         top: 20px;
         width: 100%;
     }
