@@ -137,14 +137,12 @@
           const userAuthority = localStorage.getItem('userAuthority');
 
           if (!groupId || !userId || !userName) {
-            console.log('Stored credentials not found');
             showAccessDenied();
             return;
           }
 
           // Check if user has admin authority
           if (userAuthority !== 'admin') {
-            console.log('User is not admin');
             showAccessDenied();
             return;
           }
@@ -306,7 +304,6 @@
             }, 500);
 
           if (!logs || logs.length === 0) {
-            console.log('No logs found or empty array');
             noLogs.style.display = 'block';
             document.getElementById('dateSummaryContainer').style.display = 'none';
             document.getElementById('paginationContainer').style.display = 'none';

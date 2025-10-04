@@ -608,7 +608,7 @@
     padding: 2px 8px;
     height: 20px;
     line-height: 15px;
-    font-size: 17px;
+    font-size: 18px;
     font-weight: bold;
     color: #333;
     z-index: 2;
@@ -685,7 +685,7 @@
 
     .consecutive-missed-message::before {
         height: 16px;
-        top: 20px;
+        top: 22px;
         width: 100%;
     }
 
@@ -693,7 +693,7 @@
         top: 15px;
         height: 25px;
         line-height: 25px;
-        font-size: 17px;
+        font-size: 18px;
     }
 
     .missed-username {

@@ -153,7 +153,6 @@ async function initializeAuthSystem() {
   // Admin sayfaları için çerezleri silme
   const currentPath = window.location.pathname;
   if (currentPath === '/login-logs.html' || currentPath === '/admin-logs.html') {
-    console.log('Admin sayfası - çerezler korunuyor');
     return true;
   }
   
@@ -163,7 +162,6 @@ async function initializeAuthSystem() {
   // 2. URL'deki grup ID'sini al
   const groupid = getGroupIdFromUrl();
   if (!groupid) {
-    console.log('❌ Grup ID bulunamadı');
     return false;
   }
 
@@ -180,7 +178,6 @@ async function initializeAuthSystem() {
     // 4. Kullanıcının hala bu grupta olup olmadığını kontrol et
     const response = await fetch(`/api/users/${groupid}`);
     if (!response.ok) {
-      console.log('❌ Grup bulunamadı veya erişim hatası');
       LocalStorageManager.removeUserFromGroup(groupid);
       return false;
     }
@@ -189,22 +186,17 @@ async function initializeAuthSystem() {
     const user = data.users.find(u => u._id === userId);
     
     if (!user) {
-      console.log('❌ Kullanıcı bu grupta bulunamadı, groups dizisinden kaldırılıyor');
       LocalStorageManager.removeUserFromGroup(groupid);
       return false;
     }
     
-    console.log('✅ Kullanıcı bulundu:', user.name, user.authority);
-
     // 5. Grup bilgilerini al
     const groupResponse = await fetch(`/api/group/${groupid}`);
     if (!groupResponse.ok) {
-      console.log('❌ Grup bilgisi alınamadı');
       return false;
     }
 
     const groupData = await groupResponse.json();
-    console.log('✅ Grup bilgisi alındı:', groupData.group.groupName);
     
     // 6. 5 çerezi yeniden oluştur
     LocalStorageManager.loginUser(
@@ -240,7 +232,6 @@ async function validateGroup() {
 
     if (!response.ok) {
       if (response.status === 404) {
-        console.log('Grup bulunamadı, ana sayfaya yönlendiriliyor:', window.groupid);
         window.location.href = '/';
         return false;
       }
@@ -381,7 +372,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     const currentPath = window.location.pathname;
     if (currentPath === '/login-logs.html' || currentPath === '/admin-logs.html') {
       // Admin sayfaları için çerezleri silmeden devam et
-      console.log('Admin sayfası tespit edildi:', currentPath);
       return;
     }
     
@@ -458,7 +448,6 @@ async function checkAutoLoginForGroups() {
   // Admin sayfaları için otomatik giriş kontrolü yapma
   const currentPath = window.location.pathname;
   if (currentPath === '/login-logs.html' || currentPath === '/admin-logs.html') {
-    console.log('Admin sayfası - otomatik giriş kontrolü atlanıyor');
     return;
   }
   
@@ -553,7 +542,6 @@ async function logUnauthorizedAccess(action) {
 
   // Ad blocker veya güvenlik yazılımı kontrolü
   if (typeof fetch === 'undefined') {
-    console.log('Fetch API not available, skipping unauthorized access log');
     return;
   }
 
@@ -579,11 +567,9 @@ async function logUnauthorizedAccess(action) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    console.log('Unauthorized access logged successfully');
   } catch (error) {
     // Sadece gerçek hataları logla, ad blocker'ları sessizce geç
     if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-      console.log('Request blocked by client (likely ad blocker)');
     } else {
       console.error('Error logging unauthorized access:', error);
       // Recursive call'u kaldırdık çünkü sonsuz döngüye sebep olabilir
@@ -605,7 +591,6 @@ async function logPageVisit() {
   
   // Ad blocker veya güvenlik yazılımı kontrolü
   if (typeof fetch === 'undefined') {
-    console.log('Fetch API not available, skipping log');
     return;
   }
   
@@ -630,11 +615,9 @@ async function logPageVisit() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    console.log('Page visit logged successfully');
   } catch (error) {
     // Sadece gerçek hataları logla, ad blocker'ları sessizce geç
     if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-      console.log('Request blocked by client (likely ad blocker)');
     } else {
       console.error('Error logging page visit:', error);
     }

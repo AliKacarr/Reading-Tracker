@@ -938,7 +938,6 @@ function performRenderUserList() {
 // Grup bilgilerini yükle
 async function loadGroupSettings() {
     if (!LocalStorageManager.isUserLoggedIn()) {
-        console.log('Kullanıcı girişi yok, grup ayarları yüklenmiyor');
         return;
     }
 
@@ -1113,7 +1112,6 @@ async function updateGroupImageFromAvatar(avatarPath) {
         
         if (response.ok) {
             const result = await response.json();
-            console.log('Grup resmi hazır avatar ile güncellendi');
             
             // secretAdminLogin resmini de güncelle
             const secretAdminLoginImages = document.querySelectorAll('.secretAdminLoginImage');
