@@ -232,7 +232,7 @@
     width: 35px;
     height: 5px;
     border-radius: 12px;
-    background: linear-gradient(90deg, #ff7f50, #ff4500);
+    background: linear-gradient(90deg, #ff8750, #ff7f50);
     animation: longest-series-line-bounce 1.2s infinite;
     position: relative;
     flex-shrink: 0;
@@ -241,7 +241,7 @@
 }
 
 .longest-series-loading-text {
-    color: #ff6b35;
+    color: #FF6B33;
     font-size: 1.2em;
     font-weight: 900;
     text-shadow:  0 0 3px rgba(231, 111, 81, 0.2);

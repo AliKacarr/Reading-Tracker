@@ -89,6 +89,7 @@
     box-shadow: 0 2px 8px rgba(78, 84, 200, 0.08);
     margin-left: 20px;
     margin-top: 5px;
+    letter-spacing: 0.4px;
 }
 
 .profileButton {
@@ -112,6 +113,7 @@
     min-height: 42px;
     max-height: 42px;
     flex-shrink: 0;
+    letter-spacing: 0.4px;
 }
 
 .profileButtonText {

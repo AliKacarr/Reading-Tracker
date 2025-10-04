@@ -452,10 +452,23 @@ async function loadUserCards() {
   if (consecutiveMissed.length > 0) {
     const missedMsg = document.createElement('div');
     missedMsg.className = 'consecutive-missed-message';
-    missedMsg.innerHTML =
+    
+    // Zincir yazısı için element oluştur
+    const chainText = document.createElement('div');
+    chainText.className = 'chain-text';
+    chainText.textContent = 'Zinciri Kırma';
+    
+    // Ana mesaj içeriği
+    const messageContent = document.createElement('div');
+    messageContent.innerHTML =
       '<span class="missed-title">Art arda okumayanlar:<br></span> ' +
       consecutiveMissed.map(u => `<b class="missed-username">${u.name}</b> (<span class="missed-days">${u.days} gün</span>)`).join(', ') +
       '<span class="missed-reminder"><br>Okumaları unutmayalım!</span>';
+    
+    // Elementleri birleştir
+    missedMsg.appendChild(chainText);
+    missedMsg.appendChild(messageContent);
+    
     afterElem.insertAdjacentElement('afterend', missedMsg);
 
     // Tıklama ile panoya kopyalama ve bildirim
@@ -504,7 +517,20 @@ async function loadUserCards() {
     if (everyoneReadYesterday) {
       const missedMsg = document.createElement('div');
       missedMsg.className = 'consecutive-missed-message';
-      missedMsg.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
+      
+      // Zincir yazısı için element oluştur
+      const chainText = document.createElement('div');
+      chainText.className = 'chain-text';
+      chainText.textContent = 'Zinciri Kırma';
+      
+      // Ana mesaj içeriği
+      const messageContent = document.createElement('div');
+      messageContent.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
+      
+      // Elementleri birleştir
+      missedMsg.appendChild(chainText);
+      missedMsg.appendChild(messageContent);
+      
       afterElem.insertAdjacentElement('afterend', missedMsg);
     // Tıklama ile panoya kopyalama ve bildirim
     missedMsg.style.cursor = 'pointer';

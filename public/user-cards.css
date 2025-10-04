@@ -275,7 +275,7 @@
 
 .user-card-fire-emoji {
     font-size: 22px;
-    text-shadow: 1px 1px #ffd100, 0 0 10px #ffd700;
+    text-shadow: 0 0 1px red, 0 0 2px #ff4500, 0 0 5px #ffd700;
     animation: user-card-fire-emoji-flame 4s infinite;
 }
 
@@ -495,6 +495,33 @@
     margin: 0 auto;
 }
 
+.league-promotion-message::after {
+    content: '👆';
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 16px;
+    opacity: 0.6;
+    animation: bounce-promotion 3s infinite;
+    z-index: 1;
+}
+
+@keyframes bounce-promotion {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(0) rotate(0deg) scale(1);
+    }
+    40% {
+        transform: translateX(-3px) rotate(-10deg) scale(0.9);
+    }
+    60% {
+        transform: translateX(0px) rotate(0deg) scale(1);
+    }
+}
+
+.league-promotion-message:has(.copy-notification)::after {
+    display: none;
+}
+
 .promotion-message-content {
     line-height: 1.7;
     font-size: 18px;
@@ -540,7 +567,7 @@
     border-radius: 10px;
     line-height: 1.7;
     margin: 10px auto 18px auto;
-    padding: 20px 20px 20px 20px;
+    padding: 50px 20px 20px 20px;
     font-size: 17px;
     color: #222;
     font-weight: 600;
@@ -554,6 +581,40 @@
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     cursor: pointer;
 }
+
+.consecutive-missed-message::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 15px;
+    background-image: url('images/zincir.webp');
+    background-size: contain;
+    background-repeat: repeat-x;
+    background-position: top center;
+    z-index: 1;
+    margin: 0 auto;
+}
+
+.consecutive-missed-message .chain-text {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f0f7ff;
+    padding: 0 8px;
+    height: 20px;
+    line-height: 15px;
+    font-size: 17px;
+    font-weight: bold;
+    color: #173A7D;
+    z-index: 2;
+    white-space: nowrap;
+    border-radius: 10px;
+}
+
 
 .league-promotion-message .copy-notification {
     opacity: 1;
@@ -571,7 +632,7 @@
     right: 12px;
     font-size: 16px;
     opacity: 0.6;
-    animation: bounce 3s infinite;
+    animation: bounce-missed 3s infinite;
     z-index: 1;
 }
 
@@ -584,7 +645,7 @@
     display: none;
 }
 
-@keyframes bounce {
+@keyframes bounce-missed {
     0%, 20%, 50%, 80%, 100% {
         transform: translateX(0) rotate(0deg) scale(1);
     }
@@ -619,7 +680,20 @@
 
     .consecutive-missed-message {
         font-size: 17px;
-        padding: 15px;
+        padding: 45px 15px 15px 15px;
+    }
+
+    .consecutive-missed-message::before {
+        height: 15px;
+        top: 20px;
+        width: 100%;
+    }
+
+    .consecutive-missed-message .chain-text {
+        top: 15px;
+        height: 25px;
+        line-height: 25px;
+        font-size: 17px;
     }
 
     .missed-username {
