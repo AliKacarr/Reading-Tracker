@@ -365,6 +365,17 @@ async function loadUserCards() {
     confettiOverlay.className = 'confetti-overlay';
     promotedMsg.appendChild(confettiOverlay);
 
+    // Sol alt köşe emoji ekle
+    const leftEmoji = document.createElement('div');
+    leftEmoji.className = 'left-emoji';
+    promotedMsg.appendChild(leftEmoji);
+
+    // Kopyala yazısı ve emoji ekle
+    const copyText = document.createElement('div');
+    copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 12px; opacity: 0.85; z-index: 1; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 6px; border-radius: 4px; border: 1px solid rgba(180, 180, 180, 0.5); color: #555;';
+    copyText.innerHTML = 'Kopyala <span class="copy-emoji">👆</span>';
+    promotedMsg.appendChild(copyText);
+
     leagueInfoBar.insertAdjacentElement('afterend', promotedMsg);
 
     // Intersection Observer ile confetti animasyonunu tetikle
@@ -485,6 +496,17 @@ async function loadUserCards() {
       consecutiveMissed.map(u => `<b class="missed-username">${u.name}</b> (<span class="missed-days">${u.days} gün</span>)`).join(', ') +
       '<span class="missed-reminder"><br>Okumaları unutmayalım!</span>';
     
+    // Sol alt köşe emoji ekle
+    const leftEmoji = document.createElement('div');
+    leftEmoji.className = 'left-emoji';
+    missedMsg.appendChild(leftEmoji);
+
+    // Kopyala yazısı ve emoji ekle
+    const copyText = document.createElement('div');
+    copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 12px; opacity: 0.85; z-index: 1; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 6px; border-radius: 4px; border: 1px solid rgba(180, 180, 180, 0.5); color: #555;';
+    copyText.innerHTML = 'Kopyala <span class="copy-emoji">👆</span>';
+    missedMsg.appendChild(copyText);
+
     // Elementleri birleştir
     missedMsg.appendChild(chainText);
     missedMsg.appendChild(messageContent);
@@ -538,6 +560,18 @@ async function loadUserCards() {
       const missedMsg = document.createElement('div');
       missedMsg.className = 'consecutive-missed-message';
       missedMsg.innerHTML = 'Harika! Herkes dün okumalarını yapmış! 🎉🎉<span class="missed-reminder"><br>Haydi, bugünküleri de yapalım!</span>';
+      
+      // Sol alt köşe emoji ekle
+      const leftEmoji = document.createElement('div');
+      leftEmoji.className = 'left-emoji party-emoji';
+      missedMsg.appendChild(leftEmoji);
+
+      // Kopyala yazısı ve emoji ekle
+      const copyText = document.createElement('div');
+      copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 12px; opacity: 0.85; z-index: 1; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 6px; border-radius: 4px; border: 1px solid rgba(180, 180, 180, 0.5); color: #555;';
+      copyText.innerHTML = 'Kopyala <span class="copy-emoji">👆</span>';
+      missedMsg.appendChild(copyText);
+      
       afterElem.insertAdjacentElement('afterend', missedMsg);
     // Tıklama ile panoya kopyalama ve bildirim
     missedMsg.style.cursor = 'pointer';

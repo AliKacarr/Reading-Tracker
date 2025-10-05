@@ -496,16 +496,22 @@
     margin: 0 auto;
 }
 
-.league-promotion-message::after {
-    content: '👆';
+
+.league-promotion-message .left-emoji {
     position: absolute;
     bottom: 8px;
-    right: 12px;
-    font-size: 16px;
-    opacity: 0.6;
-    animation: bounce-promotion 3s infinite;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    background-image: url('https://www.emojiall.com/images/animations/joypixels/64px/partying_face.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.8;
     z-index: 1;
+    transform: scaleX(-1);
 }
+
 
 /* Confetti efekti için ayrı element */
 .league-promotion-message .confetti-overlay {
@@ -666,15 +672,41 @@
     display: none;
 }
 
-.consecutive-missed-message::after {
-    content: '👆';
+
+.consecutive-missed-message .left-emoji {
     position: absolute;
     bottom: 8px;
-    right: 12px;
-    font-size: 16px;
-    opacity: 0.6;
-    animation: bounce-missed 3s infinite;
+    left: 12px;
+    width: 32px;
+    height: 32px;
+    background-image: url('https://www.emojiall.com/images/animations/joypixels/64px/frowning_face.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.8;
     z-index: 1;
+}
+
+.consecutive-missed-message .left-emoji.party-emoji {
+    background-image: url('https://www.emojiall.com/images/animations/joypixels/64px/partying_face.gif');
+    transform: scaleX(-1);
+}
+
+.copy-emoji {
+    display: inline-block;
+    animation: bounce-copy-emoji 3s infinite;
+}
+
+@keyframes bounce-copy-emoji {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(0) rotate(0deg) scale(1);
+    }
+    40% {
+        transform: translateX(-3px) rotate(-10deg) scale(0.9);
+    }
+    60% {
+        transform: translateX(0px) rotate(0deg) scale(1);
+    }
 }
 
 .consecutive-missed-message .copy-notification {
