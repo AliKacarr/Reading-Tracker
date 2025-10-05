@@ -350,7 +350,7 @@ async function loadUserCards() {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'promotion-message-content';
 
-    let msg = 'Gösterdikleri istikrarla bugün lig atlayan arkadaşlarımızı gönülden tebrik ediyoruz! 🎉🎉<br>';
+    let msg = 'Lig atlayan arkadaşlarımızı gönülden tebrik ediyoruz! 🎉🎉<br>';
     msg += promotedUsers.map((u, index) => {
       const isLast = index === promotedUsers.length - 1;
       const punctuation = isLast ? '.' : ',';
@@ -360,7 +360,27 @@ async function loadUserCards() {
     contentDiv.innerHTML = msg;
     promotedMsg.appendChild(contentDiv);
 
+    // Confetti overlay ekle
+    const confettiOverlay = document.createElement('div');
+    confettiOverlay.className = 'confetti-overlay';
+    promotedMsg.appendChild(confettiOverlay);
+
     leagueInfoBar.insertAdjacentElement('afterend', promotedMsg);
+
+    // Intersection Observer ile confetti animasyonunu tetikle
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.classList.contains('confetti-triggered')) {
+          entry.target.classList.add('confetti-triggered');
+          const confetti = entry.target.querySelector('.confetti-overlay');
+          if (confetti) {
+            confetti.classList.add('show');
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+
+    observer.observe(promotedMsg);
 
     // Tıklama ile panoya kopyalama ve bildirim
     promotedMsg.style.cursor = 'pointer'; // İşaretçiyi değiştirerek tıklanabilir olduğunu belirt
