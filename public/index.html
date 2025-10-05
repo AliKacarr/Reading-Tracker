@@ -184,6 +184,16 @@
           s0.parentNode.insertBefore(s1, s0);
         })();
       </script>
+      
+      <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+        <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({
+            appId: "60b856ae-b948-4365-87b5-233be9f9d818",
+            });
+        });
+        </script>
 </body>
 
 </html>
