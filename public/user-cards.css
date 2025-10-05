@@ -374,11 +374,29 @@
 }
 
 .user-card .progress-bar-fill {
+    position: relative;
     height: 100%;
-    background: linear-gradient(90deg, #FFBF00 0%, #FFA000 50%, #FF8C00 75%, #FF6600 100%);
+    width: 90%;
+    background: linear-gradient(90deg, #FFBF00, #FFA000, #FF8C00, #FF6600);
     border-radius: 8px;
-    transition: width 0.5s;
-}
+    overflow: hidden;
+  }
+  
+  .user-card .progress-bar-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgb(255 235 200 / 40%) 50%, rgba(255, 255, 255, 0) 100%);
+    animation: shine 3s ease-in-out infinite;
+  }
+  
+  @keyframes shine {
+    0% { left: -50%; }
+    100% { left: 100%; }
+  }
 
 
 .user-card-longest-streak .streak-icon {
@@ -507,7 +525,6 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    opacity: 0.8;
     z-index: 1;
     transform: scaleX(-1);
 }
@@ -596,9 +613,9 @@
 
 .copy-notification {
     position: fixed;
-    bottom: 3px;
+    bottom: 7px;
     right: 3px;
-    background-color: rgba(0, 128, 0, 0.8);
+    background-color: rgba(0, 128, 0);
     color: white;
     padding: 3px 8px;
     border-radius: 10px;
@@ -683,7 +700,6 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    opacity: 0.8;
     z-index: 1;
 }
 

@@ -372,7 +372,8 @@ async function loadUserCards() {
 
     // Kopyala yazısı ve emoji ekle
     const copyText = document.createElement('div');
-    copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 12px; opacity: 0.85; z-index: 1; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 6px; border-radius: 4px; border: 1px solid rgba(180, 180, 180, 0.5); color: #555;';
+    copyText.className = 'copy-chip';
+    copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 13px; font-weight: bold; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 7px; border-radius: 8px; border: 1px solid rgba(180, 180, 180, 0.8); color: #6e6e6e;';
     copyText.innerHTML = 'Kopyala <span class="copy-emoji">👆</span>';
     promotedMsg.appendChild(copyText);
 
@@ -399,23 +400,20 @@ async function loadUserCards() {
       try {
         // HTML'deki <br> etiketlerini gerçek yeni satırlara çevir
         const textToCopy = contentDiv.innerHTML
-          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<br\s*\/?>(?=\s*<)/gi, '\n')
           .replace(/<[^>]*>/g, '') // HTML etiketlerini kaldır
           .replace(/\n\s*\n/g, '\n') // Çoklu boş satırları tek satıra çevir
           .trim();
         
         await navigator.clipboard.writeText(textToCopy); // Metni panoya kopyala
 
-        // Kopyalama bildirimi oluştur
-        const copyNotification = document.createElement('span');
-        copyNotification.className = 'copy-notification';
-        copyNotification.innerText = 'Kopyalandı!';
-        promotedMsg.appendChild(copyNotification);
-
-        // Bildirimi kısa süre sonra kaldır
-        setTimeout(() => {
-          copyNotification.remove();
-        }, 1500); // 1.5 saniye sonra kaldır
+        // Kopyala butonunu geçici olarak Kopyalandı yap
+        const chip = promotedMsg.querySelector('.copy-chip');
+        if (chip) {
+          const prev = chip.innerHTML;
+          chip.innerHTML = 'Kopyalandı ✅';
+          setTimeout(() => { chip.innerHTML = prev; }, 1500);
+        }
 
       } catch (err) {
         console.error('Panoya kopyalama başarısız oldu:', err);
@@ -503,7 +501,8 @@ async function loadUserCards() {
 
     // Kopyala yazısı ve emoji ekle
     const copyText = document.createElement('div');
-    copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 12px; opacity: 0.85; z-index: 1; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 6px; border-radius: 4px; border: 1px solid rgba(180, 180, 180, 0.5); color: #555;';
+    copyText.className = 'copy-chip';
+    copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 13px; font-weight: bold; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 7px; border-radius: 8px; border: 1px solid rgba(180, 180, 180, 0.8); color: #6e6e6e;';
     copyText.innerHTML = 'Kopyala <span class="copy-emoji">👆</span>';
     missedMsg.appendChild(copyText);
 
@@ -526,16 +525,13 @@ async function loadUserCards() {
         
         await navigator.clipboard.writeText(copyText); // Metni panoya kopyala
 
-        // Kopyalama bildirimi oluştur
-        const copyNotification = document.createElement('span');
-        copyNotification.className = 'copy-notification';
-        copyNotification.innerText = 'Kopyalandı!';
-        missedMsg.appendChild(copyNotification);
-
-        // Bildirimi kısa süre sonra kaldır
-        setTimeout(() => {
-          copyNotification.remove();
-        }, 1500); // 1.5 saniye sonra kaldır
+        // Kopyala butonunu geçici olarak Kopyalandı yap
+        const chip = missedMsg.querySelector('.copy-chip');
+        if (chip) {
+          const prev = chip.innerHTML;
+          chip.innerHTML = 'Kopyalandı ✅';
+          setTimeout(() => { chip.innerHTML = prev; }, 1500);
+        }
 
       } catch (err) {
         console.error('Panoya kopyalama başarısız oldu:', err);
@@ -568,7 +564,8 @@ async function loadUserCards() {
 
       // Kopyala yazısı ve emoji ekle
       const copyText = document.createElement('div');
-      copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 12px; opacity: 0.85; z-index: 1; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 6px; border-radius: 4px; border: 1px solid rgba(180, 180, 180, 0.5); color: #555;';
+      copyText.className = 'copy-chip';
+      copyText.style.cssText = 'position: absolute; bottom: 8px; right: 12px; font-size: 13px; font-weight: bold; background: rgba(255, 255, 255, 0.9); padding: 3px 3px 3px 7px; border-radius: 8px; border: 1px solid rgba(180, 180, 180, 0.8); color: #6e6e6e;';
       copyText.innerHTML = 'Kopyala <span class="copy-emoji">👆</span>';
       missedMsg.appendChild(copyText);
       
@@ -578,13 +575,12 @@ async function loadUserCards() {
     missedMsg.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(missedMsg.innerText);
-        const copyNotification = document.createElement('span');
-        copyNotification.className = 'copy-notification';
-        copyNotification.innerText = 'Kopyalandı!';
-        missedMsg.appendChild(copyNotification);
-        setTimeout(() => {
-          copyNotification.remove();
-        }, 1500);
+        const chip = missedMsg.querySelector('.copy-chip');
+        if (chip) {
+          const prev = chip.innerHTML;
+          chip.innerHTML = 'Kopyalandı ✅';
+          setTimeout(() => { chip.innerHTML = prev; }, 1500);
+        }
       } catch (err) {
         console.error('Panoya kopyalama başarısız oldu:', err);
       }

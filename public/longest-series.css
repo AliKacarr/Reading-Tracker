@@ -5,7 +5,7 @@
 
 #longestSeriesChart {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 12px;
     padding: 25px 0px;
     align-items: center;

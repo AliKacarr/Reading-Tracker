@@ -439,8 +439,6 @@ const Invite = mongoose.model('Invite', {
   expiresAt: { type: Date, default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) } // 7 gün sonra
 });
 
-// Admin model kaldırıldı - artık users koleksiyonunda admin olarak saklanıyor
-
 // MongoDB index'lerini oluşturma fonksiyonu
 async function createIndexesForGroup(groupId) {
   try {

@@ -5,9 +5,13 @@ function renderLongestSeries() {
             const chart = document.getElementById('longestSeriesChart');
             chart.style.minHeight = '150px';
             chart.innerHTML = '';
-            const maxStreak = data.length > 0 ? data[0].streak : 1;
-            const minBarWidth = 150; // px
-            const maxBarWidth = 550; // px
+            // En iyi (yüksek streak) üstte olacak şekilde sırala
+            const sortedData = (data || []).slice().sort((a, b) => b.streak - a.streak);
+            // Barlar ters: en iyi = en kısa
+            const maxStreak = sortedData.length > 0 ? Math.max(...sortedData.map(u => u.streak)) : 1;
+            const minStreak = sortedData.length > 0 ? Math.min(...sortedData.map(u => u.streak)) : 0;
+            const minBarWidth = 220; // px
+            const maxBarWidth = 600; // px
 
             // Doğru rank algoritması
             let rankList = [];
@@ -15,7 +19,7 @@ function renderLongestSeries() {
             let rankCount = 1;
 
             // Unique streak'leri sırala ve sırayla rank ata
-            (data || []).forEach(user => {
+            sortedData.forEach(user => {
                 if (!(user.streak in streakToRank)) {
                     if (rankCount > 3) return; // Sadece ilk 3 rank için
                     streakToRank[user.streak] = rankCount;
@@ -24,13 +28,19 @@ function renderLongestSeries() {
             });
 
             // Her kullanıcıya rank ata (sadece ilk 3 için, diğerleri undefined olacak)
-            data.forEach(user => {
+            sortedData.forEach(user => {
                 rankList.push(streakToRank[user.streak]);
             });
 
             // --- RENK HESAPLAMASI İÇİN YENİ KOD ---
             // Tüm unique streak'leri büyükten küçüğe sırala
-            const uniqueStreaks = [...new Set(data.map(u => u.streak))].sort((a, b) => b - a);
+            const uniqueStreaks = [...new Set(sortedData.map(u => u.streak))].sort((a, b) => b - a);
+            // "Piramid" görünüm için: aynı streak aynı genişlik, ardışık benzersiz streak grupları arasında eşit fark
+            const streakToOrderIndex = {};
+            uniqueStreaks.forEach((val, idx) => { streakToOrderIndex[val] = idx; });
+            const stepPx = uniqueStreaks.length > 1
+                ? (maxBarWidth - minBarWidth) / (uniqueStreaks.length - 1)
+                : 0;
             const startHue = 230;
             const endHue = 200;
             const streakColorMap = {};
@@ -49,10 +59,10 @@ function renderLongestSeries() {
             // Giriş yapılan kullanıcı bilgisini al
             const currentUserInfo = LocalStorageManager.getCurrentUserInfo();
 
-            data.forEach((user, idx) => {
-                // Normalize bar width
-                const widthPercent = user.streak / maxStreak;
-                const barWidth = minBarWidth + (maxBarWidth - minBarWidth) * widthPercent;
+            sortedData.forEach((user, idx) => {
+                // Eşit adımlarla genişlik: en yüksek streak (order 0) en kısa bar
+                const orderIdx = streakToOrderIndex[user.streak] || 0; // 0..(unique-1)
+                const barWidth = Math.round(minBarWidth + stepPx * orderIdx);
 
                 // Satır kapsayıcı
                 const row = document.createElement('div');
@@ -162,13 +172,13 @@ function renderLongestSeries() {
                 });
             });
 
-            // --- Animasyon sırasını barWidth'e göre küçükten büyüğe sırala ---
-            // Eşit barWidth'lerde idx büyük olan önce animasyonlansın (alttan üste)
+            // --- Animasyon sırası: Aşağıdan yukarıya (en uzun bardan en kısa bara) ---
+            // Önce en uzun barlar, sonra kısalar; eşit genişlikte olanlarda alttaki (idx büyük) önce
             const sortedBarsToAnimate = barsToAnimate.slice().sort((a, b) => {
                 if (a.barWidth !== b.barWidth) {
-                    return a.barWidth - b.barWidth;
+                    return b.barWidth - a.barWidth; // büyükten küçüğe
                 } else {
-                    return b.idx - a.idx; // idx büyük olan (alttaki) önce gelsin
+                    return b.idx - a.idx; // alttaki önce
                 }
             });
 
@@ -177,7 +187,7 @@ function renderLongestSeries() {
                 const observer = new IntersectionObserver((entries, obs) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
-                            // Animasyonu başlat (en kısa çubuktan en uzun çubuğa)
+                            // Animasyonu başlat (aşağıdan yukarıya: en uzun bardan en kısa bara)
                             sortedBarsToAnimate.forEach(({ bar, barWidth }, sortedIdx) => {
                                 setTimeout(() => {
                                     bar.style.transition = 'width 1s cubic-bezier(.4,1.5,.6,1)';
@@ -200,7 +210,7 @@ function renderLongestSeries() {
 
                 observer.observe(chart);
             } else {
-                // Eski tarayıcılar için animasyonu hemen başlat
+                // Eski tarayıcılar için animasyonu hemen başlat (aşağıdan yukarıya)
                 sortedBarsToAnimate.forEach(({ bar, barWidth }, sortedIdx) => {
                     setTimeout(() => {
                         bar.style.transition = 'width 1s cubic-bezier(.4,1.5,.6,1)';
