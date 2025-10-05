@@ -568,7 +568,7 @@
     border-radius: 10px;
     line-height: 1.7;
     margin: 10px auto 18px auto;
-    padding: 50px 20px 20px 20px;
+    padding: 52px 20px 22px 20px;
     font-size: 17px;
     color: #222;
     font-weight: 600;
@@ -680,7 +680,7 @@
 
     .consecutive-missed-message {
         font-size: 17px;
-        padding: 50px 15px 15px 15px;
+        padding: 50px 15px 17px 15px;
     }
 
     .consecutive-missed-message::before {

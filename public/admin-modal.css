@@ -34,45 +34,6 @@
     position: relative;
 }
 
-
-
-/* Mobil uyumluluk */
-@media (max-width: 768px) {
-    #secretAdminLogin {
-        font-size: 1.5rem;
-        gap: 12px;
-        padding: 15px;
-    }
-    
-    #secretAdminLogin h2 {
-        font-size: 1.5rem;
-        max-width: 350px;
-    }
-    
-    #secretAdminLogin img {
-        height: 1.2em;
-        width: 1.2em;
-    }
-}
-
-@media (max-width: 480px) {
-    #secretAdminLogin {
-        font-size: 1.3rem;
-        gap: 10px;
-        padding: 12px;
-    }
-    
-    #secretAdminLogin h2 {
-        font-size: 1.3rem;
-        max-width: 280px;
-    }
-    
-    #secretAdminLogin img {
-        height: 1.1em;
-        width: 1.1em;
-    }
-}
-
 .showGroups {
     background: linear-gradient(90deg, #a8edea 0%, #fed6e3 100%);
     border: none;
@@ -318,8 +279,8 @@
 
 .admin-indicator {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    bottom: 30px;
+    left: 40px;
     background: linear-gradient(135deg, #4e54c8, #8f94fb);
     color: white;
     height: 50px;
@@ -332,7 +293,7 @@
     box-shadow: 0 6px 20px rgba(78, 84, 200, 0.3);
     display: none;
     transition: all 0.3s ease;
-    z-index: 9998;
+    z-index: 99;
     text-align: center;
     border: 2px solid rgba(255, 255, 255, 0.2);
     align-items: center;
@@ -403,4 +364,50 @@
 .admin-logs-button:active,
 .login-logs-button:active {
     transform: translateY(0);
+}
+
+/* Yukarı Çık Butonu */
+.scroll-to-top-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 40px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(78, 84, 200, 0.3);
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+    opacity: 0;
+}
+  
+.scroll-to-top-btn:hover {
+    background: linear-gradient(135deg, #8f94fb 0%, #4e54c8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(78, 84, 200, 0.4);
+}
+  
+.scroll-to-top-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(78, 84, 200, 0.3);
+}
+
+.scroll-to-top-btn.show {
+    opacity: 1;
+}
+
+.scroll-to-top-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.scroll-to-top-btn:hover svg {
+    transform: translateY(-2px);
 }

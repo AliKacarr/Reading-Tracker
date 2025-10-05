@@ -202,30 +202,26 @@
 }
 
 .longest-fire-icon {
+    margin: 0 auto;
     font-size: 2.5rem;
     animation: longest-fire-icon-flame 2s infinite alternate;
     filter: drop-shadow(0 0px 30px rgba(255, 200, 0));
     text-shadow: 0 0 1px #ff5555, 0 0 1px #ff4500;
-    position: absolute;
-    top: calc(50% - 50px);
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 3;
 }
 
 @keyframes longest-fire-icon-flame {
     0%, 100% {
-        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        transform: scale(1);
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.2) rotate(0deg);
+        transform: scale(1.2);
     }
 }
 
 .longest-series-loading-lines {
     display: flex;
     gap: 8px;
-    margin-top: 50px;
+    margin-top: 45px;
     margin-right: 1px;
 }
 
