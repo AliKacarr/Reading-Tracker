@@ -28,7 +28,7 @@ const app = express();
 const port = 3000;
 
 // Middleware'ler
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/images', express.static('uploads'));
 app.use('/groupAvatars', express.static('groupAvatars'));
 app.use(express.json());

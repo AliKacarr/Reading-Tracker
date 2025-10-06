@@ -774,6 +774,70 @@
   <script src="videos.js"></script>
   <script src="main-area.js"></script>
   <script src="longest-series.js"></script>
+  
+  <!-- OneSignal Konfigürasyonu -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+          appId: "60b856ae-b948-4365-87b5-233be9f9d818",
+          serviceWorkerPath: '/OneSignalSDKWorker.js',
+          serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
+          serviceWorkerParam: { scope: '/' },
+          autoRegister: false
+      });
+
+      // Toggle'a basınca izin istemek için
+      window.handleNotificationToggle = function(isEnabled) {
+          if (isEnabled) {
+              OneSignal.getNotificationPermission().then(permission => {
+                  if (permission === 'granted') {
+                      OneSignal.setSubscription(true);
+                  } else {
+                      OneSignal.showSlidedownPrompt().catch(err => {
+                          OneSignal.showNativePrompt();
+                      });
+                  }
+              });
+          } else {
+              OneSignal.setSubscription(false);
+          }
+      };
+
+      // İlk yüklemede mevcut izin durumunu toggle ile eşle
+      const permission = await OneSignal.getNotificationPermission();
+      const userId = await OneSignal.getUserId();
+      const toggle = document.getElementById('notificationsToggle');
+      
+      if (toggle) {
+          const isSubscribed = (permission === 'granted' && userId);
+          toggle.checked = isSubscribed;
+          
+          toggle.addEventListener('change', function() {
+              handleNotificationToggle(this.checked);
+          });
+      }
+      
+      // Event listener'lar
+      OneSignal.on('subscriptionChange', function(isSubscribed) {
+          const toggle = document.getElementById('notificationsToggle');
+          if (toggle) {
+              toggle.checked = isSubscribed;
+          }
+      });
+      
+      OneSignal.on('permissionChange', function(permission) {
+          const toggle = document.getElementById('notificationsToggle');
+          if (toggle) {
+              OneSignal.getUserId().then(userId => {
+                  const isSubscribed = (permission === 'granted' && userId);
+                  toggle.checked = isSubscribed;
+              });
+          }
+      });
+  });
+  </script>
 </body>
 
 </html>
