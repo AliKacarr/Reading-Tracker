@@ -1,5 +1,23 @@
 /* Toggle stilleri kaldırıldı */
 
+/* OneSignal custom link alanı tipografisini sabitle */
+.onesignal-customlink-container,
+.onesignal-customlink-container * {
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+    -webkit-text-size-adjust: 100% !important; /* iOS/Android otomatik büyütmeyi kapat */
+    text-size-adjust: 100% !important;
+}
+
+/* Butondaki olası büyüme/basınca zoom etkisini engelle */
+.onesignal-customlink-container button,
+.onesignal-customlink-container .onesignal-customlink-notification-enable,
+.onesignal-customlink-container .onesignal-customlink-container-button {
+    transform: none !important;
+    font-size: 14px !important;
+    padding: 6px 10px !important;
+}
+
 .settings-section {
     padding: 0px 20px;
     padding-top: 20px;
