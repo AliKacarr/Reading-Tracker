@@ -2330,7 +2330,7 @@ async function sendOneSignalNotification(message) {
   try {
     const payload = JSON.stringify({
       app_id: process.env.ONESIGNAL_APP_ID,
-      included_segments: ['Subscribed Users'],
+      included_segments: ['All'],
       headings: { en: 'Günün Vecizesi', tr: 'Günün Vecizesi' },
       contents: { en: message, tr: message }
     });
@@ -2370,20 +2370,30 @@ async function sendOneSignalNotification(message) {
 }
 
 function scheduleDailyNotifications() {
+  console.log('🔍 OneSignal env kontrolü:');
+  console.log('ONESIGNAL_APP_ID:', process.env.ONESIGNAL_APP_ID ? '✅ Var' : '❌ Yok');
+  console.log('ONESIGNAL_API_KEY:', process.env.ONESIGNAL_API_KEY ? '✅ Var' : '❌ Yok');
+  
   if (!(process.env.ONESIGNAL_APP_ID && process.env.ONESIGNAL_API_KEY)) {
     console.warn('OneSignal env değişkenleri eksik. Cron başlatılmadı.');
     return null;
   }
+  
   // 08:00
   const jobMorning = schedule.scheduleJob({ rule: '0 8 * * *', tz: 'Europe/Istanbul' }, async () => {
+    console.log('🌅 Sabah 08:00 cron job çalışıyor');
     const msg = await getRandomVecizeForPush();
     await sendOneSignalNotification(msg);
+    console.log(`vecize: ${msg}`);
   });
   // 20:00
-  const jobEvening = schedule.scheduleJob({ rule: '0 20 * * *', tz: 'Europe/Istanbul' }, async () => {
+  const jobEvening = schedule.scheduleJob({ rule: '35 20 * * *', tz: 'Europe/Istanbul' }, async () => {
+    console.log('🌙 Akşam 20:00 cron job çalışıyor');
     const msg = await getRandomVecizeForPush();
     await sendOneSignalNotification(msg);
+    console.log(`vecize: ${msg}`);
   });
+  
   console.log('Vecize push cron kuruldu: 08:00 ve 20:00 (Europe/Istanbul)');
   
   process.on('SIGINT', async () => {
