@@ -2294,45 +2294,56 @@ function scheduleBackup() {
   return backupJob;
 }
 
-// Günün vecizesi bildirim cron'u (08:00 ve 20:00) - Europe/Istanbul TZ ile
+// Günün vecizesi bildirim cron'u (09:00 ve 21:00) - Europe/Istanbul TZ ile
 async function getRandomVecizeForPush() {
   try {
     // Tüm koleksiyonlar: vecizeler, ayetler, hadisler, dualar
     const sources = [
-      { model: Vecize, name: 'vecizeler' },
-      { model: Ayet, name: 'ayetler' },
-      { model: Hadis, name: 'hadisler' },
-      { model: Dua, name: 'dualar' }
+      { model: Vecize, name: 'vecizeler', type: 'vecize' },
+      { model: Ayet, name: 'ayetler', type: 'ayet' },
+      { model: Hadis, name: 'hadisler', type: 'hadis' },
+      { model: Dua, name: 'dualar', type: 'dua' }
     ];
 
     // Her koleksiyonun belge sayısını al
     const counts = await Promise.all(sources.map(s => s.model.countDocuments()));
     const total = counts.reduce((sum, c) => sum + c, 0);
-    if (total === 0) return 'Bugün için vecize bulunamadı.';
+    if (total === 0) return { message: 'Bugün için vecize bulunamadı.', source: 'vecize' };
 
     // Toplam belge sayısına göre ağırlıklı rastgele seçim
     let index = Math.floor(Math.random() * total);
     for (let i = 0; i < sources.length; i++) {
       if (index < counts[i]) {
         const doc = await sources[i].model.findOne().skip(index);
-        return doc?.sentence || 'Bugün için vecize bulunamadı.';
+        return {
+          message: doc?.sentence || 'Bugün için vecize bulunamadı.',
+          source: sources[i].type
+        };
       }
       index -= counts[i];
     }
-    return 'Bugün için vecize bulunamadı.';
+    return { message: 'Bugün için vecize bulunamadı.', source: 'vecize' };
   } catch (e) {
     console.error('Vecize seçme hatası:', e);
-    return 'Bugün için vecize bulunamadı.';
+    return { message: 'Bugün için vecize bulunamadı.', source: 'vecize' };
   }
 }
 
-async function sendOneSignalNotification(message) {
+async function sendOneSignalNotification(message, source = 'vecize') {
   try {
+    // Kaynağa göre başlık belirle
+    let heading = 'Günün Vecizesi';
+    if (source === 'ayet') heading = 'Günün Ayeti';
+    else if (source === 'hadis') heading = 'Günün Hadisi';
+    else if (source === 'dua') heading = 'Günün Duası';
+    
     const payload = JSON.stringify({
       app_id: process.env.ONESIGNAL_APP_ID,
       included_segments: ['All'],
-      headings: { en: 'Günün Vecizesi', tr: 'Günün Vecizesi' },
-      contents: { en: message, tr: message }
+      headings: { en: heading, tr: heading },
+      contents: { en: message, tr: message },
+      large_icon: 'https://rotakip.onrender.com/images/lamba.png',
+      small_icon: 'https://rotakip.onrender.com/images/lamba.png'
     });
 
     const options = {
@@ -2370,31 +2381,26 @@ async function sendOneSignalNotification(message) {
 }
 
 function scheduleDailyNotifications() {
-  console.log('🔍 OneSignal env kontrolü:');
-  console.log('ONESIGNAL_APP_ID:', process.env.ONESIGNAL_APP_ID ? '✅ Var' : '❌ Yok');
-  console.log('ONESIGNAL_API_KEY:', process.env.ONESIGNAL_API_KEY ? '✅ Var' : '❌ Yok');
   
   if (!(process.env.ONESIGNAL_APP_ID && process.env.ONESIGNAL_API_KEY)) {
     console.warn('OneSignal env değişkenleri eksik. Cron başlatılmadı.');
     return null;
   }
   
-  // 08:00
-  const jobMorning = schedule.scheduleJob({ rule: '0 8 * * *', tz: 'Europe/Istanbul' }, async () => {
-    console.log('🌅 Sabah 08:00 cron job çalışıyor');
-    const msg = await getRandomVecizeForPush();
-    await sendOneSignalNotification(msg);
-    console.log(`vecize: ${msg}`);
+  // 09:00
+  const jobMorning = schedule.scheduleJob({ rule: '0 9 * * *', tz: 'Europe/Istanbul' }, async () => {
+    console.log('🌅 Sabah 9:00 cron job çalışıyor');
+    const result = await getRandomVecizeForPush();
+    await sendOneSignalNotification(result.message, result.source);
   });
-  // 20:00
-  const jobEvening = schedule.scheduleJob({ rule: '35 20 * * *', tz: 'Europe/Istanbul' }, async () => {
-    console.log('🌙 Akşam 20:00 cron job çalışıyor');
-    const msg = await getRandomVecizeForPush();
-    await sendOneSignalNotification(msg);
-    console.log(`vecize: ${msg}`);
+  // 21:00
+  const jobEvening = schedule.scheduleJob({ rule: '42 21 * * *', tz: 'Europe/Istanbul' }, async () => {
+    console.log('🌙 Akşam 21:00 cron job çalışıyor');
+    const result = await getRandomVecizeForPush();
+    await sendOneSignalNotification(result.message, result.source);
   });
   
-  console.log('Vecize push cron kuruldu: 08:00 ve 20:00 (Europe/Istanbul)');
+  console.log('Vecize push cron kuruldu: 09:00 ve 21:00 (Europe/Istanbul)');
   
   process.on('SIGINT', async () => {
     console.log('Vecize cron kapatılıyor...');
