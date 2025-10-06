@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () { //Tablonun ilk gün�
 
     function updateComingSoonMessage() {
         if (darkModeToggle && notificationsToggle && featureComingSoonMessage) {
-            if (darkModeToggle.checked) {
+            if (darkModeToggle.checked || notificationsToggle.checked) {
                 featureComingSoonMessage.style.opacity = '1';
             } else {
                 featureComingSoonMessage.style.opacity = '0';
@@ -39,10 +39,7 @@ document.addEventListener('DOMContentLoaded', function () { //Tablonun ilk gün�
     }
 
     if (notificationsToggle) {
-        notificationsToggle.addEventListener('change', function() {
-            updateComingSoonMessage();
-            // OneSignal toggle işlemi index.html'de handleNotificationToggle ile yönetiliyor
-        });
+        notificationsToggle.addEventListener('change', updateComingSoonMessage);
     }
 
     // Sayfa yüklendiğinde başlangıç durumunu kontrol et
