@@ -10,6 +10,7 @@ const fs = require('fs');
 const os = require('os'); // Added OS module
 require('dotenv').config();
 const schedule = require('node-schedule');
+const https = require('https');
 const { Dropbox } = require('dropbox');
 const sharp = require('sharp');
 const bcrypt = require('bcrypt');
@@ -36,6 +37,13 @@ app.use(express.json());
 // Ana sayfa route'u
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Frontend için gerekli ortam değişkenlerini JS olarak servis et
+app.get('/env.js', (req, res) => {
+  res.type('application/javascript');
+  const appId = process.env.ONESIGNAL_APP_ID || '';
+  res.send(`window.ONESIGNAL_APP_ID = ${JSON.stringify(appId)};`);
 });
 
 app.get('/groupid=:groupId', (req, res) => {
@@ -2030,9 +2038,10 @@ app.post('/api/log-visit', async (req, res) => {
 // ============================================================================
 
 // Günün sözü modeli
-const Sentence = mongoose.model('Sentence', {
+const vecizeSchema = new mongoose.Schema({
   sentence: String
 });
+const Vecize = mongoose.model('Vecize', vecizeSchema, 'vecizeler');
 
 // Rastgele ayet modeli
 const ayetSchema = new mongoose.Schema({
@@ -2075,7 +2084,7 @@ app.get('/api/quote-images', (req, res) => {
 app.get('/api/random-quote', async (req, res) => {
   try {
     // Count total documents in the sentences collection
-    const count = await Sentence.countDocuments();
+    const count = await Vecize.countDocuments();
 
     // If there are no sentences, return a default message
     if (count === 0) {
@@ -2086,9 +2095,9 @@ app.get('/api/random-quote', async (req, res) => {
     const random = Math.floor(Math.random() * count);
 
     // Skip to the random document and get it
-    const randomSentence = await Sentence.findOne().skip(random);
+    const randomVecize = await Vecize.findOne().skip(random);
 
-    res.json({ sentence: randomSentence.sentence });
+    res.json({ sentence: randomVecize.sentence });
   } catch (error) {
     console.error('Error fetching random quote:', error);
     res.status(500).json({ error: 'Server error', message: error.message });
@@ -2285,6 +2294,107 @@ function scheduleBackup() {
   return backupJob;
 }
 
+// Günün vecizesi bildirim cron'u (08:00 ve 20:00) - Europe/Istanbul TZ ile
+async function getRandomVecizeForPush() {
+  try {
+    // Tüm koleksiyonlar: vecizeler, ayetler, hadisler, dualar
+    const sources = [
+      { model: Vecize, name: 'vecizeler' },
+      { model: Ayet, name: 'ayetler' },
+      { model: Hadis, name: 'hadisler' },
+      { model: Dua, name: 'dualar' }
+    ];
+
+    // Her koleksiyonun belge sayısını al
+    const counts = await Promise.all(sources.map(s => s.model.countDocuments()));
+    const total = counts.reduce((sum, c) => sum + c, 0);
+    if (total === 0) return 'Bugün için vecize bulunamadı.';
+
+    // Toplam belge sayısına göre ağırlıklı rastgele seçim
+    let index = Math.floor(Math.random() * total);
+    for (let i = 0; i < sources.length; i++) {
+      if (index < counts[i]) {
+        const doc = await sources[i].model.findOne().skip(index);
+        return doc?.sentence || 'Bugün için vecize bulunamadı.';
+      }
+      index -= counts[i];
+    }
+    return 'Bugün için vecize bulunamadı.';
+  } catch (e) {
+    console.error('Vecize seçme hatası:', e);
+    return 'Bugün için vecize bulunamadı.';
+  }
+}
+
+async function sendOneSignalNotification(message) {
+  try {
+    const payload = JSON.stringify({
+      app_id: process.env.ONESIGNAL_APP_ID,
+      included_segments: ['Subscribed Users'],
+      headings: { en: 'Günün Vecizesi', tr: 'Günün Vecizesi' },
+      contents: { en: message, tr: message }
+    });
+
+    const options = {
+      hostname: 'api.onesignal.com',
+      path: '/notifications',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': `Basic ${process.env.ONESIGNAL_API_KEY}`,
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    };
+
+    await new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            console.log('Bildirim gönderildi ✅', data);
+            resolve();
+          } else {
+            console.error('Bildirim gönderme hatası ❌', res.statusCode, data);
+            reject(new Error(`OneSignal error: ${res.statusCode}`));
+          }
+        });
+      });
+      req.on('error', reject);
+      req.write(payload);
+      req.end();
+    });
+  } catch (err) {
+    console.error('Bildirim gönderme hatası ❌', err.message || err);
+  }
+}
+
+function scheduleDailyNotifications() {
+  if (!(process.env.ONESIGNAL_APP_ID && process.env.ONESIGNAL_API_KEY)) {
+    console.warn('OneSignal env değişkenleri eksik. Cron başlatılmadı.');
+    return null;
+  }
+  // 08:00
+  const jobMorning = schedule.scheduleJob({ rule: '0 8 * * *', tz: 'Europe/Istanbul' }, async () => {
+    const msg = await getRandomVecizeForPush();
+    await sendOneSignalNotification(msg);
+  });
+  // 20:00
+  const jobEvening = schedule.scheduleJob({ rule: '0 20 * * *', tz: 'Europe/Istanbul' }, async () => {
+    const msg = await getRandomVecizeForPush();
+    await sendOneSignalNotification(msg);
+  });
+  console.log('Vecize push cron kuruldu: 08:00 ve 20:00 (Europe/Istanbul)');
+  
+  process.on('SIGINT', async () => {
+    console.log('Vecize cron kapatılıyor...');
+    jobMorning?.cancel();
+    jobEvening?.cancel();
+  });
+  
+  return { jobMorning, jobEvening };
+}
+
 // Sağlık kontrolü endpoint'i
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, timestamp: Date.now() });
@@ -2340,6 +2450,7 @@ function scheduleTokenRefresh() {
 const backupJob = scheduleBackup();
 const pingJob = schedulePing();
 const tokenJob = scheduleTokenRefresh();
+const vecizeJobs = scheduleDailyNotifications();
 
 // Dropbox'ı başlat
 initializeDropbox();

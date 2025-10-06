@@ -5,9 +5,13 @@ if (!window.OneSignalInitialized) {
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function (OneSignal) {
       try {
-        await OneSignal.init({
-          appId: "60b856ae-b948-4365-87b5-233be9f9d818",
-        });
+        // env.js ile gelen app id'yi kullan
+        const appId = window.ONESIGNAL_APP_ID;
+        if (!appId) {
+          console.warn('OneSignal APP_ID bulunamadı');
+          return;
+        }
+        await OneSignal.init({ appId });
   
         console.log("✅ OneSignal başarıyla başlatıldı");
   
