@@ -2342,8 +2342,8 @@ async function sendOneSignalNotification(message, source = 'vecize') {
       included_segments: ['All'],
       headings: { en: heading, tr: heading },
       contents: { en: message, tr: message },
-      large_icon: 'https://rotakip.onrender.com/images/large-icon.png',
-      small_icon: 'https://rotakip.onrender.com/images/small-icon.png'
+      large_icon: 'https://rotakip.onrender.com/images/large-icon-512.png',
+      small_icon: 'https://rotakip.onrender.com/images/small-icon-192.png'
     });
 
     const options = {
@@ -2394,7 +2394,7 @@ function scheduleDailyNotifications() {
     await sendOneSignalNotification(result.message, result.source);
   });
   // 21:00
-  const jobEvening = schedule.scheduleJob({ rule: '10 22 * * *', tz: 'Europe/Istanbul' }, async () => {
+  const jobEvening = schedule.scheduleJob({ rule: '50 22 * * *', tz: 'Europe/Istanbul' }, async () => {
     console.log('🌙 Akşam 21:00 cron job çalışıyor');
     const result = await getRandomVecizeForPush();
     await sendOneSignalNotification(result.message, result.source);
