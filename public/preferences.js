@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () { //Tablonun ilk gün�
 
     function updateComingSoonMessage() {
         if (darkModeToggle && notificationsToggle && featureComingSoonMessage) {
-            if (darkModeToggle.checked || notificationsToggle.checked) {
+            if (darkModeToggle.checked) {
                 featureComingSoonMessage.style.opacity = '1';
             } else {
                 featureComingSoonMessage.style.opacity = '0';
@@ -177,8 +177,8 @@ function showTestNotification() {
     try {
         const notification = new Notification('RoTaKip', {
             body: 'Bildirimler başarıyla etkinleştirildi!',
-            icon: '/images/favicon.webp',
-            badge: '/images/favicon.webp'
+            icon: '/images/open-book.webp',
+            badge: '/images/open-book.webp'
         });
         
         // 3 saniye sonra bildirimi kapat
