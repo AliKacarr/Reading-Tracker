@@ -780,62 +780,120 @@
   <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-          appId: "60b856ae-b948-4365-87b5-233be9f9d818",
-          serviceWorkerPath: '/OneSignalSDKWorker.js',
-          serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
-          serviceWorkerParam: { scope: '/' },
-          autoRegister: false
-      });
-
-      // Toggle'a basınca izin istemek için
-      window.handleNotificationToggle = function(isEnabled) {
-          if (isEnabled) {
-              OneSignal.getNotificationPermission().then(permission => {
-                  if (permission === 'granted') {
-                      OneSignal.setSubscription(true);
-                  } else {
-                      OneSignal.showSlidedownPrompt().catch(err => {
-                          OneSignal.showNativePrompt();
-                      });
-                  }
-              });
-          } else {
-              OneSignal.setSubscription(false);
-          }
-      };
-
-      // İlk yüklemede mevcut izin durumunu toggle ile eşle
-      const permission = await OneSignal.getNotificationPermission();
-      const userId = await OneSignal.getUserId();
-      const toggle = document.getElementById('notificationsToggle');
-      
-      if (toggle) {
-          const isSubscribed = (permission === 'granted' && userId);
-          toggle.checked = isSubscribed;
-          
-          toggle.addEventListener('change', function() {
-              handleNotificationToggle(this.checked);
+      try {
+          await OneSignal.init({
+              appId: "60b856ae-b948-4365-87b5-233be9f9d818",
+              serviceWorkerPath: '/OneSignalSDKWorker.js',
+              serviceWorkerUpdaterPath: '/OneSignalSDKUpdaterWorker.js',
+              serviceWorkerParam: { scope: '/' },
+              autoRegister: false
           });
-      }
-      
-      // Event listener'lar
-      OneSignal.on('subscriptionChange', function(isSubscribed) {
-          const toggle = document.getElementById('notificationsToggle');
-          if (toggle) {
-              toggle.checked = isSubscribed;
+
+          // OneSignal'in tam yüklenmesini bekle - daha güvenilir yöntem
+          let retryCount = 0;
+          const maxRetries = 10;
+          
+          while (retryCount < maxRetries) {
+              if (OneSignal && 
+                  typeof OneSignal.getNotificationPermission === 'function' && 
+                  typeof OneSignal.getUserId === 'function' &&
+                  typeof OneSignal.setSubscription === 'function') {
+                  console.log('OneSignal API\'leri hazır');
+                  break;
+              }
+              
+              console.log(`OneSignal API'leri bekleniyor... (${retryCount + 1}/${maxRetries})`);
+              await new Promise(resolve => setTimeout(resolve, 500));
+              retryCount++;
           }
-      });
-      
-      OneSignal.on('permissionChange', function(permission) {
+
+          if (retryCount >= maxRetries) {
+              throw new Error('OneSignal API\'leri yüklenemedi');
+          }
+
+          // Toggle'a basınca izin istemek için
+          window.handleNotificationToggle = function(isEnabled) {
+              console.log('Toggle değişti:', isEnabled);
+              
+              if (isEnabled) {
+                  OneSignal.getNotificationPermission().then(permission => {
+                      console.log('Mevcut izin durumu:', permission);
+                      if (permission === 'granted') {
+                          OneSignal.setSubscription(true).then(() => {
+                              console.log('Bildirimler etkinleştirildi');
+                          });
+                      } else {
+                          OneSignal.showSlidedownPrompt().then(() => {
+                              console.log('Slidedown prompt gösterildi');
+                          }).catch(err => {
+                              console.log('Slidedown prompt hatası, native prompt deneniyor:', err);
+                              OneSignal.showNativePrompt().then(() => {
+                                  console.log('Native prompt gösterildi');
+                              }).catch(nativeErr => {
+                                  console.error('Native prompt hatası:', nativeErr);
+                              });
+                          });
+                      }
+                  }).catch(error => {
+                      console.error('İzin kontrolü hatası:', error);
+                  });
+              } else {
+                  OneSignal.setSubscription(false).then(() => {
+                      console.log('Bildirimler kapatıldı');
+                  }).catch(error => {
+                      console.error('Bildirim kapatma hatası:', error);
+                  });
+              }
+          };
+
+          // İlk yüklemede mevcut izin durumunu toggle ile eşle
+          const permission = await OneSignal.getNotificationPermission();
+          const userId = await OneSignal.getUserId();
           const toggle = document.getElementById('notificationsToggle');
+          
+          console.log('Başlangıç durumu - İzin:', permission, 'UserID:', userId);
+          
           if (toggle) {
-              OneSignal.getUserId().then(userId => {
-                  const isSubscribed = (permission === 'granted' && userId);
-                  toggle.checked = isSubscribed;
+              const isSubscribed = (permission === 'granted' && userId);
+              toggle.checked = isSubscribed;
+              console.log('Toggle durumu ayarlandı:', isSubscribed);
+              
+              toggle.addEventListener('change', function() {
+                  handleNotificationToggle(this.checked);
               });
           }
-      });
+          
+          // Event listener'lar
+          OneSignal.on('subscriptionChange', function(isSubscribed) {
+              console.log('Abonelik değişti:', isSubscribed);
+              const toggle = document.getElementById('notificationsToggle');
+              if (toggle) {
+                  toggle.checked = isSubscribed;
+              }
+          });
+          
+          OneSignal.on('permissionChange', function(permission) {
+              console.log('İzin değişti:', permission);
+              const toggle = document.getElementById('notificationsToggle');
+              if (toggle) {
+                  OneSignal.getUserId().then(userId => {
+                      const isSubscribed = (permission === 'granted' && userId);
+                      toggle.checked = isSubscribed;
+                      console.log('Toggle güncellendi:', isSubscribed);
+                  });
+              }
+          });
+          
+      } catch (error) {
+          console.error('OneSignal yükleme hatası:', error);
+          // Hata durumunda toggle'ı devre dışı bırak
+          const toggle = document.getElementById('notificationsToggle');
+          if (toggle) {
+              toggle.checked = false;
+              toggle.disabled = true;
+              console.log('Toggle devre dışı bırakıldı');
+          }
+      }
   });
   </script>
 </body>

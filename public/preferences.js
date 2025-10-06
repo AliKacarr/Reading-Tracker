@@ -48,6 +48,3 @@ document.addEventListener('DOMContentLoaded', function () { //Tablonun ilk gün�
     // Sayfa yüklendiğinde başlangıç durumunu kontrol et
     updateComingSoonMessage();
 });
-
-// OneSignal işlemleri index.html ve groups.html'de yönetiliyor
-// Bu dosyada sadece genel tercihler kalıyor
