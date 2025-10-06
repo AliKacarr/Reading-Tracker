@@ -2332,10 +2332,10 @@ async function getRandomVecizeForPush() {
 async function sendOneSignalNotification(message, source = 'vecize') {
   try {
     // Kaynağa göre başlık belirle
-    let heading = 'Günün Vecizesi';
-    if (source === 'ayet') heading = 'Günün Ayeti';
-    else if (source === 'hadis') heading = 'Günün Hadisi';
-    else if (source === 'dua') heading = 'Günün Duası';
+    let heading = 'Bir Söz';
+    if (source === 'ayet') heading = 'Bir Ayet';
+    else if (source === 'hadis') heading = 'Bir Hadis';
+    else if (source === 'dua') heading = 'Bir Dua';
     
     const payload = JSON.stringify({
       app_id: process.env.ONESIGNAL_APP_ID,
@@ -2394,7 +2394,7 @@ function scheduleDailyNotifications() {
     await sendOneSignalNotification(result.message, result.source);
   });
   // 21:00
-  const jobEvening = schedule.scheduleJob({ rule: '42 21 * * *', tz: 'Europe/Istanbul' }, async () => {
+  const jobEvening = schedule.scheduleJob({ rule: '50 21 * * *', tz: 'Europe/Istanbul' }, async () => {
     console.log('🌙 Akşam 21:00 cron job çalışıyor');
     const result = await getRandomVecizeForPush();
     await sendOneSignalNotification(result.message, result.source);
