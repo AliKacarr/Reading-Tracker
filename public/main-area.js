@@ -866,6 +866,8 @@ function renderUserList() {
     // 100ms sonra render işlemini başlat
     renderUserListTimeout = setTimeout(() => {
         performRenderUserList();
+        // Katılma isteklerini de yükle
+        loadJoinRequests();
     }, 100);
 }
 
@@ -1506,4 +1508,191 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
 });
+
+// Katılma isteklerini yükle
+async function loadJoinRequests() {
+    try {
+        const groupId = localStorage.getItem('groupid');
+        if (!groupId) return;
+
+        const response = await fetch(`/api/join-requests/${groupId}`);
+        if (!response.ok) {
+            throw new Error('Katılma istekleri yüklenemedi');
+        }
+
+        const data = await response.json();
+        displayJoinRequests(data.requests);
+
+    } catch (error) {
+        console.error('Katılma istekleri yükleme hatası:', error);
+    }
+}
+
+// Katılma isteklerini görüntüle
+function displayJoinRequests(requests) {
+    const joinRequestsList = document.getElementById('joinRequestsList');
+    
+    if (!requests || requests.length === 0) {
+        joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Henüz katılma isteği bulunmuyor</div>';
+        return;
+    }
+
+    joinRequestsList.innerHTML = requests.map(request => {
+        const requestDate = new Date(request.createdAt).toLocaleDateString('tr-TR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        return `
+            <div class="join-request-item" data-request-id="${request._id}">
+                <img src="${request.profileImage || 'images/default.png'}" 
+                     alt="${request.userName}" 
+                     class="join-request-avatar"
+                     onerror="this.src='images/default.png'">
+                <div class="join-request-info">
+                    <div class="join-request-name">${request.name}</div>
+                    <div class="join-request-date">${requestDate}</div>
+                </div>
+                <div class="join-request-actions">
+                    <button class="join-request-btn reject" onclick="rejectJoinRequest('${request._id}')">
+                            <i class="fa-solid fa-times"></i>
+                            Reddet
+                        </button>
+                    <button class="join-request-btn accept" onclick="acceptJoinRequest('${request._id}')">
+                        <i class="fa-solid fa-check"></i>
+                        Kabul Et
+                    </button>
+                    
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Katılma isteğini kabul et
+async function acceptJoinRequest(requestId) {
+    try {
+        const response = await fetch(`/api/accept-join-request/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Katılma isteği kabul edilemedi');
+        }
+
+        const data = await response.json();
+        
+        // Başarı mesajı göster
+        showNotification(data.message, 'success');
+        
+        // İsteği listeden kaldır
+        const requestItem = document.querySelector(`[data-request-id="${requestId}"]`);
+        if (requestItem) {
+            requestItem.remove();
+        }
+
+        // Kullanıcı listesini yenile
+        renderUserList();
+
+        // Eğer hiç istek kalmadıysa mesaj göster
+        const remainingRequests = document.querySelectorAll('.join-request-item');
+        if (remainingRequests.length === 0) {
+            const joinRequestsList = document.getElementById('joinRequestsList');
+            joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Henüz katılma isteği bulunmuyor</div>';
+        }
+
+    } catch (error) {
+        console.error('Katılma isteği kabul etme hatası:', error);
+        showNotification('Katılma isteği kabul edilirken hata oluştu', 'error');
+    }
+}
+
+// Katılma isteğini reddet
+async function rejectJoinRequest(requestId) {
+    if (!confirm('Bu katılma isteğini reddetmek istediğinizden emin misiniz?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/reject-join-request/${requestId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Katılma isteği reddedilemedi');
+        }
+
+        const data = await response.json();
+        
+        // Başarı mesajı göster
+        showNotification(data.message, 'success');
+        
+        // İsteği listeden kaldır
+        const requestItem = document.querySelector(`[data-request-id="${requestId}"]`);
+        if (requestItem) {
+            requestItem.remove();
+        }
+
+        // Eğer hiç istek kalmadıysa mesaj göster
+        const remainingRequests = document.querySelectorAll('.join-request-item');
+        if (remainingRequests.length === 0) {
+            const joinRequestsList = document.getElementById('joinRequestsList');
+            joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Henüz katılma isteği bulunmuyor</div>';
+        }
+
+    } catch (error) {
+        console.error('Katılma isteği reddetme hatası:', error);
+        showNotification('Katılma isteği reddedilirken hata oluştu', 'error');
+    }
+}
+
+// Bildirim gösterme fonksiyonu
+function showNotification(message, type = 'info') {
+    // Mevcut bildirimleri kaldır
+    const existingNotifications = document.querySelectorAll('.notification-toast');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Yeni bildirim oluştur
+    const notification = document.createElement('div');
+    notification.className = `notification-toast notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fa-solid fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+    // Stil ekle
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+        max-width: 300px;
+    `;
+
+    document.body.appendChild(notification);
+
+    // 3 saniye sonra kaldır
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}

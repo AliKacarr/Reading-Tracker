@@ -2064,6 +2064,19 @@ const duaSchema = new mongoose.Schema({
 
 const Dua = mongoose.model('Dua', duaSchema, 'dualar');
 
+// Gruba katılma isteği modeli
+const joinRequestSchema = new mongoose.Schema({
+  groupId: String,
+  userName: String,
+  name: String,
+  password: String,
+  profileImage: String,
+  status: { type: String, default: 'pending' }, // pending, accepted, rejected
+  createdAt: { type: Date, default: Date.now }
+});
+
+const JoinRequest = mongoose.model('JoinRequest', joinRequestSchema, 'jointogroups');
+
 
 // Söz resimleri endpoint'i
 app.get('/api/quote-images', (req, res) => {
@@ -2173,6 +2186,469 @@ app.get('/api/random-dua', async (req, res) => {
   } catch (error) {
     console.error('Rastgele dua alınırken hata oluştu:', error);
     res.status(500).json({ error: 'Sunucu hatası', message: error.message });
+  }
+});
+
+// 3.6. GRUBA KATILMA İSTEKLERİ
+// ============================================================================
+
+// Gruba katılma isteği gönderme endpoint'i
+app.post('/api/join-group-request', upload.single('profileImage'), async (req, res) => {
+  try {
+    const { groupId, userName, memberName, userPassword } = req.body;
+
+    // Grup var mı kontrol et
+    const group = await UserGroup.findOne({ groupId });
+    if (!group) {
+      return res.status(404).json({ error: 'Grup bulunamadı' });
+    }
+
+    // Zaten bu grupta katılma isteği var mı kontrol et (memberName ile)
+    const existingRequest = await JoinRequest.findOne({ 
+      groupId, 
+      userName: memberName, 
+      status: 'pending' 
+    });
+
+    if (existingRequest) {
+      return res.status(400).json({ error: 'Bu grup için zaten bir katılma isteğiniz bulunuyor' });
+    }
+
+    // Kullanıcı zaten bu grupta mı kontrol et (memberName ile)
+    const { users } = getGroupCollections(groupId);
+    const existingUser = await users.findOne({ username: memberName });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Bu üye adı zaten bu grupta kullanılıyor' });
+    }
+
+    let profileImageUrl = '/images/default.png';
+    let fileName = null;
+    
+    // Resim varsa işle
+    if (req.file) {
+      try {
+        // 1. Adım: Geçici klasöre kaydet (orijinal format)
+        const originalFileName = req.file.originalname;
+        const normalizedFileName = normalizeFileName(originalFileName);
+        const baseFileName = path.parse(normalizedFileName).name;
+        
+        const tempFileName = `${Date.now()}-${normalizedFileName}`;
+        const tempPath = path.join(__dirname, 'uploads', tempFileName);
+        fs.copyFileSync(req.file.path, tempPath);
+        
+        // 2. Adım: WebP formatına dönüştür
+        const webpFileName = `${Date.now()}-${baseFileName}.webp`;
+        const webpPath = path.join(__dirname, 'uploads', webpFileName);
+        const conversionSuccess = await convertToWebP(tempPath, webpPath);
+        
+        if (conversionSuccess) {
+          fileName = webpFileName;
+          profileImageUrl = `/images/${fileName}`;
+          // WebP başarılıysa orijinal dosyayı sil (gecikmeli)
+          setTimeout(() => {
+            try {
+              if (fs.existsSync(tempPath)) {
+                fs.unlinkSync(tempPath);
+              }
+            } catch (unlinkError) {
+              console.log('⚠️ Orijinal dosya silinemedi:', tempPath);
+            }
+          }, 1000);
+        } else {
+          // Dönüştürme başarısızsa orijinal dosyayı kullan
+          fileName = tempFileName;
+          profileImageUrl = `/images/${fileName}`;
+        }
+        
+        // Geçici multer dosyasını temizle
+        try {
+          if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+          }
+        } catch (unlinkError) {
+          console.log('⚠️ Multer geçici dosya silinemedi:', req.file.path);
+        }
+      } catch (error) {
+        console.error('Yerel kaydetme hatası:', error);
+        profileImageUrl = '/images/default.png';
+      }
+    }
+
+    // Şifreyi hash'le
+    const hashedPassword = await bcrypt.hash(userPassword, 10);
+
+    // Katılma isteği oluştur
+    const joinRequest = new JoinRequest({
+      groupId,
+      userName: memberName, // joinMemberNameInput -> username
+      name: userName, // joinUserNameInput -> name
+      password: hashedPassword,
+      profileImage: profileImageUrl,
+      status: 'pending'
+    });
+
+    await joinRequest.save();
+
+    // Kullanıcıya hemen yanıt ver
+    res.json({ 
+      success: true, 
+      requestId: joinRequest._id,
+      message: 'Katılma isteğiniz başarıyla gönderildi'
+    });
+
+    // Arka planda Dropbox'a yükle (eğer resim varsa)
+    if (fileName) {
+      try {
+        const localPath = path.join(__dirname, 'uploads', fileName);
+        const fileBuffer = fs.readFileSync(localPath);
+        const dropboxFileName = fileName;
+        const newImageUrl = await uploadToDropbox(fileBuffer, dropboxFileName, 'userImages');
+
+        // Veritabanını Dropbox URL'i ile güncelle
+        await JoinRequest.findByIdAndUpdate(
+          joinRequest._id,
+          { profileImage: newImageUrl }
+        );
+
+        // Yerel dosyayı temizle
+        try {
+          if (fs.existsSync(localPath)) {
+            fs.unlinkSync(localPath);
+          }
+        } catch (unlinkError) {
+          console.log('⚠️ Yerel dosya silinemedi:', localPath);
+        }
+      } catch (dropboxError) {
+        console.error('Dropbox yükleme hatası:', dropboxError);
+      }
+    }
+
+  } catch (error) {
+    console.error('Katılma isteği hatası:', error);
+    res.status(500).json({ error: 'Katılma isteği gönderilirken hata oluştu' });
+  }
+});
+
+// Katılma isteğini iptal etme endpoint'i
+app.delete('/api/cancel-join-request/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { userName } = req.body;
+
+    // Katılma isteğini bul ve sil
+    const deletedRequest = await JoinRequest.findOneAndDelete({ 
+      groupId, 
+      userName, 
+      status: 'pending' 
+    });
+
+    if (!deletedRequest) {
+      return res.status(404).json({ error: 'Katılma isteği bulunamadı' });
+    }
+
+    // Eğer resim Dropbox'taysa sil
+    if (deletedRequest.profileImage && deletedRequest.profileImage.includes('dropbox.com')) {
+      deleteFromDropboxByUrl(deletedRequest.profileImage).catch(err => 
+        console.error('Dropbox silme hatası:', err)
+      );
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Katılma isteği iptal edildi' 
+    });
+
+  } catch (error) {
+    console.error('Katılma isteği iptal hatası:', error);
+    res.status(500).json({ error: 'Katılma isteği iptal edilirken hata oluştu' });
+  }
+});
+
+// Katılma isteği durumu kontrol endpoint'i
+app.get('/api/join-request-status/:groupId/:userName', async (req, res) => {
+  try {
+    const { groupId, userName } = req.params;
+
+    // Katılma isteğini bul
+    const joinRequest = await JoinRequest.findOne({ groupId, userName });
+
+    if (!joinRequest) {
+      return res.json({ status: 'none' });
+    }
+
+    // Eğer istek kabul edilmişse, kullanıcının gerçekten grupta olup olmadığını kontrol et
+    if (joinRequest.status === 'accepted') {
+      const { users } = getGroupCollections(groupId);
+      const user = await users.findOne({ username: userName });
+      
+      if (user) {
+        return res.json({ 
+          status: 'accepted', 
+          userId: user._id,
+          userName: userName,
+          message: 'Katılma isteğiniz kabul edildi! Artık gruba erişebilirsiniz.' 
+        });
+      }
+    }
+
+    return res.json({ 
+      status: joinRequest.status,
+      requestId: joinRequest._id,
+      createdAt: joinRequest.createdAt
+    });
+
+  } catch (error) {
+    console.error('Katılma isteği durum kontrol hatası:', error);
+    res.status(500).json({ error: 'Durum kontrol edilirken hata oluştu' });
+  }
+});
+
+// ObjectId ile katılma isteği durumu kontrol endpoint'i
+app.get('/api/join-request-status-by-id/:requestId', async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const joinRequest = await JoinRequest.findById(requestId);
+
+    if (!joinRequest) {
+      return res.json({ status: 'none' });
+    }
+
+    // Eğer istek kabul edilmişse, jointogroups koleksiyonundan sil
+    if (joinRequest.status === 'accepted') {
+      // Kabul edilen isteği jointogroups koleksiyonundan sil
+      await JoinRequest.findByIdAndDelete(requestId);
+      console.log(`Kabul edilen katılma isteği silindi: ${requestId}`);
+      
+      return res.json({ 
+        status: 'accepted', 
+        userName: joinRequest.userName,
+        message: 'Katılma isteğiniz kabul edildi! Artık gruba erişebilirsiniz.' 
+      });
+    }
+
+    return res.json({ 
+      status: joinRequest.status,
+      requestId: joinRequest._id,
+      createdAt: joinRequest.createdAt
+    });
+
+  } catch (error) {
+    console.error('Katılma isteği durum kontrol hatası:', error);
+    res.status(500).json({ error: 'Durum kontrol edilirken hata oluştu' });
+  }
+});
+
+// Gruba gelen katılma isteklerini getirme endpoint'i
+app.get('/api/join-requests/:groupId', async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    // Bu gruba gelen pending durumundaki katılma isteklerini getir
+    const joinRequests = await JoinRequest.find({ 
+      groupId: groupId, 
+      status: 'pending' 
+    }).sort({ createdAt: -1 });
+
+    res.json({ 
+      success: true, 
+      requests: joinRequests 
+    });
+
+  } catch (error) {
+    console.error('Katılma istekleri getirme hatası:', error);
+    res.status(500).json({ error: 'Katılma istekleri getirilirken hata oluştu' });
+  }
+});
+
+// Katılma isteğini kabul etme endpoint'i
+app.post('/api/accept-join-request/:requestId', async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    // Katılma isteğini bul
+    const joinRequest = await JoinRequest.findById(requestId);
+    if (!joinRequest) {
+      return res.status(404).json({ error: 'Katılma isteği bulunamadı' });
+    }
+
+    if (joinRequest.status !== 'pending') {
+      return res.status(400).json({ error: 'Bu istek zaten işlenmiş' });
+    }
+
+    // Kullanıcıyı gruba ekle
+    const { users } = getGroupCollections(joinRequest.groupId);
+    const newUser = {
+      _id: joinRequest._id, 
+      name: joinRequest.name,
+      username: joinRequest.userName,
+      userpassword: joinRequest.password, 
+      profileImage: joinRequest.profileImage,
+      authority: 'member',
+    };
+
+    await users.insertOne(newUser);
+
+    // Katılma isteğini accepted olarak işaretle
+    await JoinRequest.findByIdAndUpdate(requestId, { 
+      status: 'accepted',
+      processedAt: new Date()
+    });
+
+    console.log(`Katılma isteği kabul edildi: ${joinRequest.userName} -> ${joinRequest.groupId}`);
+
+    res.json({ 
+      success: true, 
+      message: 'Katılma isteği başarıyla kabul edildi' 
+    });
+
+  } catch (error) {
+    console.error('Katılma isteği kabul etme hatası:', error);
+    res.status(500).json({ error: 'Katılma isteği kabul edilirken hata oluştu' });
+  }
+});
+
+// Katılma isteğini reddetme endpoint'i
+app.post('/api/reject-join-request/:requestId', async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    // Katılma isteğini bul
+    const joinRequest = await JoinRequest.findById(requestId);
+    if (!joinRequest) {
+      return res.status(404).json({ error: 'Katılma isteği bulunamadı' });
+    }
+
+    if (joinRequest.status !== 'pending') {
+      return res.status(400).json({ error: 'Bu istek zaten işlenmiş' });
+    }
+
+    // Katılma isteğini rejected olarak işaretle
+    await JoinRequest.findByIdAndUpdate(requestId, { 
+      status: 'rejected',
+      processedAt: new Date()
+    });
+
+    // Dropbox'dan resmi sil (eğer varsa)
+    if (joinRequest.profileImage && joinRequest.profileImage.includes('dropboxusercontent.com')) {
+      try {
+        const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
+        const imagePath = joinRequest.profileImage.split('/').pop();
+        await dbx.filesDeleteV2({ path: `/profile-images/${imagePath}` });
+        console.log(`Profil resmi silindi: ${imagePath}`);
+      } catch (dropboxError) {
+        console.error('Dropbox resim silme hatası:', dropboxError);
+      }
+    }
+
+    console.log(`Katılma isteği reddedildi: ${joinRequest.userName} -> ${joinRequest.groupId}`);
+
+    res.json({ 
+      success: true, 
+      message: 'Katılma isteği reddedildi' 
+    });
+
+  } catch (error) {
+    console.error('Katılma isteği reddetme hatası:', error);
+    res.status(500).json({ error: 'Katılma isteği reddedilirken hata oluştu' });
+  }
+});
+
+// Katılma isteğini silme endpoint'i (rejected durumundaki istekler için)
+app.delete('/api/delete-join-request/:requestId', async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const deletedRequest = await JoinRequest.findByIdAndDelete(requestId);
+
+    if (!deletedRequest) {
+      return res.status(404).json({ error: 'Katılma isteği bulunamadı' });
+    }
+
+    // Dropbox'dan resmi sil (eğer varsa)
+    if (deletedRequest.profileImage && deletedRequest.profileImage.includes('dropboxusercontent.com')) {
+      try {
+        const dbx = new Dropbox({ accessToken: process.env.DROPBOX_ACCESS_TOKEN });
+        const imagePath = deletedRequest.profileImage.split('/').pop();
+        await dbx.filesDeleteV2({ path: `/profile-images/${imagePath}` });
+        console.log(`Profil resmi silindi: ${imagePath}`);
+      } catch (dropboxError) {
+        console.error('Dropbox resim silme hatası:', dropboxError);
+      }
+    }
+
+    console.log(`Katılma isteği silindi: ${deletedRequest.userName} -> ${deletedRequest.groupId}`);
+
+    res.json({ 
+      success: true, 
+      message: 'Katılma isteği başarıyla silindi' 
+    });
+
+  } catch (error) {
+    console.error('Katılma isteği silme hatası:', error);
+    res.status(500).json({ error: 'Katılma isteği silinirken hata oluştu' });
+  }
+});
+
+// ObjectId ile katılma isteğini iptal etme endpoint'i
+app.delete('/api/cancel-join-request-by-id/:requestId', async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const deletedRequest = await JoinRequest.findByIdAndDelete(requestId);
+
+    if (!deletedRequest) {
+      return res.status(404).json({ error: 'Katılma isteği bulunamadı' });
+    }
+
+    // Dropbox'dan resmi sil (eğer varsa)
+    if (deletedRequest.profileImage && deletedRequest.profileImage.includes('dropboxusercontent.com')) {
+      try {
+        const fileName = deletedRequest.profileImage.split('/').pop();
+        await dropbox.filesDeleteV2({ path: `/join-requests/${fileName}` });
+        console.log('Dropbox resmi silindi:', fileName);
+      } catch (dropboxError) {
+        console.error('Dropbox resim silme hatası:', dropboxError);
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Katılma isteği iptal edildi' 
+    });
+
+  } catch (error) {
+    console.error('Katılma isteği iptal hatası:', error);
+    res.status(500).json({ error: 'Katılma isteği iptal edilirken hata oluştu' });
+  }
+});
+
+// Grup koleksiyonunda ObjectId'li kullanıcı var mı kontrol etme endpoint'i
+app.get('/api/check-user-in-group/:groupId/:objectId', async (req, res) => {
+  try {
+    const { groupId, objectId } = req.params;
+
+    // Grup koleksiyonlarını al
+    const { users } = getGroupCollections(groupId);
+
+    // ObjectId ile kullanıcı ara
+    const user = await users.findOne({ _id: objectId });
+
+    if (user) {
+      res.json({ 
+        exists: true,
+        userName: user.username,
+        userId: user._id
+      });
+    } else {
+      res.json({ 
+        exists: false
+      });
+    }
+
+  } catch (error) {
+    console.error('Kullanıcı kontrol hatası:', error);
+    res.status(500).json({ error: 'Kullanıcı kontrol edilirken hata oluştu' });
   }
 });
 

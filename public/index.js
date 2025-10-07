@@ -51,6 +51,34 @@ class LocalStorageManager {
         localStorage.removeItem('userName');
         localStorage.removeItem('groupName');
     }
+
+    // Katılma istekleri yönetimi
+    static addJoinRequest(groupId, requestId) {
+        const joinRequests = this.getJoinRequests();
+        joinRequests[groupId] = requestId;
+        localStorage.setItem('jointogroups', JSON.stringify(joinRequests));
+    }
+
+    static getJoinRequests() {
+        const joinRequests = localStorage.getItem('jointogroups');
+        return joinRequests ? JSON.parse(joinRequests) : {};
+    }
+
+    static removeJoinRequest(groupId) {
+        const joinRequests = this.getJoinRequests();
+        delete joinRequests[groupId];
+        localStorage.setItem('jointogroups', JSON.stringify(joinRequests));
+    }
+
+    static hasJoinRequest(groupId) {
+        const joinRequests = this.getJoinRequests();
+        return joinRequests.hasOwnProperty(groupId);
+    }
+
+    static getJoinRequestId(groupId) {
+        const joinRequests = this.getJoinRequests();
+        return joinRequests[groupId] || null;
+    }
 }
 
 class GroupsPage {
@@ -63,13 +91,18 @@ class GroupsPage {
         this.searchQuery = '';
         this.memberCounts = new Map();
         this.selectedAvatarPath = null;
+        this.joinRequestStatuses = new Map(); // Grup ID -> durum bilgisi
+        this.currentJoinGroup = null; // Şu anda katılma modalında olan grup
 
         this.init();
     }
 
     init() {
         this.bindEvents();
-        this.loadGroups(true); // reset=true ile başlat
+        // Önce katılma isteklerini kontrol et, sonra grupları yükle
+        this.checkJoinRequestStatuses().then(() => {
+            this.loadGroups(true); // reset=true ile başlat
+        });
         this.setupInfiniteScroll();
     }
 
@@ -115,6 +148,7 @@ class GroupsPage {
             if (e.key === 'Escape') {
                 this.closeCreateModal();
                 this.closeReadyImagesModal();
+                this.closeJoinModal();
             }
         });
 
@@ -134,6 +168,45 @@ class GroupsPage {
         groupImageInput.addEventListener('change', (e) => {
             const fileInput = e.target;
             const fileInputText = document.querySelector('.file-input-text');
+            if (fileInput.files.length > 0) {
+                fileInputText.textContent = fileInput.files[0].name;
+            } else {
+                fileInputText.textContent = 'Bir resim seçin...';
+            }
+        });
+
+        // Join group modal events
+        const closeJoinModal = document.getElementById('closeJoinModal');
+        const cancelJoin = document.getElementById('cancelJoin');
+        const joinGroupForm = document.getElementById('joinGroupForm');
+        const joinModal = document.getElementById('joinGroupModal');
+        const cancelJoinRequest = document.getElementById('cancelJoinRequest');
+        const goToHomePage = document.getElementById('goToHomePage');
+
+        closeJoinModal.addEventListener('click', () => this.closeJoinModal());
+        cancelJoin.addEventListener('click', () => this.closeJoinModal());
+        joinGroupForm.addEventListener('submit', this.handleJoinGroupRequest.bind(this));
+        cancelJoinRequest.addEventListener('click', this.handleCancelJoinRequest.bind(this));
+        goToHomePage.addEventListener('click', () => this.goToHomePage());
+
+        // Close join modal when clicking outside
+        joinModal.addEventListener('click', (e) => {
+            if (e.target === joinModal) {
+                this.closeJoinModal();
+            }
+        });
+
+        // Join modal password toggle
+        const joinPasswordToggle = document.getElementById('joinPasswordToggle');
+        if (joinPasswordToggle) {
+            joinPasswordToggle.addEventListener('click', this.toggleJoinPasswordVisibility.bind(this));
+        }
+
+        // Join modal file input
+        const joinProfileImageInput = document.getElementById('joinProfileImageInput');
+        joinProfileImageInput.addEventListener('change', (e) => {
+            const fileInput = e.target;
+            const fileInputText = document.querySelector('#joinProfileImageInput').parentElement.querySelector('.file-input-text');
             if (fileInput.files.length > 0) {
                 fileInputText.textContent = fileInput.files[0].name;
             } else {
@@ -299,11 +372,39 @@ class GroupsPage {
         }
     }
 
+    // Grupları öncelik sırasına göre sırala
+    sortGroupsByPriority(groups) {
+        const userGroups = LocalStorageManager.getGroups();
+        const joinRequests = LocalStorageManager.getJoinRequests();
+        
+        return groups.sort((a, b) => {
+            const aInUserGroups = userGroups.hasOwnProperty(a.groupId);
+            const bInUserGroups = userGroups.hasOwnProperty(b.groupId);
+            const aInJoinRequests = joinRequests.hasOwnProperty(a.groupId);
+            const bInJoinRequests = joinRequests.hasOwnProperty(b.groupId);
+            
+            // 1. Öncelik: Yetki sahibi olduğumuz gruplar
+            if (aInUserGroups && !bInUserGroups) return -1;
+            if (!aInUserGroups && bInUserGroups) return 1;
+            
+            // 2. Öncelik: Katılma isteği gönderdiğimiz gruplar
+            if (aInJoinRequests && !bInJoinRequests && !aInUserGroups && !bInUserGroups) return -1;
+            if (!aInJoinRequests && bInJoinRequests && !aInUserGroups && !bInUserGroups) return 1;
+            
+            // 3. Rastgele sıralama (aynı öncelik seviyesindeki gruplar için)
+            return 0;
+        });
+    }
+
     renderGroups() {
         const groupsGrid = document.getElementById('groupsGrid');
         const noResults = document.getElementById('noResults');
+        
+        // Grupları sırala: 1) Yetki sahibi olduğumuz gruplar, 2) Katılma isteği gönderdiğimiz gruplar, 3) Rastgele gruplar
+        const sortedGroups = this.sortGroupsByPriority(this.filteredGroups);
+        
         const existingCardIds = new Set(Array.from(groupsGrid.querySelectorAll('.group-card')).map(card => card.getAttribute('data-group-id')));
-        const resultsCardIds = new Set(this.filteredGroups.map(g => g.groupId));
+        const resultsCardIds = new Set(sortedGroups.map(g => g.groupId));
 
         // Remove cards that are no longer in the results
         existingCardIds.forEach(id => {
@@ -317,7 +418,7 @@ class GroupsPage {
         });
 
         // Add new cards
-        this.filteredGroups.forEach(group => {
+        sortedGroups.forEach(group => {
             if (!existingCardIds.has(group.groupId)) {
                 const groupCard = this.createGroupCard(group);
                 groupCard.classList.add('hide');
@@ -630,6 +731,7 @@ class GroupsPage {
         }
 
         const card = document.createElement('div');
+        card.setAttribute('data-group-id', group.groupId);
         // Kullanıcının grubu ise özel class ekle
         if (isUserGroup) {
             card.className = isPrivate ? 'group-card private-group user-group' : 'group-card user-group';
@@ -659,7 +761,7 @@ class GroupsPage {
                 <i class="fas fa-users"></i>
                 <span class="member-count"><span class="memberCount">${memberCount}</span> üye</span>
             </div>
-            ${!isUserGroup ? '<button class="join-group-btn"><i class="fas fa-plus"></i> Gruba Katıl</button>' : ''}
+            ${!isUserGroup ? this.getJoinButtonHtml(group) : ''}
         </div>
     `;
 
@@ -669,7 +771,7 @@ class GroupsPage {
             if (joinBtn) {
                 joinBtn.addEventListener('click', (e) => {
                     e.stopPropagation(); // Kart tıklamasını engelle
-                    window.location.href = `/groupid=${group.groupId}`;
+                    this.openJoinModal(group);
                 });
             }
         }
@@ -843,6 +945,453 @@ class GroupsPage {
         const fileInputText = document.querySelector('.file-input-text');
         fileInputText.textContent = 'Hazır görsel seçildi';
         fileInputText.style.color = '#28a745';
+    }
+
+    // Katılma isteği durumlarını kontrol et
+    async checkJoinRequestStatuses() {
+        const joinRequests = LocalStorageManager.getJoinRequests();
+        
+        // Tüm kontrolleri paralel olarak yap
+        const promises = Object.entries(joinRequests).map(async ([groupId, requestId]) => {
+            try {
+                // ObjectId ile jointogroups koleksiyonunda doküman var mı kontrol et
+                const response = await fetch(`/api/join-request-status-by-id/${requestId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.status === 'none') {
+                        // Doküman bulunamadı, yerel depolamadan sil
+                        LocalStorageManager.removeJoinRequest(groupId);
+                        console.log(`Katılma isteği bulunamadı, silindi: ${groupId}`);
+                    } else if (data.status === 'accepted') {
+                        // İstek kabul edilmiş, kullanıcıyı gruba ekle
+                        LocalStorageManager.removeJoinRequest(groupId);
+                        LocalStorageManager.loginUser(groupId, requestId, 'member', data.userName || 'Kullanıcı', '');
+                        this.showSuccessMessage('Katılma isteğiniz kabul edildi! Artık gruba erişebilirsiniz.');
+                        console.log(`Katılma isteği kabul edildi: ${groupId}`);
+                    } else if (data.status === 'rejected') {
+                        // İstek reddedilmiş, koleksiyondan da sil
+                        await fetch(`/api/delete-join-request/${requestId}`, { method: 'DELETE' });
+                        LocalStorageManager.removeJoinRequest(groupId);
+                        this.showErrorMessage('Katılma isteğiniz reddedildi.');
+                        console.log(`Katılma isteği reddedildi ve silindi: ${groupId}`);
+                    } else if (data.status === 'pending') {
+                        // İstek hala bekliyor, yerel depolamada kalsın
+                        this.joinRequestStatuses.set(groupId, data);
+                        console.log(`Katılma isteği bekliyor: ${groupId}`);
+                    }
+                } else {
+                    // API hatası, yerel depolamadan sil
+                    LocalStorageManager.removeJoinRequest(groupId);
+                    console.log(`API hatası, katılma isteği silindi: ${groupId}`);
+                }
+            } catch (error) {
+                console.error(`Katılma isteği durum kontrol hatası (${groupId}):`, error);
+                // Hata durumunda da yerel depolamadan sil
+                LocalStorageManager.removeJoinRequest(groupId);
+            }
+        });
+        
+        // Tüm kontrollerin tamamlanmasını bekle
+        await Promise.all(promises);
+        console.log('Tüm katılma isteği kontrolleri tamamlandı');
+    }
+
+    // Katılma butonu HTML'ini oluştur
+    getJoinButtonHtml(group) {
+        const joinRequestStatus = this.joinRequestStatuses.get(group.groupId);
+        
+        // Eğer istek varsa (pending, accepted, rejected) pending sınıfı kullan
+        if (joinRequestStatus || LocalStorageManager.hasJoinRequest(group.groupId)) {
+            return '<button class="join-group-btn pending"><i class="fas fa-times"></i> İptal Et</button>';
+        } else {
+            return '<button class="join-group-btn"><i class="fas fa-plus"></i> Gruba Katıl</button>';
+        }
+    }
+
+    // Belirli bir grubun butonunu güncelle
+    updateGroupButton(groupId) {
+        const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
+        if (!groupCard) return;
+
+        const joinBtn = groupCard.querySelector('.join-group-btn');
+        if (!joinBtn) return;
+
+        const group = this.groups.find(g => g.groupId === groupId);
+        if (!group) return;
+
+        const newButtonHtml = this.getJoinButtonHtml(group);
+        joinBtn.outerHTML = newButtonHtml;
+
+        // Yeni buton için event listener ekle
+        const newJoinBtn = groupCard.querySelector('.join-group-btn');
+        if (newJoinBtn) {
+            newJoinBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.openJoinModal(group);
+            });
+        }
+    }
+
+    // Katılma modalını aç
+    openJoinModal(group) {
+        this.currentJoinGroup = group;
+        
+        // Eğer zaten istek varsa iptal etme onayı göster
+        if (LocalStorageManager.hasJoinRequest(group.groupId)) {
+            this.showCancelConfirmModal(group);
+            return;
+        }
+        
+        // Modal içeriğini güncelle
+        document.getElementById('joinGroupName').textContent = group.groupName;
+        document.getElementById('joinGroupId').textContent = `@${group.groupId}`;
+        document.getElementById('joinGroupAvatar').src = group.groupImage || '/images/open-book.webp';
+        
+        // Formu sıfırla
+        document.getElementById('joinGroupForm').reset();
+        document.querySelector('#joinProfileImageInput').parentElement.querySelector('.file-input-text').textContent = 'Bir resim seçin...';
+        
+        // Form alanlarını tekrar göster
+        document.querySelector('.join-info-section').style.display = 'block';
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.style.display = 'block';
+        });
+        
+        // Durum mesajını ve açıklamayı gizle
+        document.getElementById('joinStatusMessage').style.display = 'none';
+        document.querySelector('.join-description').style.display = 'none';
+        
+        // Butonları sıfırla
+        document.getElementById('submitJoinRequest').style.display = 'block';
+        document.getElementById('cancelJoin').style.display = 'block';
+        const successActions = document.getElementById('successActions');
+        successActions.style.display = 'none';
+        successActions.classList.remove('show');
+        
+        // Modal'ı göster
+        const modal = document.getElementById('joinGroupModal');
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.visibility = 'visible';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Katılma modalını kapat
+    closeJoinModal() {
+        const modal = document.getElementById('joinGroupModal');
+        modal.style.opacity = '0';
+        modal.style.visibility = 'hidden';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+        document.body.style.overflow = 'auto';
+        this.currentJoinGroup = null;
+    }
+
+    // Katılma isteği gönder
+    async handleJoinGroupRequest(event) {
+        event.preventDefault();
+        
+        if (!this.currentJoinGroup) return;
+
+        const userName = document.getElementById('joinUserNameInput').value;
+        const memberName = document.getElementById('joinMemberNameInput').value;
+        const memberPassword = document.getElementById('joinMemberPasswordInput').value;
+        const profileImageInput = document.getElementById('joinProfileImageInput');
+
+        // Validasyon
+        const errors = [];
+        if (!userName || !memberName || !memberPassword) {
+            errors.push('Lütfen tüm zorunlu alanları doldurun.');
+        }
+        if (userName.length > 40) {
+            errors.push('Kullanıcı adı 40 karakterden uzun olamaz.');
+        }
+        if (memberName.length > 40) {
+            errors.push('Üye adı 40 karakterden uzun olamaz.');
+        }
+        if (memberPassword.length > 40) {
+            errors.push('Üye şifresi 40 karakterden uzun olamaz.');
+        }
+
+        if (errors.length > 0) {
+            const errorDiv = document.getElementById('joinPasswordError');
+            errorDiv.textContent = errors.join('\n');
+            errorDiv.style.display = 'block';
+            return;
+        } else {
+            document.getElementById('joinPasswordError').style.display = 'none';
+        }
+
+        const formData = new FormData();
+        formData.append('groupId', this.currentJoinGroup.groupId);
+        formData.append('userName', userName);
+        formData.append('memberName', memberName);
+        formData.append('userPassword', memberPassword);
+        
+        if (profileImageInput.files[0]) {
+            formData.append('profileImage', profileImageInput.files[0]);
+        }
+
+        try {
+            const response = await fetch('/api/join-group-request', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Başarılı
+                LocalStorageManager.addJoinRequest(this.currentJoinGroup.groupId, result.requestId);
+                this.joinRequestStatuses.set(this.currentJoinGroup.groupId, { status: 'pending' });
+                
+                // UI'yi güncelle - başarı paneli göster
+                this.showSuccessPanel();
+                
+                // Grup kartını yenile (buton güncellenir)
+                this.updateGroupButton(this.currentJoinGroup.groupId);
+            } else {
+                this.showErrorMessage(result.error || 'Katılma isteği gönderilemedi.');
+            }
+        } catch (error) {
+            console.error('Katılma isteği hatası:', error);
+            this.showErrorMessage('Katılma isteği gönderilirken bir hata oluştu.');
+        }
+    }
+
+    // Katılma isteğini iptal et
+    async handleCancelJoinRequest(group = null) {
+        const targetGroup = group || this.currentJoinGroup;
+        
+        if (!targetGroup || !targetGroup.groupId) {
+            console.error('Grup bilgisi bulunamadı');
+            return;
+        }
+
+        const requestId = LocalStorageManager.getJoinRequestId(targetGroup.groupId);
+        if (!requestId) {
+            console.error('RequestId bulunamadı:', targetGroup.groupId);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/cancel-join-request-by-id/${requestId}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Başarılı
+                LocalStorageManager.removeJoinRequest(targetGroup.groupId);
+                this.joinRequestStatuses.delete(targetGroup.groupId);
+                
+                // Modal'ı kapat
+                this.closeJoinModal();
+                
+                // Grup kartını yenile (buton normal "Gruba Katıl" tasarımına döner)
+                this.updateGroupButton(targetGroup.groupId);
+                
+                this.showSuccessMessage('Katılma isteği iptal edildi.');
+            } else {
+                this.showErrorMessage(result.error || 'Katılma isteği iptal edilemedi.');
+            }
+        } catch (error) {
+            console.error('Katılma isteği iptal hatası:', error);
+            this.showErrorMessage('Katılma isteği iptal edilirken bir hata oluştu.');
+        }
+    }
+
+    // Join modal şifre görünürlüğü
+    toggleJoinPasswordVisibility() {
+        const passwordInput = document.getElementById('joinMemberPasswordInput');
+        const toggleIcon = document.querySelector('#joinPasswordToggle i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.className = 'fas fa-eye-slash';
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.className = 'fas fa-eye';
+        }
+    }
+
+    // Grubu görüntüle
+    goToHomePage() {
+        if (this.currentJoinGroup) {
+            // Grup sayfasına yönlendir
+            window.location.href = `/groupid=${this.currentJoinGroup.groupId}`;
+        } else {
+            this.closeJoinModal();
+        }
+    }
+
+    // Başarı mesajı göster
+    showSuccessMessage(message) {
+        this.showToast(message, 'success');
+    }
+
+    // Hata mesajı göster
+    showErrorMessage(message) {
+        this.showToast(message, 'error');
+    }
+
+    // Toast mesajı göster
+    showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+            word-wrap: break-word;
+        `;
+        toast.textContent = message;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
+        }, 4000);
+    }
+
+    // Başarı paneli göster
+    showSuccessPanel() {
+        // Tüm form alanlarını ve info section'ı gizle
+        document.querySelector('.join-info-section').style.display = 'none';
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Normal butonları gizle, başarı butonlarını göster
+        document.getElementById('cancelJoin').style.display = 'none';
+        document.getElementById('submitJoinRequest').style.display = 'none';
+        const successActions = document.getElementById('successActions');
+        successActions.style.display = 'flex';
+        successActions.classList.add('show');
+        
+        // Başarı mesajını göster
+        document.getElementById('joinStatusMessage').style.display = 'block';
+        
+        // Debug: Butonları kontrol et
+        const cancelJoinRequest = document.getElementById('cancelJoinRequest');
+        const goToHomePage = document.getElementById('goToHomePage');
+
+        
+        // Eski event listener'ları kaldır
+        cancelJoinRequest.replaceWith(cancelJoinRequest.cloneNode(true));
+        goToHomePage.replaceWith(goToHomePage.cloneNode(true));
+        
+        // Yeni event listener'ları ekle
+        document.getElementById('cancelJoinRequest').addEventListener('click', () => {
+            this.handleCancelJoinRequest(this.currentJoinGroup);
+        });
+        document.getElementById('goToHomePage').addEventListener('click', () => {
+            this.goToHomePage();
+        });
+    }
+
+    // İptal etme onay modalı göster
+    showCancelConfirmModal(group) {
+        const confirmModal = document.createElement('div');
+        confirmModal.className = 'modal';
+        confirmModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        confirmModal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            ">
+                <div style="
+                    width: 60px;
+                    height: 60px;
+                    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 20px;
+                ">
+                    <i class="fas fa-question" style="color: white; font-size: 24px;"></i>
+                </div>
+                <h3 style="margin: 0 0 15px 0; color: #374151; font-size: 1.3rem;">İsteği İptal Et</h3>
+                <p style="margin: 0 0 25px 0; color: #6b7280; line-height: 1.5;">
+                    <strong>${group.groupName}</strong> grubuna gönderdiğiniz katılma isteğini iptal etmek istediğinizden emin misiniz?
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button id="cancelConfirmNo" style="
+                        background: #e5e7eb;
+                        color: #374151;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    ">Hayır</button>
+                    <button id="cancelConfirmYes" style="
+                        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    ">Evet, İptal Et</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(confirmModal);
+        
+        // Event listener'lar
+        document.getElementById('cancelConfirmNo').addEventListener('click', () => {
+            document.body.removeChild(confirmModal);
+        });
+        
+        document.getElementById('cancelConfirmYes').addEventListener('click', () => {
+            document.body.removeChild(confirmModal);
+            this.handleCancelJoinRequest(group);
+        });
+        
+        // Dışına tıklama
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                document.body.removeChild(confirmModal);
+            }
+        });
     }
 }
 
