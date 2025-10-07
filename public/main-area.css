@@ -1541,7 +1541,7 @@ label.custom-file-input:hover {
 }
 
 .join-request-btn.reject {
-    background: linear-gradient(135deg, #dc626e 0%, #fd7e14 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     color: white;
 }
 

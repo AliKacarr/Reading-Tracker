@@ -1535,7 +1535,7 @@ function displayJoinRequests(requests) {
     const joinRequestsList = document.getElementById('joinRequestsList');
     
     if (!requests || requests.length === 0) {
-        joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Henüz katılma isteği bulunmuyor</div>';
+        joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Gruba katılma isteği bulunmamakta.</div>';
         return;
     }
 
@@ -1606,7 +1606,7 @@ async function acceptJoinRequest(requestId) {
         const remainingRequests = document.querySelectorAll('.join-request-item');
         if (remainingRequests.length === 0) {
             const joinRequestsList = document.getElementById('joinRequestsList');
-            joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Henüz katılma isteği bulunmuyor</div>';
+            joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Gruba katılma isteği bulunmamakta.</div>';
         }
 
     } catch (error) {
@@ -1648,7 +1648,7 @@ async function rejectJoinRequest(requestId) {
         const remainingRequests = document.querySelectorAll('.join-request-item');
         if (remainingRequests.length === 0) {
             const joinRequestsList = document.getElementById('joinRequestsList');
-            joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Henüz katılma isteği bulunmuyor</div>';
+            joinRequestsList.innerHTML = '<div class="no-join-requests"><i class="fa-solid fa-exclamation-circle"></i> Gruba katılma isteği bulunmamakta.</div>';
         }
 
     } catch (error) {
