@@ -3,8 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="description" content="Kitap okuma alışkanlığınızı geliştirin, okuma hedeflerinizi belirleyin ve topluluklar ile birlikte okuyarak motivasyonunuzu artırın. Rotakip ile okuma serüveninizi takip edin.">
-  <meta name="keywords" content="kitap, takip, kitap okuma, rota, rotakip, rota takip, topluluk, okuma alışkanlığı, kitap kulübü, grup, kitap paylaşımı, istatistikler">
+  <meta name="description" content="Rotakip ile okuma hedeflerinizi belirleyin, ilerlemenizi takip edin.">
+  <meta name="keywords" content="rotakip, okuma hedefi, kitap takibi, okuma grubu, kitap istatistikleri, okuma ilerlemesi, kitap topluluğu">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://rotakip.onrender.com/">
   <link rel="icon" href="images/favicon.webp" type="image/x-icon" />
@@ -472,7 +472,7 @@
     <div class="main-area" style="display: none;">
       <div class="top-section">
       <div class="group-settings">
-        <h3>⚙️ Grup Ayarları</h3>
+        <h3><i class="fa-solid fa-gear" style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i> Grup Ayarları</h3>
         
         <div class="group-info-section">
           <!-- Sol Sütun: Grup Bilgileri -->
@@ -603,7 +603,7 @@
           <div class="user-list">
             <!-- Kullanıcı Davet Sistemi -->
             <div class="invite-section">
-              <h3>📤 Kullanıcı Davet Et</h3>
+              <h3><i class="fas fa-paper-plane" style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i> Kullanıcı Davet Et</h3>
               <div class="invite-controls">
                 <select id="userSelectForInvite" class="user-select-dropdown">
                   <option value="">Kullanıcı seçiniz...</option>
@@ -616,13 +616,13 @@
 
               <!-- Katılma İstekleri Yönetimi -->
               <div class="join-requests-section">
-                <h3>📥 Katılma İstekleri</h3>
+                <h3><i class="fa-solid fa-envelope" style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i> Katılma İstekleri</h3>
                 <div id="joinRequestsList" class="join-requests-list">
                   <!-- Katılma istekleri buraya yüklenecek -->
                 </div>
               </div>
             </div>
-            <h3>👤 Kullanıcılar</h3>
+            <h3><i class="fa-solid fa-users" style="padding-left:2px; padding-right: 4px;"></i> Kullanıcılar</h3>
             <ul id="userList"></ul>
             
           </div>
@@ -632,7 +632,7 @@
             <!-- Add the Add User section -->
             <form id="newUserForm" enctype="multipart/form-data">
               <div class="form-left-column">
-                <h3>➕ Kullanıcı Ekle</h3>
+                <h3><i class="fa-solid fa-user-plus" style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i> Kullanıcı Ekle</h3>
                 <div class="image-upload">
                   <label for="profileImage">Profil Resmi:</label>
                   <div class="file-input-container">
@@ -667,7 +667,7 @@
     <!-- Add this after the user list section, before the closing container div -->
     <div class="settings-section">
       <h3 id="ayarlar"><i class="fa-classic fa-solid fa-sliders fa-fw"
-          style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i>Tercihler</h3>
+          style="font-size: 1.2em; padding-left:2px; padding-right: 8px;"></i>Tercihler</h3>
       <div class="setting-item">
         <label for="firstDaySelect">Tablonun İlk Günü:</label>
         <select id="firstDaySelect" class="day-select">

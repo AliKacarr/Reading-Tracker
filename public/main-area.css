@@ -61,7 +61,7 @@
 .user-list h3 {
     color: #34495e;
     margin: 0 0 24px 0;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 2px solid #3498db;
@@ -405,7 +405,7 @@ ul#userList li span {
 #newUserForm h3 {
     color: #34495e;
     margin: 0 0 24px 0;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 2px solid #27ae60;
@@ -689,7 +689,7 @@ label.custom-file-input:hover {
 .group-settings h3 {
     color: #34495e;
     margin: 0 0 24px 0;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     padding-bottom: 12px;
     border-bottom: 2px solid #e74c3c;
@@ -1367,7 +1367,7 @@ label.custom-file-input:hover {
 }
 
 .invite-section {
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .invite-controls {
@@ -1459,7 +1459,7 @@ label.custom-file-input:hover {
 
 /* Katılma İstekleri Bölümü */
 .join-requests-section {
-    margin-top: 25px;
+    margin-top: 30px;
 }
 
 .join-requests-list {
@@ -1556,9 +1556,9 @@ label.custom-file-input:hover {
 
 .no-join-requests {
     color: #6c757d;
-    font-size: 14px;
+    font-size: 15px;
     font-style: italic;
-    margin-left: 10px;
+    margin-left: 8px;
 }
 
 
