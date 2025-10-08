@@ -522,7 +522,6 @@ body {
     position: relative;
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(79, 70, 229, 0.15);
-    transform: translateY(20px);
     transition: all 0.3s ease;
     border: 1px solid rgba(224, 231, 255, 0.8);
     max-height: 80vh;
