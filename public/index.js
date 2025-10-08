@@ -1060,7 +1060,6 @@ class GroupsPage {
         
         // Durum mesajını ve açıklamayı gizle
         document.getElementById('joinStatusMessage').style.display = 'none';
-        document.querySelector('.join-description').style.display = 'none';
         
         // Butonları sıfırla
         document.getElementById('submitJoinRequest').style.display = 'block';

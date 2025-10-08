@@ -71,25 +71,108 @@
       </button>
     </div>
 
-    <!-- Admin Login Modal -->
-    <div id="adminLoginModal" class="admin-modal">
-      <div class="modal-content-admin">
-        <span class="close-button">&times;</span>
-        <h2>Kullanıcı Girişi</h2>
-        <form id="adminLoginForm">
-          <div class="admin-form-group">
-            <label for="adminUserName">Kullanıcı Adı</label>
-            <input type="text" id="adminUserName" required>
+    <!-- Modern Groups Login Modal -->
+    <div id="groupsAuthLoginModal" class="groups-auth-login-modal">
+      <div class="groups-auth-login-modal-content">
+        <div class="groups-auth-login-modal-header">
+          <div class="groups-auth-login-modal-icon">
+            <i class="fas fa-user-circle"></i>
           </div>
-          <div class="admin-form-group">
-            <label for="adminPassword">Şifre</label>
-            <input type="password" id="adminPassword" required>
+          <h2 class="groups-auth-login-modal-title">Gruba Giriş Yap</h2>
+          <button class="groups-auth-login-close-btn" id="closeGroupsAuthLoginModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="groups-auth-login-modal-body">
+          <form id="groupsAuthLoginForm" class="groups-auth-login-form">
+            <div class="groups-auth-form-group">
+              <div class="groups-auth-input-container">
+                <i class="fas fa-user groups-auth-input-icon"></i>
+                <input type="text" id="groupsAuthLoginName" class="groups-auth-form-input" placeholder="Kullanıcı Adınız" required>
+              </div>
+            </div>
+            
+            <div class="groups-auth-form-group">
+              <div class="groups-auth-input-container">
+                <i class="fas fa-lock groups-auth-input-icon"></i>
+                <input type="password" id="groupsAuthLoginPassword" class="groups-auth-form-input" placeholder="Şifreniz" required>
+                <button type="button" class="groups-auth-password-toggle" id="groupsAuthTogglePassword">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="groups-auth-login-actions">
+              <button type="submit" class="groups-auth-login-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                Giriş Yap
+              </button>
+            </div>
+            
+            <div id="groupsAuthLoginError" class="groups-auth-error-message"></div>
+            
+            <div class="groups-auth-login-links">
+              <a href="" class="groups-auth-forgot-password-link" id="groupsAuthForgotPasswordLink">
+                <i class="fas fa-key"></i>
+                Şifremi Unuttum
+              </a>
+              <a href="" class="groups-auth-join-group-link" id="groupsAuthJoinGroupLink">
+                <i class="fas fa-user-plus"></i>
+                Gruba Üye Ol
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="groupsAuthForgotModal" class="groups-auth-forgot-modal">
+      <div class="groups-auth-forgot-modal-content">
+        <div class="groups-auth-forgot-modal-header">
+          <div class="groups-auth-forgot-modal-icon">
+            <i class="fas fa-key"></i>
           </div>
-          <div class="form-actions">
-            <button type="submit">Giriş Yap</button>
+          <h2 class="groups-auth-forgot-modal-title">Şifremi Unuttum</h2>
+          <button class="groups-auth-forgot-close-btn" id="closeGroupsAuthForgotModal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="groups-auth-forgot-modal-body">
+          <div class="groups-auth-forgot-content">
+            <p class="groups-auth-forgot-description">
+              Kullanıcı adınızı veya şifrenizi unuttuysanız, aşağıdakileri deneyebilirsiniz:
+            </p>
+            
+            <div class="groups-auth-forgot-options">
+              <div class="groups-auth-forgot-option">
+                <div class="groups-auth-forgot-option-icon">
+                  <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="groups-auth-forgot-option-content">
+                  <h3>Grup Yöneticisi ile İletişime Geçin</h3>
+                  <p>Grup yöneticinizle iletişime geçerek yeni bir davet alabilirsiniz.</p>
+                </div>
+              </div>
+              
+              <div class="groups-auth-forgot-option">
+                <div class="groups-auth-forgot-option-icon">
+                  <i class="fas fa-headset"></i>
+                </div>
+                <div class="groups-auth-forgot-option-content">
+                  <h3>Destek Ekibimizle İletişime Geçin</h3>
+                  <p>Teknik destek için bizimle iletişime geçebilirsiniz.</p>
+                  <a href="mailto:alikacardev@gmail.com" class="groups-auth-support-email">
+                    <i class="fas fa-envelope"></i>
+                    alikacardev@gmail.com
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
-          <div id="loginError" class="error-message"></div>
-        </form>
+        </div>
       </div>
     </div>
 
@@ -641,11 +724,11 @@
                     <span id="file-name">Resim seçilmedi</span>
                   </div>
                 </div>
-                <div class="ad-user-form-group">
+                <div class="add-user-form-group">
                   <label for="newUserInput">Kullanıcı İsmi:</label>
-                  <div class="input-container">
-                    <div class="input-icon-container">
-                      <img src="/images/default.png" alt="Varsayılan profil resmi" class="input-profile-image" id="inputProfileImage">
+                  <div class="add-user-input-container">
+                    <div class="add-user-input-icon-container">
+                      <img src="/images/default.png" alt="Varsayılan profil resmi" class="add-user-input-profile-image" id="addUserInputProfileImage">
                     </div>
                     <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" maxlength="40" required />
                     <button type="submit" class="submit-button">Ekle</button>

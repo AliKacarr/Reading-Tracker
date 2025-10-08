@@ -120,46 +120,124 @@ function showAdminIndicator() {     //admin modu butonunu gösterme
 document.addEventListener('DOMContentLoaded', function () {
 
     const adminLogin = document.getElementById('secretAdminLogin');
-    const adminLoginModal = document.getElementById('adminLoginModal');
-    const closeButton = document.querySelector('.close-button');
-    const adminLoginForm = document.getElementById('adminLoginForm');
-    const loginError = document.getElementById('loginError');
-    const userName = document.getElementById('adminUserName');
-    const adminPassword = document.getElementById('adminPassword');
+    const groupsAuthLoginModal = document.getElementById('groupsAuthLoginModal');
+    const groupsAuthForgotModal = document.getElementById('groupsAuthForgotModal');
+    
+    // Login modal elements
+    const closeGroupsAuthLoginModal = document.getElementById('closeGroupsAuthLoginModal');
+    const groupsAuthLoginForm = document.getElementById('groupsAuthLoginForm');
+    const groupsAuthLoginError = document.getElementById('groupsAuthLoginError');
+    const groupsAuthLoginName = document.getElementById('groupsAuthLoginName');
+    const groupsAuthLoginPassword = document.getElementById('groupsAuthLoginPassword');
+    const groupsAuthTogglePassword = document.getElementById('groupsAuthTogglePassword');
+    const groupsAuthForgotPasswordLink = document.getElementById('groupsAuthForgotPasswordLink');
+    
+    // Forgot password modal elements
+    const closeGroupsAuthForgotModal = document.getElementById('closeGroupsAuthForgotModal');
 
     // Check if already authenticated
     if (LocalStorageManager.isUserLoggedIn()) {
         showAdminIndicator();
     }
 
+    // Admin login button click handler
     adminLogin.addEventListener('click', function () {
         // Check if already authenticated
         if (LocalStorageManager.isUserLoggedIn()) {
             showAdminInfoPanel();
         } else {
-            adminLoginModal.style.display = 'flex';
+            showModal(groupsAuthLoginModal);
         }
     });
 
-    // Close modal when clicking on X
-    closeButton.addEventListener('click', function () {
-        adminLoginModal.style.display = 'none';
-        loginError.textContent = '';
+    // Profile button click handler
+    const profileButton = document.getElementById('profileButton');
+    if (profileButton) {
+        profileButton.addEventListener('click', function () {
+            // Check if already authenticated
+            if (LocalStorageManager.isUserLoggedIn()) {
+                showAdminInfoPanel();
+            } else {
+                showModal(groupsAuthLoginModal);
+            }
+        });
+    }
+
+    // Modal show/hide functions
+    function showModal(modal) {
+        modal.classList.add('show');
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideModal(modal) {
+        modal.classList.remove('show');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close user login modal
+    closeGroupsAuthLoginModal.addEventListener('click', function () {
+        hideModal(groupsAuthLoginModal);
+        groupsAuthLoginError.textContent = '';
+        groupsAuthLoginError.classList.remove('show');
     });
 
-    // Close modal when clicking outside
+    // Close forgot password modal
+    closeGroupsAuthForgotModal.addEventListener('click', function () {
+        hideModal(groupsAuthForgotModal);
+    });
+
+    // Close modals when clicking outside
     window.addEventListener('click', function (event) {
-        if (event.target === adminLoginModal) {
-            adminLoginModal.style.display = 'none';
-            loginError.textContent = '';
+        if (event.target === groupsAuthLoginModal) {
+            hideModal(groupsAuthLoginModal);
+            groupsAuthLoginError.textContent = '';
+            groupsAuthLoginError.classList.remove('show');
+        }
+        if (event.target === groupsAuthForgotModal) {
+            hideModal(groupsAuthForgotModal);
         }
     });
 
-    // Handle form submission
-    adminLoginForm.addEventListener('submit', async function (e) {
+    // Password toggle functionality
+    groupsAuthTogglePassword.addEventListener('click', function () {
+        const passwordInput = groupsAuthLoginPassword;
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Forgot password link
+    groupsAuthForgotPasswordLink.addEventListener('click', function (e) {
         e.preventDefault();
-        const username = document.getElementById('adminUserName').value;
-        const password = document.getElementById('adminPassword').value;
+        hideModal(groupsAuthLoginModal);
+        showModal(groupsAuthForgotModal);
+    });
+
+    // Handle user login form submission
+    groupsAuthLoginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const username = groupsAuthLoginName.value.trim();
+        const password = groupsAuthLoginPassword.value;
+
+        // Clear previous errors
+        groupsAuthLoginError.textContent = '';
+        groupsAuthLoginError.classList.remove('show');
+
+        // Basic validation
+        if (!username || !password) {
+            showError(groupsAuthLoginError, 'Lütfen tüm alanları doldurun');
+            return;
+        }
 
         try {
             const groupId = getGroupIdFromUrl();
@@ -176,11 +254,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.success) {
                 // Yeni sistem ile giriş yap
                 LocalStorageManager.loginUser(data.groupId, data.userId, data.authority, username, data.groupName);
-                adminLoginModal.style.display = 'none';
-                loginError.textContent = '';
+                hideModal(groupsAuthLoginModal);
 
                 // Clear form fields
-                adminLoginForm.reset();
+                groupsAuthLoginForm.reset();
 
                 // Show admin indicator
                 showAdminIndicator();
@@ -191,45 +268,58 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 // Reload data to update UI with admin privileges
-                loadTrackerTable();
-                loadUserCards();
-                loadReadingStats();
-                renderLongestSeries();
-                loadMonthlyCalendar();
+                if (typeof loadTrackerTable === 'function') loadTrackerTable();
+                if (typeof loadUserCards === 'function') loadUserCards();
+                if (typeof loadReadingStats === 'function') loadReadingStats();
+                if (typeof renderLongestSeries === 'function') renderLongestSeries();
+                if (typeof loadMonthlyCalendar === 'function') loadMonthlyCalendar();
                 
                 // Grup ayarlarını da yükle
                 if (typeof loadGroupSettings === 'function') {
                     loadGroupSettings();
                 }
             } else {
-                loginError.textContent = 'Geçersiz kullanıcı adı veya şifre';
-                logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
+                showError(groupsAuthLoginError, 'Geçersiz kullanıcı adı veya şifre');
+                if (typeof logUnauthorizedAccess === 'function') {
+                    logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
+                }
                 return;
             }
         } catch (error) {
             console.error('Login error:', error);
-            loginError.textContent = 'Giriş işlemi sırasında bir hata oluştu';
-            logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
+            showError(groupsAuthLoginError, 'Giriş işlemi sırasında bir hata oluştu');
+            if (typeof logUnauthorizedAccess === 'function') {
+                logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
+            }
         }
     });
 
-    adminUserName.addEventListener('keydown', function (e) {
+    // Helper functions
+    function showError(errorElement, message) {
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+    }
+
+    function showSuccess(successElement, message) {
+        successElement.textContent = message;
+        successElement.classList.add('show');
+    }
+
+    // Keyboard navigation for user login form
+    groupsAuthLoginName.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent form submission
-            adminPassword.focus(); // Move focus to adminPassword field
+            e.preventDefault();
+            groupsAuthLoginPassword.focus();
         }
     });
 
-    // Add event listener for Enter key in adminPassword field
-    adminPassword.addEventListener('keydown', function (e) {
+    groupsAuthLoginPassword.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent default behavior
-            // Manually trigger the form submission handler
-            const submitEvent = new Event('submit', {
+            e.preventDefault();
+            groupsAuthLoginForm.dispatchEvent(new Event('submit', {
                 bubbles: true,
                 cancelable: true
-            });
-            adminLoginForm.dispatchEvent(submitEvent);
+            }));
         }
     });
 });

@@ -411,3 +411,618 @@
 .scroll-to-top-btn:hover svg {
     transform: translateY(-2px);
 }
+
+/* Modern Groups Auth Login Modal Styles */
+.groups-auth-login-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+    animation: groupsAuthModalFadeIn 0.3s ease-out;
+}
+
+.groups-auth-login-modal.show {
+    display: flex;
+}
+
+.groups-auth-login-modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: groupsAuthModalSlideIn 0.4s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.groups-auth-login-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #3B82F6, #60A5FA, #3B82F6);
+    background-size: 200% 100%;
+    animation: groupsAuthGradientShift 3s ease-in-out infinite;
+}
+
+@keyframes groupsAuthGradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.groups-auth-login-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 25px 30px 20px 30px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    position: relative;
+}
+
+.groups-auth-login-modal-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    margin-right: 15px;
+}
+
+.groups-auth-login-modal-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    flex: 1;
+}
+
+.groups-auth-login-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.groups-auth-login-close-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    transform: scale(1.1);
+}
+
+.groups-auth-login-modal-body {
+    padding: 30px;
+}
+
+.groups-auth-login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.groups-auth-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.groups-auth-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.groups-auth-input-icon {
+    position: absolute;
+    left: 15px;
+    color: #6b7280;
+    font-size: 1rem;
+    z-index: 2;
+    transition: color 0.3s ease;
+}
+
+.groups-auth-form-input {
+    width: 100%;
+    padding: 15px 20px 15px 50px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    outline: none;
+    font-family: inherit;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.groups-auth-form-input:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: #f8fafc;
+}
+
+.groups-auth-form-input:focus + .groups-auth-input-icon,
+.groups-auth-input-container:focus-within .groups-auth-input-icon {
+    color: #3B82F6;
+}
+
+.groups-auth-form-input::placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+.groups-auth-password-toggle {
+    position: absolute;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.groups-auth-password-toggle:hover {
+    background: rgba(107, 114, 128, 0.1);
+    color: #374151;
+    transform: scale(1.05);
+}
+
+.groups-auth-login-actions {
+    margin-top: 10px;
+}
+
+.groups-auth-login-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 2px solid #2563EB;
+}
+
+.groups-auth-login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+    background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+    border-color: #1D4ED8;
+}
+
+.groups-auth-login-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.groups-auth-login-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.groups-auth-forgot-password-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.groups-auth-forgot-password-link:hover {
+    color: #374151;
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateX(3px);
+    text-decoration: none;
+}
+
+.groups-auth-join-group-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #059669;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+}
+
+.groups-auth-join-group-link:hover {
+    color: #047857;
+    background: #d1fae5;
+    border-color: #6ee7b7;
+    transform: translateX(3px);
+    text-decoration: none;
+}
+
+.groups-auth-error-message {
+    color: #ef4444;
+    font-size: 0.9rem;
+    padding: 12px 15px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.groups-auth-error-message.show {
+    display: flex;
+}
+
+.groups-auth-error-message::before {
+    content: "⚠️";
+    font-size: 1rem;
+}
+
+/* Forgot Password Modal Styles */
+.groups-auth-forgot-modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+    animation: groupsAuthModalFadeIn 0.3s ease-out;
+}
+
+.groups-auth-forgot-modal.show {
+    display: flex;
+}
+
+.groups-auth-forgot-modal-content {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: groupsAuthModalSlideIn 0.4s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.groups-auth-forgot-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b);
+    background-size: 200% 100%;
+    animation: groupsAuthGradientShift 3s ease-in-out infinite;
+}
+
+.groups-auth-forgot-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 25px 30px 20px 30px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    position: relative;
+}
+
+.groups-auth-forgot-modal-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+    margin-right: 15px;
+}
+
+.groups-auth-forgot-modal-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    flex: 1;
+}
+
+.groups-auth-forgot-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.groups-auth-forgot-close-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    transform: scale(1.1);
+}
+
+.groups-auth-forgot-modal-body {
+    padding: 30px;
+}
+
+.groups-auth-forgot-content {
+    text-align: center;
+}
+
+.groups-auth-forgot-description {
+    color: #6b7280;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.groups-auth-forgot-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.groups-auth-forgot-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.groups-auth-forgot-option:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.groups-auth-forgot-option-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.groups-auth-forgot-option-content {
+    flex: 1;
+    text-align: left;
+}
+
+.groups-auth-forgot-option-content h3 {
+    color: #1f2937;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.groups-auth-forgot-option-content p {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 10px 0;
+}
+
+.groups-auth-support-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #3B82F6;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    background: #eff6ff;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.groups-auth-support-email:hover {
+    background: #dbeafe;
+    color: #2563EB;
+    text-decoration: none;
+    transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes groupsAuthModalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes groupsAuthModalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .groups-auth-login-modal-content,
+    .groups-auth-forgot-modal-content {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        margin: 0;
+        border-radius: 0;
+        max-width: none;
+    }
+    
+    .groups-auth-login-modal-header,
+    .groups-auth-forgot-modal-header {
+        padding: 20px 25px 15px 25px;
+    }
+    
+    .groups-auth-login-modal-body,
+    .groups-auth-forgot-modal-body {
+        padding: 25px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .groups-auth-login-modal-title,
+    .groups-auth-forgot-modal-title {
+        font-size: 1.4rem;
+    }
+    
+    .groups-auth-login-modal-icon,
+    .groups-auth-forgot-modal-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    
+    .groups-auth-form-input {
+        font-size: 16px;
+    }
+    
+    .groups-auth-login-btn {
+        padding: 16px 24px;
+        font-size: 1.1rem;
+    }
+    
+    .groups-auth-forgot-password-link,
+    .groups-auth-join-group-link {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .groups-auth-login-modal-content,
+    .groups-auth-forgot-modal-content {
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        margin: 0;
+        border-radius: 0;
+        max-width: none;
+    }
+    
+    .groups-auth-login-modal-header,
+    .groups-auth-forgot-modal-header {
+        padding: 15px 20px 10px 20px;
+    }
+    
+    .groups-auth-login-modal-body,
+    .groups-auth-forgot-modal-body {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .groups-auth-login-modal-title,
+    .groups-auth-forgot-modal-title {
+        font-size: 1.2rem;
+    }
+    
+    .groups-auth-form-input {
+        font-size: 16px;
+        padding: 14px 16px 14px 45px;
+    }
+    
+    .groups-auth-login-btn {
+        padding: 14px 20px;
+        font-size: 1rem;
+    }
+    
+    .groups-auth-forgot-password-link,
+    .groups-auth-join-group-link {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+}

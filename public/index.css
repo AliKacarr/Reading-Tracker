@@ -675,7 +675,7 @@ body {
     min-height: 90px;
 }
 
-.form-actions {
+.group-form-actions {
     display: flex;
     gap: 15px;
     justify-content: flex-end;
@@ -793,7 +793,7 @@ body {
         padding: 22px;
     }
 
-    .form-actions {
+.group-form-actions {
         flex-direction: column;
     }
 
@@ -1304,12 +1304,6 @@ body {
     font-size: 0.9rem;
 }
 
-.join-description {
-    margin: 0;
-    opacity: 0.9;
-    line-height: 1.5;
-    font-size: 0.9rem;
-}
 
 .form-section {
     margin-bottom: 20px;

@@ -427,7 +427,7 @@ ul#userList li span {
     justify-content: center;
 }
 
-.ad-user-form-group label {
+.add-user-form-group label {
     display: block;
     color: #34495e;
     font-weight: bold;
@@ -435,7 +435,7 @@ ul#userList li span {
     font-size: 16px;
 }
 
-.input-container {
+.add-user-input-container {
     display: flex;
     align-items: center;
     background: rgb(246, 249, 251);
@@ -449,7 +449,7 @@ ul#userList li span {
     width: 280px;
 }
 
-.input-container::before {
+.add-user-input-container::before {
     content: '';
     position: absolute;
     top: 0;
@@ -462,24 +462,24 @@ ul#userList li span {
     z-index: 0;
 }
 
-.input-container:hover {
+.add-user-input-container:hover {
     border-color: #3498db;
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
     background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
 }
 
-.input-container:focus-within {
+.add-user-input-container:focus-within {
     border-color: #3498db;
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
 }
 
-.input-container > * {
+.add-user-input-container > * {
     position: relative;
     z-index: 1;
 }
 
-.input-icon-container {
+.add-user-input-icon-container {
     position: relative;
     width: 40px;
     height: 40px;
@@ -488,7 +488,7 @@ ul#userList li span {
     justify-content: center;
 }
 
-.input-profile-image {
+.add-user-input-profile-image {
     width: 38px;
     height: 38px;
     border-radius: 50%;
