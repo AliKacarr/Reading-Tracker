@@ -544,11 +544,11 @@
               <div class="group-right-sub-column">
                 <div class="form-group">
                   <label for="groupName"><i class="fas fa-layer-group"></i> Grup Adı:</label>
-                  <input type="text" id="groupName" class="group-input" placeholder="Grup adını giriniz" />
+                  <input type="text" id="groupName" class="group-input" placeholder="Grup adını giriniz" maxlength="40" />
                 </div>
                 <div class="form-group">
                   <label for="groupDescription"><i class="fa-solid fa-align-left"></i> Grup Açıklaması:</label>
-                  <textarea id="groupDescription" class="group-textarea" placeholder="Grup açıklamasını giriniz" rows="3"></textarea>
+                  <textarea id="groupDescription" class="group-textarea" placeholder="Grup açıklamasını giriniz" rows="3" maxlength="200"></textarea>
                 </div>
 
               </div>
@@ -622,7 +622,7 @@
                 </div>
               </div>
             </div>
-            <h3><i class="fa-solid fa-users" style="padding-left:2px; padding-right: 4px;"></i> Kullanıcılar</h3>
+            <h3><i class="fa-solid fa-users" style="font-size: 1.2em; padding-left:2px; padding-right: 4px;"></i> Kullanıcılar</h3>
             <ul id="userList"></ul>
             
           </div>
@@ -647,7 +647,7 @@
                     <div class="input-icon-container">
                       <img src="/images/default.png" alt="Varsayılan profil resmi" class="input-profile-image" id="inputProfileImage">
                     </div>
-                    <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" required />
+                    <input type="text" id="newUserInput" placeholder="Kullanıcı ismi giriniz" maxlength="40" required />
                     <button type="submit" class="submit-button">Ekle</button>
                   </div>
                 </div>
