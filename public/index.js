@@ -776,24 +776,19 @@ class GroupsPage {
             }
         }
 
-        // Sadece kullanıcının grupları veya public gruplar için tıklama işlevi
-        if (isUserGroup || !isPrivate) {
-            card.addEventListener('click', () => {
-                window.location.href = `/groupid=${group.groupId}`;
-            });
+        // Tüm gruplar için tıklama işlevi (private gruplar da dahil)
+        card.addEventListener('click', () => {
+            window.location.href = `/groupid=${group.groupId}`;
+        });
 
-            // Hover efekti
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateY(-5px)';
-            });
+        // Hover efekti
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-5px)';
+        });
 
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateY(0)';
-            });
-        } else {
-            // Private gruplar için cursor pointer'ı kaldır
-            card.style.cursor = 'default';
-        }
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+        });
 
         return card;
     }

@@ -239,6 +239,43 @@ async function validateGroup() {
     }
 
     const data = await response.json();
+    const group = data.group;
+    
+    // Grup visibility kontrolü
+    if (group.visibility === 'private') {
+      // Kullanıcı giriş yapmış mı kontrol et
+      if (!LocalStorageManager.isUserLoggedIn()) {
+        // Giriş yapmamışsa login modal'ı aç
+        const groupsAuthLoginModal = document.getElementById('groupsAuthLoginModal');
+        if (groupsAuthLoginModal) {
+          // Private grup erişimi için modal açıldığını işaretle
+          window.isPrivateGroupAccessModal = true;
+          
+          showModal(groupsAuthLoginModal);
+          
+          // Modal içindeki bilgilendirme mesajını güncelle
+          const loginTitle = document.querySelector('#groupsAuthLoginModal .groups-auth-login-modal-title h2');
+          if (loginTitle) {
+            loginTitle.textContent = 'Gizli Gruba Erişim';
+          }
+          
+          const loginSubtitle = document.querySelector('#groupsAuthLoginModal .groups-auth-login-modal-subtitle');
+          if (loginSubtitle) {
+            loginSubtitle.textContent = 'Bu grup gizlidir. Erişim için giriş yapmanız gerekmektedir.';
+          }
+          
+          // Bilgilendirme mesajını göster
+          const infoMessage = document.getElementById('groupsAuthLoginInfoMessage');
+          const infoText = document.getElementById('groupsAuthLoginInfoText');
+          if (infoMessage && infoText) {
+            infoText.textContent = 'Bu grubu görüntülemek için giriş yapmanız veya üye olmanız gerekmektedir.';
+            infoMessage.style.display = 'flex';
+          }
+        }
+        return false;
+      }
+    }
+    
     return true;
   } catch (error) {
     console.error('Grup doğrulama hatası:', error);
@@ -438,6 +475,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 window.addEventListener('popstate', function() {
   updatePageTitle();
 });
+
+// Private grup erişimi için modal açıldığını belirten flag
+window.isPrivateGroupAccessModal = false;
+
 
 // ============================================================================
 // GROUPS.HTML SAYFASI İÇİN OTOMATİK GİRİŞ KONTROLÜ

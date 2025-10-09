@@ -1,3 +1,6 @@
+// Global flag for join request success
+let isJoinRequestSuccess = false;
+
 function showAdminIndicator() {     //admin modu butonunu gösterme
     // Check if user is logged in and valid
     if (!LocalStorageManager.isUserLoggedIn() || !verifyUserUsername()) {
@@ -146,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (LocalStorageManager.isUserLoggedIn()) {
             showAdminInfoPanel();
         } else {
+            hideInfoMessage(); // Normal giriş için bilgilendirme mesajını gizle
             showModal(groupsAuthLoginModal);
         }
     });
@@ -158,45 +162,91 @@ document.addEventListener('DOMContentLoaded', function () {
             if (LocalStorageManager.isUserLoggedIn()) {
                 showAdminInfoPanel();
             } else {
+                hideInfoMessage(); // Normal giriş için bilgilendirme mesajını gizle
                 showModal(groupsAuthLoginModal);
+                // Normal giriş için de grup bilgilerini güncelle
+                if (typeof updateLoginGroupInfo === 'function') {
+                    updateLoginGroupInfo();
+                }
             }
         });
     }
 
     // Modal show/hide functions
-    function showModal(modal) {
+    // Global modal fonksiyonları
+    window.showModal = function(modal) {
         modal.classList.add('show');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
 
-    function hideModal(modal) {
+    window.hideModal = function(modal) {
         modal.classList.remove('show');
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
 
+    // Bilgilendirme mesajını gizle
+    function hideInfoMessage() {
+        const infoMessage = document.getElementById('groupsAuthLoginInfoMessage');
+        if (infoMessage) {
+            infoMessage.style.display = 'none';
+        }
+    }
+
+    // Bilgilendirme mesajını göster
+    function showInfoMessage(text) {
+        const infoMessage = document.getElementById('groupsAuthLoginInfoMessage');
+        const infoText = document.getElementById('groupsAuthLoginInfoText');
+        if (infoMessage && infoText) {
+            infoText.textContent = text;
+            infoMessage.style.display = 'flex';
+        }
+    }
+
     // Close user login modal
     closeGroupsAuthLoginModal.addEventListener('click', function () {
-        hideModal(groupsAuthLoginModal);
+        window.hideModal(groupsAuthLoginModal);
         groupsAuthLoginError.textContent = '';
         groupsAuthLoginError.classList.remove('show');
+        hideInfoMessage(); // Bilgilendirme mesajını gizle
+        
+        // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+        if (window.isPrivateGroupAccessModal) {
+            window.location.href = '/';
+        }
     });
 
     // Close forgot password modal
     closeGroupsAuthForgotModal.addEventListener('click', function () {
-        hideModal(groupsAuthForgotModal);
+        window.hideModal(groupsAuthForgotModal);
+        
+        // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+        if (window.isPrivateGroupAccessModal) {
+            window.location.href = '/';
+        }
     });
 
     // Close modals when clicking outside
     window.addEventListener('click', function (event) {
         if (event.target === groupsAuthLoginModal) {
-            hideModal(groupsAuthLoginModal);
+            window.hideModal(groupsAuthLoginModal);
             groupsAuthLoginError.textContent = '';
             groupsAuthLoginError.classList.remove('show');
+            hideInfoMessage(); // Bilgilendirme mesajını gizle
+            
+            // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+            if (window.isPrivateGroupAccessModal) {
+                window.location.href = '/';
+            }
         }
         if (event.target === groupsAuthForgotModal) {
-            hideModal(groupsAuthForgotModal);
+            window.hideModal(groupsAuthForgotModal);
+            
+            // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+            if (window.isPrivateGroupAccessModal) {
+                window.location.href = '/';
+            }
         }
     });
 
@@ -219,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Forgot password link
                 groupsAuthForgotPasswordLink.addEventListener('click', function (e) {
                     e.preventDefault();
-                    hideModal(groupsAuthLoginModal);
+                    window.hideModal(groupsAuthLoginModal);
                     showModal(groupsAuthForgotModal);
                 });
 
@@ -232,9 +282,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (groupsAuthJoinGroupLink && groupsAuthJoinModal) {
                     groupsAuthJoinGroupLink.addEventListener('click', async function (e) {
                         e.preventDefault();
-                        hideModal(groupsAuthLoginModal);
+                        window.hideModal(groupsAuthLoginModal);
                         clearJoinModalForm();
                         await updateGroupInfoInModal();
+                        // Join modal açıldığında flag'i false yap
+                        isJoinRequestSuccess = false;
                         showModal(groupsAuthJoinModal);
                     });
                 }
@@ -243,7 +295,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (closeGroupsAuthJoinModal) {
                     closeGroupsAuthJoinModal.addEventListener('click', function () {
                         clearJoinModalForm();
-                        hideModal(groupsAuthJoinModal);
+                        window.hideModal(groupsAuthJoinModal);
+                        
+                        // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+                        if (window.isPrivateGroupAccessModal) {
+                            window.location.href = '/';
+                        }
                     });
                 }
 
@@ -251,7 +308,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (groupsAuthJoinCancelBtn) {
                     groupsAuthJoinCancelBtn.addEventListener('click', function () {
                         clearJoinModalForm();
-                        hideModal(groupsAuthJoinModal);
+                        window.hideModal(groupsAuthJoinModal);
+                        
+                        // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+                        if (window.isPrivateGroupAccessModal) {
+                            window.location.href = '/';
+                        }
                     });
                 }
 
@@ -260,7 +322,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     window.addEventListener('click', function (event) {
                         if (event.target === groupsAuthJoinModal) {
                             clearJoinModalForm();
-                            hideModal(groupsAuthJoinModal);
+                            window.hideModal(groupsAuthJoinModal);
+                            
+                            // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+                            if (window.isPrivateGroupAccessModal) {
+                                window.location.href = '/';
+                            }
                         }
                     });
                 }
@@ -411,16 +478,61 @@ document.addEventListener('DOMContentLoaded', function () {
                 const groupsAuthJoinSuccessViewBtn = document.getElementById('groupsAuthJoinSuccessViewBtn');
                 const groupsAuthJoinSubmitBtn = document.getElementById('groupsAuthJoinSubmitBtn');
 
+                // Update success button based on flag
+                function updateSuccessButton() {
+                    const groupsAuthJoinSuccessViewBtn = document.getElementById('groupsAuthJoinSuccessViewBtn');
+                    if (groupsAuthJoinSuccessViewBtn) {
+                        if (isJoinRequestSuccess) {
+                            groupsAuthJoinSuccessViewBtn.textContent = 'Ana Sayfa';
+                        } else {
+                            groupsAuthJoinSuccessViewBtn.textContent = 'Grubu Görüntüle';
+                        }
+                    }
+                }
+
                 // Show success modal function
                 function showSuccessModal() {
-                    hideModal(groupsAuthJoinModal);
-                    showModal(groupsAuthJoinSuccessModal);
+                    // Grup visibility bilgisini al
+                    const currentPath = window.location.pathname;
+                    let groupId = currentPath.replace('/', '');
+                    if (groupId.startsWith('groupid=')) {
+                        groupId = groupId.replace('groupid=', '');
+                    }
+                    
+                    // Grup bilgilerini al ve visibility kontrolü yap
+                    fetch(`/api/group/${groupId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const group = data.group;
+                            // Sadece private gruplar için flag'i true yap
+                            isJoinRequestSuccess = (group.visibility === 'private');
+                            
+                            window.hideModal(groupsAuthJoinModal);
+                            showModal(groupsAuthJoinSuccessModal);
+                            
+                            // Success modal açıldığında buton metnini güncelle
+                            updateSuccessButton();
+                        })
+                        .catch(error => {
+                            console.error('Grup bilgileri alınırken hata:', error);
+                            // Hata durumunda varsayılan olarak false yap
+                            isJoinRequestSuccess = false;
+                            
+                            window.hideModal(groupsAuthJoinModal);
+                            showModal(groupsAuthJoinSuccessModal);
+                            updateSuccessButton();
+                        });
                 }
 
                 // Close success modal
                 if (closeGroupsAuthJoinSuccessModal) {
                     closeGroupsAuthJoinSuccessModal.addEventListener('click', function () {
-                        hideModal(groupsAuthJoinSuccessModal);
+                        window.hideModal(groupsAuthJoinSuccessModal);
+                        
+                        // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+                        if (window.isPrivateGroupAccessModal || isJoinRequestSuccess) {
+                            window.location.href = '/';
+                        }
                     });
                 }
 
@@ -465,14 +577,30 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         }
                         
-                        hideModal(groupsAuthJoinSuccessModal);
+                        window.hideModal(groupsAuthJoinSuccessModal);
+                        
+                        // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+                        if (window.isPrivateGroupAccessModal || isJoinRequestSuccess) {
+                            window.location.href = '/';
+                        }
                     });
                 }
 
                 // View group button
                 if (groupsAuthJoinSuccessViewBtn) {
                     groupsAuthJoinSuccessViewBtn.addEventListener('click', function () {
-                        hideModal(groupsAuthJoinSuccessModal);
+                        window.hideModal(groupsAuthJoinSuccessModal);
+                        
+                        // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+                        if (window.isPrivateGroupAccessModal) {
+                            window.location.href = '/';
+                        } else if (isJoinRequestSuccess) {
+                            // Join request başarılı olduysa ana sayfaya yönlendir
+                            window.location.href = '/';
+                        } else {
+                            // Normal durumda grubu görüntüle (mevcut davranış)
+                            // Burada grubu görüntüleme işlemi yapılabilir
+                        }
                     });
                 }
 
@@ -480,7 +608,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (groupsAuthJoinSuccessModal) {
                     window.addEventListener('click', function (event) {
                         if (event.target === groupsAuthJoinSuccessModal) {
-                            hideModal(groupsAuthJoinSuccessModal);
+                            window.hideModal(groupsAuthJoinSuccessModal);
+                            
+                            // Private grup erişimi için modal kapatıldıysa ana sayfaya yönlendir
+                            if (window.isPrivateGroupAccessModal || isJoinRequestSuccess) {
+                                window.location.href = '/';
+                            }
                         }
                     });
                 }
@@ -602,7 +735,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.success) {
                 // Yeni sistem ile giriş yap
                 LocalStorageManager.loginUser(data.groupId, data.userId, data.authority, username, data.groupName);
-                hideModal(groupsAuthLoginModal);
+                
+                // Private grup erişimi flag'ini sıfırla
+                window.isPrivateGroupAccessModal = false;
+                
+                window.hideModal(groupsAuthLoginModal);
 
                 // Clear form fields
                 groupsAuthLoginForm.reset();

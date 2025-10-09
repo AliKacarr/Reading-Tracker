@@ -82,9 +82,19 @@
           <button class="groups-auth-login-close-btn" id="closeGroupsAuthLoginModal">
             <i class="fas fa-times"></i>
           </button>
-        </div>
+          </div>
         
         <div class="groups-auth-login-modal-body">
+          <!-- Bilgilendirme mesajı -->
+          <div id="groupsAuthLoginInfoMessage" class="groups-auth-login-info-message" style="display: none;">
+            <div class="groups-auth-info-icon">
+              <i class="fas fa-info-circle"></i>
+          </div>
+            <div class="groups-auth-info-text">
+              <p id="groupsAuthLoginInfoText"></p>
+            </div>
+          </div>
+          
           <form id="groupsAuthLoginForm" class="groups-auth-login-form">
             <div class="groups-auth-form-group">
               <div class="groups-auth-input-container">
@@ -122,7 +132,7 @@
                 Gruba Üye Ol
               </a>
             </div>
-          </form>
+        </form>
         </div>
       </div>
     </div>

@@ -357,7 +357,6 @@ body {
 
 .private-group {
     opacity: 0.8;
-    cursor: default !important;
 }
 
 .private-group:hover {
