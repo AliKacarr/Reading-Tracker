@@ -395,6 +395,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         groupId = groupId.replace('groupid=', '');
                     }
                     
+                    // Decode URL encoded characters
+                    try {
+                        groupId = decodeURIComponent(groupId);
+                    } catch (e) {
+                        // If decoding fails, use original value
+                        console.warn('URL decode failed for groupId:', groupId);
+                    }
+                    
                     // Get group name and ID elements
                     const groupsAuthJoinGroupName = document.getElementById('groupsAuthJoinGroupName');
                     const groupsAuthJoinGroupId = document.getElementById('groupsAuthJoinGroupId');
@@ -499,6 +507,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         groupId = groupId.replace('groupid=', '');
                     }
                     
+                    // Decode URL encoded characters
+                    try {
+                        groupId = decodeURIComponent(groupId);
+                    } catch (e) {
+                        console.warn('URL decode failed for groupId:', groupId);
+                    }
+                    
                     // Grup bilgilerini al ve visibility kontrolü yap
                     fetch(`/api/group/${groupId}`)
                         .then(response => response.json())
@@ -546,6 +561,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Clean groupId if it contains 'groupid=' prefix
                         if (groupId.startsWith('groupid=')) {
                             groupId = groupId.replace('groupid=', '');
+                        }
+                        
+                        // Decode URL encoded characters
+                        try {
+                            groupId = decodeURIComponent(groupId);
+                        } catch (e) {
+                            console.warn('URL decode failed for groupId:', groupId);
                         }
                         
                         if (groupId && groupId !== 'groups.html') {
@@ -648,6 +670,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Clean groupId if it contains 'groupid=' prefix
                         if (groupId.startsWith('groupid=')) {
                             groupId = groupId.replace('groupid=', '');
+                        }
+                        
+                        // Decode URL encoded characters
+                        try {
+                            groupId = decodeURIComponent(groupId);
+                        } catch (e) {
+                            console.warn('URL decode failed for groupId:', groupId);
                         }
                         
                         if (!groupId || groupId === 'groups.html') {
