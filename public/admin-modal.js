@@ -216,12 +216,255 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Forgot password link
-    groupsAuthForgotPasswordLink.addEventListener('click', function (e) {
-        e.preventDefault();
-        hideModal(groupsAuthLoginModal);
-        showModal(groupsAuthForgotModal);
-    });
+                // Forgot password link
+                groupsAuthForgotPasswordLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    hideModal(groupsAuthLoginModal);
+                    showModal(groupsAuthForgotModal);
+                });
+
+                // Join group link
+                const groupsAuthJoinGroupLink = document.getElementById('groupsAuthJoinGroupLink');
+                const groupsAuthJoinModal = document.getElementById('groupsAuthJoinModal');
+                const closeGroupsAuthJoinModal = document.getElementById('closeGroupsAuthJoinModal');
+                const groupsAuthJoinCancelBtn = document.getElementById('groupsAuthJoinCancelBtn');
+
+                if (groupsAuthJoinGroupLink && groupsAuthJoinModal) {
+                    groupsAuthJoinGroupLink.addEventListener('click', async function (e) {
+                        e.preventDefault();
+                        hideModal(groupsAuthLoginModal);
+                        clearJoinModalForm();
+                        await updateGroupInfoInModal();
+                        showModal(groupsAuthJoinModal);
+                    });
+                }
+
+                // Close join modal
+                if (closeGroupsAuthJoinModal) {
+                    closeGroupsAuthJoinModal.addEventListener('click', function () {
+                        clearJoinModalForm();
+                        hideModal(groupsAuthJoinModal);
+                    });
+                }
+
+                // Cancel join modal
+                if (groupsAuthJoinCancelBtn) {
+                    groupsAuthJoinCancelBtn.addEventListener('click', function () {
+                        clearJoinModalForm();
+                        hideModal(groupsAuthJoinModal);
+                    });
+                }
+
+                // Close join modal when clicking outside
+                if (groupsAuthJoinModal) {
+                    window.addEventListener('click', function (event) {
+                        if (event.target === groupsAuthJoinModal) {
+                            clearJoinModalForm();
+                            hideModal(groupsAuthJoinModal);
+                        }
+                    });
+                }
+
+                // Password toggle for join modal
+                const groupsAuthJoinPasswordToggle = document.getElementById('groupsAuthJoinPasswordToggle');
+                const groupsAuthJoinMemberPasswordInput = document.getElementById('groupsAuthJoinMemberPasswordInput');
+
+                if (groupsAuthJoinPasswordToggle && groupsAuthJoinMemberPasswordInput) {
+                    groupsAuthJoinPasswordToggle.addEventListener('click', function () {
+                        const icon = this.querySelector('i');
+                        
+                        if (groupsAuthJoinMemberPasswordInput.type === 'password') {
+                            groupsAuthJoinMemberPasswordInput.type = 'text';
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                        } else {
+                            groupsAuthJoinMemberPasswordInput.type = 'password';
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                        }
+                    });
+                }
+
+                // File input handling for join modal
+                const groupsAuthJoinProfileImageInput = document.getElementById('groupsAuthJoinProfileImageInput');
+                const groupsAuthJoinFileName = document.getElementById('groupsAuthJoinFileName');
+                const groupsAuthJoinFileInputText = document.querySelector('.groups-auth-join-file-input-text');
+
+                // Clear join modal form function
+                function clearJoinModalForm() {
+                    // Clear file input
+                    if (groupsAuthJoinProfileImageInput) {
+                        groupsAuthJoinProfileImageInput.value = '';
+                    }
+                    
+                    // Reset file display
+                    if (groupsAuthJoinFileName) {
+                        groupsAuthJoinFileName.style.display = 'none';
+                        groupsAuthJoinFileName.textContent = '';
+                    }
+                    
+                    if (groupsAuthJoinFileInputText) {
+                        groupsAuthJoinFileInputText.style.display = 'inline';
+                    }
+                    
+                    // Clear other form inputs
+                    const groupsAuthJoinUserNameInput = document.getElementById('groupsAuthJoinUserNameInput');
+                    const groupsAuthJoinMemberNameInput = document.getElementById('groupsAuthJoinMemberNameInput');
+                    const groupsAuthJoinMemberPasswordInput = document.getElementById('groupsAuthJoinMemberPasswordInput');
+                    
+                    if (groupsAuthJoinUserNameInput) groupsAuthJoinUserNameInput.value = '';
+                    if (groupsAuthJoinMemberNameInput) groupsAuthJoinMemberNameInput.value = '';
+                    if (groupsAuthJoinMemberPasswordInput) groupsAuthJoinMemberPasswordInput.value = '';
+                }
+
+                // Update group info in modal function
+                async function updateGroupInfoInModal() {
+                    // Get current group info from URL or page context
+                    const currentPath = window.location.pathname;
+                    const groupId = currentPath.replace('/', ''); // Remove leading slash
+                    
+                    // Get group name and ID elements
+                    const groupsAuthJoinGroupName = document.getElementById('groupsAuthJoinGroupName');
+                    const groupsAuthJoinGroupId = document.getElementById('groupsAuthJoinGroupId');
+                    const groupsAuthJoinGroupAvatar = document.getElementById('groupsAuthJoinGroupAvatar');
+                    
+                    if (groupsAuthJoinGroupName && groupsAuthJoinGroupId) {
+                        // Update group name (you can customize this based on your group data)
+                        if (groupId && groupId !== 'groups.html') {
+                            // If we have a group ID from URL, use it
+                            groupsAuthJoinGroupName.textContent = groupId.charAt(0).toUpperCase() + groupId.slice(1);
+                            groupsAuthJoinGroupId.textContent = '@' + groupId;
+                            
+                            // Get group info from API (same method as secretAdminLogin)
+                            try {
+                                const response = await fetch(`/api/group/${groupId}`);
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    const groupName = data.group.groupName;
+                                    const groupImage = data.group.groupImage;
+                                    
+                                    // Update group name with real data
+                                    groupsAuthJoinGroupName.textContent = groupName;
+                                    
+                                    // Update group avatar with real group image
+                                    if (groupsAuthJoinGroupAvatar) {
+                                        const imgSrc = groupImage || '/images/open-book.webp';
+                                        groupsAuthJoinGroupAvatar.src = imgSrc;
+                                        groupsAuthJoinGroupAvatar.alt = groupName + ' Avatar';
+                                        
+                                        // Handle image load error - fallback to default
+                                        groupsAuthJoinGroupAvatar.onerror = function() {
+                                            this.src = '/images/open-book.webp';
+                                            this.alt = 'Grup Avatar';
+                                        };
+                                    }
+                                } else {
+                                    // Fallback if API fails
+                                    if (groupsAuthJoinGroupAvatar) {
+                                        groupsAuthJoinGroupAvatar.src = '/images/open-book.webp';
+                                        groupsAuthJoinGroupAvatar.alt = 'Grup Avatar';
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Grup bilgisi alınamadı:', error);
+                                // Fallback if API fails
+                                if (groupsAuthJoinGroupAvatar) {
+                                    groupsAuthJoinGroupAvatar.src = '/images/open-book.webp';
+                                    groupsAuthJoinGroupAvatar.alt = 'Grup Avatar';
+                                }
+                            }
+                        } else {
+                            // Default values if no group ID found
+                            groupsAuthJoinGroupName.textContent = 'Grup Adı';
+                            groupsAuthJoinGroupId.textContent = '@grup-id';
+                            
+                            // Default avatar
+                            if (groupsAuthJoinGroupAvatar) {
+                                groupsAuthJoinGroupAvatar.src = '/images/open-book.webp';
+                                groupsAuthJoinGroupAvatar.alt = 'Grup Avatar';
+                            }
+                        }
+                    }
+                }
+
+                if (groupsAuthJoinProfileImageInput && groupsAuthJoinFileName && groupsAuthJoinFileInputText) {
+                    // File selection handler
+                    groupsAuthJoinProfileImageInput.addEventListener('change', function (e) {
+                        const file = e.target.files[0];
+                        if (file) {
+                            groupsAuthJoinFileName.textContent = file.name;
+                            groupsAuthJoinFileName.style.display = 'inline';
+                            groupsAuthJoinFileInputText.style.display = 'none';
+                        }
+                    });
+                }
+
+                // Success modal elements
+                const groupsAuthJoinSuccessModal = document.getElementById('groupsAuthJoinSuccessModal');
+                const closeGroupsAuthJoinSuccessModal = document.getElementById('closeGroupsAuthJoinSuccessModal');
+                const groupsAuthJoinSuccessCancelBtn = document.getElementById('groupsAuthJoinSuccessCancelBtn');
+                const groupsAuthJoinSuccessViewBtn = document.getElementById('groupsAuthJoinSuccessViewBtn');
+                const groupsAuthJoinSubmitBtn = document.getElementById('groupsAuthJoinSubmitBtn');
+
+                // Show success modal function
+                function showSuccessModal() {
+                    hideModal(groupsAuthJoinModal);
+                    showModal(groupsAuthJoinSuccessModal);
+                }
+
+                // Close success modal
+                if (closeGroupsAuthJoinSuccessModal) {
+                    closeGroupsAuthJoinSuccessModal.addEventListener('click', function () {
+                        hideModal(groupsAuthJoinSuccessModal);
+                    });
+                }
+
+                // Cancel success modal
+                if (groupsAuthJoinSuccessCancelBtn) {
+                    groupsAuthJoinSuccessCancelBtn.addEventListener('click', function () {
+                        hideModal(groupsAuthJoinSuccessModal);
+                    });
+                }
+
+                // View group button
+                if (groupsAuthJoinSuccessViewBtn) {
+                    groupsAuthJoinSuccessViewBtn.addEventListener('click', function () {
+                        hideModal(groupsAuthJoinSuccessModal);
+                        // Here you can add logic to redirect to group page or show group info
+                        console.log('Grubu görüntüle butonuna tıklandı');
+                    });
+                }
+
+                // Close success modal when clicking outside
+                if (groupsAuthJoinSuccessModal) {
+                    window.addEventListener('click', function (event) {
+                        if (event.target === groupsAuthJoinSuccessModal) {
+                            hideModal(groupsAuthJoinSuccessModal);
+                        }
+                    });
+                }
+
+                // Submit button click handler
+                if (groupsAuthJoinSubmitBtn) {
+                    groupsAuthJoinSubmitBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        
+                        // Get form values
+                        const userName = document.getElementById('groupsAuthJoinUserNameInput').value.trim();
+                        const memberName = document.getElementById('groupsAuthJoinMemberNameInput').value.trim();
+                        const memberPassword = document.getElementById('groupsAuthJoinMemberPasswordInput').value.trim();
+                        const profileImage = groupsAuthJoinProfileImageInput.files[0];
+                        
+                        // Basic validation
+                        if (!userName || !memberName || !memberPassword) {
+                            alert('Lütfen tüm alanları doldurunuz.');
+                            return;
+                        }
+                        
+                        // Show success modal
+                        showSuccessModal();
+                    });
+                }
 
     // Handle user login form submission
     groupsAuthLoginForm.addEventListener('submit', async function (e) {
@@ -281,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 showError(groupsAuthLoginError, 'Geçersiz kullanıcı adı veya şifre');
                 if (typeof logUnauthorizedAccess === 'function') {
-                    logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
+                logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
                 }
                 return;
             }
@@ -289,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('Login error:', error);
             showError(groupsAuthLoginError, 'Giriş işlemi sırasında bir hata oluştu');
             if (typeof logUnauthorizedAccess === 'function') {
-                logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
+            logUnauthorizedAccess('Başarısız Yönetici girişi denemesi');
             }
         }
     });

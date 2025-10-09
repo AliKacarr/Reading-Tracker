@@ -680,6 +680,8 @@ body {
     gap: 15px;
     justify-content: flex-end;
     margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
 }
 
 .btn-primary,
@@ -710,6 +712,7 @@ body {
 }
 
 .btn-secondary {
+    flex: 1;
     background: white;
     color: #38a8f8;
     border: 2px solid #38BDF8;
