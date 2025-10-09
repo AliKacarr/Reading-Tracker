@@ -2364,6 +2364,34 @@ app.delete('/api/cancel-join-request/:groupId', async (req, res) => {
   }
 });
 
+// Kullanıcı adı benzersizlik kontrol endpoint'i
+app.get('/api/check-username-exists/:groupId/:username', async (req, res) => {
+  try {
+    const { groupId, username } = req.params;
+
+    // Grup koleksiyonlarını al
+    const { users } = getGroupCollections(groupId);
+
+    // Kullanıcı adı var mı kontrol et
+    const existingUser = await users.findOne({ username });
+
+    // Ayrıca pending durumundaki katılma isteklerinde de var mı kontrol et
+    const existingRequest = await JoinRequest.findOne({ 
+      groupId, 
+      userName: username, 
+      status: 'pending' 
+    });
+
+    res.json({ 
+      exists: !!(existingUser || existingRequest)
+    });
+
+  } catch (error) {
+    console.error('Kullanıcı adı kontrol hatası:', error);
+    res.status(500).json({ error: 'Kullanıcı adı kontrol edilirken hata oluştu' });
+  }
+});
+
 // Katılma isteği durumu kontrol endpoint'i
 app.get('/api/join-request-status/:groupId/:userName', async (req, res) => {
   try {

@@ -321,7 +321,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 async function updateGroupInfoInModal() {
                     // Get current group info from URL or page context
                     const currentPath = window.location.pathname;
-                    const groupId = currentPath.replace('/', ''); // Remove leading slash
+                    let groupId = currentPath.replace('/', ''); // Remove leading slash
+                    
+                    // Clean groupId if it contains 'groupid=' prefix
+                    if (groupId.startsWith('groupid=')) {
+                        groupId = groupId.replace('groupid=', '');
+                    }
                     
                     // Get group name and ID elements
                     const groupsAuthJoinGroupName = document.getElementById('groupsAuthJoinGroupName');
@@ -421,7 +426,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Cancel success modal
                 if (groupsAuthJoinSuccessCancelBtn) {
-                    groupsAuthJoinSuccessCancelBtn.addEventListener('click', function () {
+                    groupsAuthJoinSuccessCancelBtn.addEventListener('click', async function () {
+                        // Get current group ID from URL
+                        const currentPath = window.location.pathname;
+                        let groupId = currentPath.replace('/', '');
+                        
+                        // Clean groupId if it contains 'groupid=' prefix
+                        if (groupId.startsWith('groupid=')) {
+                            groupId = groupId.replace('groupid=', '');
+                        }
+                        
+                        if (groupId && groupId !== 'groups.html') {
+                            // Get join request ID from localStorage
+                            const joinRequests = JSON.parse(localStorage.getItem('jointogroups') || '{}');
+                            const requestId = joinRequests[groupId];
+                            
+                            if (requestId) {
+                                try {
+                                    // Cancel join request via API
+                                    const response = await fetch(`/api/cancel-join-request-by-id/${requestId}`, {
+                                        method: 'DELETE'
+                                    });
+                                    
+                                    const result = await response.json();
+                                    
+                                    if (result.success) {
+                                        // Remove from localStorage
+                                        delete joinRequests[groupId];
+                                        localStorage.setItem('jointogroups', JSON.stringify(joinRequests));
+                                        
+                                        console.log('Katılma isteği iptal edildi');
+                                    } else {
+                                        console.error('Katılma isteği iptal edilemedi:', result.error);
+                                    }
+                                } catch (error) {
+                                    console.error('Cancel join request error:', error);
+                                }
+                            }
+                        }
+                        
                         hideModal(groupsAuthJoinSuccessModal);
                     });
                 }
@@ -430,8 +473,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (groupsAuthJoinSuccessViewBtn) {
                     groupsAuthJoinSuccessViewBtn.addEventListener('click', function () {
                         hideModal(groupsAuthJoinSuccessModal);
-                        // Here you can add logic to redirect to group page or show group info
-                        console.log('Grubu görüntüle butonuna tıklandı');
                     });
                 }
 
@@ -446,12 +487,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Submit button click handler
                 if (groupsAuthJoinSubmitBtn) {
-                    groupsAuthJoinSubmitBtn.addEventListener('click', function (e) {
+                    groupsAuthJoinSubmitBtn.addEventListener('click', async function (e) {
                         e.preventDefault();
                         
                         // Get form values
-                        const userName = document.getElementById('groupsAuthJoinUserNameInput').value.trim();
-                        const memberName = document.getElementById('groupsAuthJoinMemberNameInput').value.trim();
+                        const userName = document.getElementById('groupsAuthJoinUserNameInput').value.trim(); // name field
+                        const memberName = document.getElementById('groupsAuthJoinMemberNameInput').value.trim(); // username field
                         const memberPassword = document.getElementById('groupsAuthJoinMemberPasswordInput').value.trim();
                         const profileImage = groupsAuthJoinProfileImageInput.files[0];
                         
@@ -461,8 +502,72 @@ document.addEventListener('DOMContentLoaded', function () {
                             return;
                         }
                         
-                        // Show success modal
-                        showSuccessModal();
+                        // Character limit validation
+                        if (userName.length > 40 || memberName.length > 40 || memberPassword.length > 40) {
+                            alert('Tüm alanlar 40 karakterden kısa olmalıdır.');
+                            return;
+                        }
+                        
+                        // Get current group ID from URL
+                        const currentPath = window.location.pathname;
+                        let groupId = currentPath.replace('/', '');
+                        
+                        // Clean groupId if it contains 'groupid=' prefix
+                        if (groupId.startsWith('groupid=')) {
+                            groupId = groupId.replace('groupid=', '');
+                        }
+                        
+                        if (!groupId || groupId === 'groups.html') {
+                            alert('Grup bilgisi bulunamadı.');
+                            return;
+                        }
+                        
+                        // Username uniqueness will be checked on the server side
+                        
+                        // Show loading state
+                        const originalText = groupsAuthJoinSubmitBtn.innerHTML;
+                        groupsAuthJoinSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+                        groupsAuthJoinSubmitBtn.disabled = true;
+                        
+                        try {
+                            // Create FormData for the request
+                            const formData = new FormData();
+                            formData.append('groupId', groupId);
+                            formData.append('userName', userName); 
+                            formData.append('memberName', memberName);
+                            formData.append('userPassword', memberPassword);
+                            
+                            if (profileImage) {
+                                formData.append('profileImage', profileImage);
+                            }
+                            
+                            // Send join request
+                            const response = await fetch('/api/join-group-request', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                                // Store join request info in localStorage
+                                const joinRequests = JSON.parse(localStorage.getItem('jointogroups') || '{}');
+                                joinRequests[groupId] = result.requestId;
+                                localStorage.setItem('jointogroups', JSON.stringify(joinRequests));
+                                
+                                // Show success modal
+                                showSuccessModal();
+                            } else {
+                                alert(result.error || 'Katılma isteği gönderilemedi.');
+                            }
+                        } catch (error) {
+                            console.error('Join request error:', error);
+                            alert('Katılma isteği gönderilirken bir hata oluştu.');
+                        } finally {
+                            // Reset button state
+                            groupsAuthJoinSubmitBtn.innerHTML = originalText;
+                            groupsAuthJoinSubmitBtn.disabled = false;
+                        }
                     });
                 }
 
