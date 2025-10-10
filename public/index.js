@@ -593,11 +593,15 @@ class GroupsPage {
     updateVisibilityIcon() {
         const visibilitySelect = document.getElementById('groupVisibilityInput');
         const visibilityIcon = document.querySelector('#groupVisibilityInput').parentElement.querySelector('.input-icon');
+        const visibilityInfo = document.getElementById('createGroupVisibilityInfo');
+        const infoSpan = visibilityInfo ? visibilityInfo.querySelector('span') : null;
         
         if (visibilitySelect.value === 'public') {
             visibilityIcon.className = 'fas fa-eye input-icon';
+            if (infoSpan) infoSpan.textContent = 'Herkes bu grubu görüntüleyebilir';
         } else if (visibilitySelect.value === 'private') {
             visibilityIcon.className = 'fas fa-eye-slash input-icon';
+            if (infoSpan) infoSpan.textContent = 'Sadece üyeler grubu görüntüleyebilir';
         }
     }
 

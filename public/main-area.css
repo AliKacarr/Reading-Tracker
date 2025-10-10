@@ -1372,7 +1372,7 @@ input[type="file"] {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 4px;
     padding: 8px 12px;
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;

@@ -1149,7 +1149,7 @@ function updateVisibilityIcon(visibility) {
         if (infoSpan) infoSpan.textContent = 'Herkes bu grubu görüntüleyebilir';
     } else {
         icon.className = 'fa-solid fa-eye-slash visibility-icon private';
-        if (infoSpan) infoSpan.textContent = 'Sadece üyeler bu grubu görüntüleyebilir';
+        if (infoSpan) infoSpan.textContent = 'Sadece üyeler grubu görüntüleyebilir';
     }
 }
 
