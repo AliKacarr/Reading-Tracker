@@ -229,6 +229,9 @@
                   <span class="groups-auth-join-file-name" id="groupsAuthJoinFileName" style="display: none;"></span>
                 </label>
                 <input type="file" id="groupsAuthJoinProfileImageInput" accept="image/*">
+                <button type="button" class="groups-auth-join-avatar-btn" id="groupsAuthJoinAvatarBtn">
+                  ✨
+                </button>
               </div>
             </div>
 
@@ -357,7 +360,7 @@
                       </button>
                     </div>
                     <button type="button" class="welcome-avatar-btn" id="welcomeInviteAvatarBtn">
-                      <i class="fas fa-user-circle"></i>
+                      <i class="fa-solid fa-images"></i>
                       Avatar Seç
                     </button>
                   </div>
@@ -430,7 +433,7 @@
       <div class="ready-images-modal-content">
         <div class="modal-header">
           <h3>
-            <i class="fas fa-user-circle"></i>
+            <i class="fa-solid fa-images"></i>
             Avatar Seç
           </h3>
           <button type="button" class="modal-close-btn" onclick="toggleUserAvatarModal()">
@@ -439,6 +442,26 @@
         </div>
         <div class="modal-body">
           <div class="avatar-grid" id="userAvatarGrid">
+            <!-- User avatar resimleri JavaScript ile yüklenecek -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add User Avatar Selection Modal -->
+    <div id="addUserAvatarModal" class="ready-images-modal">
+      <div class="ready-images-modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fa-solid fa-images"></i>
+            Avatar Seç
+          </h3>
+          <button type="button" class="modal-close-btn" onclick="toggleAddUserAvatarModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="avatar-grid" id="addUserAvatarGrid">
             <!-- User avatar resimleri JavaScript ile yüklenecek -->
           </div>
         </div>
@@ -989,8 +1012,18 @@
                   <label for="profileImage">Profil Resmi:</label>
                   <div class="file-input-container">
                     <input type="file" id="profileImage" name="profileImage" accept="image/*" />
-                    <label for="profileImage" class="custom-file-input" id="file-input-label">Resim Seç</label>
-                    <span id="file-name">Resim seçilmedi</span>
+                    <button type="button" class="upload-btn" id="uploadBtn">
+                      <i class="fa-solid fa-upload"></i>
+                      Yükle
+                    </button>
+                    <button type="button" class="avatar-select-btn" id="addUserAvatarBtn">
+                      <i class="fa-solid fa-images"></i>
+                      Avatarlar
+                    </button>
+                    <button type="button" class="remove-image-btn" id="addUserRemoveBtn">
+                      <i class="fas fa-trash"></i>
+                      Sil
+                    </button>
                   </div>
                 </div>
                 <div class="add-user-form-group">
@@ -1111,6 +1144,26 @@
       <path d="M12 2L2 12H8V22H16V12H22L12 2Z" fill="currentColor"/>
     </svg>
   </button>
+
+  <!-- Groups Auth Join Avatar Selection Modal -->
+  <div id="groupsAuthJoinAvatarModal" class="ready-images-modal">
+    <div class="ready-images-modal-content">
+      <div class="modal-header">
+        <h3>
+          <i class="fa-solid fa-images"></i>
+          Avatar Seç
+        </h3>
+        <button type="button" class="modal-close-btn" onclick="toggleGroupsAuthJoinAvatarModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="avatar-grid" id="groupsAuthJoinAvatarGrid">
+          <!-- User avatar resimleri JavaScript ile yüklenecek -->
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>

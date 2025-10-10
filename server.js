@@ -1076,7 +1076,7 @@ app.get('/api/users/:groupId', async (req, res) => {
 app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, res) => {
   try {
     const { groupId } = req.params;
-    const { name } = req.body;
+    const { name, selectedAvatarPath } = req.body;
 
     // Grup var mı kontrol et
     const group = await UserGroup.findOne({ groupId });
@@ -1090,8 +1090,12 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
     let profileImageUrl = '/images/default.png'; // Varsayılan resim URL'i
     let fileName = null;
     
+    // Avatar seçildiyse onu kullan
+    if (selectedAvatarPath) {
+      profileImageUrl = selectedAvatarPath;
+    }
     // Resim varsa önce yerel olarak kaydet
-    if (req.file) {
+    else if (req.file) {
       try {
         // 1. Adım: Geçici klasöre kaydet (orijinal format)
         const originalFileName = req.file.originalname;
@@ -1183,8 +1187,8 @@ app.post('/api/add-user/:groupId', upload.single('profileImage'), async (req, re
     // 4. Adım: Kullanıcıya hemen yanıt ver
     res.json({ success: true, user: user, fileName: fileName });
 
-    // 5. Adım: Dropbox'a yükle (arka planda)
-    if (fileName && user) {
+    // 5. Adım: Dropbox'a yükle (arka planda) - sadece dosya yüklendiyse
+    if (fileName && user && !selectedAvatarPath) {
       try {
         const localPath = path.join(__dirname, 'uploads', fileName);
         const fileBuffer = fs.readFileSync(localPath);
@@ -1772,11 +1776,6 @@ app.post('/api/create-invite/:groupId', async (req, res) => {
     const inviteToken = crypto.randomBytes(16).toString('hex');
     const inviteTokenHash = crypto.createHash('sha256').update(inviteToken).digest('hex');
 
-    // Kullanıcının bu gruptaki kullanılmamış tüm davetlerini sil
-    await Invite.deleteMany({ 
-      userId, 
-      groupId
-    });
 
     // Yeni davet oluştur
     const invite = new Invite({
@@ -2343,7 +2342,7 @@ app.get('/api/random-dua', async (req, res) => {
 // Gruba katılma isteği gönderme endpoint'i
 app.post('/api/join-group-request', upload.single('profileImage'), async (req, res) => {
   try {
-    const { groupId, userName, memberName, userPassword } = req.body;
+    const { groupId, userName, memberName, userPassword, selectedAvatarPath } = req.body;
 
     // Grup var mı kontrol et
     const group = await UserGroup.findOne({ groupId });
@@ -2372,8 +2371,12 @@ app.post('/api/join-group-request', upload.single('profileImage'), async (req, r
     let profileImageUrl = '/images/default.png';
     let fileName = null;
     
+    // Avatar seçildiyse onu kullan
+    if (selectedAvatarPath) {
+      profileImageUrl = selectedAvatarPath;
+    }
     // Resim varsa işle
-    if (req.file) {
+    else if (req.file) {
       try {
         // 1. Adım: Geçici klasöre kaydet (orijinal format)
         const originalFileName = req.file.originalname;
@@ -2444,8 +2447,8 @@ app.post('/api/join-group-request', upload.single('profileImage'), async (req, r
       message: 'Katılma isteğiniz başarıyla gönderildi'
     });
 
-    // Arka planda Dropbox'a yükle (eğer resim varsa)
-    if (fileName) {
+    // Arka planda Dropbox'a yükle (eğer resim varsa ve avatar seçilmediyse)
+    if (fileName && !selectedAvatarPath) {
       try {
         const localPath = path.join(__dirname, 'uploads', fileName);
         const fileBuffer = fs.readFileSync(localPath);
@@ -2596,17 +2599,27 @@ app.get('/api/join-request-status-by-id/:requestId', async (req, res) => {
       await JoinRequest.findByIdAndDelete(requestId);
       console.log(`Kabul edilen katılma isteği silindi: ${requestId}`);
       
+      // Grup adını al
+      const group = await UserGroup.findOne({ groupId: joinRequest.groupId });
+      const groupName = group ? group.groupName : 'Bilinmeyen Grup';
+      
       return res.json({ 
         status: 'accepted', 
         userName: joinRequest.userName,
+        groupName: groupName,
         message: 'Katılma isteğiniz kabul edildi! Artık gruba erişebilirsiniz.' 
       });
     }
 
+    // Grup adını al (tüm durumlar için)
+    const group = await UserGroup.findOne({ groupId: joinRequest.groupId });
+    const groupName = group ? group.groupName : 'Bilinmeyen Grup';
+
     return res.json({ 
       status: joinRequest.status,
       requestId: joinRequest._id,
-      createdAt: joinRequest.createdAt
+      createdAt: joinRequest.createdAt,
+      groupName: groupName
     });
 
   } catch (error) {
@@ -2717,10 +2730,15 @@ app.post('/api/reject-join-request/:requestId', async (req, res) => {
       }
     }
 
+    // Grup adını al
+    const group = await UserGroup.findOne({ groupId: joinRequest.groupId });
+    const groupName = group ? group.groupName : 'Bilinmeyen Grup';
+
     console.log(`Katılma isteği reddedildi: ${joinRequest.userName} -> ${joinRequest.groupId}`);
 
     res.json({ 
       success: true, 
+      groupName: groupName,
       message: 'Katılma isteği reddedildi' 
     });
 

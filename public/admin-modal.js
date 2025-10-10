@@ -703,6 +703,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 formData.append('profileImage', profileImage);
                             }
                             
+                            if (selectedGroupsAuthJoinAvatarPath) {
+                                formData.append('selectedAvatarPath', selectedGroupsAuthJoinAvatarPath);
+                            }
+                            
                             // Send join request
                             const response = await fetch('/api/join-group-request', {
                                 method: 'POST',
@@ -1139,6 +1143,24 @@ document.addEventListener('DOMContentLoaded', function () {
             }));
         }
     });
+
+    // Groups Auth Join Avatar Button Event Listener
+    const groupsAuthJoinAvatarBtn = document.getElementById('groupsAuthJoinAvatarBtn');
+    if (groupsAuthJoinAvatarBtn) {
+        groupsAuthJoinAvatarBtn.addEventListener('click', toggleGroupsAuthJoinAvatarModal);
+    }
+
+    // Groups Auth Join Profile Image Input Event Listener (already defined above, just add the avatar reset logic)
+    if (groupsAuthJoinProfileImageInput) {
+        // Add avatar reset logic to existing change event listener
+        const existingChangeHandler = groupsAuthJoinProfileImageInput.onchange;
+        groupsAuthJoinProfileImageInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                selectedGroupsAuthJoinAvatarPath = null;
+                console.log('Groups auth join modal - Dosya yüklendi, avatar seçimi sıfırlandı');
+            }
+        });
+    }
 });
 function showAdminInfoPanel() {
     // Create admin info modal if it doesn't exist
@@ -1390,6 +1412,62 @@ async function loadUserAvatarOptions() {
         });
     } catch (error) {
         console.error('Avatar yükleme hatası:', error);
+        avatarGrid.innerHTML = '<p>Avatar yüklenirken hata oluştu.</p>';
+    }
+}
+
+// Groups Auth Join Avatar Modal Functions
+let selectedGroupsAuthJoinAvatarPath = null; // Groups auth join modal için seçilen avatar yolu
+
+function toggleGroupsAuthJoinAvatarModal() {
+    const modal = document.getElementById('groupsAuthJoinAvatarModal');
+    if (modal) {
+        modal.classList.toggle('show');
+        if (modal.classList.contains('show')) {
+            loadGroupsAuthJoinAvatarOptions();
+        }
+    }
+}
+
+async function loadGroupsAuthJoinAvatarOptions() {
+    const avatarGrid = document.getElementById('groupsAuthJoinAvatarGrid');
+    if (!avatarGrid) return;
+
+    try {
+        const response = await fetch('/api/user-avatars');
+        if (!response.ok) {
+            throw new Error('Avatar listesi alınamadı');
+        }
+
+        const avatars = await response.json();
+        avatarGrid.innerHTML = '';
+
+        avatars.forEach(avatar => {
+            const avatarItem = document.createElement('div');
+            avatarItem.className = 'avatar-item';
+            avatarItem.innerHTML = `
+                <img src="/userAvatars/${avatar}" alt="${avatar}" loading="lazy">
+            `;
+
+            avatarItem.addEventListener('click', function() {
+                const fileInputText = document.querySelector('#groupsAuthJoinModal .groups-auth-join-file-input-text');
+                if (fileInputText) {
+                    fileInputText.textContent = 'Avatar seçildi';
+                    fileInputText.style.color = '#28a745'; // Yeşil renk
+                }
+                selectedGroupsAuthJoinAvatarPath = `/userAvatars/${avatar}`;
+                const groupsAuthJoinProfileImageInput = document.getElementById('groupsAuthJoinProfileImageInput');
+                if (groupsAuthJoinProfileImageInput) {
+                    groupsAuthJoinProfileImageInput.value = '';
+                }
+                console.log('Groups auth join modal - Avatar seçildi:', selectedGroupsAuthJoinAvatarPath);
+                toggleGroupsAuthJoinAvatarModal();
+            });
+
+            avatarGrid.appendChild(avatarItem);
+        });
+    } catch (error) {
+        console.error('Groups auth join avatar yükleme hatası:', error);
         avatarGrid.innerHTML = '<p>Avatar yüklenirken hata oluştu.</p>';
     }
 }

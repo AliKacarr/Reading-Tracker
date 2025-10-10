@@ -590,8 +590,56 @@ input[type="file"] {
     z-index: -1;
 }
 
-label.custom-file-input {
-    background-color: #3498db;
+.upload-btn {
+    background: linear-gradient(135deg, #29a55e, #29a55e);
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    gap: 6px;
+    transition: all 0.3s;
+    border: none;
+    box-shadow: 0 2px 4px rgba(41, 165, 94, 0.3);
+}
+
+.upload-btn:hover {
+    background: linear-gradient(135deg, #29a55e, #238c50);
+    box-shadow: 0 4px 8px rgba(41, 165, 94, 0.4);
+    transform: translateY(-1px);
+}
+
+.avatar-select-btn {
+    background: linear-gradient(135deg, #4B8EF5 0%, #2563EB 100%);
+    color: white !important;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    transition: all 0.3s;
+    border: none;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.avatar-select-btn:hover {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+}
+
+.remove-image-btn {
+    background: linear-gradient(135deg, #F87171, #EF4444);
     color: white !important;
     padding: 8px 12px;
     border-radius: 4px;
@@ -604,19 +652,14 @@ label.custom-file-input {
     margin-right: 10px;
     transition: all 0.3s;
     border: none;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(248, 113, 113, 0.3);
 }
 
-label.custom-file-input:hover {
-    background-color: #2980b9;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-#file-name {
-    color: #666;
-    font-size: 14px;
-    display: inline-block;
-    vertical-align: middle;
-    flex: 1;
+.remove-image-btn:hover {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    box-shadow: 0 4px 8px rgba(248, 113, 113, 0.4);
+    transform: translateY(-1px);
 }
 
 #imagePreviewContainer {

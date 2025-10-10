@@ -1922,9 +1922,7 @@
   gap: 8px;
 }
 
-.welcome-upload-btn,
-.welcome-remove-btn,
-.welcome-avatar-btn {
+.welcome-upload-btn {
   background: linear-gradient(135deg, #10B981, #059669);
   color: white;
   border: 1px solid rgb(51 129 12 / 30%);
@@ -1939,22 +1937,42 @@
   gap: 8px;
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   justify-content: center;
+  flex: 2;
 }
 
 .welcome-remove-btn {
-  background: linear-gradient(135deg, #EF4444, #DC2626);
-  border: 1px solid rgb(220 38 38 / 30%);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  background: linear-gradient(135deg, #F87171, #EF4444);
+  color: white;
+  border: 1px solid rgb(248 113 113 / 30%);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.3);
+  justify-content: center;
   flex: 1;
 }
 
-.welcome-upload-btn{
-    flex: 2;
-}
 .welcome-avatar-btn {
-  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  background: #3B82F6;
+  color: white;
   border: 1px solid rgb(37 99 235 / 30%);
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  justify-content: center;
   width: 100%;
 }
 
@@ -1966,14 +1984,14 @@
 
 .welcome-remove-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-  background: linear-gradient(135deg, #DC2626, #B91C1C);
+  box-shadow: 0 6px 16px rgba(248, 113, 113, 0.4);
+  background: linear-gradient(135deg, #EF4444, #DC2626);
 }
 
 .welcome-avatar-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  background: #2563EB;
 }
 
 .welcome-invite-actions {
@@ -2005,7 +2023,7 @@
 }
 
 .welcome-invite-join-btn {
-  background: #3B82F6;
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
   color: white;
   border: 2px solid #2563EB;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
@@ -2013,7 +2031,7 @@
 }
 
 .welcome-invite-join-btn:hover {
-  background: #2563EB;
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
 }
@@ -2078,7 +2096,8 @@
 }
 
 /* User Avatar Modal - Higher z-index */
-#userAvatarModal {
+#userAvatarModal,
+#addUserAvatarModal {
   z-index: 10010 !important;
 }
 
@@ -2146,5 +2165,53 @@
   .welcome-info-icon {
     font-size: 10px;
   }
+}
+
+/* Groups Auth Join Avatar Button Styles */
+.groups-auth-join-avatar-btn {
+  background: #fff;
+  color: #1976d2;
+  border: 2px solid #bccfdf;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  transition: all 0.3s ease;
+  height: 40px;
+  box-shadow: 0 2px 8px rgba(100, 181, 246, 0.3);
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  overflow: hidden;
+  min-width: 40px;
+  width: 40px;
+}
+
+.groups-auth-join-avatar-btn:hover {
+  background: #f5fbff;
+  border-color: #42a5f5;
+  transform: translateY(-50%) translateY(-2px);
+  box-shadow: 0 2px 6px rgba(66, 165, 245, 0.4);
+}
+
+.groups-auth-join-avatar-btn:active {
+  transform: translateY(-50%);
+  box-shadow: 0 2px 4px rgba(66, 165, 245, 0.3);
+}
+
+#groupsAuthJoinAvatarModal {
+  z-index: 10010 !important;
+}
+
+.groups-auth-join-input-container .groups-auth-join-file-input-label {
+  padding: 15px 70px 15px 15px; /* Increased right padding for avatar button */
+  margin: 0;
 }
 

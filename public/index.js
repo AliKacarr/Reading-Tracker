@@ -93,6 +93,8 @@ class GroupsPage {
         this.selectedAvatarPath = null;
         this.joinRequestStatuses = new Map(); // Grup ID -> durum bilgisi
         this.currentJoinGroup = null; // Şu anda katılma modalında olan grup
+        this.messageQueue = []; // Mesaj kuyruğu
+        this.isShowingMessage = false; // Şu anda mesaj gösteriliyor mu?
 
         this.init();
     }
@@ -962,18 +964,20 @@ class GroupsPage {
                         // İstek kabul edilmiş, kullanıcıyı gruba ekle
                         LocalStorageManager.removeJoinRequest(groupId);
                         LocalStorageManager.loginUser(groupId, requestId, 'member', data.userName || 'Kullanıcı', '');
-                        this.showSuccessMessage('Katılma isteğiniz kabul edildi! Artık gruba erişebilirsiniz.');
+                        const groupName = data.groupName || 'Bilinmeyen Grup';
+                        this.showSuccessMessage(`"${groupName}" grubuna katılma isteğiniz kabul edildi! Artık gruba erişebilirsiniz.`);
                         console.log(`Katılma isteği kabul edildi: ${groupId}`);
                     } else if (data.status === 'rejected') {
                         // İstek reddedilmiş, koleksiyondan da sil
                         await fetch(`/api/delete-join-request/${requestId}`, { method: 'DELETE' });
                         LocalStorageManager.removeJoinRequest(groupId);
-                        this.showErrorMessage('Katılma isteğiniz reddedildi.');
+                        const groupName = data.groupName || 'Bilinmeyen Grup';
+                        this.showErrorMessage(`"${groupName}" grubuna katılma isteğiniz reddedildi.`);
                         console.log(`Katılma isteği reddedildi ve silindi: ${groupId}`);
                     } else if (data.status === 'pending') {
                         // İstek hala bekliyor, yerel depolamada kalsın
                         this.joinRequestStatuses.set(groupId, data);
-                        console.log(`Katılma isteği bekliyor: ${groupId}`);
+                            console.log(`Katılma isteği bekliyor: ${groupId}`);
                     }
                 } else {
                     // API hatası, yerel depolamadan sil
@@ -1127,6 +1131,9 @@ class GroupsPage {
         if (profileImageInput.files[0]) {
             formData.append('profileImage', profileImageInput.files[0]);
         }
+        if (selectedJoinAvatarPath) {
+            formData.append('selectedAvatarPath', selectedJoinAvatarPath);
+        }
 
         try {
             const response = await fetch('/api/join-group-request', {
@@ -1232,8 +1239,27 @@ class GroupsPage {
         this.showToast(message, 'error');
     }
 
-    // Toast mesajı göster
+    // Toast mesajı göster (kuyruk sistemi ile)
     showToast(message, type = 'info') {
+        // Mesajı kuyruğa ekle
+        this.messageQueue.push({ message, type });
+        
+        // Eğer şu anda mesaj gösterilmiyorsa, kuyruktan mesaj göster
+        if (!this.isShowingMessage) {
+            this.processMessageQueue();
+        }
+    }
+
+    // Mesaj kuyruğunu işle
+    processMessageQueue() {
+        if (this.messageQueue.length === 0) {
+            this.isShowingMessage = false;
+            return;
+        }
+
+        this.isShowingMessage = true;
+        const { message, type } = this.messageQueue.shift();
+
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.style.cssText = `
@@ -1246,7 +1272,7 @@ class GroupsPage {
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             z-index: 9999;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.5s ease;
             max-width: 300px;
             word-wrap: break-word;
         `;
@@ -1254,13 +1280,18 @@ class GroupsPage {
 
         document.body.appendChild(toast);
 
+        // Mesajı 4 saniye göster, sonra kaldır ve kuyruktaki sonraki mesajı göster
         setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease';
+            toast.style.animation = 'slideOut 0.5s ease';
             setTimeout(() => {
                 if (document.body.contains(toast)) {
                     document.body.removeChild(toast);
                 }
-            }, 300);
+                // Kuyruktaki sonraki mesajı göster (2 saniye bekle - daha uzun aralık)
+                setTimeout(() => {
+                    this.processMessageQueue();
+                }, 2000);
+            }, 500);
         }, 4000);
     }
 
@@ -1401,4 +1432,91 @@ function toggleReadyImagesModal() {
 // Initialize the groups page when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     groupsPageInstance = new GroupsPage();
+});
+
+// Join Avatar Modal Functions
+let selectedJoinAvatarPath = null; // Join modal için seçilen avatar yolu
+
+function toggleJoinAvatarModal() {
+    const modal = document.getElementById('joinAvatarModal');
+    if (modal) {
+        modal.classList.toggle('show');
+        if (modal.classList.contains('show')) {
+            loadJoinAvatarOptions();
+        }
+    }
+}
+
+async function loadJoinAvatarOptions() {
+    const avatarGrid = document.getElementById('joinAvatarGrid');
+    if (!avatarGrid) return;
+
+    try {
+        // userAvatars klasöründeki resimleri yükle
+        const response = await fetch('/api/user-avatars');
+        const avatars = await response.json();
+        
+        avatarGrid.innerHTML = '';
+        
+        avatars.forEach((avatar, index) => {
+            const avatarItem = document.createElement('div');
+            avatarItem.className = 'avatar-item';
+            avatarItem.innerHTML = `
+                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}" loading="lazy">
+            `;
+            
+            avatarItem.addEventListener('click', function() {
+                // Seçili avatar'ı profil önizlemesine uygula
+                const fileInputText = document.querySelector('#joinGroupModal .file-input-text');
+                if (fileInputText) {
+                    fileInputText.textContent = 'Avatar seçildi';
+                    fileInputText.style.color = '#28a745'; // Yeşil renk
+                }
+                
+                // Avatar yolunu kaydet
+                selectedJoinAvatarPath = `/userAvatars/${avatar}`;
+                
+                // Dosya yükleme işlemini sıfırla (tek seçim mantığı)
+                const joinProfileImageInput = document.getElementById('joinProfileImageInput');
+                if (joinProfileImageInput) {
+                    joinProfileImageInput.value = '';
+                }
+                
+                console.log('Join modal - Avatar seçildi:', selectedJoinAvatarPath);
+                
+                // Modal'ı kapat
+                toggleJoinAvatarModal();
+            });
+            
+            avatarGrid.appendChild(avatarItem);
+        });
+    } catch (error) {
+        console.error('Avatar yükleme hatası:', error);
+        avatarGrid.innerHTML = '<p>Avatar yüklenirken hata oluştu.</p>';
+    }
+}
+
+// Join avatar butonu event listener
+document.addEventListener('DOMContentLoaded', function() {
+    const joinAvatarBtn = document.getElementById('joinAvatarBtn');
+    if (joinAvatarBtn) {
+        joinAvatarBtn.addEventListener('click', toggleJoinAvatarModal);
+    }
+    
+    // Join profile image input change listener
+    const joinProfileImageInput = document.getElementById('joinProfileImageInput');
+    if (joinProfileImageInput) {
+        joinProfileImageInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const fileInputText = document.querySelector('#joinGroupModal .file-input-text');
+                if (fileInputText) {
+                    fileInputText.textContent = this.files[0].name;
+                }
+                
+                // Avatar seçimini sıfırla (tek seçim mantığı)
+                selectedJoinAvatarPath = null;
+                console.log('Join modal - Dosya yüklendi, avatar seçimi sıfırlandı');
+            }
+        });
+    }
 });

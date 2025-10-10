@@ -1,3 +1,66 @@
+// Global değişkenler
+let renderUserListTimeout = null;
+
+// Mesaj kuyruğu sistemi
+let messageQueue = [];
+let isShowingMessage = false;
+
+// Mesaj kuyruğunu işle
+function processMessageQueue() {
+    if (messageQueue.length === 0) {
+        isShowingMessage = false;
+        return;
+    }
+
+    isShowingMessage = true;
+    const { message, type } = messageQueue.shift();
+
+    // Mevcut bildirimleri kaldır
+    const existingNotifications = document.querySelectorAll('.notification-toast, .success-message, .error-message');
+    existingNotifications.forEach(notification => notification.remove());
+
+    // Yeni bildirim oluştur
+    const notification = document.createElement('div');
+    notification.className = `notification-toast notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fa-solid fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+    // Stil ekle
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+        color: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        animation: slideInRight 0.5s ease;
+        max-width: 300px;
+    `;
+
+    document.body.appendChild(notification);
+
+    // 3 saniye sonra kaldır, sonra kuyruktaki sonraki mesajı göster
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.5s ease';
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                notification.remove();
+            }
+            // Kuyruktaki sonraki mesajı göster (2 saniye bekle - daha uzun aralık)
+            setTimeout(() => {
+                processMessageQueue();
+            }, 2000);
+        }, 500);
+    }, 3000);
+}
+
 newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonksiyonu
     e.preventDefault();
 
@@ -26,6 +89,9 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         if (imageInput.files.length > 0) {
             formData.append('profileImage', imageInput.files[0]);
         }
+        if (selectedAddUserAvatarPath) {
+            formData.append('selectedAvatarPath', selectedAddUserAvatarPath);
+        }
 
         // Kullanıcıyı ekle (yeni sistem: önce yerel, sonra Dropbox)
         const response = await fetch(`/api/add-user/${window.groupid}`, {
@@ -42,12 +108,22 @@ newUserForm.addEventListener('submit', async (e) => {  //Kullanıcı ekleme fonk
         // Form alanlarını temizle
         input.value = '';
         imageInput.value = '';
-        fileNameDisplay.textContent = 'Resim seçilmedi';
-        fileInputLabel.textContent = 'Resim Seç';
+        if (uploadBtn) {
+            uploadBtn.innerHTML = '<i class="fa-solid fa-upload"></i>Yükle';
+        }
         imagePreviewContainer.style.display = 'none';
         
         // Input-profile-image'i varsayılan resme döndür
         inputProfileImage.src = '/images/default.png';
+        
+        // Add-user-input-profile-image'i de varsayılan resme döndür
+        const addUserInputProfileImage = document.getElementById('addUserInputProfileImage');
+        if (addUserInputProfileImage) {
+            addUserInputProfileImage.src = '/images/default.png';
+        }
+        
+        // Avatar seçimini sıfırla
+        selectedAddUserAvatarPath = null;
 
         // UI'ı güncelle (yerel resim ile başlar, Dropbox yüklemesi arka planda olur)
         if (LocalStorageManager.isAdmin()) {
@@ -404,12 +480,60 @@ function changeUserImage(userId) {     //Kullanıcı resmi değiştirme fonksiyo
 
 // File input display handler
 const profileImageInput = document.getElementById('profileImage');
-const fileNameDisplay = document.getElementById('file-name');
-const fileInputLabel = document.getElementById('file-input-label');
+const uploadBtn = document.getElementById('uploadBtn');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 const closePreviewButton = document.getElementById('closePreview');
 const inputProfileImage = document.getElementById('imagePreview'); // imagePreview element'ini kullan
+
+// Add User Avatar Selection
+let selectedAddUserAvatarPath = null; // Kullanıcı ekleme için seçilen avatar yolu
+
+// Upload butonu event listener
+if (uploadBtn) {
+    uploadBtn.addEventListener('click', function() {
+        if (profileImageInput) {
+            profileImageInput.click();
+        }
+    });
+}
+
+// Avatar seç butonu event listener
+const addUserAvatarBtn = document.getElementById('addUserAvatarBtn');
+if (addUserAvatarBtn) {
+    addUserAvatarBtn.addEventListener('click', toggleAddUserAvatarModal);
+}
+
+// Sil butonu event listener
+const addUserRemoveBtn = document.getElementById('addUserRemoveBtn');
+if (addUserRemoveBtn) {
+    addUserRemoveBtn.addEventListener('click', function() {
+        // Profil önizlemesini varsayılan resme döndür
+        const previewImg = document.getElementById('addUserInputProfileImage');
+        if (previewImg) {
+            previewImg.src = '/images/default.png';
+        }
+        
+        // Dosya input'unu temizle
+        if (profileImageInput) {
+            profileImageInput.value = '';
+        }
+        
+        // Avatar seçimini sıfırla
+        selectedAddUserAvatarPath = null;
+        
+        // Resim önizleme container'ını gizle
+        if (imagePreviewContainer) {
+            imagePreviewContainer.style.display = 'none';
+        }
+        
+        // Buton metnini sıfırla
+        if (uploadBtn) {
+            uploadBtn.innerHTML = '<i class="fa-solid fa-upload"></i>Yükle';
+        }
+        
+    });
+}
 
 // inputProfileImage tıklanınca file seçim işlemi
 if (inputProfileImage) {
@@ -423,12 +547,22 @@ if (inputProfileImage) {
 
 function resetImagePreview() {    // Resim önizleme kapatma fonksiyonu
     imagePreviewContainer.style.display = 'none';
-    fileNameDisplay.textContent = 'Resim seçilmedi';
-    fileInputLabel.textContent = 'Resim Seç';
+    if (uploadBtn) {
+        uploadBtn.innerHTML = '<i class="fa-solid fa-upload"></i>Yükle';
+    }
     profileImageInput.value = ''; // Input değerini de temizle
     
     // Input-profile-image'i varsayılan resme döndür
     inputProfileImage.src = '/images/default.png';
+    
+    // Add-user-input-profile-image'i de varsayılan resme döndür
+    const addUserInputProfileImage = document.getElementById('addUserInputProfileImage');
+    if (addUserInputProfileImage) {
+        addUserInputProfileImage.src = '/images/default.png';
+    }
+    
+    // Avatar seçimini de sıfırla
+    selectedAddUserAvatarPath = null;
 }
 
 if (closePreviewButton) {
@@ -438,11 +572,12 @@ if (closePreviewButton) {
     });
 }
 
-if (profileImageInput && fileNameDisplay) {
+if (profileImageInput) {
     profileImageInput.addEventListener('change', function () {
         if (this.files.length > 0) {
-            fileNameDisplay.textContent = this.files[0].name;
-            fileInputLabel.textContent = "Değiştir";
+            if (uploadBtn) {
+                uploadBtn.innerHTML = '<i class="fa-solid fa-upload"></i>Değiştir';
+            }
 
             // Resim ön izlemesi göster
             const file = this.files[0];
@@ -455,6 +590,15 @@ if (profileImageInput && fileNameDisplay) {
                 
                 // Input-profile-image'i güncelle
                 inputProfileImage.src = e.target.result;
+                
+                // Add-user-input-profile-image'i de güncelle
+                const addUserInputProfileImage = document.getElementById('addUserInputProfileImage');
+                if (addUserInputProfileImage) {
+                    addUserInputProfileImage.src = e.target.result;
+                }
+                
+                // Avatar seçimini sıfırla (tek seçim mantığı)
+                selectedAddUserAvatarPath = null;
             }
 
             reader.readAsDataURL(file);
@@ -465,49 +609,23 @@ if (profileImageInput && fileNameDisplay) {
 }
 
 function showSuccessMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = 'success-message';
-    messageElement.textContent = message;
-    document.body.appendChild(messageElement);
-
-    // Style the message
-    messageElement.style.position = 'fixed';
-    messageElement.style.top = '20px';
-    messageElement.style.right = '20px';
-    messageElement.style.backgroundColor = '#d4edda';
-    messageElement.style.color = '#155724';
-    messageElement.style.padding = '10px';
-    messageElement.style.borderRadius = '5px';
-    messageElement.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
-    messageElement.style.zIndex = '1000';
-
-    // Remove the message after 3 seconds
-    setTimeout(() => {
-        document.body.removeChild(messageElement);
-    }, 3000);
+    // Mesajı kuyruğa ekle
+    messageQueue.push({ message, type: 'success' });
+    
+    // Eğer şu anda mesaj gösterilmiyorsa, kuyruktan mesaj göster
+    if (!isShowingMessage) {
+        processMessageQueue();
+    }
 }
 
 function showErrorMessage(message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = 'error-message';
-    messageElement.textContent = message;
-    document.body.appendChild(messageElement);
-
-    // Style the message
-    messageElement.style.position = 'fixed';
-    messageElement.style.top = '20px';
-    messageElement.style.right = '20px';
-    messageElement.style.backgroundColor = '#f8d7da';
-    messageElement.style.color = '#721c24';
-    messageElement.style.padding = '10px';
-    messageElement.style.borderRadius = '5px';
-    messageElement.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
-    messageElement.style.zIndex = '1000';
-
-    // Remove the message after 3 seconds
-    setTimeout(() => {
-        document.body.removeChild(messageElement);
-    }, 3000);
+    // Mesajı kuyruğa ekle
+    messageQueue.push({ message, type: 'error' });
+    
+    // Eğer şu anda mesaj gösterilmiyorsa, kuyruktan mesaj göster
+    if (!isShowingMessage) {
+        processMessageQueue();
+    }
 }
 
 function toggleDeleteButton(userId) {     //Kullanıcı silme butonunu açma fonksiyonu
@@ -868,8 +986,6 @@ ${groupUrl}`;
 }
 
 // renderUserList için debounce mekanizması
-let renderUserListTimeout = null;
-
 function renderUserList() {
     // Sadece admin yetkisi kontrolü
     if (!LocalStorageManager.isAdmin()) {
@@ -1033,7 +1149,7 @@ function updateVisibilityIcon(visibility) {
         if (infoSpan) infoSpan.textContent = 'Herkes bu grubu görüntüleyebilir';
     } else {
         icon.className = 'fa-solid fa-eye-slash visibility-icon private';
-        if (infoSpan) infoSpan.textContent = 'Sadece üyeler grubu görüntüleyebilir';
+        if (infoSpan) infoSpan.textContent = 'Sadece üyeler bu grubu görüntüleyebilir';
     }
 }
 
@@ -1609,16 +1725,21 @@ async function acceptJoinRequest(requestId) {
         const data = await response.json();
         
         // Başarı mesajı göster
-        showNotification(data.message, 'success');
+        showSuccessMessage(data.message);
         
         // İsteği listeden kaldır
         const requestItem = document.querySelector(`[data-request-id="${requestId}"]`);
         if (requestItem) {
             requestItem.remove();
         }
-
-        // Kullanıcı listesini yenile
+        
+        // Tüm alanları yenile
         renderUserList();
+        loadTrackerTable();
+        loadUserCards();
+        loadReadingStats();
+        renderLongestSeries();
+        if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
 
         // Eğer hiç istek kalmadıysa mesaj göster
         const remainingRequests = document.querySelectorAll('.join-request-item');
@@ -1654,7 +1775,7 @@ async function rejectJoinRequest(requestId) {
         const data = await response.json();
         
         // Başarı mesajı göster
-        showNotification(data.message, 'success');
+        showSuccessMessage(data.message);
         
         // İsteği listeden kaldır
         const requestItem = document.querySelector(`[data-request-id="${requestId}"]`);
@@ -1671,46 +1792,81 @@ async function rejectJoinRequest(requestId) {
 
     } catch (error) {
         console.error('Katılma isteği reddetme hatası:', error);
-        showNotification('Katılma isteği reddedilirken hata oluştu', 'error');
+        showErrorMessage('Katılma isteği reddedilirken hata oluştu');
     }
 }
 
-// Bildirim gösterme fonksiyonu
+// Bildirim gösterme fonksiyonu (kuyruk sistemi ile)
 function showNotification(message, type = 'info') {
-    // Mevcut bildirimleri kaldır
-    const existingNotifications = document.querySelectorAll('.notification-toast');
-    existingNotifications.forEach(notification => notification.remove());
+    // Mesajı kuyruğa ekle
+    messageQueue.push({ message, type });
+    
+    // Eğer şu anda mesaj gösterilmiyorsa, kuyruktan mesaj göster
+    if (!isShowingMessage) {
+        processMessageQueue();
+    }
+}
 
-    // Yeni bildirim oluştur
-    const notification = document.createElement('div');
-    notification.className = `notification-toast notification-${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <i class="fa-solid fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-            <span>${message}</span>
-        </div>
-    `;
+// Add User Avatar Modal Functions
+function toggleAddUserAvatarModal() {
+    const modal = document.getElementById('addUserAvatarModal');
+    if (modal) {
+        modal.classList.toggle('show');
+        if (modal.classList.contains('show')) {
+            loadAddUserAvatarOptions();
+        }
+    }
+}
 
-    // Stil ekle
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-        color: white;
-        padding: 12px 16px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 10000;
-        animation: slideInRight 0.3s ease;
-        max-width: 300px;
-    `;
+async function loadAddUserAvatarOptions() {
+    const avatarGrid = document.getElementById('addUserAvatarGrid');
+    if (!avatarGrid) return;
 
-    document.body.appendChild(notification);
-
-    // 3 saniye sonra kaldır
-    setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    try {
+        // userAvatars klasöründeki resimleri yükle
+        const response = await fetch('/api/user-avatars');
+        const avatars = await response.json();
+        
+        avatarGrid.innerHTML = '';
+        
+        avatars.forEach((avatar, index) => {
+            const avatarItem = document.createElement('div');
+            avatarItem.className = 'avatar-item';
+            avatarItem.innerHTML = `
+                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}" loading="lazy">
+            `;
+            
+            avatarItem.addEventListener('click', function() {
+                // Seçili avatar'ı profil önizlemesine uygula
+                const previewImg = document.getElementById('addUserInputProfileImage');
+                if (previewImg) {
+                    const avatarPath = `/userAvatars/${avatar}`;
+                    previewImg.src = avatarPath;
+                    
+                    // Avatar yolunu kaydet
+                    selectedAddUserAvatarPath = avatarPath;
+                    
+                    // Dosya yükleme işlemini sıfırla (tek seçim mantığı)
+                    if (profileImageInput) {
+                        profileImageInput.value = '';
+                    }
+                    if (uploadBtn) {
+                        uploadBtn.innerHTML = '<i class="fa-solid fa-upload"></i>Yükle';
+                    }
+                    if (imagePreviewContainer) {
+                        imagePreviewContainer.style.display = 'none';
+                    }
+                    
+                }
+                
+                // Modal'ı kapat
+                toggleAddUserAvatarModal();
+            });
+            
+            avatarGrid.appendChild(avatarItem);
+        });
+    } catch (error) {
+        console.error('Avatar yükleme hatası:', error);
+        avatarGrid.innerHTML = '<p>Avatar yüklenirken hata oluştu.</p>';
+    }
 }

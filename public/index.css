@@ -851,7 +851,7 @@ body {
 .input-container .file-input-label {
     display: flex;
     align-items: center;
-    padding: 15px;
+    padding: 15px 70px 15px 15px;
     background-color: #e3f2fd;
     border: 2px solid #64b5f6;
     border-radius: 8px;
@@ -878,6 +878,49 @@ body {
 .input-container .file-input-label .file-input-icon {
     color: #2196f3;
     font-size: 16px;
+}
+
+.join-avatar-btn {
+    background: #fff;
+    color: #1976d2;
+    border: 2px solid #64b5f6;
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    transition: all 0.3s ease;
+    height: 40px;
+    box-shadow: 0 2px 8px rgba(100, 181, 246, 0.3);
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    overflow: hidden;
+    min-width: 40px;
+    width: 40px;
+}
+
+.join-avatar-btn:hover {
+    background: #f5fbff;
+    border-color: #42a5f5;
+    transform: translateY(-50%) translateY(-2px);
+    box-shadow: 0 2px 6px rgba(66, 165, 245, 0.4);
+}
+
+.join-avatar-btn:active {
+    transform: translateY(-50%);
+    box-shadow: 0 2px 4px rgba(66, 165, 245, 0.3);
+}
+
+/* Join Avatar Modal - Higher z-index */
+#joinAvatarModal {
+    z-index: 10010 !important;
 }
 
 .input-container select {

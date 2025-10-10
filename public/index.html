@@ -229,6 +229,9 @@
                                 <span class="file-input-text">Bir resim seçin...</span>
                             </label>
                             <input type="file" id="joinProfileImageInput" accept="image/*">
+                            <button type="button" class="join-avatar-btn" id="joinAvatarBtn">
+                                ✨
+                            </button>
                         </div>
                     </div>
 
@@ -300,9 +303,31 @@
         </div>
     </div>
 
+    <!-- Join Avatar Selection Modal -->
+    <div id="joinAvatarModal" class="ready-images-modal">
+        <div class="ready-images-modal-content">
+            <div class="modal-header">
+            <h3>
+                <i class="fa-solid fa-images"></i>
+                Avatar Seç
+            </h3>
+            <button type="button" class="modal-close-btn" onclick="toggleJoinAvatarModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            </div>
+            <div class="modal-body">
+            <div class="avatar-grid" id="joinAvatarGrid">
+                <!-- User avatar resimleri JavaScript ile yüklenecek -->
+            </div>
+            </div>
+        </div>
+        </div>
+
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="/env.js" defer></script>
     <script src="push/onesignal-init.js" defer></script>
+
+
     <script src="index.js"></script>
     <script type="text/javascript">
         var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
