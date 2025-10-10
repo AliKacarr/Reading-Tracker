@@ -838,6 +838,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (profileImageFile) {
                     formData.append('profileImage', profileImageFile);
                 }
+                if (selectedAvatarPath) {
+                    formData.append('selectedAvatarPath', selectedAvatarPath);
+                }
 
                 // Update user information
                 const updateResponse = await fetch(`/api/update-user-via-invite/${window.groupid}`, {
@@ -959,6 +962,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     welcomeInviteProfilePreview.src = e.target.result;
+                    
+                    // Dosya yüklendiğinde avatar seçimini sıfırla
+                    selectedAvatarPath = null;
+                    console.log('Dosya yüklendi, avatar seçimi sıfırlandı');
                 };
                 reader.readAsDataURL(file);
             }
@@ -1301,4 +1308,88 @@ document.addEventListener('DOMContentLoaded', function () {
             checkAdminAuth();
         }
     };
+
+    // Avatar selection functionality
+    const avatarBtn = document.getElementById('welcomeInviteAvatarBtn');
+    if (avatarBtn) {
+        avatarBtn.addEventListener('click', toggleUserAvatarModal);
+    }
+
+    // Remove image functionality
+    const removeBtn = document.getElementById('welcomeInviteRemoveBtn');
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+            const previewImg = document.getElementById('welcomeInviteProfilePreview');
+            const fileInput = document.getElementById('welcomeInviteProfileImage');
+            
+            if (previewImg) {
+                previewImg.src = '/images/default.png';
+            }
+            
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            
+            // Avatar seçimini de sıfırla
+            selectedAvatarPath = null;
+            
+            console.log('Resim kaldırıldı, varsayılan resim seçildi');
+        });
+    }
 });
+
+// User Avatar Modal Functions
+let selectedAvatarPath = null; // Seçilen avatar yolunu saklamak için
+
+function toggleUserAvatarModal() {
+    const modal = document.getElementById('userAvatarModal');
+    if (modal) {
+        modal.classList.toggle('show');
+        if (modal.classList.contains('show')) {
+            loadUserAvatarOptions();
+        }
+    }
+}
+
+async function loadUserAvatarOptions() {
+    const avatarGrid = document.getElementById('userAvatarGrid');
+    if (!avatarGrid) return;
+
+    try {
+        // userAvatars klasöründeki resimleri yükle
+        const response = await fetch('/api/user-avatars');
+        const avatars = await response.json();
+        
+        avatarGrid.innerHTML = '';
+        
+        avatars.forEach((avatar, index) => {
+            const avatarItem = document.createElement('div');
+            avatarItem.className = 'avatar-item';
+            avatarItem.innerHTML = `
+                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}" loading="lazy">
+            `;
+            
+            avatarItem.addEventListener('click', function() {
+                // Seçili avatar'ı profil önizlemesine uygula
+                const previewImg = document.getElementById('welcomeInviteProfilePreview');
+                if (previewImg) {
+                    const avatarPath = `/userAvatars/${avatar}`;
+                    previewImg.src = avatarPath;
+                    
+                    // Avatar yolunu kaydet
+                    selectedAvatarPath = avatarPath;
+                    
+                    console.log('Seçilen avatar yolu:', selectedAvatarPath);
+                }
+                
+                // Modal'ı kapat
+                toggleUserAvatarModal();
+            });
+            
+            avatarGrid.appendChild(avatarItem);
+        });
+    } catch (error) {
+        console.error('Avatar yükleme hatası:', error);
+        avatarGrid.innerHTML = '<p>Avatar yüklenirken hata oluştu.</p>';
+    }
+}

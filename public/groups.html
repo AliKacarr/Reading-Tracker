@@ -331,43 +331,50 @@
               <div class="welcome-invite-group-details">
                 <h3 id="welcomeInviteGroupName">Grup Adı</h3>
                 <div class="welcome-user-name" id="welcomeUserName">Hoşgeldin!</div>
-                <p id="welcomeInviteMessageText">Bilgilerinizi güncelleyerek gruba katılabilirsiniz.</p>
-              </div>
-            </div>
-
-            <!-- Profil Resmi Seçimi -->
-            <div class="welcome-invite-form">
-              <h4 class="welcome-form-title">
-                <i class="fas fa-image"></i>
-                Profil Resmi
-              </h4>
-              
-              <div class="welcome-profile-section">
-                <div class="welcome-profile-preview">
-                  <img id="welcomeInviteProfilePreview" src="/images/default.png" alt="Profil Önizleme">
-                </div>
-                <div class="welcome-profile-upload">
-                  <input type="file" id="welcomeInviteProfileImage" accept="image/*" style="display: none;">
-                  <button type="button" class="welcome-upload-btn" id="welcomeInviteUploadBtn">
-                    <i class="fas fa-upload"></i>
-                    Resim Seç
-                  </button>
-                </div>
               </div>
             </div>
 
             <!-- Kullanıcı Bilgileri Formu -->
             <div class="welcome-invite-form">
-              <h4 class="welcome-form-title">
-                <i class="fas fa-user"></i>
-                Kullanıcı Bilgileriniz
-              </h4>
+              
+              <!-- Profil Resmi Seçimi -->
+              <div class="welcome-form-group">
+                <label>Profil Resmi</label>
+                <div class="welcome-profile-section">
+                  <div class="welcome-profile-preview">
+                    <img id="welcomeInviteProfilePreview" src="/images/default.png" alt="Profil Önizleme">
+                  </div>
+                  <div class="welcome-profile-buttons">
+                    <input type="file" id="welcomeInviteProfileImage" accept="image/*" style="display: none;">
+                    <div class="welcome-button-row">
+                      <button type="button" class="welcome-remove-btn" id="welcomeInviteRemoveBtn">
+                        <i class="fas fa-trash"></i>
+                        Sil
+                      </button>
+                      <button type="button" class="welcome-upload-btn" id="welcomeInviteUploadBtn">
+                        <i class="fas fa-upload"></i>
+                        Resim Seç
+                      </button>
+                    </div>
+                    <button type="button" class="welcome-avatar-btn" id="welcomeInviteAvatarBtn">
+                      <i class="fas fa-user-circle"></i>
+                      Avatar Seç
+                    </button>
+                  </div>
+                </div>
+              </div>
               
               <div class="welcome-form-group">
                 <label for="welcomeInviteUserName">Kullanıcı Adı</label>
                 <div class="welcome-input-container">
                   <i class="fas fa-user welcome-input-icon"></i>
                   <input type="text" id="welcomeInviteUserName" class="welcome-form-input" placeholder="Adınızı giriniz" maxlength="40">
+                </div>
+                <div class="welcome-info-message">
+                  <i class="fas fa-info-circle welcome-info-icon"></i>
+                  <div class="welcome-info-text">
+                    <p>Gruptaki kullanıcı adınız</p>
+                  </div>
                 </div>
               </div>
 
@@ -376,6 +383,12 @@
                 <div class="welcome-input-container">
                   <i class="fas fa-at welcome-input-icon"></i>
                   <input type="text" id="welcomeInviteMemberName" class="welcome-form-input" placeholder="Kullanıcı adınızı giriniz" maxlength="40">
+                </div>
+                <div class="welcome-info-message">
+                  <i class="fas fa-info-circle welcome-info-icon"></i>
+                  <div class="welcome-info-text">
+                    <p>Gruba giriş için üye adınız</p>
+                  </div>
                 </div>
               </div>
 
@@ -388,6 +401,12 @@
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
+                <div class="welcome-info-message">
+                  <i class="fas fa-info-circle welcome-info-icon"></i>
+                  <div class="welcome-info-text">
+                    <p>Gruba giriş için şifreniz</p>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -398,9 +417,29 @@
               </button>
               <button type="button" class="welcome-invite-join-btn" id="welcomeInviteJoinBtn">
                 <i class="fas fa-save"></i>
-                Bilgileri Güncelle
+                Kaydet
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Avatar Selection Modal -->
+    <div id="userAvatarModal" class="ready-images-modal">
+      <div class="ready-images-modal-content">
+        <div class="modal-header">
+          <h3>
+            <i class="fas fa-user-circle"></i>
+            Avatar Seç
+          </h3>
+          <button type="button" class="modal-close-btn" onclick="toggleUserAvatarModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="avatar-grid" id="userAvatarGrid">
+            <!-- User avatar resimleri JavaScript ile yüklenecek -->
           </div>
         </div>
       </div>

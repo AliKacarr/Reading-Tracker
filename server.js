@@ -1862,7 +1862,7 @@ app.get('/api/verify-invite/:groupId', async (req, res) => {
 app.post('/api/update-user-via-invite/:groupId', upload.single('profileImage'), async (req, res) => {
   try {
     const { groupId } = req.params;
-    const { inviteId, userName, memberName, memberPassword } = req.body;
+    const { inviteId, userName, memberName, memberPassword, selectedAvatarPath } = req.body;
     const profileImageFile = req.file;
 
     if (!inviteId || !userName || !memberName || !memberPassword) {
@@ -1890,7 +1890,10 @@ app.post('/api/update-user-via-invite/:groupId', upload.single('profileImage'), 
     let profileImagePath = user.profileImage || '/images/default.png';
     const oldImageUrl = user.profileImage; // Eski resim URL'ini sakla
     
-    if (profileImageFile) {
+    // Eğer avatar seçildiyse, onu kullan
+    if (selectedAvatarPath) {
+      profileImagePath = selectedAvatarPath;
+    } else if (profileImageFile) {
       // Yeni resmi yerel olarak kaydet
       profileImagePath = `/uploads/${profileImageFile.filename}`;
       
@@ -2220,6 +2223,21 @@ app.get('/api/quote-images', (req, res) => {
       /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
     );
     res.json({ images: imageFiles });
+  });
+});
+
+// User avatars endpoint'i
+app.get('/api/user-avatars', (req, res) => {
+  const userAvatarsDir = path.join(__dirname, 'public', 'userAvatars');
+  fs.readdir(userAvatarsDir, (err, files) => {
+    if (err) {
+      return res.status(500).json({ error: 'Unable to list user avatars' });
+    }
+    // Filter for image files only (jpg, png, jpeg, gif, webp)
+    const avatarFiles = files.filter(file =>
+      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
+    );
+    res.json(avatarFiles);
   });
 });
 

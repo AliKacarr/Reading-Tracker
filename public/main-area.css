@@ -963,7 +963,7 @@ label.custom-file-input:hover {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     max-width: 90vw;
     max-height: 90vh;
-    width: 600px;
+    width: 500px;
     overflow: hidden;
     animation: modalSlideIn 0.3s ease-out;
 }
@@ -1039,7 +1039,6 @@ label.custom-file-input:hover {
     overflow: hidden;
     cursor: pointer;
     border: 2px solid transparent;
-    transition: all 0.3s ease;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     justify-self: center;
