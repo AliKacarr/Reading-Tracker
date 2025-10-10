@@ -116,7 +116,7 @@ window.getGroupIdFromUrl = function getGroupIdFromUrl() {
   const path = window.location.pathname;
   
   // Yeni format: /groupid=catikati23
-  const groupIdMatch = path.match(/\/groupid=([^\/]+)/);
+  const groupIdMatch = path.match(/\/groupid=([^\/\?]+)/);
   if (groupIdMatch) {
     const decodedGroupId = decodeURIComponent(groupIdMatch[1]);
     return decodedGroupId;
@@ -135,6 +135,21 @@ window.getGroupIdFromUrl = function getGroupIdFromUrl() {
   }
 
   return null;
+};
+
+// URL'den davet parametrelerini kontrol etme fonksiyonu
+window.getInviteParams = function getInviteParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const invite = urlParams.get('invite');
+  const quickLogin = urlParams.get('quick-login');
+  
+  // URL'de quick-login parametresi var mı kontrol et
+  const hasQuickLogin = quickLogin !== null;
+  
+  return {
+    hasInvite: hasQuickLogin && invite,
+    inviteToken: invite
+  };
 };
 
 // Global grup ID değişkeni
@@ -241,7 +256,47 @@ async function validateGroup() {
     const data = await response.json();
     const group = data.group;
     
-    // Grup visibility kontrolü
+    // Davet parametrelerini kontrol et
+    const inviteParams = getInviteParams();
+    
+    // Eğer davet linki ile gelinmişse hoşgeldiniz panelini aç
+    if (inviteParams.hasInvite) {
+      try {
+        // Token doğrulama
+        const encodedGroupId = encodeURIComponent(window.groupid);
+        const response = await fetch(`/api/verify-invite/${encodedGroupId}?invite=${inviteParams.inviteToken}`);
+        
+        if (!response.ok) {
+          // 404 veya başka hata - temiz grup linkine yönlendir
+          const cleanUrl = `/groupid=${encodeURIComponent(window.groupid)}`;
+          window.location.href = cleanUrl;
+          return false;
+        }
+        
+        const data = await response.json();
+
+        if (data.success) {
+          // Geçerli token - hoşgeldiniz panelini aç
+          if (typeof window.showWelcomeInviteModal === 'function') {
+            await window.showWelcomeInviteModal(group, data);
+          }
+          return true; // Davet linki ile gelinmişse normal akışı durdur
+        } else {
+          // Geçersiz token - temiz grup linkine yönlendir
+          const cleanUrl = `/groupid=${encodeURIComponent(window.groupid)}`;
+          window.location.href = cleanUrl;
+          return false;
+        }
+      } catch (error) {
+        console.error('Token doğrulama hatası:', error);
+        // Hata durumunda da temiz grup linkine yönlendir
+        const cleanUrl = `/groupid=${encodeURIComponent(window.groupid)}`;
+        window.location.href = cleanUrl;
+        return false;
+      }
+    }
+    
+    // Grup visibility kontrolü (sadece normal linkler için)
     if (group.visibility === 'private') {
       // Kullanıcı giriş yapmış mı kontrol et
       if (!LocalStorageManager.isUserLoggedIn()) {
@@ -405,6 +460,16 @@ async function updatePageTitle() {
 // Ana DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', async function () {
   try {
+    // Debug için URL bilgilerini logla
+    console.log('🔍 URL Debug Info:');
+    console.log('Full URL:', window.location.href);
+    console.log('Pathname:', window.location.pathname);
+    console.log('Search:', window.location.search);
+    console.log('Group ID:', window.groupid);
+    
+    const inviteParams = getInviteParams();
+    console.log('Invite Params:', inviteParams);
+    
     // Admin sayfaları için özel kontrol
     const currentPath = window.location.pathname;
     if (currentPath === '/login-logs.html' || currentPath === '/admin-logs.html') {
@@ -414,6 +479,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     
     // Grup ID'si yoksa ana sayfaya yönlendir
     if (window.groupid === null) {
+      console.log('❌ Group ID is null, redirecting to home');
       window.location.href = '/';
       return;
     }

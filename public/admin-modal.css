@@ -1599,3 +1599,489 @@
     }
 }
 
+/* Welcome Invite Modal Styles */
+.welcome-invite-modal {
+  display: none;
+  position: fixed;
+  z-index: 10001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.4s ease;
+}
+
+.welcome-invite-modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-invite-modal-content {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #e8f5e8 100%);
+  border-radius: 20px;
+  padding: 0;
+  width: 90%;
+  max-width: 500px;
+  border: 2px solid rgba(33, 150, 243, 0.3);
+  animation: slideInScale 0.4s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.welcome-invite-modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3B82F6, #60A5FA, #3B82F6);
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 20px 20px 0 0;
+}
+
+
+
+.welcome-invite-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  color: #666;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-invite-close-btn:hover {
+  background: #f8f9fa;
+  color: #333;
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.welcome-invite-modal-body {
+  padding: 20px;
+  position: relative;
+  overflow-y: auto;
+}
+
+.welcome-invite-content {
+  text-align: center;
+}
+
+.welcome-invite-group-info {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(33, 150, 243, 0.2);
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15);
+}
+
+.welcome-invite-group-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.welcome-invite-group-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.welcome-invite-group-details {
+  flex: 1;
+  text-align: left;
+}
+
+.welcome-invite-group-details h3 {
+  color: #333;
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 700;
+  text-shadow: none;
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+  width: auto !important;
+}
+
+.welcome-user-name {
+  color: #2196f3;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 8px 0 12px 0;
+  display: block;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 2px rgba(33, 150, 243, 0.1);
+}
+
+.welcome-invite-group-details p {
+  color: #666;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.welcome-invite-message {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.welcome-invite-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 32px;
+  margin: 0 auto 20px;
+  box-shadow: 0 8px 25px rgba(78, 84, 200, 0.4);
+  animation: bounce 2s infinite;
+}
+
+.welcome-invite-message h4 {
+  color: white;
+  margin: 0 0 15px 0;
+  font-size: 22px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-invite-message p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Welcome Form Styles */
+.welcome-invite-form {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(33, 150, 243, 0.2);
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15);
+}
+
+.welcome-form-title {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  text-shadow: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.welcome-form-group {
+  margin-bottom: 12px;
+}
+
+.welcome-form-group label {
+  color: #555;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+  text-shadow: none;
+}
+
+.welcome-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.welcome-input-icon {
+  position: absolute;
+  left: 12px;
+  color: #666;
+  font-size: 14px;
+  z-index: 2;
+}
+
+.welcome-form-input {
+  width: 100%;
+  padding: 10px 15px 10px 40px;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-form-input::placeholder {
+  color: #999;
+}
+
+.welcome-form-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.welcome-password-toggle {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.welcome-password-toggle:hover {
+  color: #333;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Profile Image Styles */
+.welcome-profile-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+}
+
+.welcome-profile-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(33, 150, 243, 0.3);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.welcome-profile-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.welcome-profile-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.welcome-upload-btn {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.welcome-upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.welcome-invite-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.welcome-invite-join-btn,
+.welcome-invite-cancel-btn {
+  padding: 16px 32px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: -0.01em;
+  height: 48px;
+}
+
+.welcome-invite-join-btn {
+  background: #3B82F6;
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.welcome-invite-join-btn:hover {
+  background: #2563EB;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.welcome-invite-join-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.welcome-invite-cancel-btn {
+  background: #F8F9FA;
+  color: #6B7280;
+  border: 1px solid #D1D5DB;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-invite-cancel-btn:hover {
+  background: #E5E7EB;
+  color: #374151;
+  border-color: #9CA3AF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-invite-cancel-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Animations */
+@keyframes slideInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Welcome Invite Modal Mobile Responsive */
+@media (max-width: 768px) {
+  .welcome-invite-modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .welcome-invite-modal-header {
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .welcome-invite-modal-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+  
+  .welcome-invite-modal-title {
+    font-size: 24px;
+  }
+  
+  .welcome-invite-modal-body {
+    padding: 25px;
+  }
+  
+  .welcome-invite-group-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .welcome-invite-group-avatar {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .welcome-invite-group-details {
+    text-align: center;
+  }
+  
+  .welcome-invite-group-details h3 {
+    font-size: 20px;
+  }
+  
+  .welcome-invite-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .welcome-invite-join-btn,
+  .welcome-invite-cancel-btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
+

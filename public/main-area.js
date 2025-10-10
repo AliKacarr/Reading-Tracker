@@ -305,7 +305,7 @@ function editUserName(userId) {     //Kullanıcı adını düzenleme fonksiyonu
     
     // Profile image'ı belirgin hale getir
     if (profileImage) {
-        profileImage.style.border = '1px solid #4e54c8';
+        profileImage.style.border = '1px solid rgb(0 13 255)';
         profileImage.style.boxShadow = '0 0 5px rgba(78, 84, 200, 0.5)'
         profileImage.style.transition = 'all 0.3s ease';
     }
@@ -405,7 +405,7 @@ const fileInputLabel = document.getElementById('file-input-label');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 const closePreviewButton = document.getElementById('closePreview');
-const inputProfileImage = document.getElementById('inputProfileImage');
+const inputProfileImage = document.getElementById('imagePreview'); // imagePreview element'ini kullan
 
 // inputProfileImage tıklanınca file seçim işlemi
 if (inputProfileImage) {
@@ -806,16 +806,16 @@ async function inviteSelectedUser() {
 
         // Grup URL'lerini oluştur
         const baseUrl = window.location.origin;
-        const quickLoginUrl = `${baseUrl}/groupid=${window.groupid}&quick-login?invite=${inviteToken}`;
+        const quickLoginUrl = `${baseUrl}/groupid=${window.groupid}?quick-login&invite=${inviteToken}`;
         const groupUrl = `${baseUrl}/groupid=${window.groupid}`;
         
         // Davet metnini oluştur
-        const inviteText = `${groupName} okuma grubu
+        const inviteText = `*${groupName} okuma grubu*
 
-• Katılma linkiniz:
+*• Katılma linkiniz:*
 ${quickLoginUrl}
 
-• Grup sayfası:
+*• Grup sayfası:*
 ${groupUrl}`;
         
         // Panoya kopyala

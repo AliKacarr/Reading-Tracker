@@ -316,6 +316,96 @@
       </div>
     </div>
 
+    <!-- Welcome Invite Modal -->
+    <div id="welcomeInviteModal" class="welcome-invite-modal">
+      <div class="welcome-invite-modal-content">
+        <div class="welcome-invite-modal-body">
+          <div class="welcome-invite-content">
+            <div class="welcome-invite-group-info">
+              <button class="welcome-invite-close-btn" id="closeWelcomeInviteModal">
+                <i class="fas fa-times"></i>
+              </button>
+              <div class="welcome-invite-group-avatar">
+                <img id="welcomeInviteGroupAvatar" src="/images/open-book.webp" alt="Grup Avatar">
+              </div>
+              <div class="welcome-invite-group-details">
+                <h3 id="welcomeInviteGroupName">Grup Adı</h3>
+                <div class="welcome-user-name" id="welcomeUserName">Hoşgeldin!</div>
+                <p id="welcomeInviteMessageText">Bilgilerinizi güncelleyerek gruba katılabilirsiniz.</p>
+              </div>
+            </div>
+
+            <!-- Profil Resmi Seçimi -->
+            <div class="welcome-invite-form">
+              <h4 class="welcome-form-title">
+                <i class="fas fa-image"></i>
+                Profil Resmi
+              </h4>
+              
+              <div class="welcome-profile-section">
+                <div class="welcome-profile-preview">
+                  <img id="welcomeInviteProfilePreview" src="/images/default.png" alt="Profil Önizleme">
+                </div>
+                <div class="welcome-profile-upload">
+                  <input type="file" id="welcomeInviteProfileImage" accept="image/*" style="display: none;">
+                  <button type="button" class="welcome-upload-btn" id="welcomeInviteUploadBtn">
+                    <i class="fas fa-upload"></i>
+                    Resim Seç
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Kullanıcı Bilgileri Formu -->
+            <div class="welcome-invite-form">
+              <h4 class="welcome-form-title">
+                <i class="fas fa-user"></i>
+                Kullanıcı Bilgileriniz
+              </h4>
+              
+              <div class="welcome-form-group">
+                <label for="welcomeInviteUserName">Kullanıcı Adı</label>
+                <div class="welcome-input-container">
+                  <i class="fas fa-user welcome-input-icon"></i>
+                  <input type="text" id="welcomeInviteUserName" class="welcome-form-input" placeholder="Adınızı giriniz" maxlength="40">
+                </div>
+              </div>
+
+              <div class="welcome-form-group">
+                <label for="welcomeInviteMemberName">Üye Adı</label>
+                <div class="welcome-input-container">
+                  <i class="fas fa-at welcome-input-icon"></i>
+                  <input type="text" id="welcomeInviteMemberName" class="welcome-form-input" placeholder="Kullanıcı adınızı giriniz" maxlength="40">
+                </div>
+              </div>
+
+              <div class="welcome-form-group">
+                <label for="welcomeInviteMemberPassword">Üye Şifresi</label>
+                <div class="welcome-input-container">
+                  <i class="fas fa-lock welcome-input-icon"></i>
+                  <input type="password" id="welcomeInviteMemberPassword" class="welcome-form-input" placeholder="Şifrenizi giriniz" maxlength="40">
+                  <button type="button" class="welcome-password-toggle" id="welcomeInviteMemberPasswordToggle">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="welcome-invite-actions">
+              <button type="button" class="welcome-invite-cancel-btn" id="welcomeInviteCancelBtn">
+                <i class="fas fa-times-circle"></i>
+                İptal
+              </button>
+              <button type="button" class="welcome-invite-join-btn" id="welcomeInviteJoinBtn">
+                <i class="fas fa-save"></i>
+                Bilgileri Güncelle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="table-area" style="display: none;">
       <table id="trackerTable">
         <thead></thead>

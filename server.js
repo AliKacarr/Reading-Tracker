@@ -442,7 +442,6 @@ const Invite = mongoose.model('Invite', {
   inviteTokenHash: String,
   userId: String,
   groupId: String,
-  used: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   expiresAt: { type: Date, default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) } // 7 gün sonra
 });
@@ -1776,16 +1775,14 @@ app.post('/api/create-invite/:groupId', async (req, res) => {
     // Kullanıcının bu gruptaki kullanılmamış tüm davetlerini sil
     await Invite.deleteMany({ 
       userId, 
-      groupId, 
-      used: false 
+      groupId
     });
 
     // Yeni davet oluştur
     const invite = new Invite({
       inviteTokenHash,
       userId,
-      groupId,
-      used: false
+      groupId
     });
 
     await invite.save();
@@ -1807,6 +1804,9 @@ app.get('/api/verify-invite/:groupId', async (req, res) => {
   try {
     const { groupId } = req.params;
     const { invite } = req.query;
+    
+    // GroupId'yi decode et
+    const decodedGroupId = decodeURIComponent(groupId);
 
     if (!invite) {
       return res.status(400).json({ error: 'Davet token\'ı gerekli' });
@@ -1816,11 +1816,10 @@ app.get('/api/verify-invite/:groupId', async (req, res) => {
     const crypto = require('crypto');
     const inviteTokenHash = crypto.createHash('sha256').update(invite).digest('hex');
 
-    // Davet kaydını bul
+    // Davet kaydını bul (used alanını kullanmıyoruz)
     const inviteRecord = await Invite.findOne({
       inviteTokenHash,
-      groupId,
-      used: false,
+      groupId: decodedGroupId,
       expiresAt: { $gt: new Date() }
     });
 
@@ -1828,8 +1827,16 @@ app.get('/api/verify-invite/:groupId', async (req, res) => {
       return res.status(404).json({ error: 'Geçersiz veya süresi dolmuş davet' });
     }
 
+    // Kullanıcı bilgilerini al
+    const { users } = getGroupCollections(decodedGroupId);
+    const user = await users.findById(inviteRecord.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    }
+
     // Grup bilgilerini al
-    const group = await UserGroup.findOne({ groupId });
+    const group = await UserGroup.findOne({ groupId: decodedGroupId });
     if (!group) {
       return res.status(404).json({ error: 'Grup bulunamadı' });
     }
@@ -1838,11 +1845,134 @@ app.get('/api/verify-invite/:groupId', async (req, res) => {
       success: true, 
       groupName: group.groupName,
       groupId: group.groupId,
+      userId: user._id,
+      username: user.username,
+      name: user.name,
+      authority: user.authority,
+      profileImage: user.profileImage,
       inviteId: inviteRecord._id
     });
   } catch (error) {
     console.error('Davet doğrulama hatası:', error);
     res.status(500).json({ error: 'Davet doğrulanırken hata oluştu' });
+  }
+});
+
+// Kullanıcı bilgilerini güncelleme endpoint'i
+app.post('/api/update-user-via-invite/:groupId', upload.single('profileImage'), async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { inviteId, userName, memberName, memberPassword } = req.body;
+    const profileImageFile = req.file;
+
+    if (!inviteId || !userName || !memberName || !memberPassword) {
+      return res.status(400).json({ error: 'Tüm alanlar gerekli' });
+    }
+
+    // Davet token'ını kontrol et (used alanını kullanmıyoruz)
+    const invite = await Invite.findById(inviteId);
+    if (!invite || invite.groupId !== groupId) {
+      return res.status(404).json({ error: 'Geçersiz davet linki' });
+    }
+
+    // Kullanıcı bilgilerini al
+    const { users } = getGroupCollections(groupId);
+    const user = await users.findById(invite.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı' });
+    }
+
+    // Şifreyi hash'le
+    const hashedMemberPassword = await bcrypt.hash(memberPassword, 10);
+
+    // Profil resmi yolu
+    let profileImagePath = user.profileImage || '/images/default.png';
+    const oldImageUrl = user.profileImage; // Eski resim URL'ini sakla
+    
+    if (profileImageFile) {
+      // Yeni resmi yerel olarak kaydet
+      profileImagePath = `/uploads/${profileImageFile.filename}`;
+      
+      // Dropbox'a yükle (arka planda)
+      try {
+        const localPath = path.join(__dirname, 'uploads', profileImageFile.filename);
+        const fileBuffer = fs.readFileSync(localPath);
+        const dropboxFileName = profileImageFile.filename;
+        const newImageUrl = await uploadToDropbox(fileBuffer, dropboxFileName, 'userImages');
+
+        // Veritabanını Dropbox URL'i ile güncelle
+        profileImagePath = newImageUrl;
+
+        // Yerel dosyayı temizle (sadece Dropbox başarılıysa)
+        try {
+          if (fs.existsSync(localPath)) {
+            fs.unlinkSync(localPath);
+            console.log('✅ Yerel dosya silindi (Dropbox yüklemesi başarılı)');
+          }
+        } catch (unlinkError) {
+          console.log('⚠️ Yerel dosya silinemedi:', localPath);
+        }
+
+        // Eski resmi arka planda sil (Dropbox'tan)
+        if (oldImageUrl && oldImageUrl.includes('dropbox.com')) {
+          deleteFromDropboxByUrl(oldImageUrl).catch(err => 
+            console.error('Eski resim silme hatası:', err)
+          );
+        }
+      } catch (dropboxError) {
+        console.error('Dropbox yükleme hatası:', dropboxError);
+        
+        // Dropbox hatası türüne göre log mesajı
+        if (dropboxError.status === 401) {
+          console.error('❌ Dropbox access token süresi dolmuş! Yerel resim kullanılıyor.');
+        } else if (dropboxError.status === 403) {
+          console.error('❌ Dropbox yetki hatası! Yerel resim kullanılıyor.');
+        } else {
+          console.error('❌ Dropbox bağlantı hatası! Yerel resim kullanılıyor.');
+        }
+        
+        // Dropbox hatası kullanıcıyı etkilemez, yerel resim zaten çalışıyor
+        // Yerel dosyayı silme - çünkü Dropbox'a yüklenemedi
+        try {
+          const localPath = path.join(__dirname, 'uploads', profileImageFile.filename);
+          if (fs.existsSync(localPath)) {
+            fs.unlinkSync(localPath);
+            console.log('✅ Yerel dosya temizlendi (Dropbox hatası nedeniyle)');
+          }
+        } catch (unlinkError) {
+          console.log('⚠️ Yerel dosya temizlenemedi:', localPath);
+        }
+      }
+    }
+
+    // Kullanıcı bilgilerini güncelle
+    await users.findByIdAndUpdate(invite.userId, {
+      username: memberName,
+      userpassword: hashedMemberPassword,
+      name: userName,
+      profileImage: profileImagePath
+    });
+
+    // Davet token'ını sil
+    await Invite.findByIdAndDelete(inviteId);
+
+    // Grup bilgilerini al
+    const group = await UserGroup.findOne({ groupId });
+
+    res.json({
+      success: true,
+      groupId: group.groupId,
+      groupName: group.groupName,
+      userId: user._id,
+      username: memberName,
+      name: userName,
+      authority: user.authority
+    });
+
+  } catch (error) {
+    console.error('Kullanıcı güncelleme hatası:', error);
+    res.status(500).json({ error: 'Kullanıcı güncellenirken hata oluştu' });
   }
 });
 

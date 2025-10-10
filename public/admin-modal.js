@@ -733,6 +733,306 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }
 
+    // Welcome Invite Modal Event Listeners
+    const welcomeInviteModal = document.getElementById('welcomeInviteModal');
+    const closeWelcomeInviteModal = document.getElementById('closeWelcomeInviteModal');
+    const welcomeInviteJoinBtn = document.getElementById('welcomeInviteJoinBtn');
+    const welcomeInviteCancelBtn = document.getElementById('welcomeInviteCancelBtn');
+
+    // Close welcome invite modal
+    if (closeWelcomeInviteModal) {
+        closeWelcomeInviteModal.addEventListener('click', function () {
+            window.hideModal(welcomeInviteModal);
+            handleWelcomeModalClose();
+        });
+    }
+
+    // Cancel welcome invite modal
+    if (welcomeInviteCancelBtn) {
+        welcomeInviteCancelBtn.addEventListener('click', function () {
+            window.hideModal(welcomeInviteModal);
+            handleWelcomeModalClose();
+        });
+    }
+
+    // Close modal when clicking outside
+    if (welcomeInviteModal) {
+        welcomeInviteModal.addEventListener('click', function (e) {
+            if (e.target === welcomeInviteModal) {
+                window.hideModal(welcomeInviteModal);
+                handleWelcomeModalClose();
+            }
+        });
+    }
+
+    // Join group button
+    if (welcomeInviteJoinBtn) {
+        welcomeInviteJoinBtn.addEventListener('click', async function () {
+            // Get form values
+            const userName = document.getElementById('welcomeInviteUserName').value.trim();
+            const memberName = document.getElementById('welcomeInviteMemberName').value.trim();
+            const memberPassword = document.getElementById('welcomeInviteMemberPassword').value.trim();
+            const profileImageFile = document.getElementById('welcomeInviteProfileImage').files[0];
+
+            // Basic validation
+            if (!userName || !memberName || !memberPassword) {
+                alert('Lütfen tüm alanları doldurunuz.');
+                return;
+            }
+
+            // Character limit validation
+            if (userName.length > 40 || memberName.length > 40 || memberPassword.length > 40) {
+                alert('Tüm alanlar 40 karakterden kısa olmalıdır.');
+                return;
+            }
+
+            // Get invite token from URL
+            const inviteParams = getInviteParams();
+            if (!inviteParams.hasInvite || !inviteParams.inviteToken) {
+                alert('Davet linki geçersiz.');
+                return;
+            }
+
+            // Check if username already exists (but allow user to keep their own username)
+            let verifyData;
+            try {
+                // First verify invite token to get current user data
+                const verifyResponse = await fetch(`/api/verify-invite/${window.groupid}?invite=${inviteParams.inviteToken}`);
+                verifyData = await verifyResponse.json();
+
+                if (!verifyData.success) {
+                    alert('Davet linki geçersiz veya süresi dolmuş.');
+                    return;
+                }
+
+                // Only check username if it's different from current username
+                if (memberName !== verifyData.username) {
+                    const checkResponse = await fetch(`/api/check-username-exists/${window.groupid}/${encodeURIComponent(memberName)}`);
+                    const checkData = await checkResponse.json();
+                    
+                    if (checkData.exists) {
+                        alert('Bu kullanıcı adı zaten kullanılıyor. Lütfen farklı bir kullanıcı adı seçin.');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Kullanıcı adı kontrolü hatası:', error);
+                alert('Kullanıcı adı kontrol edilirken hata oluştu.');
+                return;
+            }
+
+            // Show loading state
+            const originalText = welcomeInviteJoinBtn.innerHTML;
+            welcomeInviteJoinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Güncelleniyor...';
+            welcomeInviteJoinBtn.disabled = true;
+
+            try {
+                // verifyData is already available from the username check above
+
+                // Create FormData for file upload
+                const formData = new FormData();
+                formData.append('inviteId', verifyData.inviteId);
+                formData.append('userName', userName);
+                formData.append('memberName', memberName);
+                formData.append('memberPassword', memberPassword);
+                if (profileImageFile) {
+                    formData.append('profileImage', profileImageFile);
+                }
+
+                // Update user information
+                const updateResponse = await fetch(`/api/update-user-via-invite/${window.groupid}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const updateData = await updateResponse.json();
+
+                if (updateData.success) {
+                    // Auto login with updated info
+                    LocalStorageManager.loginUser(
+                        updateData.groupId,
+                        updateData.userId,
+                        updateData.authority,
+                        updateData.username,
+                        updateData.groupName
+                    );
+
+                    // Close modal
+                    window.hideModal(welcomeInviteModal);
+
+                    // Update UI
+                    if (typeof window.updateProfileButton === 'function') {
+                        window.updateProfileButton();
+                    }
+
+                    if (typeof showAdminIndicator === 'function') {
+                        showAdminIndicator();
+                    }
+
+                    // Reload data
+                    if (typeof loadTrackerTable === 'function') loadTrackerTable();
+                    if (typeof loadUserCards === 'function') loadUserCards();
+                    if (typeof loadReadingStats === 'function') loadReadingStats();
+                    if (typeof renderLongestSeries === 'function') renderLongestSeries();
+                    if (typeof loadMonthlyCalendar === 'function') loadMonthlyCalendar();
+
+                    // Clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else {
+                    alert(updateData.error || 'Bilgiler güncellenirken bir hata oluştu.');
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                alert('Bilgiler güncellenirken bir hata oluştu.');
+            } finally {
+                // Reset button state
+                welcomeInviteJoinBtn.innerHTML = originalText;
+                welcomeInviteJoinBtn.disabled = false;
+            }
+        });
+    }
+
+    // Close welcome modal when clicking outside
+    if (welcomeInviteModal) {
+        window.addEventListener('click', function (event) {
+            if (event.target === welcomeInviteModal) {
+                window.hideModal(welcomeInviteModal);
+                handleWelcomeModalClose();
+            }
+        });
+    }
+
+    // Handle welcome modal close based on group visibility
+    function handleWelcomeModalClose() {
+        // Clean URL first - remove invite parameters
+        const cleanUrl = `/groupid=${encodeURIComponent(window.groupid)}`;
+        window.history.replaceState({}, '', cleanUrl);
+
+        // Get group visibility from localStorage or API
+        const groupName = localStorage.getItem('groupName');
+        if (groupName) {
+            // Check if group is private by making API call
+            fetch(`/api/group/${window.groupid}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.group.visibility === 'private') {
+                        // Private group - redirect to home
+                        window.location.href = '/';
+                    }
+                    // Public group - stay on page (URL already cleaned)
+                })
+                .catch(error => {
+                    console.error('Error checking group visibility:', error);
+                    // Default to staying on page (URL already cleaned)
+                });
+        }
+    }
+
+    // Password toggle functionality
+    const welcomeInviteMemberPasswordToggle = document.getElementById('welcomeInviteMemberPasswordToggle');
+    const welcomeInviteMemberPasswordInput = document.getElementById('welcomeInviteMemberPassword');
+
+    if (welcomeInviteMemberPasswordToggle && welcomeInviteMemberPasswordInput) {
+        welcomeInviteMemberPasswordToggle.addEventListener('click', function () {
+            const icon = this.querySelector('i');
+            if (welcomeInviteMemberPasswordInput.type === 'password') {
+                welcomeInviteMemberPasswordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                welcomeInviteMemberPasswordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+
+    // Profile image upload functionality
+    const welcomeInviteUploadBtn = document.getElementById('welcomeInviteUploadBtn');
+    const welcomeInviteProfileImage = document.getElementById('welcomeInviteProfileImage');
+    const welcomeInviteProfilePreview = document.getElementById('welcomeInviteProfilePreview');
+
+    if (welcomeInviteUploadBtn && welcomeInviteProfileImage && welcomeInviteProfilePreview) {
+        welcomeInviteUploadBtn.addEventListener('click', function () {
+            welcomeInviteProfileImage.click();
+        });
+
+        welcomeInviteProfileImage.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    welcomeInviteProfilePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Show welcome invite modal
+    window.showWelcomeInviteModal = async function(groupData, userData) {
+        if (!welcomeInviteModal) return;
+
+        // Update group info in modal
+        const groupAvatar = document.getElementById('welcomeInviteGroupAvatar');
+        const groupName = document.getElementById('welcomeInviteGroupName');
+        const groupDescription = document.getElementById('welcomeInviteGroupDescription');
+        const messageTitle = document.getElementById('welcomeInviteMessageTitle');
+        const messageText = document.getElementById('welcomeInviteMessageText');
+
+        if (groupAvatar) {
+            const imgSrc = groupData.groupImage || '/images/open-book.webp';
+            groupAvatar.src = imgSrc;
+            groupAvatar.alt = groupData.groupName + ' Avatar';
+            groupAvatar.onerror = function() {
+                this.src = '/images/open-book.webp';
+            };
+        }
+
+        if (groupName) {
+            groupName.textContent = groupData.groupName;
+        }
+
+        if (groupDescription) {
+            groupDescription.textContent = groupData.groupDescription || 'Bu gruba hoş geldiniz!';
+        }
+
+        // Update welcome message with user name
+        const welcomeUserName = document.getElementById('welcomeUserName');
+        if (welcomeUserName && userData && userData.name) {
+            welcomeUserName.textContent = `Hoşgeldin ${userData.name}!`;
+        }
+
+        // Pre-fill form with existing user data
+        if (userData) {
+            const userNameInput = document.getElementById('welcomeInviteUserName');
+            const memberNameInput = document.getElementById('welcomeInviteMemberName');
+            const profilePreview = document.getElementById('welcomeInviteProfilePreview');
+            
+            if (userNameInput && userData.name) {
+                userNameInput.value = userData.name;
+            }
+            
+            if (memberNameInput && userData.username) {
+                memberNameInput.value = userData.username;
+            }
+
+            if (profilePreview) {
+                if (userData.profileImage) {
+                    profilePreview.src = userData.profileImage;
+                    profilePreview.onerror = function() {
+                        this.src = '/images/default.png';
+                    };
+                } else {
+                    profilePreview.src = '/images/default.png';
+                }
+            }
+        }
+
+        // Show modal
+        window.showModal(welcomeInviteModal);
+    };
+
     // Handle user login form submission
     groupsAuthLoginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
