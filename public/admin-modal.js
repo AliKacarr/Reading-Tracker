@@ -908,24 +908,20 @@ document.addEventListener('DOMContentLoaded', function () {
         const cleanUrl = `/groupid=${encodeURIComponent(window.groupid)}`;
         window.history.replaceState({}, '', cleanUrl);
 
-        // Get group visibility from localStorage or API
-        const groupName = localStorage.getItem('groupName');
-        if (groupName) {
-            // Check if group is private by making API call
-            fetch(`/api/group/${window.groupid}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.group.visibility === 'private') {
-                        // Private group - redirect to home
-                        window.location.href = '/';
-                    }
-                    // Public group - stay on page (URL already cleaned)
-                })
-                .catch(error => {
-                    console.error('Error checking group visibility:', error);
-                    // Default to staying on page (URL already cleaned)
-                });
-        }
+        // Always check group visibility (don't depend on localStorage)
+        fetch(`/api/group/${window.groupid}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.group.visibility === 'private') {
+                    // Private group - redirect to home
+                    window.location.href = '/';
+                }
+                // Public group - stay on page (URL already cleaned)
+            })
+            .catch(error => {
+                console.error('Error checking group visibility:', error);
+                // Default to staying on page (URL already cleaned)
+            });
     }
 
     // Password toggle functionality

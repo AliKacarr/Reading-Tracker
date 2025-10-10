@@ -765,7 +765,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 25px 30px 20px 30px;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    border-bottom: 1px solid rgb(207 213 222 / 50%);
     position: relative;
 }
 
@@ -840,7 +840,7 @@
     gap: 15px;
     padding: 20px;
     background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd4df;
     border-radius: 12px;
     transition: all 0.3s ease;
 }
@@ -1620,15 +1620,16 @@
 }
 
 .welcome-invite-modal-content {
-  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #e8f5e8 100%);
-  border-radius: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  border-radius: 24px;
   padding: 0;
   width: 90%;
   max-width: 500px;
-  border: 2px solid rgba(33, 150, 243, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   animation: slideInScale 0.4s ease;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .welcome-invite-modal-content::before {
@@ -1648,34 +1649,34 @@
 
 .welcome-invite-close-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #ddd;
-  color: #666;
-  width: 35px;
-  height: 35px;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #64748b;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 14px;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .welcome-invite-close-btn:hover {
-  background: #f8f9fa;
-  color: #333;
-  transform: scale(1.1) rotate(90deg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: rgba(248, 250, 252, 0.9);
+  color: #475569;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .welcome-invite-modal-body {
-  padding: 20px;
+  padding: 24px;
   position: relative;
   overflow-y: auto;
 }
@@ -1689,13 +1690,13 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.6);
   padding: 20px;
-  border-radius: 15px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(33, 150, 243, 0.2);
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .welcome-invite-group-avatar {
@@ -1788,13 +1789,13 @@
 
 /* Welcome Form Styles */
 .welcome-invite-form {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.4);
   padding: 20px;
-  border-radius: 15px;
-  margin-bottom: 15px;
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(33, 150, 243, 0.2);
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 .welcome-form-title {
@@ -1838,7 +1839,7 @@
 .welcome-form-input {
   width: 100%;
   padding: 10px 15px 10px 40px;
-  border: 2px solid #ddd;
+  border: 2px solid #cbcbcb;
   border-radius: 20px;
   background: #fff;
   color: #333;
@@ -1890,7 +1891,7 @@
   height: 80px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid rgba(33, 150, 243, 0.3);
+  border: 3px solid rgb(69 62 229 / 50%);
   box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
 }
 
@@ -1910,7 +1911,7 @@
 .welcome-upload-btn {
   background: linear-gradient(135deg, #10B981, #059669);
   color: white;
-  border: none;
+  border: 1px solid rgb(51 129 12 / 30%);
   padding: 10px 20px;
   border-radius: 20px;
   cursor: pointer;
@@ -1939,28 +1940,28 @@
 
 .welcome-invite-join-btn,
 .welcome-invite-cancel-btn {
-  padding: 16px 32px;
+  padding: 14px 28px;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 180px;
+  gap: 8px;
+  min-width: 160px;
   justify-content: center;
   position: relative;
   overflow: hidden;
   letter-spacing: -0.01em;
-  height: 48px;
+  height: 44px;
 }
 
 .welcome-invite-join-btn {
   background: #3B82F6;
   color: white;
-  border: none;
+  border: 2px solid #2563EB;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
@@ -1978,7 +1979,7 @@
 .welcome-invite-cancel-btn {
   background: #F8F9FA;
   color: #6B7280;
-  border: 1px solid #D1D5DB;
+  border: 2px solid #b7c2d2;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 

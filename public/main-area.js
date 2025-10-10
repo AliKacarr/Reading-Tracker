@@ -240,6 +240,10 @@ async function saveUserName(userId) {   //Kullanıcı adını güncelleme fonksi
         loadReadingStats();
         renderLongestSeries();
         if (window.updateMonthlyCalendarUsers) window.updateMonthlyCalendarUsers();
+        
+        // Update user select dropdown for invites (only the dropdown, not the entire list)
+        updateUserSelectDropdownForSingleUser(userId, newName);
+        
         saveButton.disabled = false;
         showSuccessMessage('Kullanıcı adı başarıyla güncellendi!');
 
@@ -760,6 +764,20 @@ function updateUserSelectDropdown(users) {
         option.value = user._id;
         option.textContent = user.name;
         userSelect.appendChild(option);
+    });
+}
+
+// Tek bir kullanıcının adını dropdown'da güncelle (performans için)
+function updateUserSelectDropdownForSingleUser(userId, newName) {
+    const userSelect = document.getElementById('userSelectForInvite');
+    if (!userSelect) return;
+    
+    // İlgili kullanıcının option'ını bul ve güncelle
+    const options = userSelect.querySelectorAll('option');
+    options.forEach(option => {
+        if (option.value === userId) {
+            option.textContent = newName;
+        }
     });
 }
 
