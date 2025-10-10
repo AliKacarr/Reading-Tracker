@@ -1727,7 +1727,7 @@
   text-shadow: none;
   padding-bottom: 0 !important;
   border-bottom: none !important;
-  width: auto !important;
+  max-width: 90% !important;
 }
 
 .welcome-user-name {
@@ -1810,7 +1810,7 @@
 }
 
 .welcome-form-group {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .welcome-form-group label {
@@ -1830,20 +1830,20 @@
 
 .welcome-input-icon {
   position: absolute;
-  left: 12px;
+  left: 16px;
   color: #666;
-  font-size: 14px;
+  font-size: 16px;
   z-index: 2;
 }
 
 .welcome-form-input {
   width: 100%;
-  padding: 10px 15px 10px 40px;
+  padding: 12px 18px 12px 48px;
   border: 2px solid #cbcbcb;
-  border-radius: 20px;
+  border-radius: 16px;
   background: #fff;
   color: #333;
-  font-size: 14px;
+  font-size: 15px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -1861,13 +1861,13 @@
 
 .welcome-password-toggle {
   position: absolute;
-  right: 15px;
+  right: 18px;
   background: none;
   border: none;
   color: #666;
   cursor: pointer;
   font-size: 16px;
-  padding: 5px;
+  padding: 8px;
   border-radius: 50%;
   transition: all 0.3s ease;
   z-index: 2;
@@ -1963,6 +1963,7 @@
   color: white;
   border: 2px solid #2563EB;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  flex: 3;
 }
 
 .welcome-invite-join-btn:hover {
@@ -1981,6 +1982,7 @@
   color: #6B7280;
   border: 2px solid #b7c2d2;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex: 2;
 }
 
 .welcome-invite-cancel-btn:hover {
