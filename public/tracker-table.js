@@ -344,12 +344,21 @@ async function toggleStatus(userId, date) {
     const cell = event.target;
     const current = cell.innerText;
     let status;
-    if (current === '✔') status = 'okumadım';
-    else if (current === '✖') status = '';
-    else status = 'okudum';
+    let newSymbol;
     
-    // Hücre ikonunu ve arkaplanını anında güncelle
-    const newSymbol = status === 'okudum' ? '✔' : (status === 'okumadım' ? '✖' : '➖');
+    // Tüm günler için aynı sıra: ➖ → ✖ → ✔ → ➖
+    if (current === '➖') {
+        status = 'okumadım';
+        newSymbol = '✖';
+    } else if (current === '✖') {
+        status = 'okudum';
+        newSymbol = '✔';
+    } else if (current === '✔') {
+        status = '';
+        newSymbol = '➖';
+    }
+    
+    // Hücre ikonunu güncelle
     cell.innerText = newSymbol;
 
     // Sınıfı güncelle (okumadım serisi bilgisi tablo genelinden hesaplandığı için, burada sadece temel renkleri uygula)
@@ -364,18 +373,12 @@ async function toggleStatus(userId, date) {
     const currentCount = userReadingCounts.get(userId) || 0;
     let newCount = currentCount;
     
-    if (current === '✔' && status === 'okumadım') {
-        // Okudum -> Okumadım: -1
-        newCount = Math.max(0, currentCount - 1);
+    if (current === '➖' && status === 'okumadım') {
+        // Boş -> Okumadım: değişiklik yok
+        newCount = currentCount;
     } else if (current === '✖' && status === 'okudum') {
         // Okumadım -> Okudum: +1
         newCount = currentCount + 1;
-    } else if (current === '➖' && status === 'okudum') {
-        // Boş -> Okudum: +1
-        newCount = currentCount + 1;
-    } else if (current === '✖' && status === '') {
-        // Okumadım -> Boş: değişiklik yok
-        newCount = currentCount;
     } else if (current === '✔' && status === '') {
         // Okudum -> Boş: -1
         newCount = Math.max(0, currentCount - 1);
