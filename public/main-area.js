@@ -1153,6 +1153,18 @@ function updateVisibilityIcon(visibility) {
     }
 }
 
+// Avatar'ları önceden yükle (sayfa yüklendiğinde)
+async function preloadMainAreaAvatars() {
+    try {
+        // Grup avatar'larını önceden yükle
+        await loadAvatarOptions();
+        // Kullanıcı avatar'larını önceden yükle
+        await loadAddUserAvatarOptions();
+    } catch (error) {
+        console.error('Main area avatar ön yükleme hatası:', error);
+    }
+}
+
 // Hazır görseller modal'ını aç/kapat
 function toggleReadyImagesModal() {
     const modal = document.getElementById('readyImagesModal');
@@ -1162,7 +1174,7 @@ function toggleReadyImagesModal() {
     } else {
         modal.classList.add('show');
         document.body.style.overflow = 'hidden'; // Scroll'u kapat
-        loadAvatarOptions(); // Modal açıldığında avatarları yükle
+        // Avatar'lar önceden yüklendiği için tekrar yüklemeye gerek yok
     }
 }
 
@@ -1193,7 +1205,7 @@ async function loadAvatarOptions() {
                 avatarItem.dataset.avatarPath = avatar.path;
                 
                 avatarItem.innerHTML = `
-                    <img src="${avatar.path}" alt="Avatar" loading="lazy">
+                    <img src="${avatar.path}" alt="Avatar">
                     <div class="check-icon">
                         <i class="fa-solid fa-check"></i>
                     </div>
@@ -1554,6 +1566,9 @@ async function deleteGroup() {
 
 // Event listener'ları ekle
 document.addEventListener('DOMContentLoaded', function() {
+    // Avatar'ları önceden yükle
+    preloadMainAreaAvatars();
+    
     // Grup ayarları butonları
     const saveGroupBtn = document.querySelector('.save-group-btn');
     const changeImageBtn = document.querySelector('.change-image-btn');
@@ -1812,9 +1827,7 @@ function toggleAddUserAvatarModal() {
     const modal = document.getElementById('addUserAvatarModal');
     if (modal) {
         modal.classList.toggle('show');
-        if (modal.classList.contains('show')) {
-            loadAddUserAvatarOptions();
-        }
+        // Avatar'lar önceden yüklendiği için tekrar yüklemeye gerek yok
     }
 }
 
@@ -1833,7 +1846,7 @@ async function loadAddUserAvatarOptions() {
             const avatarItem = document.createElement('div');
             avatarItem.className = 'avatar-item';
             avatarItem.innerHTML = `
-                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}" loading="lazy">
+                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}">
             `;
             
             avatarItem.addEventListener('click', function() {

@@ -106,6 +106,7 @@ class GroupsPage {
             this.loadGroups(true); // reset=true ile başlat
         });
         this.setupInfiniteScroll();
+        this.preloadAvatars(); // Avatar'ları önceden yükle
     }
 
     bindEvents() {
@@ -869,13 +870,25 @@ class GroupsPage {
         const modal = document.getElementById('readyImagesModal');
         modal.classList.add('show');
         document.body.style.overflow = 'hidden';
-        this.loadAvatarOptions();
+        // Avatar'lar önceden yüklendiği için tekrar yüklemeye gerek yok
     }
 
     closeReadyImagesModal() {
         const modal = document.getElementById('readyImagesModal');
         modal.classList.remove('show');
         document.body.style.overflow = 'auto';
+    }
+
+    // Avatar'ları önceden yükle (sayfa yüklendiğinde)
+    async preloadAvatars() {
+        try {
+            // Grup avatar'larını önceden yükle
+            await this.loadAvatarOptions();
+            // Kullanıcı avatar'larını önceden yükle
+            await loadJoinAvatarOptions();
+        } catch (error) {
+            console.error('Avatar ön yükleme hatası:', error);
+        }
     }
 
     // Hazır avatar seçeneklerini yükle
@@ -905,7 +918,7 @@ class GroupsPage {
                     avatarItem.dataset.avatarPath = avatar.path;
                     
                     avatarItem.innerHTML = `
-                        <img src="${avatar.path}" alt="Avatar" loading="lazy">
+                        <img src="${avatar.path}" alt="Avatar">
                         <div class="check-icon">
                             <i class="fa-solid fa-check"></i>
                         </div>
@@ -1445,9 +1458,7 @@ function toggleJoinAvatarModal() {
     const modal = document.getElementById('joinAvatarModal');
     if (modal) {
         modal.classList.toggle('show');
-        if (modal.classList.contains('show')) {
-            loadJoinAvatarOptions();
-        }
+        // Avatar'lar önceden yüklendiği için tekrar yüklemeye gerek yok
     }
 }
 
@@ -1466,7 +1477,7 @@ async function loadJoinAvatarOptions() {
             const avatarItem = document.createElement('div');
             avatarItem.className = 'avatar-item';
             avatarItem.innerHTML = `
-                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}" loading="lazy">
+                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}">
             `;
             
             avatarItem.addEventListener('click', function() {

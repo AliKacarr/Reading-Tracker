@@ -1262,6 +1262,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const adminIndicator = document.querySelector('.admin-indicator');
     const mainArea = document.querySelector('.main-area');
+    
+    // Avatar'ları önceden yükle
+    preloadAdminAvatars();
 
     function checkAdminAuth() {
         if (LocalStorageManager.isUserLoggedIn()) {
@@ -1367,9 +1370,7 @@ function toggleUserAvatarModal() {
     const modal = document.getElementById('userAvatarModal');
     if (modal) {
         modal.classList.toggle('show');
-        if (modal.classList.contains('show')) {
-            loadUserAvatarOptions();
-        }
+        // Avatar'lar önceden yüklendiği için tekrar yüklemeye gerek yok
     }
 }
 
@@ -1388,7 +1389,7 @@ async function loadUserAvatarOptions() {
             const avatarItem = document.createElement('div');
             avatarItem.className = 'avatar-item';
             avatarItem.innerHTML = `
-                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}" loading="lazy">
+                <img src="/userAvatars/${avatar}" alt="Avatar ${index + 1}">
             `;
             
             avatarItem.addEventListener('click', function() {
@@ -1416,6 +1417,18 @@ async function loadUserAvatarOptions() {
     }
 }
 
+// Avatar'ları önceden yükle (sayfa yüklendiğinde)
+async function preloadAdminAvatars() {
+    try {
+        // Hoşgeldiniz panelindeki user avatar'larını önceden yükle
+        await loadUserAvatarOptions();
+        // Groups auth join panelindeki user avatar'larını önceden yükle
+        await loadGroupsAuthJoinAvatarOptions();
+    } catch (error) {
+        console.error('Admin avatar ön yükleme hatası:', error);
+    }
+}
+
 // Groups Auth Join Avatar Modal Functions
 let selectedGroupsAuthJoinAvatarPath = null; // Groups auth join modal için seçilen avatar yolu
 
@@ -1423,9 +1436,7 @@ function toggleGroupsAuthJoinAvatarModal() {
     const modal = document.getElementById('groupsAuthJoinAvatarModal');
     if (modal) {
         modal.classList.toggle('show');
-        if (modal.classList.contains('show')) {
-            loadGroupsAuthJoinAvatarOptions();
-        }
+        // Avatar'lar önceden yüklendiği için tekrar yüklemeye gerek yok
     }
 }
 
@@ -1446,7 +1457,7 @@ async function loadGroupsAuthJoinAvatarOptions() {
             const avatarItem = document.createElement('div');
             avatarItem.className = 'avatar-item';
             avatarItem.innerHTML = `
-                <img src="/userAvatars/${avatar}" alt="${avatar}" loading="lazy">
+                <img src="/userAvatars/${avatar}" alt="${avatar}">
             `;
 
             avatarItem.addEventListener('click', function() {
