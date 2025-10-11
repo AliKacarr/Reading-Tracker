@@ -276,6 +276,32 @@ app.get('/api/config', (req, res) => {
   });
 });
 
+// Articles API endpoint
+app.get('/api/articles', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    const articlesCollection = db.collection('articles');
+    
+    // Tüm makaleleri getir
+    const articles = await articlesCollection.find({}).toArray();
+    
+    // Kategorileri çıkar
+    const categories = [...new Set(articles.map(article => article.category))];
+    
+    res.json({
+      success: true,
+      articles: articles,
+      categories: categories
+    });
+  } catch (error) {
+    console.error('Makaleler yüklenirken hata:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Makaleler yüklenemedi'
+    });
+  }
+});
+
 // Dropbox upload fonksiyonları
 async function uploadToDropbox(fileBuffer, fileName, folder) {
   try {
