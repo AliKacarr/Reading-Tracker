@@ -1252,7 +1252,7 @@
     flex: 1;
     background: #f3f4f6;
     color: #6b7280;
-    border: 2px solid #d5dfeb;
+    border: 2px solid #bbc6d3;
     padding: 15px 25px;
     border-radius: 12px;
     font-size: 1rem;
@@ -1417,12 +1417,12 @@
 .groups-auth-join-success-message {
     padding: 20px;
     background: #f0fdf4;
-    border: 1px solid #bbf7d0;
+    border: 1px solid #b2c9ba;
     border-radius: 12px;
 }
 
 .groups-auth-join-success-message p {
-    color: #166534;
+    color: #10823b;
     font-size: 1.1rem;
     font-weight: 500;
     margin: 0;
@@ -1438,7 +1438,7 @@
 .groups-auth-join-success-cancel-btn {
     background: #f3f4f6;
     color: #6b7280;
-    border: 2px solid #e5e7eb;
+    border: 2px solid #c4c7cd;
     padding: 12px 24px;
     border-radius: 12px;
     font-size: 1rem;
@@ -1455,7 +1455,6 @@
 .groups-auth-join-success-cancel-btn:hover {
     background: #e5e7eb;
     color: #374151;
-    border-color: #d1d5db;
     transform: translateY(-2px);
 }
 
