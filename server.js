@@ -3117,7 +3117,7 @@ function scheduleDailyNotifications() {
   }
   
   // 00:00 - Okumadım dokümanları oluştur
-  const jobMidnight = schedule.scheduleJob({ rule: '48 14 * * *', tz: 'Europe/Istanbul' }, createDailyOkumadimDocuments);
+  const jobMidnight = schedule.scheduleJob({ rule: '0 0 * * *', tz: 'Europe/Istanbul' }, createDailyOkumadimDocuments);
   
   // 09:00
   const jobMorning = schedule.scheduleJob({ rule: '0 9 * * *', tz: 'Europe/Istanbul' }, async () => {
